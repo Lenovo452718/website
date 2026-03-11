@@ -505,6 +505,30 @@ function initScrollReveal() {
    INIT — DOM READY
    ============================================================ */
 /* ============================================================
+   NEW GALLERY THUMBNAILS — click to switch main image
+   ============================================================ */
+function initNewGallery() {
+  const mainImg = document.getElementById('mainProductImg');
+  const thumbItems = document.querySelectorAll('.thumb-item');
+  if (!mainImg || !thumbItems.length) return;
+
+  thumbItems.forEach(thumb => {
+    thumb.addEventListener('click', () => {
+      const src = thumb.dataset.src;
+      // Fade out
+      mainImg.style.opacity = '0';
+      setTimeout(() => {
+        mainImg.src = src;
+        mainImg.style.opacity = '1';
+      }, 200);
+      // Update active state
+      thumbItems.forEach(t => t.classList.remove('active'));
+      thumb.classList.add('active');
+    });
+  });
+}
+
+/* ============================================================
    PRODUCT VIDEO — reveal images after video ends
    ============================================================ */
 function initProductVideo() {
@@ -548,4 +572,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initScrollReveal();
   initProductVideo();
+  initNewGallery();
 });
