@@ -1826,6 +1826,55 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .newsletter-form { flex-direction: column; }
 }
 
+/* ============================================================
+   PRODUCT VIDEO GALLERY
+   ============================================================ */
+.gallery-video-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3/4;
+  background: #000;
+  overflow: hidden;
+}
+.gallery-video-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.video-skip-btn {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.4);
+  padding: 8px 18px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  backdrop-filter: blur(6px);
+  transition: background var(--transition);
+  border-radius: 0;
+}
+.video-skip-btn:hover { background: rgba(255,255,255,0.3); }
+
+.gallery-images-wrap {
+  opacity: 0;
+  transform: translateY(40px);
+  display: none;
+}
+.gallery-images-wrap.reveal-images {
+  display: block;
+  animation: galleryReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes galleryReveal {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 /* WhatsApp Float */
 .whatsapp-float {
   position: fixed;

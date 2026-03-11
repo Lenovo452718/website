@@ -504,6 +504,30 @@ function initScrollReveal() {
 /* ============================================================
    INIT — DOM READY
    ============================================================ */
+/* ============================================================
+   PRODUCT VIDEO — reveal images after video ends
+   ============================================================ */
+function initProductVideo() {
+  const video      = document.getElementById('productVideo');
+  const videoWrap  = document.getElementById('galleryVideoWrap');
+  const imagesWrap = document.getElementById('galleryImagesWrap');
+  const skipBtn    = document.getElementById('videoSkipBtn');
+
+  if (!video || !videoWrap || !imagesWrap) return;
+
+  function revealImages() {
+    videoWrap.style.transition = 'opacity 0.5s ease';
+    videoWrap.style.opacity = '0';
+    setTimeout(() => {
+      videoWrap.style.display = 'none';
+      imagesWrap.classList.add('reveal-images');
+    }, 500);
+  }
+
+  video.addEventListener('ended', revealImages);
+  if (skipBtn) skipBtn.addEventListener('click', revealImages);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   injectCartDrawer();
   updateCartBadge();
@@ -523,4 +547,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initNewsletter();
   initContactForm();
   initScrollReveal();
+  initProductVideo();
 });
