@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checkout — StreetStore</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== MINIMAL HEADER ===== -->
+<header class="checkout-header">
+  <a href="index.html" class="checkout-logo">STREETSTORE</a>
+</header>
+
+<!-- ===== PROGRESS BAR ===== -->
+<div class="checkout-progress">
+  <div class="progress-step active" id="step1-indicator">
+    <div class="step-num">1</div>
+    <span class="step-label">Information</span>
+  </div>
+  <div class="progress-step" id="step2-indicator">
+    <div class="step-num">2</div>
+    <span class="step-label">Shipping</span>
+  </div>
+  <div class="progress-step" id="step3-indicator">
+    <div class="step-num">3</div>
+    <span class="step-label">Payment</span>
+  </div>
+</div>
+
+<!-- ===== CHECKOUT BODY ===== -->
+<div class="checkout-body">
+
+  <!-- FORM COLUMN -->
+  <div class="checkout-form-col">
+
+    <!-- STEP 1: INFORMATION -->
+    <div class="checkout-step active" id="step1">
+      <h2>Contact Information</h2>
+      <form class="checkout-form">
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="sarah@example.com" id="info-email" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="Sarah" id="info-first" />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="M." id="info-last" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" placeholder="123 Street Name" id="info-address" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" placeholder="Algiers" id="info-city" />
+          </div>
+          <div class="form-group">
+            <label>Postal Code</label>
+            <input type="text" placeholder="16000" id="info-postal" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Country</label>
+          <select id="info-country">
+            <option>Algeria</option>
+            <option>France</option>
+            <option>Morocco</option>
+            <option>Tunisia</option>
+            <option>United Kingdom</option>
+            <option>United States</option>
+          </select>
+        </div>
+      </form>
+      <div class="checkout-nav-btns">
+        <a href="shop.html" style="font-size:13px; color:var(--gray); text-decoration:underline;">← Return to cart</a>
+        <button class="btn-dark next-step">Continue to Shipping</button>
+      </div>
+    </div>
+
+    <!-- STEP 2: SHIPPING -->
+    <div class="checkout-step" id="step2">
+      <h2>Shipping Method</h2>
+      <div class="info-summary" id="infoSummary">
+        sarah@example.com — 123 Street Name, Algiers, Algeria
+      </div>
+      <div class="shipping-options">
+        <label class="shipping-option selected">
+          <input type="radio" name="shipping" value="free" checked />
+          <div class="shipping-option-info">
+            <p class="shipping-option-name">Standard Shipping</p>
+            <p class="shipping-option-time">5–7 business days</p>
+          </div>
+          <span class="shipping-option-price">Free</span>
+        </label>
+        <label class="shipping-option">
+          <input type="radio" name="shipping" value="express" />
+          <div class="shipping-option-info">
+            <p class="shipping-option-name">Express Shipping</p>
+            <p class="shipping-option-time">2–3 business days</p>
+          </div>
+          <span class="shipping-option-price">$9.99</span>
+        </label>
+      </div>
+      <div class="checkout-nav-btns">
+        <button class="checkout-back prev-step">← Back</button>
+        <button class="btn-dark next-step">Continue to Payment</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: PAYMENT -->
+    <div class="checkout-step" id="step3">
+      <h2>Payment</h2>
+      <div class="payment-logos">
+        <span class="payment-logo">VISA</span>
+        <span class="payment-logo">MC</span>
+        <span class="payment-logo">AMEX</span>
+        <span class="payment-logo">PayPal</span>
+      </div>
+      <form class="checkout-form">
+        <div class="form-group">
+          <label>Card Number</label>
+          <input type="text" placeholder="4242 4242 4242 4242" maxlength="19" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Expiry Date</label>
+            <input type="text" placeholder="MM / YY" maxlength="7" />
+          </div>
+          <div class="form-group">
+            <label>CVV</label>
+            <input type="text" placeholder="123" maxlength="4" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Name on Card</label>
+          <input type="text" placeholder="Sarah M." />
+        </div>
+      </form>
+      <div class="checkout-nav-btns">
+        <button class="checkout-back prev-step">← Back</button>
+        <a href="thankyou.html" class="btn-dark">Complete Order →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ORDER SUMMARY COLUMN -->
+  <div class="checkout-summary-col">
+    <h3>Order Summary</h3>
+
+    <div class="summary-items">
+      <div class="summary-item">
+        <div class="summary-item-img" style="background: linear-gradient(160deg, #1a1a1a 0%, #2d2d2d 100%);">
+          <span class="summary-item-badge">1</span>
+        </div>
+        <div class="summary-item-info">
+          <p class="summary-item-name">Noir Skinny</p>
+          <p class="summary-item-variant">Size: S / Dark Wash</p>
+        </div>
+        <span class="summary-item-price">$79.00</span>
+      </div>
+      <div class="summary-item">
+        <div class="summary-item-img" style="background: linear-gradient(160deg, #4a7fa5 0%, #6dafd6 100%);">
+          <span class="summary-item-badge">1</span>
+        </div>
+        <div class="summary-item-info">
+          <p class="summary-item-name">Sky Wide Leg</p>
+          <p class="summary-item-variant">Size: M / Sky Blue</p>
+        </div>
+        <span class="summary-item-price">$89.00</span>
+      </div>
+    </div>
+
+    <div class="summary-totals">
+      <div class="summary-row"><span>Subtotal</span><span>$168.00</span></div>
+      <div class="summary-row"><span>Shipping</span><span>Free</span></div>
+      <div class="summary-row total"><span>Total</span><span>$168.00</span></div>
+    </div>
+
+    <div style="margin-top: 8px;">
+      <p style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;">Promo Code</p>
+      <div class="promo-form">
+        <input type="text" placeholder="Enter code" />
+        <button type="button">Apply</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop All Jeans — StreetStore</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="nav-inner">
+    <nav class="nav-left">
+      <a href="shop.html" style="border-bottom: 1px solid currentColor; padding-bottom: 2px;">Shop</a>
+      <a href="lookbook.html">Lookbook</a>
+      <a href="about.html">About</a>
+    </nav>
+    <a href="index.html" class="nav-logo">STREETSTORE</a>
+    <div class="nav-right">
+      <a href="contact.html">Contact</a>
+      <button class="nav-icon-btn" aria-label="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="nav-icon-btn cart-btn" aria-label="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge">0</span>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="shop.html">Shop</a>
+    <a href="lookbook.html">Lookbook</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="account.html">Account</a>
+  </nav>
+</header>
+
+<!-- ===== PAGE TITLE BAR ===== -->
+<div class="page-title-bar">
+  <div class="page-title-bar-inner">
+    <h1>All Jeans</h1>
+    <span>9 products</span>
+  </div>
+</div>
+
+<!-- ===== SHOP LAYOUT ===== -->
+<div class="shop-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="shop-sidebar">
+    <div class="sidebar-header">
+      <h3>Filters</h3>
+      <button class="clear-all">Clear All</button>
+    </div>
+
+    <!-- SIZE -->
+    <div class="filter-section">
+      <h4>Size</h4>
+      <div class="filter-checkboxes">
+        <label><input type="checkbox" class="filter-size" value="XS" /> XS</label>
+        <label><input type="checkbox" class="filter-size" value="S" /> S</label>
+        <label><input type="checkbox" class="filter-size" value="M" /> M</label>
+        <label><input type="checkbox" class="filter-size" value="L" /> L</label>
+        <label><input type="checkbox" class="filter-size" value="XL" /> XL</label>
+        <label><input type="checkbox" class="filter-size" value="XXL" /> XXL</label>
+      </div>
+    </div>
+
+    <!-- COLOR -->
+    <div class="filter-section">
+      <h4>Color</h4>
+      <div class="color-swatches">
+        <div class="color-swatch" style="background:#1a1a1a;" title="Black" data-color="black">
+          <input type="checkbox" class="filter-color" value="black" style="display:none;" />
+        </div>
+        <div class="color-swatch" style="background:#1a2f6b;" title="Navy" data-color="navy">
+          <input type="checkbox" class="filter-color" value="navy" style="display:none;" />
+        </div>
+        <div class="color-swatch" style="background:#5b8db8;" title="Light Blue" data-color="blue">
+          <input type="checkbox" class="filter-color" value="blue" style="display:none;" />
+        </div>
+        <div class="color-swatch" style="background:#e8e8e8; border: 1px solid #ccc;" title="White" data-color="white">
+          <input type="checkbox" class="filter-color" value="white" style="display:none;" />
+        </div>
+        <div class="color-swatch" style="background:#c4956a;" title="Caramel" data-color="caramel">
+          <input type="checkbox" class="filter-color" value="caramel" style="display:none;" />
+        </div>
+        <div class="color-swatch" style="background:#8a8a8a;" title="Grey" data-color="grey">
+          <input type="checkbox" class="filter-color" value="grey" style="display:none;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- FIT -->
+    <div class="filter-section">
+      <h4>Fit</h4>
+      <div class="filter-checkboxes">
+        <label><input type="radio" name="fit" class="filter-fit" value="all" checked /> All</label>
+        <label><input type="radio" name="fit" class="filter-fit" value="skinny" /> Skinny</label>
+        <label><input type="radio" name="fit" class="filter-fit" value="wide" /> Wide Leg</label>
+        <label><input type="radio" name="fit" class="filter-fit" value="straight" /> Straight</label>
+        <label><input type="radio" name="fit" class="filter-fit" value="mom" /> Mom</label>
+      </div>
+    </div>
+
+    <!-- PRICE -->
+    <div class="filter-section">
+      <h4>Price</h4>
+      <input type="range" id="priceRange" class="price-range" min="0" max="200" value="200" step="5" />
+      <div class="price-labels"><span>$0</span><span id="priceMax">$200</span></div>
+    </div>
+
+    <!-- SORT -->
+    <div class="filter-section">
+      <h4>Sort By</h4>
+      <select class="sort-select" id="sortSelect">
+        <option value="featured">Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="newest">Newest</option>
+      </select>
+    </div>
+  </aside>
+
+  <!-- PRODUCT GRID -->
+  <main>
+    <div class="product-grid-3">
+
+      <!-- 1 -->
+      <div class="product-card" data-price="79" data-fit="skinny" data-color="black" data-size="XS,S,M,L,XL">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #1a1a1a 0%, #2d2d2d 100%);"></div>
+            <span class="product-badge">Best Seller</span>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Noir Skinny" data-price="79">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Noir Skinny</a></p>
+          <p class="product-card-fit">Skinny Fit</p>
+          <p class="product-card-price">$79.00</p>
+        </div>
+      </div>
+
+      <!-- 2 -->
+      <div class="product-card" data-price="89" data-fit="wide" data-color="blue" data-size="XS,S,M,L,XL,XXL">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #4a7fa5 0%, #6dafd6 100%);"></div>
+            <span class="product-badge sale">Sale</span>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Sky Wide Leg" data-price="89">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Sky Wide Leg</a></p>
+          <p class="product-card-fit">Wide Leg Fit</p>
+          <p class="product-card-price"><span class="original">$109.00</span>$89.00</p>
+        </div>
+      </div>
+
+      <!-- 3 -->
+      <div class="product-card" data-price="85" data-fit="straight" data-color="grey" data-size="S,M,L,XL">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #6b6b6b 0%, #8a8a8a 100%);"></div>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Urban Straight" data-price="85">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Urban Straight</a></p>
+          <p class="product-card-fit">Straight Fit</p>
+          <p class="product-card-price">$85.00</p>
+        </div>
+      </div>
+
+      <!-- 4 -->
+      <div class="product-card" data-price="82" data-fit="skinny" data-color="caramel" data-size="XS,S,M,L">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #c4956a 0%, #d9b08c 100%);"></div>
+            <span class="product-badge trending">Trending</span>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Caramel Skinny" data-price="82">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Caramel Skinny</a></p>
+          <p class="product-card-fit">Skinny Fit</p>
+          <p class="product-card-price">$82.00</p>
+        </div>
+      </div>
+
+      <!-- 5 -->
+      <div class="product-card" data-price="95" data-fit="wide" data-color="black" data-size="S,M,L,XL,XXL">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #0d0d0d 0%, #222 100%);"></div>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Midnight Wide" data-price="95">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Midnight Wide</a></p>
+          <p class="product-card-fit">Wide Leg Fit</p>
+          <p class="product-card-price">$95.00</p>
+        </div>
+      </div>
+
+      <!-- 6 -->
+      <div class="product-card" data-price="72" data-fit="straight" data-color="white" data-size="XS,S,M,L">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #d6cbbf 0%, #e8e0d8 100%);"></div>
+            <span class="product-badge sale">Sale</span>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Sand Straight" data-price="72">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Sand Straight</a></p>
+          <p class="product-card-fit">Straight Fit</p>
+          <p class="product-card-price"><span class="original">$89.00</span>$72.00</p>
+        </div>
+      </div>
+
+      <!-- 7 -->
+      <div class="product-card" data-price="88" data-fit="mom" data-color="blue" data-new="true" data-size="XS,S,M,L,XL">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #5a9fc4 0%, #7aafcc 100%);"></div>
+            <span class="product-badge new-badge">New</span>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Classic Mom" data-price="88">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Classic Mom</a></p>
+          <p class="product-card-fit">Mom Fit</p>
+          <p class="product-card-price">$88.00</p>
+        </div>
+      </div>
+
+      <!-- 8 -->
+      <div class="product-card" data-price="91" data-fit="straight" data-color="navy" data-size="S,M,L,XL">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #1a2f6b 0%, #2a4a9a 100%);"></div>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="Indigo Straight" data-price="91">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">Indigo Straight</a></p>
+          <p class="product-card-fit">Straight Fit</p>
+          <p class="product-card-price">$91.00</p>
+        </div>
+      </div>
+
+      <!-- 9 -->
+      <div class="product-card" data-price="76" data-fit="skinny" data-color="white" data-new="true" data-size="XS,S,M,L,XL">
+        <a href="product.html">
+          <div class="product-card-img">
+            <div class="product-card-img-inner" style="background: linear-gradient(160deg, #e8e8e8 0%, #f5f5f5 100%);"></div>
+            <span class="product-badge new-badge">New</span>
+            <button class="wishlist-btn">♡</button>
+            <button class="product-card-quick" data-name="White Skinny" data-price="76">Quick Add</button>
+          </div>
+        </a>
+        <div class="product-card-info">
+          <p class="product-card-name"><a href="product.html">White Skinny</a></p>
+          <p class="product-card-fit">Skinny Fit</p>
+          <p class="product-card-price">$76.00</p>
+        </div>
+      </div>
+
+    </div><!-- end product grid -->
+  </main>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="footer-logo">STREETSTORE</span>
+      <p>Premium women's denim crafted for the streets and everywhere in between.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="shop.html">All Jeans</a></li>
+        <li><a href="shop.html">New Arrivals</a></li>
+        <li><a href="shop.html">Sale</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="#">Shipping & Returns</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Pinterest</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 StreetStore. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
