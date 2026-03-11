@@ -1827,12 +1827,12 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 
 /* ============================================================
-   NEW PRODUCT GALLERY — vertical filmstrip (SSENSE / Net-a-Porter)
+   NEW PRODUCT GALLERY — premium vertical filmstrip
    ============================================================ */
 .gallery-new {
   display: grid;
-  grid-template-columns: 88px 1fr;
-  gap: 8px;
+  grid-template-columns: 104px 1fr;
+  gap: 12px;
   align-items: start;
 }
 
@@ -1840,32 +1840,55 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .gallery-filmstrip {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .thumb-item {
   position: relative;
-  width: 88px;
+  width: 104px;
   aspect-ratio: 3/4;
   overflow: hidden;
   cursor: pointer;
   background: #f0f0f0;
-  border: 2px solid transparent;
-  transition: border-color 0.2s ease;
+  border-left: 3px solid transparent;
+  transition: border-color 0.25s ease, transform 0.25s ease;
 }
 .thumb-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.3s ease;
-  opacity: 0.6;
+  transition: opacity 0.3s ease, transform 0.4s ease;
+  opacity: 0.5;
 }
-.thumb-item:hover img { opacity: 1; }
+.thumb-item:hover {
+  transform: translateX(3px);
+}
+.thumb-item:hover img {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
 .thumb-item.active {
-  border-color: var(--charcoal);
+  border-left-color: var(--charcoal);
 }
-.thumb-item.active img { opacity: 1; }
+.thumb-item.active img {
+  opacity: 1;
+}
+
+/* Thumb number label */
+.thumb-item::before {
+  content: attr(data-num);
+  position: absolute;
+  top: 8px; left: 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--white);
+  background: rgba(0,0,0,0.45);
+  padding: 2px 6px;
+  z-index: 2;
+  backdrop-filter: blur(4px);
+}
 
 /* Right main image */
 .gallery-main-new {
@@ -1873,14 +1896,69 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   width: 100%;
   aspect-ratio: 3/4;
   overflow: hidden;
-  background: #f5f5f5;
+  background: #f0f0f0;
+  cursor: zoom-in;
 }
 .gallery-main-new img#mainProductImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.35s ease;
+  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.16,1,0.3,1);
+}
+.gallery-main-new:hover img#mainProductImg {
+  transform: scale(1.04);
+}
+
+/* Image counter bottom-right */
+.gallery-main-new::after {
+  content: attr(data-counter);
+  position: absolute;
+  bottom: 16px; right: 16px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--white);
+  background: rgba(0,0,0,0.45);
+  padding: 4px 10px;
+  backdrop-filter: blur(6px);
+  z-index: 2;
+}
+
+/* Zoom hint top-right */
+.zoom-hint {
+  position: absolute;
+  top: 16px; right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--white);
+  background: rgba(0,0,0,0.4);
+  padding: 5px 10px;
+  backdrop-filter: blur(6px);
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.gallery-main-new:hover .zoom-hint { opacity: 1; }
+
+/* Stagger-in animation for filmstrip after video */
+.gallery-filmstrip .thumb-item {
+  opacity: 0;
+  transform: translateY(16px);
+}
+.gallery-images-wrap.reveal-images .thumb-item:nth-child(1) { animation: thumbIn 0.5s ease 0.1s forwards; }
+.gallery-images-wrap.reveal-images .thumb-item:nth-child(2) { animation: thumbIn 0.5s ease 0.2s forwards; }
+.gallery-images-wrap.reveal-images .thumb-item:nth-child(3) { animation: thumbIn 0.5s ease 0.3s forwards; }
+.gallery-images-wrap.reveal-images .thumb-item:nth-child(4) { animation: thumbIn 0.5s ease 0.4s forwards; }
+
+@keyframes thumbIn {
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ============================================================

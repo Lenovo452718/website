@@ -508,19 +508,30 @@ function initScrollReveal() {
    NEW GALLERY THUMBNAILS — click to switch main image
    ============================================================ */
 function initNewGallery() {
-  const mainImg = document.getElementById('mainProductImg');
+  const mainImg    = document.getElementById('mainProductImg');
+  const mainWrap   = document.getElementById('galleryMainNew');
   const thumbItems = document.querySelectorAll('.thumb-item');
   if (!mainImg || !thumbItems.length) return;
 
-  thumbItems.forEach(thumb => {
+  const total = thumbItems.length;
+
+  thumbItems.forEach((thumb, index) => {
     thumb.addEventListener('click', () => {
       const src = thumb.dataset.src;
-      // Fade out
+      const num = thumb.dataset.num || String(index + 1).padStart(2, '0');
+
+      // Crossfade main image
       mainImg.style.opacity = '0';
       setTimeout(() => {
         mainImg.src = src;
         mainImg.style.opacity = '1';
-      }, 200);
+      }, 220);
+
+      // Update counter
+      if (mainWrap) {
+        mainWrap.setAttribute('data-counter', `${num} / ${String(total).padStart(2,'0')}`);
+      }
+
       // Update active state
       thumbItems.forEach(t => t.classList.remove('active'));
       thumb.classList.add('active');
