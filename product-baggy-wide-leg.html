@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baggy Wide Leg Denim Jeans — StreetStore</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="nav-inner">
+    <nav class="nav-left">
+      <a href="shop.html">Shop</a>
+      <a href="lookbook.html">Lookbook</a>
+      <a href="about.html">About</a>
+    </nav>
+    <a href="index.html" class="nav-logo">STREETSTORE</a>
+    <div class="nav-right">
+      <a href="contact.html">Contact</a>
+      <button class="nav-icon-btn" aria-label="Search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+      <button class="nav-icon-btn cart-btn" aria-label="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge">0</span>
+      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="shop.html">Shop</a>
+    <a href="lookbook.html">Lookbook</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="account.html">Account</a>
+  </nav>
+</header>
+
+<!-- ===== BREADCRUMB ===== -->
+<nav class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>/</span>
+  <a href="shop.html">Shop</a>
+  <span>/</span>
+  <span class="current">Baggy Wide Leg Denim Jeans</span>
+</nav>
+
+<!-- ===== PRODUCT LAYOUT ===== -->
+<div class="product-layout">
+
+  <!-- GALLERY -->
+  <div class="product-gallery">
+    <div class="gallery-main">
+      <div class="gallery-main-img" id="galleryMain" style="background: #2d3748; width:100%; height:100%;"></div>
+    </div>
+    <div class="gallery-thumbnails">
+      <div class="gallery-thumb active">
+        <div class="gallery-thumb-img" style="background: #2d3748;"></div>
+      </div>
+      <div class="gallery-thumb">
+        <div class="gallery-thumb-img" style="background: #3a4a5c;"></div>
+      </div>
+      <div class="gallery-thumb">
+        <div class="gallery-thumb-img" style="background: #1e2a38;"></div>
+      </div>
+      <div class="gallery-thumb">
+        <div class="gallery-thumb-img" style="background: #4a5568;"></div>
+      </div>
+    </div>
+    <button class="gallery-video-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      View Video
+    </button>
+  </div>
+
+  <!-- INFO PANEL -->
+  <div class="product-info">
+    <div class="product-badge-wrap">
+      <span class="product-label">Sale</span>
+    </div>
+
+    <h1 class="product-name">BAGGY WIDE LEG DENIM JEANS</h1>
+
+    <div class="product-rating">
+      <span class="stars">★★★★★</span>
+      <span class="rating-count">48 reviews</span>
+    </div>
+
+    <p class="product-price-display"><span class="original" style="font-size:16px; color:var(--gray); text-decoration:line-through; margin-right:8px;">250 MAD</span>179 MAD</p>
+
+    <hr class="product-divider" />
+
+    <p class="product-option-label">Color: <span>Slate Blue</span></p>
+    <div class="product-swatches">
+      <div class="product-swatch active" style="background:#2d3748;" title="Slate Blue"></div>
+      <div class="product-swatch" style="background:#1a1a2e;" title="Dark"></div>
+    </div>
+
+    <p class="product-option-label">Size: <span id="selectedSize">Select a size</span></p>
+    <div class="size-selector">
+      <button class="size-btn sold-out" disabled>XS</button>
+      <button class="size-btn active">S</button>
+      <button class="size-btn">M</button>
+      <button class="size-btn">L</button>
+      <button class="size-btn">XL</button>
+    </div>
+    <a href="#" class="size-guide-link">Size Guide</a>
+    <p class="fit-note">Oversized baggy fit. Size down for a relaxed look, true to size for full baggy effect.</p>
+
+    <p class="product-option-label">Quantity</p>
+    <div class="qty-selector">
+      <button class="qty-btn minus">−</button>
+      <span class="qty-display">1</span>
+      <button class="qty-btn plus">+</button>
+    </div>
+
+    <button class="add-to-cart-btn">Add to Cart</button>
+    <a href="#" class="wishlist-link">♡ Add to Wishlist</a>
+
+    <div class="trust-row">
+      <div class="trust-item">
+        <span>🚚</span>
+        <span>Free Shipping</span>
+      </div>
+      <div class="trust-item">
+        <span>↩</span>
+        <span>Easy Returns</span>
+      </div>
+      <div class="trust-item">
+        <span>🔒</span>
+        <span>Secure Payment</span>
+      </div>
+    </div>
+
+    <!-- ACCORDION -->
+    <div class="accordion">
+      <div class="accordion-item open">
+        <button class="accordion-trigger">Product Details <span class="accordion-icon">+</span></button>
+        <div class="accordion-body" style="display:block;">
+          <p>The ultimate street-style statement. Oversized baggy cut with a wide leg for maximum comfort and effortless cool. A must-have for anyone who loves that laid-back denim aesthetic.</p>
+          <p style="margin-top:8px;"><strong>Category:</strong> Baggy / Wide Leg</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-trigger">Fabric &amp; Care <span class="accordion-icon">+</span></button>
+        <div class="accordion-body">
+          <p>100% Cotton. Machine wash cold. Tumble dry low.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-trigger">Size Guide <span class="accordion-icon">+</span></button>
+        <div class="accordion-body">
+          <p>XS: Waist 24–25" / Hip 34–35"<br>S: Waist 26–27" / Hip 36–37"<br>M: Waist 28–29" / Hip 38–39"<br>L: Waist 30–31" / Hip 40–41"<br>XL: Waist 32–33" / Hip 42–43"</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-trigger">Shipping &amp; Returns <span class="accordion-icon">+</span></button>
+        <div class="accordion-body">
+          <p>Free standard shipping on orders over $80. Express shipping available at checkout. Returns accepted within 30 days of delivery.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end product layout -->
+
+<!-- ===== COMPLETE THE LOOK ===== -->
+<div class="complete-look">
+  <h2>Complete the Look</h2>
+  <div class="product-grid-3-related">
+    <div class="product-card" data-price="179">
+      <div class="product-card-img">
+        <div class="product-card-img-inner" style="background: #6b4c2a;"></div>
+        <button class="wishlist-btn">♡</button>
+        <button class="product-card-quick" data-name="Brown Wide-Leg Jean" data-price="179">Quick Add</button>
+      </div>
+      <div class="product-card-info">
+        <p class="product-card-name"><a href="product-brown-wide-leg.html">Brown Wide-Leg Jean</a></p>
+        <p class="product-card-fit">Wide Leg</p>
+        <p class="product-card-price"><span class="original">299 MAD</span>179 MAD</p>
+      </div>
+    </div>
+    <div class="product-card" data-price="179">
+      <div class="product-card-img">
+        <div class="product-card-img-inner" style="background: #2a3f65;"></div>
+        <button class="wishlist-btn">♡</button>
+        <button class="product-card-quick" data-name="Patte d'éléphant Jean" data-price="179">Quick Add</button>
+      </div>
+      <div class="product-card-info">
+        <p class="product-card-name"><a href="product-patte-elephant.html">Patte d'éléphant Jean</a></p>
+        <p class="product-card-fit">Wide Flare Leg</p>
+        <p class="product-card-price"><span class="original">249 MAD</span>179 MAD</p>
+      </div>
+    </div>
+    <div class="product-card" data-price="179">
+      <div class="product-card-img">
+        <div class="product-card-img-inner" style="background: #1a2744;"></div>
+        <button class="wishlist-btn">♡</button>
+        <button class="product-card-quick" data-name="High-Rise Dark Blue Jeans" data-price="179">Quick Add</button>
+      </div>
+      <div class="product-card-info">
+        <p class="product-card-name"><a href="product-high-rise-dark-blue.html">High-Rise Dark Blue Jeans</a></p>
+        <p class="product-card-fit">High Waist</p>
+        <p class="product-card-price"><span class="original">249 MAD</span>179 MAD</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== REVIEWS ===== -->
+<section class="reviews-section">
+  <div class="reviews-inner">
+    <div class="reviews-header">
+      <h2>Customer Reviews</h2>
+      <div class="reviews-avg">
+        <span class="big-rating">4.9</span>
+        <div>
+          <div class="stars">★★★★★</div>
+          <span style="font-size:13px; color:var(--gray);">Based on 48 reviews</span>
+        </div>
+      </div>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">"These are the best jeans I've ever owned. The fit is incredible — hugs in all the right places without feeling tight. I've already ordered a second pair."</p>
+        <p class="review-author">Emma R.</p>
+        <p class="review-date">March 2, 2025</p>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <p class="review-quote">"The baggy fit is exactly what I was looking for. Super comfortable and the style is so on-trend. Great quality for the price!"</p>
+        <p class="review-author">Layla M.</p>
+        <p class="review-date">February 18, 2025</p>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★☆</div>
+        <p class="review-quote">"Absolutely love the cut and the colour. Delivery was fast and packaging was beautiful. Sizing runs true — exactly what I needed."</p>
+        <p class="review-author">Sofia K.</p>
+        <p class="review-date">January 30, 2025</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="footer-logo">STREETSTORE</span>
+      <p>Premium women's denim crafted for the streets and everywhere in between.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="shop.html">All Jeans</a></li>
+        <li><a href="shop.html">New Arrivals</a></li>
+        <li><a href="shop.html">Sale</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="#">Shipping &amp; Returns</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Pinterest</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>&copy; 2025 StreetStore. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/212000000000" class="whatsapp-float" target="_blank" title="Chat on WhatsApp">💬</a>
+<script src="script.js"></script>
+</body>
+</html>
