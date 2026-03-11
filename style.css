@@ -1827,10 +1827,11 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 
 /* ============================================================
-   NEW PRODUCT GALLERY — main image + bottom thumbnails
+   NEW PRODUCT GALLERY — editorial style (Zara / SSENSE)
    ============================================================ */
-.gallery-new { position: relative; }
+.gallery-new { display: flex; flex-direction: column; gap: 0; }
 
+/* Main image */
 .gallery-main-new {
   position: relative;
   width: 100%;
@@ -1838,98 +1839,76 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   overflow: hidden;
   background: #0a0a0a;
 }
-.gallery-main-new > img#mainProductImg {
+.gallery-main-new img#mainProductImg {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.35s ease;
 }
 
-/* Futuristic gradient line above thumbnails */
-.gallery-main-new::after {
-  content: '';
-  position: absolute;
-  bottom: 112px;
-  left: 0; right: 0;
-  height: 2px;
+/* Futuristic animated gradient line separator */
+.gallery-gradient-line {
+  width: 100%;
+  height: 3px;
   background: linear-gradient(90deg,
-    transparent 0%,
-    #00c6ff 20%,
+    #0f1f3d 0%,
+    #00c6ff 25%,
     #a855f7 50%,
-    #00c6ff 80%,
-    transparent 100%
+    #00c6ff 75%,
+    #0f1f3d 100%
   );
   background-size: 200% 100%;
-  opacity: 0.9;
-  z-index: 3;
   animation: gradientShift 3s linear infinite;
+  flex-shrink: 0;
 }
 @keyframes gradientShift {
   0%   { background-position: 0% 0%; }
   100% { background-position: 200% 0%; }
 }
 
-/* Thumbnails row overlaid at bottom of main image */
-.gallery-thumbs-row {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  z-index: 4;
-  padding: 16px 12px 14px;
-  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+/* Thumbnails strip — 4 equal columns, sharp, no radius */
+.gallery-thumbs-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  background: #111;
 }
-.thumb-track {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.thumb-track::-webkit-scrollbar { display: none; }
 
 .thumb-item {
-  flex-shrink: 0;
-  width: 56px;
-  height: 72px;
-  border-radius: 12px;
+  position: relative;
+  aspect-ratio: 3/4;
   overflow: hidden;
   cursor: pointer;
-  border: 2px solid rgba(255,255,255,0.15);
-  transition: transform 0.25s ease, border-color 0.25s ease;
   background: #111;
-  position: relative;
-  z-index: 0;
+  border-radius: 0;
 }
 .thumb-item img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.4s ease, opacity 0.3s ease;
+  opacity: 0.65;
 }
-.thumb-item:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.5); }
+.thumb-item:hover img { opacity: 1; transform: scale(1.05); }
+.thumb-item.active img { opacity: 1; }
 
-/* Active thumb: futuristic glowing gradient border */
-.thumb-item.active {
-  border: 2px solid transparent;
-  border-radius: 12px;
-  transform: translateY(-4px) scale(1.05);
-}
-.thumb-item.active::before {
+/* Active indicator: animated gradient underline */
+.thumb-item::after {
   content: '';
   position: absolute;
-  inset: -2px;
-  border-radius: 13px;
-  background: linear-gradient(135deg, #00c6ff, #a855f7, #ff6b6b, #00c6ff);
-  background-size: 300% 300%;
-  animation: borderGlow 3s ease infinite;
-  z-index: -1;
+  bottom: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00c6ff, #a855f7, #ff6b6b);
+  background-size: 200% 100%;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.thumb-item.active img { border-radius: 10px; }
-
-@keyframes borderGlow {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.thumb-item.active::after {
+  transform: scaleX(1);
+  animation: gradientShift 3s linear infinite;
 }
 
 /* ============================================================
