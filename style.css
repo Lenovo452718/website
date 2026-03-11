@@ -9,8 +9,8 @@
   --gold: #c9a96e;
   --gold-light: #e8d5b0;
   --blue-light: #b8d4e8;
-  --font-main: 'Montserrat', sans-serif;
-  --font-accent: 'Playfair Display', serif;
+  --font-main: 'DM Sans', sans-serif;
+  --font-accent: 'Cormorant Garamond', serif;
   --radius: 12px;
   --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
