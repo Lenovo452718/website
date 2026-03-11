@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StreetStore — Women's Jeans</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <a href="#" class="logo">StreetStore</a>
+      <ul class="nav-links">
+        <li><a href="#collection">Collection</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#lookbook">Lookbook</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <div class="nav-actions">
+        <a href="#" class="nav-icon" title="Search">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </a>
+        <a href="#" class="nav-icon" title="Cart">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+          <span class="cart-count">0</span>
+        </a>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="#collection">Collection</a>
+      <a href="#about">About</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-overlay"></div>
+      <div class="hero-shapes">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+      </div>
+    </div>
+    <div class="hero-content">
+      <p class="hero-tag">New Collection 2025</p>
+      <h1 class="hero-title">Wear the<br /><em>Street.</em></h1>
+      <p class="hero-sub">Premium women's jeans crafted for bold, confident style — from day to night.</p>
+      <div class="hero-cta">
+        <a href="#collection" class="btn btn-primary">Shop Now</a>
+        <a href="#lookbook" class="btn btn-outline">View Lookbook</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- STRIP -->
+  <div class="strip">
+    <div class="strip-inner">
+      <span>Free Shipping on orders over $80</span>
+      <span>•</span>
+      <span>New Drops Every Week</span>
+      <span>•</span>
+      <span>Easy 30-Day Returns</span>
+      <span>•</span>
+      <span>Sustainable Denim</span>
+      <span>•</span>
+      <span>Free Shipping on orders over $80</span>
+      <span>•</span>
+      <span>New Drops Every Week</span>
+      <span>•</span>
+      <span>Easy 30-Day Returns</span>
+      <span>•</span>
+      <span>Sustainable Denim</span>
+    </div>
+  </div>
+
+  <!-- CATEGORIES -->
+  <section class="categories">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Shop by Style</p>
+        <h2>Find Your Fit</h2>
+      </div>
+      <div class="cat-grid">
+        <div class="cat-card">
+          <div class="cat-img cat-img-1"></div>
+          <div class="cat-info">
+            <h3>Skinny</h3>
+            <a href="#collection">Explore →</a>
+          </div>
+        </div>
+        <div class="cat-card cat-large">
+          <div class="cat-img cat-img-2"></div>
+          <div class="cat-info">
+            <h3>Wide Leg</h3>
+            <a href="#collection">Explore →</a>
+          </div>
+        </div>
+        <div class="cat-card">
+          <div class="cat-img cat-img-3"></div>
+          <div class="cat-info">
+            <h3>Straight Cut</h3>
+            <a href="#collection">Explore →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COLLECTION -->
+  <section class="collection" id="collection">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Featured</p>
+        <h2>Best Sellers</h2>
+      </div>
+      <div class="filter-tabs">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <button class="filter-btn" data-filter="skinny">Skinny</button>
+        <button class="filter-btn" data-filter="wide">Wide Leg</button>
+        <button class="filter-btn" data-filter="straight">Straight</button>
+      </div>
+      <div class="products-grid">
+
+        <div class="product-card" data-category="skinny">
+          <div class="product-img">
+            <div class="product-color" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);"></div>
+            <div class="product-actions">
+              <button class="action-btn wishlist-btn" title="Wishlist">♡</button>
+              <button class="action-btn add-cart-btn" title="Add to Cart">Add to Cart</button>
+            </div>
+            <span class="product-badge">New</span>
+          </div>
+          <div class="product-info">
+            <h4>Noir Skinny</h4>
+            <p class="product-fit">Skinny Fit · Dark Wash</p>
+            <div class="product-bottom">
+              <span class="product-price">$79.00</span>
+              <div class="size-dots">
+                <span>XS</span><span>S</span><span>M</span><span>L</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="wide">
+          <div class="product-img">
+            <div class="product-color" style="background: linear-gradient(135deg, #b8d4e8 0%, #7fb3d3 100%);"></div>
+            <div class="product-actions">
+              <button class="action-btn wishlist-btn" title="Wishlist">♡</button>
+              <button class="action-btn add-cart-btn" title="Add to Cart">Add to Cart</button>
+            </div>
+            <span class="product-badge badge-sale">−20%</span>
+          </div>
+          <div class="product-info">
+            <h4>Sky Wide Leg</h4>
+            <p class="product-fit">Wide Leg · Light Wash</p>
+            <div class="product-bottom">
+              <span class="product-price">$89.00 <del>$110.00</del></span>
+              <div class="size-dots">
+                <span>S</span><span>M</span><span>L</span><span>XL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="straight">
+          <div class="product-img">
+            <div class="product-color" style="background: linear-gradient(135deg, #4a4a6a 0%, #6b6b8a 100%);"></div>
+            <div class="product-actions">
+              <button class="action-btn wishlist-btn" title="Wishlist">♡</button>
+              <button class="action-btn add-cart-btn" title="Add to Cart">Add to Cart</button>
+            </div>
+          </div>
+          <div class="product-info">
+            <h4>Urban Straight</h4>
+            <p class="product-fit">Straight Cut · Mid Wash</p>
+            <div class="product-bottom">
+              <span class="product-price">$85.00</span>
+              <div class="size-dots">
+                <span>XS</span><span>S</span><span>M</span><span>L</span><span>XL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="skinny">
+          <div class="product-img">
+            <div class="product-color" style="background: linear-gradient(135deg, #8b7355 0%, #a0896b 100%);"></div>
+            <div class="product-actions">
+              <button class="action-btn wishlist-btn" title="Wishlist">♡</button>
+              <button class="action-btn add-cart-btn" title="Add to Cart">Add to Cart</button>
+            </div>
+            <span class="product-badge">Trending</span>
+          </div>
+          <div class="product-info">
+            <h4>Caramel Skinny</h4>
+            <p class="product-fit">Skinny Fit · Caramel</p>
+            <div class="product-bottom">
+              <span class="product-price">$82.00</span>
+              <div class="size-dots">
+                <span>XS</span><span>S</span><span>M</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="wide">
+          <div class="product-img">
+            <div class="product-color" style="background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);"></div>
+            <div class="product-actions">
+              <button class="action-btn wishlist-btn" title="Wishlist">♡</button>
+              <button class="action-btn add-cart-btn" title="Add to Cart">Add to Cart</button>
+            </div>
+          </div>
+          <div class="product-info">
+            <h4>Midnight Wide</h4>
+            <p class="product-fit">Wide Leg · Black</p>
+            <div class="product-bottom">
+              <span class="product-price">$95.00</span>
+              <div class="size-dots">
+                <span>S</span><span>M</span><span>L</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-category="straight">
+          <div class="product-img">
+            <div class="product-color" style="background: linear-gradient(135deg, #c9b99a 0%, #d4c4aa 100%);"></div>
+            <div class="product-actions">
+              <button class="action-btn wishlist-btn" title="Wishlist">♡</button>
+              <button class="action-btn add-cart-btn" title="Add to Cart">Add to Cart</button>
+            </div>
+            <span class="product-badge badge-sale">−15%</span>
+          </div>
+          <div class="product-info">
+            <h4>Sand Straight</h4>
+            <p class="product-fit">Straight Cut · Sand</p>
+            <div class="product-bottom">
+              <span class="product-price">$72.00 <del>$85.00</del></span>
+              <div class="size-dots">
+                <span>XS</span><span>S</span><span>M</span><span>L</span><span>XL</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="view-all">
+        <a href="#" class="btn btn-outline-dark">View All Products</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- BANNER -->
+  <section class="banner">
+    <div class="banner-content">
+      <p class="section-tag" style="color:#c9a96e;">Limited Edition</p>
+      <h2>The Street Series<br />Drop 01</h2>
+      <p>Exclusively designed for women who own every room they walk into.</p>
+      <a href="#collection" class="btn btn-primary">Shop the Drop</a>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section class="about" id="about">
+    <div class="container about-grid">
+      <div class="about-visual">
+        <div class="about-img-main"></div>
+        <div class="about-img-accent"></div>
+        <div class="about-stat">
+          <span class="stat-num">5K+</span>
+          <span class="stat-label">Happy Customers</span>
+        </div>
+      </div>
+      <div class="about-text">
+        <p class="section-tag">Our Story</p>
+        <h2>Born on the Street,<br />Made for You.</h2>
+        <p>StreetStore was built on one idea: every woman deserves jeans that feel as good as they look. We design premium denim with real bodies in mind — flattering fits, durable fabric, and styles that move with your life.</p>
+        <p>From the streets of the city to wherever the day takes you, our jeans are made to keep up.</p>
+        <div class="about-values">
+          <div class="value-item">
+            <span class="value-icon">✦</span>
+            <div>
+              <strong>Premium Denim</strong>
+              <p>High-quality fabric that lasts</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <span class="value-icon">✦</span>
+            <div>
+              <strong>Sustainable</strong>
+              <p>Eco-conscious production</p>
+            </div>
+          </div>
+          <div class="value-item">
+            <span class="value-icon">✦</span>
+            <div>
+              <strong>Inclusive Sizing</strong>
+              <p>XS to 3XL, every body</p>
+            </div>
+          </div>
+        </div>
+        <a href="#collection" class="btn btn-primary">Shop Now</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOOKBOOK -->
+  <section class="lookbook" id="lookbook">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Lookbook</p>
+        <h2>Style Inspiration</h2>
+      </div>
+      <div class="lookbook-grid">
+        <div class="look-item look-tall">
+          <div class="look-img look-img-1"></div>
+          <div class="look-hover">
+            <span>Shop the Look →</span>
+          </div>
+        </div>
+        <div class="look-item">
+          <div class="look-img look-img-2"></div>
+          <div class="look-hover"><span>Shop the Look →</span></div>
+        </div>
+        <div class="look-item">
+          <div class="look-img look-img-3"></div>
+          <div class="look-hover"><span>Shop the Look →</span></div>
+        </div>
+        <div class="look-item look-wide">
+          <div class="look-img look-img-4"></div>
+          <div class="look-hover"><span>Shop the Look →</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-tag">Reviews</p>
+        <h2>What They Say</h2>
+      </div>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>"The Sky Wide Leg jeans are absolutely stunning. I get compliments every time I wear them. The quality is unreal for the price."</p>
+          <div class="reviewer">
+            <div class="reviewer-avatar" style="background:#c9a96e;"></div>
+            <div>
+              <strong>Sarah M.</strong>
+              <span>Verified Buyer</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card featured-review">
+          <div class="stars">★★★★★</div>
+          <p>"Finally jeans that fit perfectly and look incredible. StreetStore gets it — style and comfort don't have to be a compromise."</p>
+          <div class="reviewer">
+            <div class="reviewer-avatar" style="background:#7fb3d3;"></div>
+            <div>
+              <strong>Lina K.</strong>
+              <span>Verified Buyer</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="stars">★★★★★</div>
+          <p>"I ordered the Noir Skinny and they arrived in 2 days. Perfect fit, amazing packaging. Will be ordering more colors!"</p>
+          <div class="reviewer">
+            <div class="reviewer-avatar" style="background:#6b6b8a;"></div>
+            <div>
+              <strong>Amira T.</strong>
+              <span>Verified Buyer</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter">
+    <div class="newsletter-content">
+      <p class="section-tag" style="color:#c9a96e;">Stay in the Loop</p>
+      <h2>Get Early Access to<br />New Drops</h2>
+      <p>Join the StreetStore community and be the first to know.</p>
+      <form class="newsletter-form" id="newsletterForm">
+        <input type="email" placeholder="Enter your email address" required />
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+      </form>
+      <p class="newsletter-note">No spam. Unsubscribe anytime.</p>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact" id="contact">
+    <div class="container contact-grid">
+      <div class="contact-info">
+        <p class="section-tag">Get in Touch</p>
+        <h2>We're Here<br />for You.</h2>
+        <div class="contact-details">
+          <div class="contact-item">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span>hello@streetstore.com</span>
+          </div>
+          <div class="contact-item">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+            <span>+1 (800) 787-3328</span>
+          </div>
+          <div class="contact-item">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <span>Mon–Fri, 9am – 6pm</span>
+          </div>
+        </div>
+        <div class="social-links">
+          <a href="#" class="social-link">Instagram</a>
+          <a href="#" class="social-link">TikTok</a>
+          <a href="#" class="social-link">Pinterest</a>
+        </div>
+      </div>
+      <form class="contact-form" id="contactForm">
+        <div class="form-row">
+          <input type="text" placeholder="First Name" required />
+          <input type="text" placeholder="Last Name" required />
+        </div>
+        <input type="email" placeholder="Email Address" required />
+        <textarea placeholder="Your message..." rows="5" required></textarea>
+        <button type="submit" class="btn btn-primary">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <h3>StreetStore</h3>
+        <p>Premium women's jeans for every body, every style, every street.</p>
+      </div>
+      <div class="footer-links">
+        <h4>Shop</h4>
+        <a href="#">New Arrivals</a>
+        <a href="#">Best Sellers</a>
+        <a href="#">Sale</a>
+        <a href="#">Lookbook</a>
+      </div>
+      <div class="footer-links">
+        <h4>Help</h4>
+        <a href="#">Size Guide</a>
+        <a href="#">Shipping & Returns</a>
+        <a href="#">FAQ</a>
+        <a href="#">Contact</a>
+      </div>
+      <div class="footer-links">
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Sustainability</a>
+        <a href="#">Careers</a>
+        <a href="#">Press</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 StreetStore. All rights reserved.</p>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
