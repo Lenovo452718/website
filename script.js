@@ -80,7 +80,9 @@ function renderCartItems() {
   if (!container) return;
 
   if (cart.length === 0) {
-    container.innerHTML = '<div class="cart-empty"><p>Your cart is empty.</p><a href="shop.html" class="btn-dark">Shop Now</a></div>';
+    const emptyTxt  = (typeof t === 'function') ? t('cart_empty')  : 'Your cart is empty.';
+    const shopTxt   = (typeof t === 'function') ? t('shop_now_btn'): 'Shop Now';
+    container.innerHTML = `<div class="cart-empty"><p>${emptyTxt}</p><a href="shop.html" class="btn-dark">${shopTxt}</a></div>`;
   } else {
     container.innerHTML = cart.map(item => `
       <div class="cart-item">
@@ -147,12 +149,12 @@ function injectCartDrawer() {
     <div class="cart-overlay" id="cartOverlay"></div>
     <aside class="cart-drawer" id="cartDrawer">
       <div class="cart-header">
-        <h3>Your Cart (<span id="cartCount">0</span>)</h3>
+        <h3><span data-i18n="your_cart">Your Cart</span> (<span id="cartCount">0</span>)</h3>
         <button class="cart-close" id="cartClose"><img src="images/icons/close.png" alt="Close" style="width:14px;height:14px;opacity:0.7;"></button>
       </div>
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-upsell">
-        <p class="upsell-label">You might also like</p>
+        <p class="upsell-label" data-i18n="you_might_like">You might also like</p>
         <div class="upsell-item">
           <div class="upsell-img" style="background:#1a1a1a;"></div>
           <div><p>Noir Skinny</p><span>179 MAD</span></div>
@@ -160,15 +162,17 @@ function injectCartDrawer() {
         </div>
       </div>
       <div class="cart-footer">
-        <div class="cart-subtotal"><span>Subtotal</span><span id="cartTotal">0 MAD</span></div>
-        <p class="cart-shipping-note">Free shipping on all orders</p>
-        <a href="checkout.html" class="btn-dark" id="checkoutBtn" style="display:block;text-align:center;padding:16px;">Checkout</a>
-        <a href="#" class="btn-text cart-continue" id="continueShopping">Continue Shopping →</a>
+        <div class="cart-subtotal"><span data-i18n="subtotal">Subtotal</span><span id="cartTotal">0 MAD</span></div>
+        <p class="cart-shipping-note" data-i18n="free_ship_note">Free shipping on all orders</p>
+        <a href="checkout.html" class="btn-dark" id="checkoutBtn" style="display:block;text-align:center;padding:16px;" data-i18n="checkout_btn">Checkout</a>
+        <a href="#" class="btn-text cart-continue" id="continueShopping" data-i18n="continue_shopping">Continue Shopping →</a>
       </div>
     </aside>
   `;
   document.body.insertAdjacentHTML('beforeend', html);
 
+  // Apply translations to injected cart HTML
+  if (typeof applyLang === 'function') applyLang(getLang ? getLang() : 'en');
   document.getElementById('cartClose').addEventListener('click', closeCart);
   document.getElementById('cartOverlay').addEventListener('click', closeCart);
   document.getElementById('continueShopping').addEventListener('click', e => { e.preventDefault(); closeCart(); });

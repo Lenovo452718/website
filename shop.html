@@ -13,12 +13,12 @@
   <div class="nav-inner">
     <nav class="nav-left">
       <a href="shop.html" style="border-bottom: 1px solid currentColor; padding-bottom: 2px;">Shop</a>
-      <a href="lookbook.html">Lookbook</a>
-      <a href="about.html">About</a>
+      <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
     </nav>
     <a href="index.html" class="nav-logo">STREETSTORE</a>
     <div class="nav-right">
-      <a href="contact.html">Contact</a>
+      <a href="contact.html" data-i18n="nav_contact">Contact</a>
       <button class="nav-icon-btn" aria-label="Search">
         <img src="images/icons/search.png" alt="Search" style="width:18px;height:18px;opacity:0.75;">
       </button>
@@ -26,17 +26,18 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="cart-badge">0</span>
       </button>
+      <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button><button class="lang-btn" data-lang="ar">ع</button></div>
       <button class="hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
   <nav class="mobile-menu" id="mobileMenu">
-    <a href="shop.html">Shop</a>
-    <a href="lookbook.html">Lookbook</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-    <a href="account.html">Account</a>
+    <a href="shop.html" data-i18n="nav_shop">Shop</a>
+    <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="account.html" data-i18n="nav_account">Account</a>
   </nav>
 </header>
 
@@ -54,8 +55,8 @@
   <!-- SIDEBAR -->
   <aside class="shop-sidebar">
     <div class="sidebar-header">
-      <h3>Filters</h3>
-      <button class="clear-all">Clear All</button>
+      <h3data-i18n="filters">Filters</h3>
+      <button class="clear-all" data-i18n="clear_all">Clear All</button>
     </div>
 
     <!-- SIZE -->
@@ -138,7 +139,7 @@
             <div class="product-card-img-inner" style="background: #2a3f65;"></div>
             <span class="product-badge sale">Sale</span>
             <button class="wishlist-btn">♡</button>
-            <button class="product-card-quick" data-name="Patte d'éléphant Jean" data-price="179">Quick Add</button>
+            <button class="product-card-quick" data-name="Patte d'éléphant Jean" data-price="179"data-i18n="quick_add">Quick Add</button>
           </div>
         </a>
         <div class="product-card-info">
@@ -155,7 +156,7 @@
             <div class="product-card-img-inner" style="background: #1a2744;"></div>
             <span class="product-badge sale">Sale</span>
             <button class="wishlist-btn">♡</button>
-            <button class="product-card-quick" data-name="High-Rise Dark Blue Jeans" data-price="179">Quick Add</button>
+            <button class="product-card-quick" data-name="High-Rise Dark Blue Jeans" data-price="179"data-i18n="quick_add">Quick Add</button>
           </div>
         </a>
         <div class="product-card-info">
@@ -172,7 +173,7 @@
             <div class="product-card-img-inner" style="background: #6b4c2a;"></div>
             <span class="product-badge sale">Sale</span>
             <button class="wishlist-btn">♡</button>
-            <button class="product-card-quick" data-name="Brown Wide-Leg Jean" data-price="179">Quick Add</button>
+            <button class="product-card-quick" data-name="Brown Wide-Leg Jean" data-price="179"data-i18n="quick_add">Quick Add</button>
           </div>
         </a>
         <div class="product-card-info">
@@ -189,7 +190,7 @@
             <div class="product-card-img-inner" style="background: #2d3748;"></div>
             <span class="product-badge sale">Sale</span>
             <button class="wishlist-btn">♡</button>
-            <button class="product-card-quick" data-name="Baggy Wide Leg Denim Jeans" data-price="179">Quick Add</button>
+            <button class="product-card-quick" data-name="Baggy Wide Leg Denim Jeans" data-price="179"data-i18n="quick_add">Quick Add</button>
           </div>
         </a>
         <div class="product-card-info">
@@ -206,7 +207,7 @@
             <div class="product-card-img-inner" style="background: #1e3a5f;"></div>
             <span class="product-badge sale">Sale</span>
             <button class="wishlist-btn">♡</button>
-            <button class="product-card-quick" data-name="Jean Skirts" data-price="179">Quick Add</button>
+            <button class="product-card-quick" data-name="Jean Skirts" data-price="179"data-i18n="quick_add">Quick Add</button>
           </div>
         </a>
         <div class="product-card-info">
@@ -223,7 +224,7 @@
             <div class="product-card-img-inner" style="background: #0f1f3d;"></div>
             <span class="product-badge trending">Trending</span>
             <button class="wishlist-btn">♡</button>
-            <button class="product-card-quick" data-name="Denim Jacket & Wide-Leg Set" data-price="299">Quick Add</button>
+            <button class="product-card-quick" data-name="Denim Jacket & Wide-Leg Set" data-price="299"data-i18n="quick_add">Quick Add</button>
           </div>
         </a>
         <div class="product-card-info">
@@ -245,23 +246,23 @@
       <p>Premium women's denim crafted for the streets and everywhere in between.</p>
     </div>
     <div class="footer-col">
-      <h4>Shop</h4>
+      <h4 data-i18n="footer_shop">Shop</h4>
       <ul>
-        <li><a href="shop.html">All Jeans</a></li>
-        <li><a href="shop.html">New Arrivals</a></li>
-        <li><a href="shop.html">Sale</a></li>
+        <li><a href="shop.html" data-i18n="footer_all_jeans">All Jeans</a></li>
+        <li><a href="shop.html" data-i18n="footer_new">New Arrivals</a></li>
+        <li><a href="shop.html" data-i18n="footer_sale">Sale</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Help</h4>
+      <h4 data-i18n="footer_help">Help</h4>
       <ul>
-        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
         <li><a href="#">Shipping & Returns</a></li>
-        <li><a href="#">FAQ</a></li>
+        <li><a href="#" data-i18n="footer_faq">FAQ</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Follow</h4>
+      <h4 data-i18n="footer_follow">Follow</h4>
       <ul>
         <li><a href="#">Instagram</a></li>
         <li><a href="#">TikTok</a></li>
@@ -272,13 +273,15 @@
   <div class="footer-bottom">
     <p>&copy; 2025 StreetStore. All rights reserved.</p>
     <div class="footer-bottom-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms</a>
+      <a href="#" data-i18n="privacy">Privacy Policy</a>
+      <a href="#" data-i18n="terms">Terms</a>
     </div>
   </div>
 </footer>
 
 <a href="https://wa.me/212000000000" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><img src="images/icons/whatsapp.png" alt="WhatsApp" style="width:28px;height:28px;filter:brightness(0) invert(1);"></a>
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

@@ -37,38 +37,38 @@
 
     <!-- STEP 1: INFORMATION -->
     <div class="checkout-step active" id="step1">
-      <h2>Contact Information</h2>
+      <h2 data-i18n="contact_info">Contact Information</h2>
       <form class="checkout-form">
         <div class="form-group">
-          <label>Email</label>
+          <label data-i18n="email">Email</label>
           <input type="email" placeholder="sarah@example.com" id="info-email" />
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>First Name</label>
+            <label data-i18n="first_name">First Name</label>
             <input type="text" placeholder="Sarah" id="info-first" />
           </div>
           <div class="form-group">
-            <label>Last Name</label>
+            <label data-i18n="last_name">Last Name</label>
             <input type="text" placeholder="M." id="info-last" />
           </div>
         </div>
         <div class="form-group">
-          <label>Address</label>
+          <label data-i18n="address_label">Address</label>
           <input type="text" placeholder="123 Street Name" id="info-address" />
         </div>
         <div class="form-row">
           <div class="form-group">
-            <label>City</label>
+            <label data-i18n="city">City</label>
             <input type="text" placeholder="Algiers" id="info-city" />
           </div>
           <div class="form-group">
-            <label>Postal Code</label>
+            <label data-i18n="postal_code">Postal Code</label>
             <input type="text" placeholder="16000" id="info-postal" />
           </div>
         </div>
         <div class="form-group">
-          <label>Country</label>
+          <label data-i18n="country">Country</label>
           <select id="info-country">
             <option>Morocco</option>
             <option>Algeria</option>
@@ -79,13 +79,13 @@
       </form>
       <div class="checkout-nav-btns">
         <a href="shop.html" style="font-size:13px; color:var(--gray); text-decoration:underline;">← Return to cart</a>
-        <button class="btn-dark next-step">Continue to Shipping</button>
+        <button class="btn-dark next-step" data-i18n="continue_to_shipping">Continue to Shipping</button>
       </div>
     </div>
 
     <!-- STEP 2: SHIPPING -->
     <div class="checkout-step" id="step2">
-      <h2>Shipping Method</h2>
+      <h2 data-i18n="shipping_method">Shipping Method</h2>
       <div class="info-summary" id="infoSummary">
         sarah@example.com — 123 Street Name, Algiers, Algeria
       </div>
@@ -93,7 +93,7 @@
         <label class="shipping-option selected">
           <input type="radio" name="shipping" value="free" checked />
           <div class="shipping-option-info">
-            <p class="shipping-option-name">Standard Shipping</p>
+            <p class="shipping-option-name"data-i18n="standard_shipping">Standard Shipping</p>
             <p class="shipping-option-time">5–7 business days</p>
           </div>
           <span class="shipping-option-price">Free</span>
@@ -101,7 +101,7 @@
         <label class="shipping-option">
           <input type="radio" name="shipping" value="express" />
           <div class="shipping-option-info">
-            <p class="shipping-option-name">Express Shipping</p>
+            <p class="shipping-option-name"data-i18n="express_shipping">Express Shipping</p>
             <p class="shipping-option-time">2–3 business days</p>
           </div>
           <span class="shipping-option-price">30 MAD</span>
@@ -109,17 +109,17 @@
       </div>
       <div class="checkout-nav-btns">
         <button class="checkout-back prev-step">← Back</button>
-        <button class="btn-dark next-step">Continue to Payment</button>
+        <button class="btn-dark next-step" data-i18n="continue_to_payment">Continue to Payment</button>
       </div>
     </div>
 
     <!-- STEP 3: PAYMENT -->
     <div class="checkout-step" id="step3">
-      <h2>Payment</h2>
+      <h2 data-i18n="payment">Payment</h2>
       <div class="cod-box">
         <div class="cod-icon"><img src="images/icons/cash.png" alt="Cash" style="width:36px;height:36px;"></div>
         <div class="cod-text">
-          <strong>Cash on Delivery</strong>
+          <strong data-i18n="cod_title">Cash on Delivery</strong>
           <p>You will pay in cash when your order arrives at your door. No card required.</p>
         </div>
       </div>
@@ -131,7 +131,7 @@
       </div>
       <div class="checkout-nav-btns">
         <button class="checkout-back prev-step">← Back</button>
-        <a href="thankyou.html" class="btn-dark">Place Order →</a>
+        <a href="thankyou.html" class="btn-dark" data-i18n="place_order">Place Order →</a>
       </div>
     </div>
 
@@ -139,14 +139,14 @@
 
   <!-- ORDER SUMMARY COLUMN -->
   <div class="checkout-summary-col">
-    <h3>Order Summary</h3>
+    <h3 data-i18n="order_summary">Order Summary</h3>
 
     <div class="summary-items" id="checkoutSummaryItems"></div>
 
     <div class="summary-totals">
-      <div class="summary-row"><span>Subtotal</span><span id="checkoutSubtotal">0 MAD</span></div>
-      <div class="summary-row"><span>Shipping</span><span id="checkoutShipping">Free</span></div>
-      <div class="summary-row total"><span>Total</span><span id="checkoutTotal">0 MAD</span></div>
+      <div class="summary-row"><span data-i18n="subtotal">Subtotal</span><span id="checkoutSubtotal">0 MAD</span></div>
+      <div class="summary-row"><span data-i18n="shipping_label">Shipping</span><span id="checkoutShipping">Free</span></div>
+      <div class="summary-row total"><span data-i18n="total_label">Total</span><span id="checkoutTotal">0 MAD</span></div>
     </div>
 
     <div style="margin-top: 8px;">
@@ -160,6 +160,8 @@
 
 </div>
 
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
 <script src="script.js"></script>
 </body>
 </html>

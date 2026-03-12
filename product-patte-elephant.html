@@ -12,13 +12,13 @@
 <header class="site-header" id="siteHeader">
   <div class="nav-inner">
     <nav class="nav-left">
-      <a href="shop.html">Shop</a>
-      <a href="lookbook.html">Lookbook</a>
-      <a href="about.html">About</a>
+      <a href="shop.html" data-i18n="nav_shop">Shop</a>
+      <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
     </nav>
     <a href="index.html" class="nav-logo">STREETSTORE</a>
     <div class="nav-right">
-      <a href="contact.html">Contact</a>
+      <a href="contact.html" data-i18n="nav_contact">Contact</a>
       <button class="nav-icon-btn" aria-label="Search">
         <img src="images/icons/search.png" alt="Search" style="width:18px;height:18px;opacity:0.75;">
       </button>
@@ -26,17 +26,18 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="cart-badge">0</span>
       </button>
+      <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button><button class="lang-btn" data-lang="ar">ع</button></div>
       <button class="hamburger" id="hamburger" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
     </div>
   </div>
   <nav class="mobile-menu" id="mobileMenu">
-    <a href="shop.html">Shop</a>
-    <a href="lookbook.html">Lookbook</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-    <a href="account.html">Account</a>
+    <a href="shop.html" data-i18n="nav_shop">Shop</a>
+    <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="account.html" data-i18n="nav_account">Account</a>
   </nav>
 </header>
 
@@ -44,7 +45,7 @@
 <nav class="breadcrumb">
   <a href="index.html">Home</a>
   <span>/</span>
-  <a href="shop.html">Shop</a>
+  <a href="shop.html" data-i18n="nav_shop">Shop</a>
   <span>/</span>
   <span class="current">Patte d'éléphant Jean</span>
 </nav>
@@ -80,7 +81,7 @@
   <!-- INFO PANEL -->
   <div class="product-info">
     <div class="product-badge-wrap">
-      <span class="product-label">Sale</span>
+      <span class="product-label" data-i18n="sale">Sale</span>
     </div>
 
     <h1 class="product-name">PATTE D'ÉLÉPHANT JEAN</h1>
@@ -108,7 +109,7 @@
       <button class="size-btn">40</button>
       <button class="size-btn">42</button>
     </div>
-    <a href="#" class="size-guide-link">Size Guide</a>
+    <a href="#" class="size-guide-link" data-i18n="size_guide">Size Guide</a>
     <p class="fit-note">Relaxed fit with flare leg. Model is 5'7" wearing size S.</p>
 
     <p class="product-option-label">Quantity</p>
@@ -118,35 +119,35 @@
       <button class="qty-btn plus">+</button>
     </div>
 
-    <button class="add-to-cart-btn">Add to Cart</button>
-    <a href="#" class="wishlist-link">♡ Add to Wishlist</a>
+    <button class="add-to-cart-btn" data-i18n="add_to_cart">Add to Cart</button>
+    <a href="#" class="wishlist-link" data-i18n="add_to_wishlist">♡ Add to Wishlist</a>
 
     <div class="trust-row">
       <div class="trust-item">
         <img src="images/icons/truck.png" alt="Shipping" style="width:20px;height:20px;">
-        <span>Free Shipping</span>
+        <span data-i18n="free_shipping">Free Shipping</span>
       </div>
       <div class="trust-item">
         <img src="images/icons/returns.png" alt="Returns" style="width:20px;height:20px;">
-        <span>Easy Returns</span>
+        <span data-i18n="easy_returns">Easy Returns</span>
       </div>
       <div class="trust-item">
         <img src="images/icons/lock.png" alt="Secure" style="width:20px;height:20px;">
-        <span>Secure Payment</span>
+        <span data-i18n="secure_payment">Secure Payment</span>
       </div>
     </div>
 
     <!-- ACCORDION -->
     <div class="accordion">
       <div class="accordion-item open">
-        <button class="accordion-trigger">Product Details <span class="accordion-icon">+</span></button>
+        <button class="accordion-trigger"data-i18n="product_details">Product Details <span class="accordion-icon">+</span></button>
         <div class="accordion-body" style="display:block;">
           <p>A timeless flare-leg silhouette crafted from premium stretch denim. Features a mid-rise waist and dramatic flare from the knee — perfect for creating an elongating effect.</p>
           <p style="margin-top:8px;"><strong>Category:</strong> Wide Leg / Flare</p>
         </div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger">Fabric &amp; Care <span class="accordion-icon">+</span></button>
+        <button class="accordion-trigger"data-i18n="fabric_care">Fabric &amp; Care <span class="accordion-icon">+</span></button>
         <div class="accordion-body">
           <p>98% Cotton, 2% Elastane. Cold machine wash. Do not tumble dry.</p>
         </div>
@@ -158,7 +159,7 @@
         </div>
       </div>
       <div class="accordion-item">
-        <button class="accordion-trigger">Shipping &amp; Returns <span class="accordion-icon">+</span></button>
+        <button class="accordion-trigger"data-i18n="acc_shipping_returns">Shipping &amp; Returns <span class="accordion-icon">+</span></button>
         <div class="accordion-body">
           <p>Free standard shipping on orders over $80. Express shipping available at checkout. Returns accepted within 30 days of delivery.</p>
         </div>
@@ -170,7 +171,7 @@
 
 <!-- ===== COMPLETE THE LOOK ===== -->
 <div class="complete-look">
-  <h2>Complete the Look</h2>
+  <h2data-i18n="complete_look">Complete the Look</h2>
   <div class="product-grid-3-related">
     <div class="product-card" data-price="179">
       <div class="product-card-img">
@@ -215,7 +216,7 @@
 <section class="reviews-section">
   <div class="reviews-inner">
     <div class="reviews-header">
-      <h2>Customer Reviews</h2>
+      <h2data-i18n="customer_reviews">Customer Reviews</h2>
       <div class="reviews-avg">
         <span class="big-rating">4.9</span>
         <div>
@@ -255,23 +256,23 @@
       <p>Premium women's denim crafted for the streets and everywhere in between.</p>
     </div>
     <div class="footer-col">
-      <h4>Shop</h4>
+      <h4 data-i18n="footer_shop">Shop</h4>
       <ul>
-        <li><a href="shop.html">All Jeans</a></li>
-        <li><a href="shop.html">New Arrivals</a></li>
-        <li><a href="shop.html">Sale</a></li>
+        <li><a href="shop.html" data-i18n="footer_all_jeans">All Jeans</a></li>
+        <li><a href="shop.html" data-i18n="footer_new">New Arrivals</a></li>
+        <li><a href="shop.html" data-i18n="footer_sale">Sale</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Help</h4>
+      <h4 data-i18n="footer_help">Help</h4>
       <ul>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="#">Shipping &amp; Returns</a></li>
-        <li><a href="#">FAQ</a></li>
+        <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
+        <li><a href="#" data-i18n="footer_shipping">Shipping href="#">Shipping &amp; Returns</a>amp; Returns</a></li>
+        <li><a href="#" data-i18n="footer_faq">FAQ</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Follow</h4>
+      <h4 data-i18n="footer_follow">Follow</h4>
       <ul>
         <li><a href="#">Instagram</a></li>
         <li><a href="#">TikTok</a></li>
@@ -282,13 +283,15 @@
   <div class="footer-bottom">
     <p>&copy; 2025 StreetStore. All rights reserved.</p>
     <div class="footer-bottom-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms</a>
+      <a href="#" data-i18n="privacy">Privacy Policy</a>
+      <a href="#" data-i18n="terms">Terms</a>
     </div>
   </div>
 </footer>
 
 <a href="https://wa.me/212000000000" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><img src="images/icons/whatsapp.png" alt="WhatsApp" style="width:28px;height:28px;filter:brightness(0) invert(1);"></a>
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
