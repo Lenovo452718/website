@@ -17,15 +17,15 @@
 <div class="checkout-progress">
   <div class="progress-step active" id="step1-indicator">
     <div class="step-num">1</div>
-    <span class="step-label">Information</span>
+    <span class="step-label" data-i18n="step_info">Information</span>
   </div>
   <div class="progress-step" id="step2-indicator">
     <div class="step-num">2</div>
-    <span class="step-label">Shipping</span>
+    <span class="step-label" data-i18n="step_shipping">Shipping</span>
   </div>
   <div class="progress-step" id="step3-indicator">
     <div class="step-num">3</div>
-    <span class="step-label">Payment</span>
+    <span class="step-label" data-i18n="step_payment">Payment</span>
   </div>
 </div>
 
@@ -78,7 +78,7 @@
         </div>
       </form>
       <div class="checkout-nav-btns">
-        <a href="shop.html" style="font-size:13px; color:var(--gray); text-decoration:underline;">← Return to cart</a>
+        <a href="shop.html" style="font-size:13px; color:var(--gray); text-decoration:underline;" data-i18n="return_to_cart">← Return to cart</a>
         <button class="btn-dark next-step" data-i18n="continue_to_shipping">Continue to Shipping</button>
       </div>
     </div>
@@ -94,21 +94,21 @@
           <input type="radio" name="shipping" value="free" checked />
           <div class="shipping-option-info">
             <p class="shipping-option-name"data-i18n="standard_shipping">Standard Shipping</p>
-            <p class="shipping-option-time">5–7 business days</p>
+            <p class="shipping-option-time" data-i18n="days_std">5–7 business days</p>
           </div>
-          <span class="shipping-option-price">Free</span>
+          <span class="shipping-option-price" data-i18n="free">Free</span>
         </label>
         <label class="shipping-option">
           <input type="radio" name="shipping" value="express" />
           <div class="shipping-option-info">
             <p class="shipping-option-name"data-i18n="express_shipping">Express Shipping</p>
-            <p class="shipping-option-time">2–3 business days</p>
+            <p class="shipping-option-time" data-i18n="days_exp">2–3 business days</p>
           </div>
           <span class="shipping-option-price">30 MAD</span>
         </label>
       </div>
       <div class="checkout-nav-btns">
-        <button class="checkout-back prev-step">← Back</button>
+        <button class="checkout-back prev-step" data-i18n="back_btn">← Back</button>
         <button class="btn-dark next-step" data-i18n="continue_to_payment">Continue to Payment</button>
       </div>
     </div>
@@ -130,7 +130,7 @@
         <p>🇲🇦 We deliver across Morocco.</p>
       </div>
       <div class="checkout-nav-btns">
-        <button class="checkout-back prev-step">← Back</button>
+        <button class="checkout-back prev-step" data-i18n="back_btn">← Back</button>
         <a href="thankyou.html" class="btn-dark" data-i18n="place_order">Place Order →</a>
       </div>
     </div>
@@ -150,10 +150,10 @@
     </div>
 
     <div style="margin-top: 8px;">
-      <p style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;">Promo Code</p>
+      <p style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;" data-i18n="promo_code">Promo Code</p>
       <div class="promo-form">
-        <input type="text" placeholder="Enter code" />
-        <button type="button">Apply</button>
+        <input type="text" placeholder="Enter code" data-i18n-ph="promo_ph" />
+        <button type="button" data-i18n="apply">Apply</button>
       </div>
     </div>
   </div>

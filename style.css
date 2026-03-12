@@ -3,7 +3,7 @@
    ============================================================ */
 
 /* --- Google Fonts Import --- */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Noto+Sans+Arabic:wght@300;400;500;600&display=swap');
 
 /* --- CSS Reset --- */
 *, *::before, *::after {
@@ -2106,3 +2106,97 @@ body.rtl {
 [dir="rtl"] .section-subtitle{ letter-spacing: 0; }
 [dir="rtl"] .social-links    { direction: rtl; }
 [dir="rtl"] .lang-switcher   { margin-left: 0; margin-right: 12px; }
+
+/* ============================================================
+   ARABIC SPACING & TYPOGRAPHY FIXES
+   ============================================================ */
+[dir="rtl"] * {
+  letter-spacing: 0 !important;
+  word-spacing: 0.05em;
+}
+[dir="rtl"] body {
+  font-family: 'Segoe UI', 'Tahoma', 'Arial', 'Noto Sans Arabic', sans-serif;
+  line-height: 1.8;
+}
+[dir="rtl"] .nav-logo          { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em !important; }
+[dir="rtl"] .hero-heading,
+[dir="rtl"] .hero-heading-italic { font-family: 'Segoe UI', Arial, sans-serif; font-size: clamp(38px, 6vw, 80px); }
+[dir="rtl"] .section-title     { font-family: 'Segoe UI', Arial, sans-serif; }
+[dir="rtl"] .hero-eyebrow,
+[dir="rtl"] .section-subtitle  { font-family: 'Segoe UI', Arial, sans-serif; letter-spacing: 0 !important; }
+
+/* Nav spacing RTL */
+[dir="rtl"] .nav-left  { gap: 32px; }
+[dir="rtl"] .nav-right { gap: 16px; }
+[dir="rtl"] .nav-inner { padding: 0 40px; }
+
+/* Product info RTL */
+[dir="rtl"] .product-option-label { text-align: right; }
+[dir="rtl"] .fit-note             { text-align: right; }
+[dir="rtl"] .product-name         { text-align: right; }
+[dir="rtl"] .product-rating       { justify-content: flex-end; }
+[dir="rtl"] .product-price-display{ text-align: right; }
+[dir="rtl"] .product-badge-wrap   { text-align: right; }
+[dir="rtl"] .size-guide-link      { display: block; text-align: right; }
+[dir="rtl"] .wishlist-link        { text-align: right; }
+[dir="rtl"] .qty-selector         { direction: rtl; justify-content: flex-end; }
+[dir="rtl"] .add-to-cart-btn      { direction: rtl; }
+
+/* Accordion RTL */
+[dir="rtl"] .accordion-trigger    { text-align: right; padding-right: 0; padding-left: 0; }
+[dir="rtl"] .accordion-body       { text-align: right; }
+[dir="rtl"] .accordion-icon       { margin-left: 0; margin-right: auto; }
+
+/* Breadcrumb RTL */
+[dir="rtl"] .breadcrumb           { text-align: right; padding: 20px 40px; }
+[dir="rtl"] .breadcrumb span,
+[dir="rtl"] .breadcrumb a         { direction: rtl; }
+
+/* Benefits bar RTL */
+[dir="rtl"] .benefit-item         { text-align: right; flex-direction: row-reverse; }
+[dir="rtl"] .benefit-text         { text-align: right; }
+
+/* Editorial RTL */
+[dir="rtl"] .editorial-card-info  { text-align: right; }
+
+/* Newsletter RTL */
+[dir="rtl"] .newsletter-inner     { text-align: center; }
+[dir="rtl"] .newsletter-form input{ text-align: right; }
+
+/* Cart drawer RTL fixes */
+[dir="rtl"] .cart-header          { flex-direction: row-reverse; }
+[dir="rtl"] .cart-subtotal        { flex-direction: row-reverse; }
+[dir="rtl"] .cart-item-name,
+[dir="rtl"] .cart-item-price      { text-align: right; }
+[dir="rtl"] .cart-footer          { text-align: center; }
+
+/* Contact RTL */
+[dir="rtl"] .contact-left         { text-align: right; }
+[dir="rtl"] .contact-detail-item h4,
+[dir="rtl"] .contact-detail-item p { text-align: right; }
+[dir="rtl"] .contact-form label   { text-align: right; display: block; }
+[dir="rtl"] .contact-form input,
+[dir="rtl"] .contact-form select,
+[dir="rtl"] .contact-form textarea { text-align: right; direction: rtl; }
+
+/* Account RTL */
+[dir="rtl"] .account-nav-item span { margin-right: 0; margin-left: 12px; }
+[dir="rtl"] .orders-table th,
+[dir="rtl"] .orders-table td       { text-align: right; }
+
+/* Checkout RTL */
+[dir="rtl"] .checkout-progress     { direction: rtl; }
+[dir="rtl"] .checkout-nav-btns     { flex-direction: row-reverse; }
+[dir="rtl"] .shipping-option       { flex-direction: row-reverse; text-align: right; }
+[dir="rtl"] .shipping-option-info  { text-align: right; }
+[dir="rtl"] .cod-box                { flex-direction: row-reverse; text-align: right; }
+[dir="rtl"] .cod-note p             { text-align: right; }
+[dir="rtl"] .summary-item           { flex-direction: row-reverse; }
+[dir="rtl"] .summary-item-info      { text-align: right; }
+[dir="rtl"] .checkout-summary-col   { text-align: right; }
+[dir="rtl"] .form-row               { direction: rtl; }
+
+/* Footer RTL */
+[dir="rtl"] .footer-col ul         { text-align: right; }
+[dir="rtl"] .footer-bottom-links   { gap: 16px; }
+[dir="rtl"] .footer-bottom p       { text-align: right; }
