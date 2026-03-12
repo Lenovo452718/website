@@ -248,7 +248,7 @@ const TRANSLATIONS = {
     first_name:"الاسم الأول", last_name:"الاسم الأخير", email:"البريد الإلكتروني",
     address_label:"العنوان", city:"المدينة", postal_code:"الرمز البريدي", country:"البلد",
     continue_to_shipping:"المتابعة إلى الشحن", continue_to_payment:"المتابعة إلى الدفع",
-    place_order:"تأكيد الطلب →", back_btn:"رجوع →", return_to_cart:"العودة إلى السلة →",
+    place_order:"تأكيد الطلب ←", back_btn:"رجوع →", return_to_cart:"العودة إلى السلة →",
     standard_shipping:"شحن عادي", express_shipping:"شحن سريع",
     days_std:"5–7 أيام عمل", days_exp:"2–3 أيام عمل",
     cod_title:"الدفع عند الاستلام",

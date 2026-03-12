@@ -3,7 +3,7 @@
    ============================================================ */
 
 /* --- Google Fonts Import --- */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Noto+Sans+Arabic:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&family=Tajawal:wght@300;400;500;700&display=swap');
 
 /* --- CSS Reset --- */
 *, *::before, *::after {
@@ -2200,3 +2200,190 @@ body.rtl {
 [dir="rtl"] .footer-col ul         { text-align: right; }
 [dir="rtl"] .footer-bottom-links   { gap: 16px; }
 [dir="rtl"] .footer-bottom p       { text-align: right; }
+/* ============================================================
+   RTL + ARABIC DESIGN — Tajawal font
+   ============================================================ */
+
+[dir="rtl"] body {
+  font-family: 'Tajawal', sans-serif;
+  line-height: 1.9;
+  direction: rtl;
+}
+[dir="rtl"] * { letter-spacing: 0 !important; }
+[dir="rtl"] .nav-logo,
+[dir="rtl"] .footer-logo { font-family: 'Bebas Neue', sans-serif; letter-spacing: 0.05em !important; }
+
+/* NAV */
+[dir="rtl"] .nav-inner        { flex-direction: row-reverse; }
+[dir="rtl"] .nav-left         { flex-direction: row-reverse; gap: 28px; }
+[dir="rtl"] .nav-right        { flex-direction: row-reverse; gap: 14px; }
+[dir="rtl"] .mobile-menu      { direction: rtl; text-align: right; }
+[dir="rtl"] .lang-switcher    { margin-left: 0; margin-right: 10px; }
+[dir="rtl"] .lang-btn + .lang-btn { border-left: none; border-right: 1px solid rgba(0,0,0,0.12); }
+
+/* HERO */
+[dir="rtl"] .hero-content     { text-align: right; }
+[dir="rtl"] .hero-heading,
+[dir="rtl"] .hero-heading-italic { font-family: 'Tajawal', sans-serif; font-weight: 700; font-size: clamp(36px, 6vw, 76px); line-height: 1.2; }
+[dir="rtl"] .hero-eyebrow,
+[dir="rtl"] .section-subtitle { font-family: 'Tajawal', sans-serif; }
+[dir="rtl"] .hero-cta         { flex-direction: row-reverse; justify-content: flex-start; }
+[dir="rtl"] .hero-scroll      { left: auto; right: 40px; }
+
+/* BENEFITS */
+[dir="rtl"] .benefits-bar     { direction: rtl; }
+[dir="rtl"] .benefit-item     { flex-direction: row-reverse; text-align: right; gap: 14px; }
+[dir="rtl"] .benefit-text     { text-align: right; }
+
+/* SECTION HEADERS */
+[dir="rtl"] .section-header   { flex-direction: row-reverse; }
+[dir="rtl"] .section-title    { font-family: 'Tajawal', sans-serif; font-weight: 700; }
+[dir="rtl"] .section-header > div { text-align: right; }
+
+/* PRODUCT CARDS */
+[dir="rtl"] .product-card-info   { text-align: right; }
+[dir="rtl"] .product-card-quick  { font-family: 'Tajawal', sans-serif; }
+
+/* TRENDING */
+[dir="rtl"] .trending-label      { text-align: right; }
+[dir="rtl"] .trending-label-sm   { text-align: right; }
+
+/* EDITORIAL */
+[dir="rtl"] .editorial-header    { text-align: right; }
+[dir="rtl"] .editorial-card-info { text-align: right; }
+
+/* NEWSLETTER */
+[dir="rtl"] .newsletter-inner    { text-align: center; }
+[dir="rtl"] .newsletter-form     { flex-direction: row-reverse; }
+[dir="rtl"] .newsletter-form input { text-align: right; font-family: 'Tajawal', sans-serif; }
+
+/* FOOTER */
+[dir="rtl"] .footer-grid         { direction: rtl; }
+[dir="rtl"] .footer-brand        { text-align: right; }
+[dir="rtl"] .footer-col          { text-align: right; }
+[dir="rtl"] .footer-col ul       { text-align: right; padding-right: 0; }
+[dir="rtl"] .footer-bottom       { flex-direction: row-reverse; }
+[dir="rtl"] .footer-bottom p     { text-align: right; }
+[dir="rtl"] .footer-bottom-links { flex-direction: row-reverse; gap: 16px; }
+
+/* BREADCRUMB */
+[dir="rtl"] .breadcrumb          { text-align: right; direction: rtl; }
+
+/* PRODUCT PAGE */
+[dir="rtl"] .product-layout       { direction: rtl; }
+[dir="rtl"] .product-info         { padding-left: 0; padding-right: 32px; text-align: right; }
+[dir="rtl"] .product-gallery      { padding-right: 0; padding-left: 32px; }
+[dir="rtl"] .product-name         { text-align: right; }
+[dir="rtl"] .product-rating       { justify-content: flex-end; direction: rtl; }
+[dir="rtl"] .product-price-display { text-align: right; }
+[dir="rtl"] .product-badge-wrap   { text-align: right; }
+[dir="rtl"] .product-option-label { text-align: right; }
+[dir="rtl"] .product-swatches     { justify-content: flex-end; }
+[dir="rtl"] .size-selector        { justify-content: flex-end; direction: rtl; }
+[dir="rtl"] .size-guide-link      { text-align: right; display: block; }
+[dir="rtl"] .fit-note             { text-align: right; }
+[dir="rtl"] .qty-selector         { justify-content: flex-end; direction: rtl; }
+[dir="rtl"] .add-to-cart-btn      { font-family: 'Tajawal', sans-serif; font-size: 15px; font-weight: 600; }
+[dir="rtl"] .wishlist-link        { text-align: right; display: block; }
+[dir="rtl"] .trust-row            { direction: rtl; justify-content: flex-end; }
+[dir="rtl"] .trust-item           { flex-direction: row-reverse; text-align: right; }
+
+/* GALLERY FILMSTRIP RTL */
+[dir="rtl"] .gallery-filmstrip    { left: auto; right: 14px; }
+[dir="rtl"] .thumb-item           { border-left: none; border-right: 3px solid transparent; }
+[dir="rtl"] .thumb-item.active    { border-right-color: #fff; }
+[dir="rtl"] .thumb-item:hover     { transform: translateX(-3px); }
+
+/* ACCORDION */
+[dir="rtl"] .accordion-trigger    { flex-direction: row-reverse; text-align: right; }
+[dir="rtl"] .accordion-body       { text-align: right; direction: rtl; }
+
+/* REVIEWS */
+[dir="rtl"] .reviews-section      { direction: rtl; }
+[dir="rtl"] .reviews-header       { flex-direction: row-reverse; text-align: right; }
+[dir="rtl"] .reviews-avg          { flex-direction: row-reverse; text-align: right; }
+[dir="rtl"] .reviews-grid         { direction: rtl; }
+[dir="rtl"] .review-card          { text-align: right; }
+
+/* COMPLETE THE LOOK */
+[dir="rtl"] .complete-look              { text-align: right; direction: rtl; }
+[dir="rtl"] .product-grid-3-related     { direction: rtl; }
+
+/* CART DRAWER */
+[dir="rtl"] .cart-drawer          { left: 0; right: auto; transform: translateX(-100%); }
+[dir="rtl"] .cart-drawer.open     { transform: translateX(0); }
+[dir="rtl"] .cart-header          { flex-direction: row-reverse; }
+[dir="rtl"] .cart-item            { flex-direction: row-reverse; }
+[dir="rtl"] .cart-item-name,
+[dir="rtl"] .cart-item-price      { text-align: right; }
+[dir="rtl"] .cart-item-qty        { flex-direction: row-reverse; }
+[dir="rtl"] .cart-subtotal        { flex-direction: row-reverse; }
+[dir="rtl"] .cart-shipping-note   { text-align: center; font-family: 'Tajawal', sans-serif; }
+[dir="rtl"] .upsell-item          { flex-direction: row-reverse; }
+
+/* SHOP PAGE */
+[dir="rtl"] .shop-layout          { direction: rtl; }
+[dir="rtl"] .sidebar-filters      { direction: rtl; text-align: right; }
+[dir="rtl"] .filter-checkboxes label { display: flex; flex-direction: row-reverse; align-items: center; gap: 8px; }
+[dir="rtl"] .color-swatches       { justify-content: flex-end; }
+[dir="rtl"] .page-title-bar       { direction: rtl; }
+[dir="rtl"] .sort-bar             { flex-direction: row-reverse; }
+
+/* ABOUT */
+[dir="rtl"] .about-split          { direction: rtl; }
+[dir="rtl"] .about-text           { text-align: right; }
+[dir="rtl"] .stats-bar            { direction: rtl; }
+[dir="rtl"] .stat-item            { text-align: right; }
+[dir="rtl"] .values-grid          { direction: rtl; }
+[dir="rtl"] .value-card           { text-align: right; }
+[dir="rtl"] .about-cta            { text-align: center; }
+
+/* LOOKBOOK */
+[dir="rtl"] .lookbook-hero        { text-align: center; }
+[dir="rtl"] .lookbook-cta         { text-align: center; }
+
+/* CONTACT */
+[dir="rtl"] .contact-layout       { direction: rtl; }
+[dir="rtl"] .contact-left         { text-align: right; }
+[dir="rtl"] .contact-right        { padding-left: 0; padding-right: 64px; }
+[dir="rtl"] .contact-detail-item  { flex-direction: row-reverse; }
+[dir="rtl"] .contact-detail-item h4,
+[dir="rtl"] .contact-detail-item p { text-align: right; }
+[dir="rtl"] .contact-social       { text-align: right; }
+[dir="rtl"] .social-links         { flex-direction: row-reverse; }
+[dir="rtl"] .contact-form label   { text-align: right; display: block; font-family: 'Tajawal', sans-serif; }
+[dir="rtl"] .contact-form input,
+[dir="rtl"] .contact-form select,
+[dir="rtl"] .contact-form textarea { text-align: right; direction: rtl; font-family: 'Tajawal', sans-serif; }
+[dir="rtl"] .form-row             { direction: rtl; }
+
+/* ACCOUNT */
+[dir="rtl"] .account-layout       { direction: rtl; }
+[dir="rtl"] .account-sidebar      { text-align: right; }
+[dir="rtl"] .account-nav-item     { flex-direction: row-reverse; }
+[dir="rtl"] .account-content      { text-align: right; }
+[dir="rtl"] .orders-table         { direction: rtl; }
+[dir="rtl"] .orders-table th,
+[dir="rtl"] .orders-table td      { text-align: right; }
+
+/* CHECKOUT */
+[dir="rtl"] .checkout-body        { direction: rtl; }
+[dir="rtl"] .checkout-form-col    { direction: rtl; }
+[dir="rtl"] .checkout-form h2     { text-align: right; }
+[dir="rtl"] .checkout-progress    { direction: rtl; }
+[dir="rtl"] .checkout-nav-btns    { flex-direction: row-reverse; }
+[dir="rtl"] .form-group           { text-align: right; }
+[dir="rtl"] .form-group label     { text-align: right; display: block; font-family: 'Tajawal', sans-serif; }
+[dir="rtl"] .form-group input,
+[dir="rtl"] .form-group select    { text-align: right; direction: rtl; font-family: 'Tajawal', sans-serif; }
+[dir="rtl"] .shipping-option      { flex-direction: row-reverse; }
+[dir="rtl"] .shipping-option-info { text-align: right; }
+[dir="rtl"] .cod-box              { flex-direction: row-reverse; text-align: right; }
+[dir="rtl"] .cod-text             { text-align: right; }
+[dir="rtl"] .cod-note p           { text-align: right; }
+[dir="rtl"] .checkout-summary-col { text-align: right; direction: rtl; }
+[dir="rtl"] .summary-item        { flex-direction: row-reverse; }
+[dir="rtl"] .summary-item-info   { text-align: right; }
+[dir="rtl"] .summary-row         { flex-direction: row-reverse; }
+[dir="rtl"] .promo-form          { flex-direction: row-reverse; }
+[dir="rtl"] .promo-form input    { text-align: right; direction: rtl; }
