@@ -148,7 +148,7 @@ function injectCartDrawer() {
     <aside class="cart-drawer" id="cartDrawer">
       <div class="cart-header">
         <h3>Your Cart (<span id="cartCount">0</span>)</h3>
-        <button class="cart-close" id="cartClose">✕</button>
+        <button class="cart-close" id="cartClose"><img src="images/icons/close.png" alt="Close" style="width:14px;height:14px;opacity:0.7;"></button>
       </div>
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-upsell">
