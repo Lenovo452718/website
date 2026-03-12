@@ -1366,7 +1366,9 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .contact-details { display: flex; flex-direction: column; gap: 24px; margin-bottom: 48px; }
 .contact-detail-item { display: flex; align-items: flex-start; gap: 16px; }
-.contact-detail-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.contact-detail-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; }
+.social-logo { width: 28px; height: 28px; display: block; }
+.social-link-logo { width: 14px; height: 14px; display: block; flex-shrink: 0; }
 .contact-detail-item h4 { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 4px; }
 .contact-detail-item p { font-size: 14px; color: var(--gray); line-height: 1.6; }
 
