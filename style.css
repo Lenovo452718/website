@@ -1879,20 +1879,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   opacity: 1;
 }
 
-/* Thumb number label */
-.thumb-item::before {
-  content: attr(data-num);
-  position: absolute;
-  top: 6px; left: 6px;
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  color: var(--white);
-  background: rgba(0,0,0,0.45);
-  padding: 2px 5px;
-  z-index: 2;
-  backdrop-filter: blur(4px);
-}
+/* Thumb number label — removed */
 
 /* Main image — full width, same aspect-ratio as video */
 .gallery-main-new {

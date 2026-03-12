@@ -87,7 +87,7 @@ function renderCartItems() {
         <div class="cart-item-img" style="background: ${getProductColor(item.name)};"></div>
         <div>
           <p class="cart-item-name">${item.name}</p>
-          <p class="cart-item-price">$${item.price.toFixed(2)} &middot; ${item.size}</p>
+          <p class="cart-item-price">${item.price} MAD &middot; ${item.size}</p>
           <div class="cart-item-qty">
             <button onclick="updateQty('${item.id}', -1)">−</button>
             <span>${item.qty}</span>
@@ -100,7 +100,7 @@ function renderCartItems() {
   }
 
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  if (totalEl) totalEl.textContent = '$' + subtotal.toFixed(2);
+  if (totalEl) totalEl.textContent = subtotal + ' MAD';
 }
 
 function getProductColor(name) {
@@ -155,13 +155,13 @@ function injectCartDrawer() {
         <p class="upsell-label">You might also like</p>
         <div class="upsell-item">
           <div class="upsell-img" style="background:#1a1a1a;"></div>
-          <div><p>Noir Skinny</p><span>$79.00</span></div>
-          <button class="upsell-add" data-name="Noir Skinny" data-price="79">+</button>
+          <div><p>Noir Skinny</p><span>179 MAD</span></div>
+          <button class="upsell-add" data-name="Noir Skinny" data-price="179">+</button>
         </div>
       </div>
       <div class="cart-footer">
-        <div class="cart-subtotal"><span>Subtotal</span><span id="cartTotal">$0.00</span></div>
-        <p class="cart-shipping-note">Free shipping on orders over $80</p>
+        <div class="cart-subtotal"><span>Subtotal</span><span id="cartTotal">0 MAD</span></div>
+        <p class="cart-shipping-note">Free shipping on all orders</p>
         <a href="checkout.html" class="btn-dark" id="checkoutBtn" style="display:block;text-align:center;padding:16px;">Checkout</a>
         <a href="#" class="btn-text cart-continue" id="continueShopping">Continue Shopping →</a>
       </div>
@@ -275,7 +275,7 @@ function initShopFilters() {
   const priceMax = document.getElementById('priceMax');
   if (priceRange) {
     priceRange.addEventListener('input', () => {
-      if (priceMax) priceMax.textContent = '$' + priceRange.value;
+      if (priceMax) priceMax.textContent = priceRange.value + ' MAD';
       applyFilters();
     });
   }
@@ -288,7 +288,7 @@ function initShopFilters() {
       document.querySelectorAll('.filter-size, .filter-color').forEach(i => i.checked = false);
       const allRadio = document.querySelector('.filter-fit[value="all"]');
       if (allRadio) allRadio.checked = true;
-      if (priceRange) { priceRange.value = 200; if (priceMax) priceMax.textContent = '$200'; }
+      if (priceRange) { priceRange.value = 200; if (priceMax) priceMax.textContent = '200 MAD'; }
       if (sortSelect) sortSelect.value = 'featured';
       applyFilters();
     });
@@ -387,7 +387,8 @@ function initProductAddToCart() {
   btn.addEventListener('click', () => {
     const name = document.querySelector('.product-name')?.textContent?.trim() || 'Product';
     const priceEl = document.querySelector('.product-price-display');
-    const price = priceEl ? priceEl.textContent.replace(/[^0-9.]/g, '') : '79';
+    const prices = priceEl ? priceEl.textContent.match(/\d+/g) : null;
+    const price = prices ? prices[prices.length - 1] : '179';
     const activeSize = document.querySelector('.size-btn.active')?.textContent?.trim() || 'M';
     const qty = parseInt(document.querySelector('.qty-display')?.textContent) || 1;
     for (let i = 0; i < qty; i++) addToCart(name, price, 'Dark Wash', activeSize);
@@ -445,14 +446,53 @@ function initCheckout() {
     });
   });
 
+  // Shipping option toggle
+  let shippingCost = 0;
   document.querySelectorAll('.shipping-option').forEach(opt => {
     opt.querySelector('input')?.addEventListener('change', () => {
       document.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
+      shippingCost = opt.querySelector('input').value === 'express' ? 30 : 0;
+      updateCheckoutTotals(shippingCost);
     });
   });
 
+  // Populate order summary from cart
+  const cart = getCart();
+  const summaryItems = document.getElementById('checkoutSummaryItems');
+  if (summaryItems) {
+    if (cart.length === 0) {
+      summaryItems.innerHTML = '<p style="font-size:13px;color:var(--gray);padding:12px 0;">Your cart is empty.</p>';
+    } else {
+      summaryItems.innerHTML = cart.map(item => `
+        <div class="summary-item">
+          <div class="summary-item-img" style="background:#555;">
+            <span class="summary-item-badge">${item.qty}</span>
+          </div>
+          <div class="summary-item-info">
+            <p class="summary-item-name">${item.name}</p>
+            <p class="summary-item-variant">Size: ${item.size}</p>
+          </div>
+          <span class="summary-item-price">${item.price * item.qty} MAD</span>
+        </div>
+      `).join('');
+    }
+  }
+  updateCheckoutTotals(0);
+
   goTo(0);
+}
+
+function updateCheckoutTotals(shippingCost) {
+  const cart = getCart();
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  const total = subtotal + shippingCost;
+  const subtotalEl = document.getElementById('checkoutSubtotal');
+  const shippingEl = document.getElementById('checkoutShipping');
+  const totalEl    = document.getElementById('checkoutTotal');
+  if (subtotalEl) subtotalEl.textContent = subtotal + ' MAD';
+  if (shippingEl) shippingEl.textContent = shippingCost > 0 ? shippingCost + ' MAD' : 'Free';
+  if (totalEl)    totalEl.textContent    = total + ' MAD';
 }
 
 /* ============================================================
