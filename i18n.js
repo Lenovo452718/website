@@ -21,11 +21,7 @@ function t(key) {
 function applyLang(lang) {
   const T = TRANSLATIONS[lang] || TRANSLATIONS['en'];
 
-  /* ── Direction & lang attribute ── */
-  const isRTL = lang === 'ar';
   document.documentElement.lang = lang;
-  document.documentElement.dir  = isRTL ? 'rtl' : 'ltr';
-  document.body.classList.toggle('rtl', isRTL);
 
   /* ── data-i18n text content ── */
   document.querySelectorAll('[data-i18n]').forEach(el => {
