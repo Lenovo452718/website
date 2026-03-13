@@ -56,27 +56,45 @@
 
   <!-- GALLERY -->
   <div class="product-gallery">
-    <div class="gallery-main">
-      <div class="gallery-main-img" id="galleryMain" style="background: #0f1f3d; width:100%; height:100%;"></div>
+
+    <!-- VIDEO (shown first, full gallery area) -->
+    <div class="gallery-video-wrap" id="galleryVideoWrap">
+      <video id="productVideo" autoplay playsinline muted>
+        <source src="IMG_4876.MOV" type="video/mp4">
+        <source src="IMG_4876.MOV" type="video/quicktime">
+      </video>
+      <button class="video-skip-btn" id="videoSkipBtn">Skip ›</button>
     </div>
-    <div class="gallery-thumbnails">
-      <div class="gallery-thumb active">
-        <div class="gallery-thumb-img" style="background: #0f1f3d;"></div>
-      </div>
-      <div class="gallery-thumb">
-        <div class="gallery-thumb-img" style="background: #162a50;"></div>
-      </div>
-      <div class="gallery-thumb">
-        <div class="gallery-thumb-img" style="background: #0a1628;"></div>
-      </div>
-      <div class="gallery-thumb">
-        <div class="gallery-thumb-img" style="background: #1e3060;"></div>
+
+    <!-- IMAGES (hidden, reveals after video ends) -->
+    <div class="gallery-images-wrap" id="galleryImagesWrap">
+      <div class="gallery-new">
+
+        <!-- Left: vertical thumbnails -->
+        <div class="gallery-filmstrip">
+          <div class="thumb-item active" data-num="01">
+            <div style="width:100%;height:100%;background:#0f1f3d;"></div>
+          </div>
+          <div class="thumb-item" data-num="02">
+            <div style="width:100%;height:100%;background:#162a50;"></div>
+          </div>
+          <div class="thumb-item" data-num="03">
+            <div style="width:100%;height:100%;background:#0a1628;"></div>
+          </div>
+          <div class="thumb-item" data-num="04">
+            <div style="width:100%;height:100%;background:#1e3060;"></div>
+          </div>
+        </div>
+
+        <!-- Right: main image -->
+        <div class="gallery-main-new" id="galleryMainNew" data-counter="01 / 04">
+          <span class="zoom-hint">⊕ Zoom</span>
+          <div style="width:100%;height:100%;background:#0f1f3d;"></div>
+        </div>
+
       </div>
     </div>
-    <button class="gallery-video-btn">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-      View Video
-    </button>
+
   </div>
 
   <!-- INFO PANEL -->
