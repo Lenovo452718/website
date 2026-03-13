@@ -109,51 +109,161 @@
 
     /* ─── NO RETURNS BANNER ─────────────────────────────────── */
     .sp-no-return {
-      background: #0a1628;
-      border-radius: 16px;
+      border-radius: 20px;
       overflow: hidden;
-      margin: -32px auto 60px;
+      margin: -32px auto 64px;
       position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      box-shadow: 0 24px 80px rgba(192,57,43,0.28), 0 4px 20px rgba(0,0,0,0.2);
+      background: #0a0a0a;
     }
+    /* red glow border */
+    .sp-no-return::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      border: 1.5px solid rgba(192,57,43,0.5);
+      pointer-events: none;
+      z-index: 2;
+    }
+    /* background layers */
+    .sp-no-return-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 0% 50%, rgba(120,10,10,0.55) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 80% at 100% 30%, rgba(192,57,43,0.18) 0%, transparent 55%),
+        linear-gradient(160deg, #150303 0%, #0a0a0a 60%, #0a1628 100%);
+      z-index: 0;
+    }
+    /* diagonal stripe texture */
+    .sp-no-return-texture {
+      position: absolute;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg,
+        transparent,
+        transparent 18px,
+        rgba(255,255,255,0.012) 18px,
+        rgba(255,255,255,0.012) 19px
+      );
+      z-index: 0;
+    }
+    .sp-no-return-inner {
+      position: relative;
+      z-index: 1;
+    }
+    /* top strip */
     .sp-no-return-top {
-      background: #c0392b;
-      padding: 14px 28px;
+      background: linear-gradient(90deg, #7b0d0d 0%, #c0392b 50%, #7b0d0d 100%);
+      padding: 10px 28px;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 10px;
     }
+    .sp-no-return-top-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.5);
+      animation: blink 1.4s infinite;
+    }
+    @keyframes blink {
+      0%,100% { opacity: 1; } 50% { opacity: 0.2; }
+    }
     .sp-no-return-top span {
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.15em;
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: #fff;
     }
+    /* body */
     .sp-no-return-body {
-      padding: 24px 28px 28px;
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
+      padding: 36px 36px 40px;
+      display: grid;
+      grid-template-columns: auto 1px 1fr;
+      gap: 0 32px;
+      align-items: center;
     }
-    .sp-no-return-icon {
+    @media (max-width: 600px) {
+      .sp-no-return-body {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        padding: 28px 24px 32px;
+      }
+      .sp-no-return-sep { display: none; }
+    }
+    .sp-no-return-left {
+      text-align: center;
+    }
+    .sp-no-return-icon-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(192,57,43,0.25) 0%, rgba(192,57,43,0.05) 70%);
+      border: 1.5px solid rgba(192,57,43,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 32px;
-      flex-shrink: 0;
-      line-height: 1;
+      margin: 0 auto 14px;
+    }
+    .sp-no-return-badge {
+      display: inline-block;
+      background: rgba(192,57,43,0.15);
+      border: 1px solid rgba(192,57,43,0.35);
+      color: #e07070;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+    .sp-no-return-sep {
+      width: 1px;
+      height: 100%;
+      background: linear-gradient(to bottom, transparent, rgba(192,57,43,0.3), transparent);
+      align-self: stretch;
     }
     .sp-no-return-text h3 {
-      font-size: 17px;
-      font-weight: 800;
+      font-size: 26px;
+      font-weight: 900;
       color: #fff;
-      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 14px;
+    }
+    .sp-no-return-text h3 em {
+      font-style: italic;
+      color: #e74c3c;
     }
     .sp-no-return-text p {
       font-size: 14px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.7;
-      margin: 0;
+      color: rgba(255,255,255,0.55);
+      line-height: 1.75;
+      margin: 0 0 16px;
     }
     .sp-no-return-text p strong { color: #e0c97a; }
+    .sp-no-return-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .sp-no-return-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: rgba(192,57,43,0.15);
+      border: 1px solid rgba(192,57,43,0.3);
+      color: #e07070;
+    }
 
     /* ─── SECTION ───────────────────────────────────────────── */
     .sp-section { margin-bottom: 64px; }
@@ -654,16 +764,30 @@
 
   <!-- NO RETURNS BANNER -->
   <div class="sp-no-return reveal">
-    <div class="sp-no-return-top">
-      <span>⚠</span>
-      <span>Important — Please Read Before Ordering</span>
-    </div>
-    <div class="sp-no-return-body">
-      <div class="sp-no-return-icon">🚫</div>
-      <div class="sp-no-return-text">
-        <h3>No Returns. No Refunds.</h3>
-        <p>All sales are final. Once your order has been delivered, we do not accept returns or issue refunds under any circumstances. Please check your size carefully using our size guide before placing your order.<br><br>
-        The only exception is a <strong>size exchange within 3 business days</strong> of delivery — see the policy below for full details.</p>
+    <div class="sp-no-return-bg"></div>
+    <div class="sp-no-return-texture"></div>
+    <div class="sp-no-return-inner">
+      <div class="sp-no-return-top">
+        <div class="sp-no-return-top-dot"></div>
+        <span>Important — Please Read Before Ordering</span>
+        <div class="sp-no-return-top-dot"></div>
+      </div>
+      <div class="sp-no-return-body">
+        <div class="sp-no-return-left">
+          <div class="sp-no-return-icon-wrap">🚫</div>
+          <span class="sp-no-return-badge">Final Sale</span>
+        </div>
+        <div class="sp-no-return-sep"></div>
+        <div class="sp-no-return-text">
+          <h3>No Returns.<br><em>No Refunds.</em></h3>
+          <p>All sales are final. Once your order has been delivered, we do not accept returns or issue refunds under any circumstances. Please check your size carefully before ordering.<br><br>
+          The only exception is a <strong>size exchange within 3 business days</strong> of delivery.</p>
+          <div class="sp-no-return-pills">
+            <span class="sp-no-return-pill">✗ No refunds</span>
+            <span class="sp-no-return-pill">✗ No returns</span>
+            <span class="sp-no-return-pill">✓ Size exchange only</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>
