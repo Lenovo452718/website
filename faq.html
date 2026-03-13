@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FAQ — StreetStore</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="rtl.css" />
+  <style>
+
+    /* ─── HERO ─────────────────────────────────────────────── */
+    .faq-hero {
+      position: relative;
+      background: #060d1a;
+      overflow: hidden;
+      padding: 110px 24px 90px;
+      text-align: center;
+    }
+    .faq-hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 70% at 15% 50%, rgba(26,48,96,0.7) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 50% at 85% 20%, rgba(192,57,43,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 50% 40% at 50% 100%, rgba(224,201,122,0.06) 0%, transparent 60%);
+    }
+    .faq-hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .faq-hero-content { position: relative; z-index: 1; }
+    .faq-hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #e0c97a;
+      background: rgba(224,201,122,0.08);
+      border: 1px solid rgba(224,201,122,0.2);
+      padding: 7px 16px;
+      border-radius: 30px;
+      margin-bottom: 28px;
+    }
+    .faq-hero h1 {
+      font-size: clamp(36px, 7vw, 64px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #fff;
+      line-height: 1.05;
+      margin-bottom: 20px;
+    }
+    .faq-hero h1 em { font-style: italic; color: #e0c97a; }
+    .faq-hero-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.45);
+      max-width: 400px;
+      margin: 0 auto 52px;
+      line-height: 1.75;
+    }
+    /* search bar */
+    .faq-search-wrap {
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+    }
+    .faq-search {
+      width: 100%;
+      padding: 16px 52px 16px 22px;
+      border-radius: 50px;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+      box-sizing: border-box;
+    }
+    .faq-search::placeholder { color: rgba(255,255,255,0.3); }
+    .faq-search:focus {
+      border-color: rgba(224,201,122,0.5);
+      background: rgba(255,255,255,0.09);
+    }
+    .faq-search-icon {
+      position: absolute;
+      right: 18px; top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.35);
+      pointer-events: none;
+    }
+
+    /* ─── STATS BAR ─────────────────────────────────────────── */
+    .faq-stats {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding-top: 40px;
+      margin-top: 52px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .faq-stat {
+      flex: 1;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      padding: 0 20px;
+    }
+    .faq-stat:last-child { border-right: none; }
+    .faq-stat-num {
+      font-size: 30px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+    .faq-stat-num span { color: #e0c97a; }
+    .faq-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ─── BODY ──────────────────────────────────────────────── */
+    .faq-body {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 72px 24px 100px;
+    }
+
+    /* ─── CATEGORY TABS ─────────────────────────────────────── */
+    .faq-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 48px;
+      justify-content: center;
+    }
+    .faq-tab {
+      padding: 9px 20px;
+      border-radius: 30px;
+      border: 1.5px solid #e0e0e0;
+      background: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      color: #666;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .faq-tab:hover { border-color: #111; color: #111; }
+    .faq-tab.active {
+      background: #0a1628;
+      border-color: #0a1628;
+      color: #e0c97a;
+    }
+    .faq-tab-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.5;
+    }
+
+    /* ─── FAQ SECTION BLOCK ─────────────────────────────────── */
+    .faq-group {
+      margin-bottom: 56px;
+      display: none;
+    }
+    .faq-group.active { display: block; }
+    .faq-group-head {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .faq-group-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: #0a1628;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .faq-group-title {
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #111;
+    }
+    .faq-group-count {
+      margin-left: auto;
+      font-size: 11px;
+      color: #aaa;
+      font-weight: 600;
+    }
+
+    /* ─── ACCORDION ─────────────────────────────────────────── */
+    .faq-list { display: flex; flex-direction: column; gap: 10px; }
+    .faq-item {
+      border-radius: 14px;
+      border: 1.5px solid #ebebeb;
+      background: #fff;
+      overflow: hidden;
+      transition: box-shadow 0.25s, border-color 0.25s;
+    }
+    .faq-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
+    .faq-item.open {
+      border-color: #0a1628;
+      box-shadow: 0 6px 28px rgba(10,22,40,0.1);
+    }
+    .faq-q {
+      width: 100%;
+      text-align: left;
+      background: none;
+      border: none;
+      padding: 20px 22px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.4;
+    }
+    .faq-q-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #f5f5f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .faq-item.open .faq-q-icon { background: #0a1628; }
+    .faq-q-text { flex: 1; }
+    .faq-chevron {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1.5px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.3s, background 0.2s, border-color 0.2s;
+      color: #aaa;
+    }
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+      background: #0a1628;
+      border-color: #0a1628;
+      color: #e0c97a;
+    }
+    .faq-a {
+      display: none;
+      padding: 0 22px 22px 70px;
+      font-size: 14px;
+      color: #555;
+      line-height: 1.75;
+    }
+    .faq-a.open { display: block; }
+    .faq-a strong { color: #111; }
+    .faq-a a { color: #0a1628; text-decoration: underline; }
+
+    /* ─── STILL NEED HELP ───────────────────────────────────── */
+    .faq-cta {
+      border-radius: 20px;
+      background: linear-gradient(135deg, #060d1a 0%, #0f2040 50%, #0a1628 100%);
+      padding: 56px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    .faq-cta::before {
+      content: '';
+      position: absolute;
+      top: -80px; right: -80px;
+      width: 260px; height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(224,201,122,0.09), transparent 70%);
+    }
+    .faq-cta::after {
+      content: '';
+      position: absolute;
+      bottom: -60px; left: -60px;
+      width: 200px; height: 200px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(26,48,96,0.5), transparent 70%);
+    }
+    .faq-cta-inner { position: relative; z-index: 1; }
+    .faq-cta-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #e0c97a;
+      margin-bottom: 16px;
+    }
+    .faq-cta h3 {
+      font-size: 30px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .faq-cta p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      max-width: 360px;
+      margin: 0 auto 32px;
+      line-height: 1.7;
+    }
+    .faq-cta-btns {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-wa-green {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: #25d366;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-wa-green:hover { opacity: 0.85; }
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: transparent;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1.5px solid rgba(255,255,255,0.18);
+      border-radius: 6px;
+      text-decoration: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-ghost:hover { border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.05); }
+
+    /* ─── NO RESULTS ────────────────────────────────────────── */
+    .faq-no-results {
+      text-align: center;
+      padding: 48px 0;
+      display: none;
+    }
+    .faq-no-results p { font-size: 15px; color: #aaa; }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="nav-inner">
+    <nav class="nav-left">
+      <a href="shop.html" data-i18n="nav_shop">Shop</a>
+      <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
+    </nav>
+    <a href="index.html" class="nav-logo">STREETSTORE</a>
+    <div class="nav-right">
+      <a href="contact.html" data-i18n="nav_contact">Contact</a>
+      <button class="nav-icon-btn" aria-label="Search">
+        <img src="images/icons/search.png" alt="Search" style="width:18px;height:18px;opacity:0.75;">
+      </button>
+      <button class="nav-icon-btn cart-btn" aria-label="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge">0</span>
+      </button>
+      <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="shop.html">Shop</a>
+    <a href="lookbook.html">Lookbook</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+    <a href="account.html">Account</a>
+  </nav>
+</header>
+
+<!-- ===== BREADCRUMB ===== -->
+<nav class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>/</span>
+  <span class="current">FAQ</span>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="faq-hero">
+  <div class="faq-hero-bg"></div>
+  <div class="faq-hero-grid"></div>
+  <div class="faq-hero-content">
+    <div class="faq-hero-tag">✦ Help Center</div>
+    <h1>Got a <em>question?</em><br>We've got answers.</h1>
+    <p class="faq-hero-sub">Find answers to the most common questions about orders, sizing, shipping, and more.</p>
+    <div class="faq-search-wrap">
+      <input class="faq-search" id="faqSearch" type="text" placeholder="Search questions…" autocomplete="off" />
+      <svg class="faq-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </div>
+    <div class="faq-stats">
+      <div class="faq-stat">
+        <div class="faq-stat-num">20<span>+</span></div>
+        <div class="faq-stat-label">Questions answered</div>
+      </div>
+      <div class="faq-stat">
+        <div class="faq-stat-num">4</div>
+        <div class="faq-stat-label">Categories</div>
+      </div>
+      <div class="faq-stat">
+        <div class="faq-stat-num">24<span>h</span></div>
+        <div class="faq-stat-label">Response time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== FAQ BODY ===== -->
+<div class="faq-body">
+
+  <!-- TABS -->
+  <div class="faq-tabs">
+    <button class="faq-tab active" data-group="all"><span class="faq-tab-dot"></span>All Questions</button>
+    <button class="faq-tab" data-group="orders"><span class="faq-tab-dot"></span>Orders &amp; Payment</button>
+    <button class="faq-tab" data-group="shipping"><span class="faq-tab-dot"></span>Shipping</button>
+    <button class="faq-tab" data-group="sizing"><span class="faq-tab-dot"></span>Sizing &amp; Fit</button>
+    <button class="faq-tab" data-group="exchange"><span class="faq-tab-dot"></span>Exchanges</button>
+  </div>
+
+  <div id="faqNoResults" class="faq-no-results">
+    <p>No results found. Try a different keyword or <a href="contact.html" style="color:#0a1628;">contact us</a>.</p>
+  </div>
+
+  <!-- ── ORDERS & PAYMENT ── -->
+  <div class="faq-group active" data-group="orders">
+    <div class="faq-group-head">
+      <div class="faq-group-icon">💳</div>
+      <span class="faq-group-title">Orders &amp; Payment</span>
+      <span class="faq-group-count">5 questions</span>
+    </div>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🛍</span>
+          <span class="faq-q-text">How do I place an order?</span>
+          <span class="faq-chevron">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </span>
+        </button>
+        <div class="faq-a">Browse our collection, select your size and color, then click <strong>Add to Cart</strong>. Once you're ready, open the cart and proceed to checkout. Fill in your delivery details and confirm your order.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">💰</span>
+          <span class="faq-q-text">What payment methods do you accept?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">We accept <strong>cash on delivery (COD)</strong> — you pay when your order arrives at your door. No card or online payment required.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">✏️</span>
+          <span class="faq-q-text">Can I modify or cancel my order after placing it?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">You can modify or cancel your order <strong>within 2 hours</strong> of placing it. Contact us immediately via WhatsApp. Once the order has been dispatched, modifications are no longer possible.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">📩</span>
+          <span class="faq-q-text">Will I receive an order confirmation?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Yes. Once your order is confirmed, you will receive a message via WhatsApp with your order details and estimated delivery date.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🎁</span>
+          <span class="faq-q-text">How does the pack deal discount work?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Add any <strong>2 items</strong> to your cart and the price automatically drops to <strong>319 MAD</strong>. Add <strong>3 items</strong> and it becomes <strong>479 MAD</strong>. You can mix and match any styles — no need to buy the same product twice.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SHIPPING ── -->
+  <div class="faq-group active" data-group="shipping">
+    <div class="faq-group-head">
+      <div class="faq-group-icon">🚚</div>
+      <span class="faq-group-title">Shipping &amp; Delivery</span>
+      <span class="faq-group-count">5 questions</span>
+    </div>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">📦</span>
+          <span class="faq-q-text">How long does delivery take?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Standard delivery takes <strong>2–5 business days</strong>. Express delivery takes <strong>1–2 business days</strong> for an extra 30 MAD. Orders placed before 3 PM are processed the same day.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🆓</span>
+          <span class="faq-q-text">Is shipping free?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><strong>Yes — standard shipping is completely free</strong> on all orders across Morocco. Express shipping is available for 30 MAD if you need your order faster.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">📍</span>
+          <span class="faq-q-text">Do you deliver everywhere in Morocco?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Yes, we deliver to <strong>all regions of Morocco</strong>. Whether you're in Casablanca, Marrakech, Fes, Rabat, or any other city — we've got you covered.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🔍</span>
+          <span class="faq-q-text">How can I track my order?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Once your order is dispatched, we'll send you a tracking update via WhatsApp. You can also contact us directly at any time for a status update on your delivery.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🚪</span>
+          <span class="faq-q-text">What if I'm not home when the delivery arrives?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">The delivery agent will attempt to contact you. If you're unavailable, a second delivery attempt will be made the following business day. Please make sure someone is available to receive the package.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SIZING ── -->
+  <div class="faq-group active" data-group="sizing">
+    <div class="faq-group-head">
+      <div class="faq-group-icon">📐</div>
+      <span class="faq-group-title">Sizing &amp; Fit</span>
+      <span class="faq-group-count">5 questions</span>
+    </div>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">📏</span>
+          <span class="faq-q-text">How do I find my correct size?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Use the <strong>Size Guide</strong> available on each product page. Measure your waist and hips in inches, then match to the size chart. When in doubt, size up for a more relaxed fit.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">✅</span>
+          <span class="faq-q-text">Do the jeans run true to size?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Most of our styles run <strong>true to size</strong>. Our high-rise and skinny styles have a slight stretch due to the elastane blend. For baggy and wide-leg styles, you can size down for a relaxed look.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🧺</span>
+          <span class="faq-q-text">Will the jeans shrink after washing?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Minimal shrinkage may occur after the first wash. We recommend washing at <strong>30°C</strong> and air drying rather than tumble drying to preserve the shape and color of your jeans.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">👗</span>
+          <span class="faq-q-text">What is the inseam length for each size?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Our standard inseam is approximately <strong>30–32 inches</strong> depending on the style. Wide-leg and flare styles tend to have a longer inseam to complement the silhouette. Exact measurements are on each product page.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🤔</span>
+          <span class="faq-q-text">I'm between two sizes — which should I choose?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">For fitted styles (high-rise, skinny), go with the <strong>smaller size</strong> — the fabric has stretch. For relaxed styles (baggy, wide-leg), choose the <strong>larger size</strong> for comfort. Still unsure? Message us on WhatsApp and we'll help you decide.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── EXCHANGES ── -->
+  <div class="faq-group active" data-group="exchange">
+    <div class="faq-group-head">
+      <div class="faq-group-icon">🔄</div>
+      <span class="faq-group-title">Exchanges &amp; Policy</span>
+      <span class="faq-group-count">5 questions</span>
+    </div>
+    <div class="faq-list">
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">🔁</span>
+          <span class="faq-q-text">Can I return my order for a refund?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a"><strong>No.</strong> All sales are final. We do not accept returns or issue refunds once your order has been delivered. Please review your size carefully before placing your order. See our <a href="shipping.html">Shipping &amp; Exchanges</a> page for full details.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">📐</span>
+          <span class="faq-q-text">Can I exchange my jeans for a different size?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Yes — you can request a <strong>size exchange within 3 business days</strong> of receiving your order. The item must be unworn, unwashed, and with tags still attached. A <strong>35 MAD re-shipping fee</strong> applies.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">⏱</span>
+          <span class="faq-q-text">How long do I have to request an exchange?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">You have <strong>3 business days</strong> from the date of delivery to contact us and request a size exchange. Requests made after this window cannot be accepted.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">💸</span>
+          <span class="faq-q-text">Why is there a 35 MAD exchange fee?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">The <strong>35 MAD</strong> fee covers the cost of re-shipping your new size. It must be paid before we dispatch the replacement. This fee is non-refundable.</div>
+      </div>
+
+      <div class="faq-item">
+        <button class="faq-q">
+          <span class="faq-q-icon">📲</span>
+          <span class="faq-q-text">How do I start an exchange request?</span>
+          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-a">Message us on <strong>WhatsApp</strong> with your order number and the size you need. Send a photo of the item (unworn, tags attached) so we can confirm eligibility. Once approved, pay the 35 MAD and your new size ships immediately.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="faq-cta reveal">
+    <div class="faq-cta-inner">
+      <p class="faq-cta-tag">Still need help?</p>
+      <h3>We're always here.</h3>
+      <p>Can't find your answer? Our team responds within 24 hours — reach us directly.</p>
+      <div class="faq-cta-btns">
+        <a href="https://wa.me/212000000000" class="btn-wa-green" target="_blank">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Chat on WhatsApp
+        </a>
+        <a href="contact.html" class="btn-ghost">Contact Us →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="footer-logo">STREETSTORE</span>
+      <p>Premium women's denim crafted for the streets and everywhere in between.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="shop.html">All Jeans</a></li>
+        <li><a href="shop.html">New Arrivals</a></li>
+        <li><a href="shop.html">Sale</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="shipping.html">Shipping &amp; Exchanges</a></li>
+        <li><a href="faq.html">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Pinterest</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 StreetStore. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/212000000000" class="whatsapp-float" target="_blank" title="Chat on WhatsApp">
+  <img src="images/icons/whatsapp.png" alt="WhatsApp" style="width:28px;height:28px;filter:brightness(0) invert(1);">
+</a>
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
+<script src="script.js"></script>
+<script>
+  /* ── ACCORDION ── */
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const item = btn.closest('.faq-item');
+      const answer = item.querySelector('.faq-a');
+      const isOpen = item.classList.contains('open');
+      // close all in same list
+      btn.closest('.faq-list').querySelectorAll('.faq-item').forEach(i => {
+        i.classList.remove('open');
+        i.querySelector('.faq-a').classList.remove('open');
+      });
+      if (!isOpen) {
+        item.classList.add('open');
+        answer.classList.add('open');
+      }
+    });
+  });
+
+  /* ── TABS ── */
+  const tabs = document.querySelectorAll('.faq-tab');
+  const groups = document.querySelectorAll('.faq-group');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const group = tab.dataset.group;
+      groups.forEach(g => {
+        g.classList.toggle('active', group === 'all' || g.dataset.group === group);
+      });
+      document.getElementById('faqSearch').value = '';
+      document.getElementById('faqNoResults').style.display = 'none';
+    });
+  });
+
+  /* ── SEARCH ── */
+  document.getElementById('faqSearch').addEventListener('input', function () {
+    const q = this.value.toLowerCase().trim();
+    if (!q) {
+      // restore current tab state
+      const activeTab = document.querySelector('.faq-tab.active');
+      const group = activeTab ? activeTab.dataset.group : 'all';
+      groups.forEach(g => {
+        g.classList.toggle('active', group === 'all' || g.dataset.group === group);
+        g.querySelectorAll('.faq-item').forEach(i => i.style.display = '');
+      });
+      document.getElementById('faqNoResults').style.display = 'none';
+      return;
+    }
+    let anyVisible = false;
+    groups.forEach(g => {
+      g.classList.add('active');
+      let groupHas = false;
+      g.querySelectorAll('.faq-item').forEach(item => {
+        const text = item.textContent.toLowerCase();
+        const match = text.includes(q);
+        item.style.display = match ? '' : 'none';
+        if (match) { groupHas = true; anyVisible = true; }
+      });
+      g.style.display = groupHas ? '' : 'none';
+    });
+    document.getElementById('faqNoResults').style.display = anyVisible ? 'none' : 'block';
+  });
+</script>
+</body>
+</html>
