@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shipping &amp; Exchanges — StreetStore</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="rtl.css" />
+  <style>
+    /* ===== PAGE HERO ===== */
+    .policy-hero {
+      background: linear-gradient(135deg, #0f1f3d 0%, #1a3060 100%);
+      padding: 80px 24px 60px;
+      text-align: center;
+      color: #fff;
+    }
+    .policy-hero .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #e0c97a;
+      margin-bottom: 12px;
+    }
+    .policy-hero h1 {
+      font-size: clamp(28px, 5vw, 48px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .policy-hero p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.65);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ===== LAYOUT ===== */
+    .policy-body {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+    }
+
+    /* ===== ALERT BANNER ===== */
+    .policy-alert {
+      background: #fff5f5;
+      border: 2px solid #e74c3c;
+      border-radius: 10px;
+      padding: 20px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 48px;
+    }
+    .policy-alert-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .policy-alert h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #c0392b;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .policy-alert p {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .policy-section {
+      margin-bottom: 48px;
+    }
+    .policy-section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: #111;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #f0f0f0;
+    }
+    .policy-section-title .icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #0f1f3d, #1a3060);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    /* ===== CARDS ===== */
+    .policy-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .policy-card {
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 20px;
+      border: 1px solid #ebebeb;
+    }
+    .policy-card .card-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .policy-card .card-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111;
+      margin-bottom: 4px;
+    }
+    .policy-card .card-value.gold { color: #9a7c00; }
+    .policy-card .card-note {
+      font-size: 12px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    /* ===== EXCHANGE STEPS ===== */
+    .exchange-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .exchange-step {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      position: relative;
+      padding-bottom: 28px;
+    }
+    .exchange-step:last-child { padding-bottom: 0; }
+    .exchange-step:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      left: 17px;
+      top: 36px;
+      bottom: 0;
+      width: 2px;
+      background: #e8e8e8;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0f1f3d, #1a3060);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-body h4 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 4px;
+      margin-top: 6px;
+    }
+    .step-body p {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ===== FEE BOX ===== */
+    .fee-box {
+      background: linear-gradient(135deg, #0f1f3d 0%, #1a3060 100%);
+      border-radius: 10px;
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #fff;
+      margin-top: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .fee-box .fee-label {
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 4px;
+    }
+    .fee-box .fee-amount {
+      font-size: 32px;
+      font-weight: 800;
+      color: #e0c97a;
+    }
+    .fee-box .fee-desc {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+      max-width: 280px;
+      line-height: 1.5;
+    }
+
+    /* ===== LIST ===== */
+    .policy-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .policy-list li {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      font-size: 14px;
+      color: #444;
+      line-height: 1.6;
+    }
+    .policy-list li .bullet {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #e8f5e9;
+      color: #27ae60;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .policy-list li .bullet.no {
+      background: #fdecea;
+      color: #e74c3c;
+    }
+
+    /* ===== CTA ===== */
+    .policy-cta {
+      background: #f9f9f9;
+      border-radius: 10px;
+      padding: 28px 24px;
+      text-align: center;
+      border: 1px solid #ebebeb;
+      margin-top: 48px;
+    }
+    .policy-cta h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .policy-cta p {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .policy-cta .cta-links {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="nav-inner">
+    <nav class="nav-left">
+      <a href="shop.html" data-i18n="nav_shop">Shop</a>
+      <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
+    </nav>
+    <a href="index.html" class="nav-logo">STREETSTORE</a>
+    <div class="nav-right">
+      <a href="contact.html" data-i18n="nav_contact">Contact</a>
+      <button class="nav-icon-btn" aria-label="Search">
+        <img src="images/icons/search.png" alt="Search" style="width:18px;height:18px;opacity:0.75;">
+      </button>
+      <button class="nav-icon-btn cart-btn" aria-label="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge">0</span>
+      </button>
+      <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="shop.html" data-i18n="nav_shop">Shop</a>
+    <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="account.html" data-i18n="nav_account">Account</a>
+  </nav>
+</header>
+
+<!-- ===== BREADCRUMB ===== -->
+<nav class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>/</span>
+  <span class="current">Shipping &amp; Exchanges</span>
+</nav>
+
+<!-- ===== HERO ===== -->
+<div class="policy-hero">
+  <p class="eyebrow">Policies</p>
+  <h1>Shipping &amp; Exchanges</h1>
+  <p>Everything you need to know about delivery and size exchanges — clear, simple, and honest.</p>
+</div>
+
+<!-- ===== BODY ===== -->
+<div class="policy-body">
+
+  <!-- NO RETURNS ALERT -->
+  <div class="policy-alert">
+    <div class="policy-alert-icon">⚠️</div>
+    <div>
+      <h3>No Returns or Refunds</h3>
+      <p>All sales are final. Once your order is delivered, we do not accept returns or issue refunds. Please review your size carefully before ordering. We do however offer <strong>size exchanges within 3 business days</strong> of receiving your order.</p>
+    </div>
+  </div>
+
+  <!-- SHIPPING -->
+  <div class="policy-section">
+    <h2 class="policy-section-title">
+      <span class="icon">🚚</span>
+      Shipping
+    </h2>
+    <div class="policy-cards">
+      <div class="policy-card">
+        <p class="card-label">Standard Delivery</p>
+        <p class="card-value">Free</p>
+        <p class="card-note">On all orders across Morocco. Delivered within 2–5 business days.</p>
+      </div>
+      <div class="policy-card">
+        <p class="card-label">Express Delivery</p>
+        <p class="card-value gold">30 MAD</p>
+        <p class="card-note">Priority dispatch. Delivered within 1–2 business days.</p>
+      </div>
+      <div class="policy-card">
+        <p class="card-label">Order Processing</p>
+        <p class="card-value">24h</p>
+        <p class="card-note">Orders placed before 3 PM are processed the same day.</p>
+      </div>
+    </div>
+    <ul class="policy-list">
+      <li><span class="bullet">✓</span> You will receive a confirmation message once your order is dispatched.</li>
+      <li><span class="bullet">✓</span> Delivery is available across all regions of Morocco.</li>
+      <li><span class="bullet">✓</span> Someone must be present to receive the package upon delivery.</li>
+    </ul>
+  </div>
+
+  <!-- SIZE EXCHANGE -->
+  <div class="policy-section">
+    <h2 class="policy-section-title">
+      <span class="icon">🔄</span>
+      Size Exchange Policy
+    </h2>
+
+    <ul class="policy-list" style="margin-bottom:24px;">
+      <li><span class="bullet">✓</span> You may request a <strong>size exchange within 3 business days</strong> of receiving your order.</li>
+      <li><span class="bullet">✓</span> The item must be <strong>unworn, unwashed, and in original condition</strong> with tags still attached.</li>
+      <li><span class="bullet">✓</span> Exchanges are for <strong>size only</strong> — same product, different size.</li>
+      <li><span class="bullet no">✗</span> We do <strong>not accept returns</strong> for refund once the item has been delivered.</li>
+      <li><span class="bullet no">✗</span> Worn, washed, or damaged items are not eligible for exchange.</li>
+      <li><span class="bullet no">✗</span> Requests made after 3 business days will not be accepted.</li>
+    </ul>
+
+    <div class="fee-box">
+      <div>
+        <p class="fee-label">Exchange Fee</p>
+        <p class="fee-amount">35 MAD</p>
+      </div>
+      <p class="fee-desc">A flat fee of 35 MAD is charged for every size exchange to cover re-shipping costs. This must be paid before the new size is dispatched.</p>
+    </div>
+  </div>
+
+  <!-- HOW TO EXCHANGE -->
+  <div class="policy-section">
+    <h2 class="policy-section-title">
+      <span class="icon">📋</span>
+      How to Request an Exchange
+    </h2>
+    <div class="exchange-steps">
+      <div class="exchange-step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h4>Contact us within 3 business days</h4>
+          <p>Send us a message via WhatsApp or the contact form with your order number and the size you need.</p>
+        </div>
+      </div>
+      <div class="exchange-step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h4>Confirm item condition</h4>
+          <p>Send a photo of the item — unworn, with tags still attached — so we can verify eligibility.</p>
+        </div>
+      </div>
+      <div class="exchange-step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h4>Pay the 35 MAD exchange fee</h4>
+          <p>Once confirmed, pay the 35 MAD re-shipping fee. Your new size will be dispatched immediately after.</p>
+        </div>
+      </div>
+      <div class="exchange-step">
+        <div class="step-num">4</div>
+        <div class="step-body">
+          <h4>Return the original item</h4>
+          <p>Hand the original item to our delivery agent when they bring your new size. No extra hassle.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="policy-cta">
+    <h3>Have a question?</h3>
+    <p>Our team is here to help. Reach us on WhatsApp or through the contact page and we'll get back to you as quickly as possible.</p>
+    <div class="cta-links">
+      <a href="https://wa.me/212000000000" class="btn-dark" target="_blank" style="padding:14px 28px;font-size:13px;">Chat on WhatsApp</a>
+      <a href="contact.html" class="btn-outline" style="padding:14px 28px;font-size:13px;">Contact Us</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="footer-logo">STREETSTORE</span>
+      <p>Premium women's denim crafted for the streets and everywhere in between.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="shop.html">All Jeans</a></li>
+        <li><a href="shop.html">New Arrivals</a></li>
+        <li><a href="shop.html">Sale</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <ul>
+        <li><a href="contact.html">Contact Us</a></li>
+        <li><a href="shipping.html">Shipping &amp; Exchanges</a></li>
+        <li><a href="#">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Follow</h4>
+      <ul>
+        <li><a href="#">Instagram</a></li>
+        <li><a href="#">TikTok</a></li>
+        <li><a href="#">Pinterest</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 StreetStore. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/212000000000" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><img src="images/icons/whatsapp.png" alt="WhatsApp" style="width:28px;height:28px;filter:brightness(0) invert(1);"></a>
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
