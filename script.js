@@ -102,7 +102,33 @@ function renderCartItems() {
   }
 
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  if (totalEl) totalEl.textContent = subtotal + ' MAD';
+  const discount = getPackDiscount(cart);
+  const total = subtotal - discount;
+
+  const subtotalEl2 = document.getElementById('cartSubtotal');
+  if (subtotalEl2) subtotalEl2.textContent = subtotal + ' MAD';
+
+  const discountRow = document.getElementById('cartPackDiscount');
+  const discountAmt = document.getElementById('cartDiscountAmt');
+  if (discountRow) discountRow.style.display = discount > 0 ? 'flex' : 'none';
+  if (discountAmt) discountAmt.textContent = '-' + discount + ' MAD';
+
+  if (totalEl) totalEl.textContent = total + ' MAD';
+}
+
+function getPackDiscount(cart) {
+  const allPrices = [];
+  cart.forEach(item => {
+    for (let i = 0; i < item.qty; i++) allPrices.push(item.price);
+  });
+  const totalQty = allPrices.length;
+  if (totalQty < 2) return 0;
+  allPrices.sort((a, b) => b - a);
+  const packs = Math.floor(totalQty / 2);
+  const normalTotal = allPrices.reduce((s, p) => s + p, 0);
+  const remainderTotal = allPrices.slice(packs * 2).reduce((s, p) => s + p, 0);
+  const packTotal = packs * 300 + remainderTotal;
+  return Math.max(0, normalTotal - packTotal);
 }
 
 function getProductColor(name) {
@@ -162,7 +188,12 @@ function injectCartDrawer() {
         </div>
       </div>
       <div class="cart-footer">
-        <div class="cart-subtotal"><span data-i18n="subtotal">Subtotal</span><span id="cartTotal">0 MAD</span></div>
+        <div class="cart-subtotal"><span data-i18n="subtotal">Subtotal</span><span id="cartSubtotal">0 MAD</span></div>
+        <div class="cart-pack-discount" id="cartPackDiscount" style="display:none;">
+          <span>🎁 Pack Deal (2 for 300 MAD)</span>
+          <span id="cartDiscountAmt">-0 MAD</span>
+        </div>
+        <div class="cart-subtotal" style="font-weight:700;"><span>Total</span><span id="cartTotal">0 MAD</span></div>
         <p class="cart-shipping-note" data-i18n="free_ship_note">Free shipping on all orders</p>
         <a href="checkout.html" class="btn-dark" id="checkoutBtn" style="display:block;text-align:center;padding:16px;" data-i18n="checkout_btn">Checkout</a>
         <a href="#" class="btn-text cart-continue" id="continueShopping" data-i18n="continue_shopping">Continue Shopping →</a>
@@ -490,7 +521,8 @@ function initCheckout() {
 function updateCheckoutTotals(shippingCost) {
   const cart = getCart();
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  const total = subtotal + shippingCost;
+  const discount = getPackDiscount(cart);
+  const total = subtotal - discount + shippingCost;
   const subtotalEl = document.getElementById('checkoutSubtotal');
   const shippingEl = document.getElementById('checkoutShipping');
   const totalEl    = document.getElementById('checkoutTotal');
