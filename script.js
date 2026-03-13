@@ -117,18 +117,11 @@ function renderCartItems() {
 }
 
 function getPackDiscount(cart) {
-  const allPrices = [];
-  cart.forEach(item => {
-    for (let i = 0; i < item.qty; i++) allPrices.push(item.price);
-  });
-  const totalQty = allPrices.length;
+  const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   if (totalQty < 2) return 0;
-  allPrices.sort((a, b) => b - a);
-  const packs = Math.floor(totalQty / 2);
-  const normalTotal = allPrices.reduce((s, p) => s + p, 0);
-  const remainderTotal = allPrices.slice(packs * 2).reduce((s, p) => s + p, 0);
-  const packTotal = packs * 300 + remainderTotal;
-  return Math.max(0, normalTotal - packTotal);
+  const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
+  // Same discount % as "2 for 319 MAD" on base price 2×179=358: ratio = 39/358
+  return Math.round(subtotal * 39 / 358);
 }
 
 function getProductColor(name) {
@@ -190,7 +183,7 @@ function injectCartDrawer() {
       <div class="cart-footer">
         <div class="cart-subtotal"><span data-i18n="subtotal">Subtotal</span><span id="cartSubtotal">0 MAD</span></div>
         <div class="cart-pack-discount" id="cartPackDiscount" style="display:none;">
-          <span>🎁 Pack Deal (2 for 300 MAD)</span>
+          <span>🎁 Pack Deal Applied</span>
           <span id="cartDiscountAmt">-0 MAD</span>
         </div>
         <div class="cart-subtotal" style="font-weight:700;"><span>Total</span><span id="cartTotal">0 MAD</span></div>
