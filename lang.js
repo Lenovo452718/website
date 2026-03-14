@@ -40,7 +40,7 @@ const TRANSLATIONS = {
     skip:"Skip ›", zoom_hint:"⊕ Zoom", sold_out_badge:"Sold Out",
     reviews_avg_label:"Based on 48 reviews",
     // Shop
-    all_jeans:"All Jeans", filters:"Filters", clear_all:"Clear All",
+    all_jeans:"All Jeans", filters:"Filters", clear_all:"Clear All", no_results:"No products match your filters.",
     sort_by:"Sort By", sort_featured:"Featured",
     sort_price_asc:"Price: Low to High", sort_price_desc:"Price: High to Low", sort_newest:"Newest",
     filter_size:"Size", filter_color:"Color", filter_fit:"Fit", filter_price:"Price",
@@ -213,7 +213,7 @@ const TRANSLATIONS = {
     customer_reviews:"Avis clients", reviews_count:"Basé sur 48 avis",
     skip:"Passer ›", zoom_hint:"⊕ Zoom", sold_out_badge:"Épuisé",
     reviews_avg_label:"Basé sur 48 avis",
-    all_jeans:"Tous les jeans", filters:"Filtres", clear_all:"Effacer tout",
+    all_jeans:"Tous les jeans", filters:"Filtres", clear_all:"Effacer tout", no_results:"Aucun produit ne correspond à vos filtres.",
     sort_by:"Trier par", sort_featured:"En vedette",
     sort_price_asc:"Prix croissant", sort_price_desc:"Prix décroissant", sort_newest:"Nouveautés",
     filter_size:"Taille", filter_color:"Couleur", filter_fit:"Coupe", filter_price:"Prix",

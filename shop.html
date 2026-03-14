@@ -131,6 +131,9 @@
 
   <!-- PRODUCT GRID -->
   <main>
+    <!-- Active filter chips -->
+    <div class="active-filters" id="activeFilters" style="display:none;"></div>
+
     <div class="product-grid-3">
 
       <!-- 1 -->
@@ -236,6 +239,17 @@
       </div>
 
     </div><!-- end product grid -->
+
+    <!-- Empty state -->
+    <div class="shop-empty" id="shopEmpty" style="display:none;">
+      <span class="shop-empty-icon">◎</span>
+      <p data-i18n="no_results">No products match your filters.</p>
+      <button id="emptyClearBtn" class="clear-all" data-i18n="clear_all">Clear Filters</button>
+    </div>
+
+    <!-- Load more -->
+    <button class="load-more-btn" id="loadMoreBtn" style="display:none;">Load More</button>
+
   </main>
 </div>
 
