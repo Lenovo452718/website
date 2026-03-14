@@ -57,6 +57,10 @@
     }
 
     const subtotal = order.reduce((s, i) => s + i.price * i.qty, 0);
+    const totalQty = order.reduce((s, i) => s + i.qty, 0);
+    const discount = totalQty >= 2 ? Math.round(subtotal * 39 / 358) : 0;
+    const total = subtotal - discount;
+
     const itemsHtml = order.map(item => `
       <div class="thankyou-item">
         <span>${item.name} × ${item.qty} (Size ${item.size})</span>
@@ -64,18 +68,29 @@
       </div>
     `).join('');
 
+    const discountHtml = discount > 0 ? `
+      <div class="thankyou-deal-badge">
+        <span class="thankyou-deal-check">✓</span>
+        <span>${t('deal_applied_pre')} <strong>${discount} MAD</strong>${t('deal_applied_suf')}</span>
+      </div>
+      <div class="thankyou-row thankyou-discount-row">
+        <span>${t('discount_label')}</span><span>−${discount} MAD</span>
+      </div>
+    ` : '';
+
     container.innerHTML = `
       <h3>${t('order_summary')}</h3>
       ${itemsHtml}
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gray);padding:10px 0;border-top:1px solid var(--gray-light);margin-top:8px;">
+      <div class="thankyou-row" style="border-top:1px solid var(--gray-light);margin-top:8px;padding-top:10px;">
         <span>${t('subtotal')}</span><span>${subtotal} MAD</span>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gray);padding:4px 0;">
+      ${discountHtml}
+      <div class="thankyou-row">
         <span>${t('shipping_label')}</span><span>${t('free')}</span>
       </div>
       <div class="thankyou-total">
         <span>${t('total_label')}</span>
-        <span>${subtotal} MAD</span>
+        <span>${total} MAD</span>
       </div>
     `;
   })();
