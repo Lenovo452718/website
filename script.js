@@ -87,7 +87,7 @@ function renderCartItems() {
   } else {
     container.innerHTML = cart.map(item => `
       <div class="cart-item">
-        <div class="cart-item-img" style="background: ${getProductColor(item.name)};"></div>
+        <div class="cart-item-img" style="${productThumbStyle(item.name)}"></div>
         <div>
           <p class="cart-item-name">${item.name}</p>
           <p class="cart-item-price">${item.price} MAD &middot; ${item.size}</p>
@@ -127,20 +127,30 @@ function getPackDiscount(cart) {
 
 function getProductColor(name) {
   const map = {
-    // Real products
     "Patte d'éléphant Jean": '#2a3f65',
     'High-Rise Dark Blue Jeans': '#1a2744',
     'Brown Wide-Leg Jean': '#6b4c2a',
     'Baggy Wide Leg Denim Jeans': '#2d3748',
     'Jean Skirts': '#1e3a5f',
     'Denim Jacket & Wide-Leg Pants Set': '#0f1f3d',
-    // Legacy
     'Noir Skinny': '#1a1a1a',
     'Sky Wide Leg': '#5b8db8',
-    'Urban Straight': '#8a8a8a',
-    'Caramel Skinny': '#c4956a',
   };
   return map[name] || '#2d3748';
+}
+
+function getProductImage(name) {
+  if (typeof PRODUCTS !== 'undefined') {
+    const match = Object.values(PRODUCTS).find(p => p.name === name);
+    if (match && match.image) return match.image;
+  }
+  return null;
+}
+
+function productThumbStyle(name) {
+  const img = getProductImage(name);
+  if (img) return `background: ${getProductColor(name)} url('${img}') center/cover no-repeat;`;
+  return `background: ${getProductColor(name)};`;
 }
 
 /* ============================================================
@@ -546,7 +556,7 @@ function initCheckout() {
         }
         summaryItems.innerHTML = c.map(item => `
           <div class="summary-item">
-            <div class="summary-item-img" style="background:${getProductColor(item.name)};">
+            <div class="summary-item-img" style="${productThumbStyle(item.name)}">
               <span class="summary-item-badge">${item.qty}</span>
             </div>
             <div class="summary-item-info">
@@ -576,7 +586,7 @@ function initCheckout() {
 
       summaryItems.innerHTML = cart.map(item => `
         <div class="summary-item">
-          <div class="summary-item-img" style="background:${getProductColor(item.name)};">
+          <div class="summary-item-img" style="${productThumbStyle(item.name)}">
             <span class="summary-item-badge">${item.qty}</span>
           </div>
           <div class="summary-item-info">
