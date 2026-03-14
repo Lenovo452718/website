@@ -171,7 +171,10 @@ function injectCartDrawer() {
     <aside class="cart-drawer" id="cartDrawer">
       <div class="cart-header">
         <h3><span data-i18n="your_cart">Your Cart</span> (<span id="cartCount">0</span>)</h3>
-        <button class="cart-close" id="cartClose"><img src="images/icons/close.png" alt="Close" style="width:14px;height:14px;opacity:0.7;"></button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button id="clearCartBtn" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;letter-spacing:0.04em;">Clear all</button>
+          <button class="cart-close" id="cartClose"><img src="images/icons/close.png" alt="Close" style="width:14px;height:14px;opacity:0.7;"></button>
+        </div>
       </div>
       <div class="cart-items" id="cartItems"></div>
       <div class="cart-upsell">
@@ -200,6 +203,11 @@ function injectCartDrawer() {
   // Apply translations to injected cart HTML
   if (typeof applyLang === 'function') applyLang(getLang ? getLang() : 'en');
   document.getElementById('cartClose').addEventListener('click', closeCart);
+  document.getElementById('clearCartBtn').addEventListener('click', () => {
+    saveCart([]);
+    updateCartBadge();
+    renderCartItems();
+  });
   document.getElementById('cartOverlay').addEventListener('click', closeCart);
   document.getElementById('continueShopping').addEventListener('click', e => { e.preventDefault(); closeCart(); });
 
