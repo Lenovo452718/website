@@ -622,6 +622,8 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .product-card-img-inner {
   width: 100%;
   height: 100%;
+  display: block;
+  object-fit: cover;
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .product-card:hover .product-card-img-inner { transform: scale(1.04); }
