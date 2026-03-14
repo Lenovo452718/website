@@ -6,6 +6,497 @@
   <title>Contact — StreetStore</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
+  <style>
+
+    /* ─── HERO ─────────────────────────────────────────────── */
+    .contact-hero {
+      position: relative;
+      background: #060d1a;
+      overflow: hidden;
+      padding: 130px 24px 100px;
+      text-align: center;
+    }
+    .contact-hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 55% 70% at 10% 60%, rgba(26,48,96,0.75) 0%, transparent 65%),
+        radial-gradient(ellipse 45% 55% at 90% 15%, rgba(196,149,106,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 45% at 55% 105%, rgba(15,31,61,0.6) 0%, transparent 60%);
+    }
+    .contact-hero-grid {
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .contact-hero-content { position: relative; z-index: 1; }
+    .contact-hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #e0c97a;
+      background: rgba(224,201,122,0.08);
+      border: 1px solid rgba(224,201,122,0.2);
+      padding: 7px 18px;
+      border-radius: 30px;
+      margin-bottom: 28px;
+    }
+    .contact-hero h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      color: #fff;
+      line-height: 1.0;
+      margin-bottom: 20px;
+    }
+    .contact-hero h1 em { font-style: italic; color: #e0c97a; }
+    .contact-hero-sub {
+      font-size: 15px;
+      color: rgba(255,255,255,0.45);
+      max-width: 400px;
+      margin: 0 auto 0;
+      line-height: 1.75;
+    }
+
+    /* ─── QUICK STATS BAR ───────────────────────────────────── */
+    .contact-stats {
+      background: #0d1626;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding: 28px 40px;
+    }
+    .contact-stats-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      flex-wrap: wrap;
+    }
+    .contact-stat {
+      flex: 1;
+      min-width: 160px;
+      text-align: center;
+      padding: 0 32px;
+      border-right: 1px solid rgba(255,255,255,0.07);
+    }
+    .contact-stat:last-child { border-right: none; }
+    .contact-stat-val {
+      display: block;
+      font-size: 22px;
+      font-weight: 800;
+      color: #e0c97a;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+    .contact-stat-label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ─── MAIN LAYOUT ───────────────────────────────────────── */
+    .contact-main {
+      background: #f7f6f4;
+      padding: 80px 40px;
+    }
+    .contact-main-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 48px;
+      align-items: start;
+    }
+
+    /* ─── LEFT — CONTACT METHODS ─────────────────────────────── */
+    .contact-left-wrap {}
+    .contact-left-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 12px;
+      display: block;
+    }
+    .contact-left-title {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: var(--charcoal);
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+    .contact-left-desc {
+      font-size: 14px;
+      color: var(--gray);
+      line-height: 1.75;
+      margin-bottom: 40px;
+      max-width: 320px;
+    }
+
+    .contact-channels { display: flex; flex-direction: column; gap: 16px; }
+    .contact-channel-card {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      background: #fff;
+      border: 1px solid var(--gray-light);
+      padding: 20px 24px;
+      text-decoration: none;
+      color: var(--charcoal);
+      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-channel-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--charcoal);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.25s;
+    }
+    .contact-channel-card:hover {
+      border-color: var(--charcoal);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      transform: translateY(-2px);
+    }
+    .contact-channel-card:hover::before { transform: scaleY(1); }
+
+    .contact-channel-card.whatsapp::before { background: #25D366; }
+    .contact-channel-card.instagram::before { background: #E1306C; }
+    .contact-channel-card.facebook::before { background: #1877F2; }
+
+    .contact-channel-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--off);
+    }
+    .contact-channel-card.whatsapp .contact-channel-icon { background: rgba(37,211,102,0.1); }
+    .contact-channel-card.instagram .contact-channel-icon { background: rgba(225,48,108,0.08); }
+    .contact-channel-card.facebook .contact-channel-icon { background: rgba(24,119,242,0.08); }
+
+    .contact-channel-icon img {
+      width: 26px;
+      height: 26px;
+      object-fit: contain;
+    }
+    .contact-channel-body { flex: 1; }
+    .contact-channel-name {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      margin-bottom: 3px;
+    }
+    .contact-channel-handle {
+      font-size: 13px;
+      color: var(--gray);
+    }
+    .contact-channel-arrow {
+      font-size: 18px;
+      color: var(--gray-mid);
+      transition: color 0.2s, transform 0.2s;
+    }
+    .contact-channel-card:hover .contact-channel-arrow {
+      color: var(--charcoal);
+      transform: translateX(4px);
+    }
+
+    /* response badge */
+    .contact-response-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #fff;
+      border: 1px solid var(--gray-light);
+      padding: 12px 18px;
+      margin-top: 24px;
+      font-size: 12px;
+      color: var(--gray);
+    }
+    .contact-response-badge .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: #25D366;
+      flex-shrink: 0;
+      box-shadow: 0 0 0 3px rgba(37,211,102,0.15);
+    }
+
+    /* ─── RIGHT — FORM ───────────────────────────────────────── */
+    .contact-form-wrap {
+      background: #fff;
+      border: 1px solid var(--gray-light);
+      padding: 44px 40px;
+    }
+    .contact-form-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--charcoal);
+      margin-bottom: 6px;
+    }
+    .contact-form-sub {
+      font-size: 13px;
+      color: var(--gray);
+      margin-bottom: 32px;
+    }
+
+    .cf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .cf-group { display: flex; flex-direction: column; gap: 0; margin-bottom: 22px; position: relative; }
+    .cf-group:last-of-type { margin-bottom: 0; }
+
+    /* floating label field wrapper */
+    .cf-field {
+      position: relative;
+    }
+    .cf-field-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #bbb;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      transition: color 0.2s;
+    }
+    .cf-field-icon.top { top: 18px; transform: none; }
+
+    .cf-group label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 7px;
+      display: block;
+      transition: color 0.2s;
+    }
+    .cf-group:focus-within label { color: var(--charcoal); }
+
+    .cf-group input,
+    .cf-group select,
+    .cf-group textarea {
+      width: 100%;
+      padding: 14px 16px 14px 42px;
+      border: none;
+      border-bottom: 1.5px solid #ddd;
+      background: #fafafa;
+      color: var(--charcoal);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+      border-radius: 0;
+      -webkit-appearance: none;
+      appearance: none;
+      box-shadow: inset 0 -1px 0 transparent;
+    }
+    .cf-group input:hover,
+    .cf-group select:hover,
+    .cf-group textarea:hover {
+      background: #f5f5f5;
+    }
+    .cf-group input:focus,
+    .cf-group select:focus,
+    .cf-group textarea:focus {
+      border-bottom-color: var(--charcoal);
+      background: #fff;
+      box-shadow: inset 0 -2px 0 var(--charcoal);
+    }
+    .cf-group:focus-within .cf-field-icon { color: var(--charcoal); }
+
+    .cf-group input::placeholder,
+    .cf-group textarea::placeholder {
+      color: #c0c0c0;
+      font-weight: 300;
+    }
+
+    /* underline progress bar */
+    .cf-underline {
+      height: 2px;
+      background: var(--charcoal);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .cf-group:focus-within .cf-underline { transform: scaleX(1); }
+
+    .cf-group textarea {
+      min-height: 130px;
+      resize: none;
+      padding-top: 14px;
+    }
+    .cf-select-wrap { position: relative; }
+    .cf-select-wrap select { padding-right: 40px; cursor: pointer; }
+    .cf-select-wrap::after {
+      content: '';
+      position: absolute;
+      right: 16px; top: 50%; transform: translateY(-50%);
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 5px solid #aaa;
+      pointer-events: none;
+      transition: border-top-color 0.2s;
+    }
+    .cf-select-wrap:focus-within::after { border-top-color: var(--charcoal); }
+
+    /* char counter for textarea */
+    .cf-char-count {
+      font-size: 11px;
+      color: #bbb;
+      text-align: right;
+      margin-top: 5px;
+      transition: color 0.2s;
+    }
+
+    .cf-submit {
+      width: 100%;
+      padding: 16px;
+      background: var(--charcoal);
+      color: #fff;
+      border: 2px solid var(--charcoal);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .cf-submit:hover { background: #000; border-color: #000; }
+    .cf-submit:active { transform: scale(0.99); }
+
+    .cf-note {
+      font-size: 11px;
+      color: var(--gray);
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    /* ─── BOTTOM STRIP ──────────────────────────────────────── */
+    .contact-bottom-strip {
+      background: #060d1a;
+      padding: 70px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-bottom-strip::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 70% 80% at 50% 100%, rgba(26,48,96,0.5) 0%, transparent 70%);
+    }
+    .contact-bottom-inner { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
+    .contact-bottom-strip h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #fff;
+      margin-bottom: 14px;
+    }
+    .contact-bottom-strip p {
+      font-size: 14px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+    .contact-bottom-btns {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .cbb-wa {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #25D366;
+      color: #fff;
+      padding: 14px 28px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .cbb-wa:hover { background: #1da851; transform: translateY(-2px); }
+    .cbb-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: #fff;
+      padding: 14px 28px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      border: 1.5px solid rgba(255,255,255,0.25);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .cbb-outline:hover { border-color: #fff; background: rgba(255,255,255,0.06); }
+
+    /* ─── RESPONSIVE ─────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .contact-main { padding: 56px 20px; }
+      .contact-main-inner { grid-template-columns: 1fr; gap: 36px; }
+      .contact-form-wrap { padding: 32px 24px; }
+      .cf-row { grid-template-columns: 1fr; }
+      .contact-stats { padding: 20px; }
+      .contact-stat { min-width: 120px; padding: 0 16px; }
+      .contact-bottom-strip { padding: 56px 20px; }
+    }
+
+    /* ─── FORM SUCCESS ───────────────────────────────────────── */
+    .cf-success {
+      display: none;
+      text-align: center;
+      padding: 40px 20px;
+    }
+    .cf-success-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      background: rgba(37,211,102,0.1);
+      border: 1.5px solid rgba(37,211,102,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+    }
+    .cf-success h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--charcoal);
+      margin-bottom: 8px;
+    }
+    .cf-success p { font-size: 14px; color: var(--gray); }
+
+  </style>
 </head>
 <body>
 
@@ -42,103 +533,196 @@
   </nav>
 </header>
 
-<!-- ===== CONTACT LAYOUT ===== -->
-<div class="contact-page-wrap">
-  <div class="contact-layout">
-    <!-- LEFT -->
-    <div class="contact-left">
-      <span class="section-subtitle" data-i18n="reach_out">Reach Out</span>
-      <h2 data-i18n="get_in_touch">Get in Touch</h2>
-
-      <div class="contact-details">
-        <div class="contact-detail-item">
-          <span class="contact-detail-icon"><img src="images/instagram.svg" alt="Instagram" class="social-logo" /></span>
-          <div>
-            <h4 data-i18n="nav_lookbook" style="display:none"></h4><h4>Instagram</h4>
-            <p><a href="https://www.instagram.com/streetstore1994" target="_blank">@streetstore1994</a></p>
-          </div>
-        </div>
-        <div class="contact-detail-item">
-          <span class="contact-detail-icon"><img src="images/facebook.svg" alt="Facebook" class="social-logo" /></span>
-          <div>
-            <h4>Facebook</h4>
-            <p><a href="https://www.facebook.com/profile.php?id=100090279517015" target="_blank">facebook.com/StreetStore</a></p>
-          </div>
-        </div>
-        <div class="contact-detail-item">
-          <span class="contact-detail-icon"><img src="images/whatsapp.svg" alt="WhatsApp" class="social-logo" /></span>
-          <div>
-            <h4>WhatsApp</h4>
-            <p><a href="https://wa.me/212000000000" target="_blank">Chat with us on WhatsApp</a><br><span data-i18n="we_respond">We respond within 24 hours</span></p>
-          </div>
-        </div>
-      </div>
-
-      <div class="contact-social">
-        <h4 data-i18n="find_us">Find Us Online</h4>
-        <div class="social-links">
-          <a href="https://www.instagram.com/streetstore1994" class="social-link" target="_blank">
-            <img src="images/instagram.svg" alt="Instagram" class="social-link-logo" />
-            Instagram @streetstore1994
-          </a>
-          <a href="https://www.facebook.com/profile.php?id=100090279517015" class="social-link" target="_blank">
-            <img src="images/facebook.svg" alt="Facebook" class="social-link-logo" />
-            Facebook
-          </a>
-          <a href="https://wa.me/212000000000" class="social-link" target="_blank">
-            <img src="images/whatsapp.svg" alt="WhatsApp" class="social-link-logo" />
-            WhatsApp
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT -->
-    <div class="contact-right">
-      <h3 data-i18n="send_message_title">Send a Message</h3>
-      <form class="contact-form" id="contactForm">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input type="text" id="firstName" placeholder="Sarah" required />
-          </div>
-          <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input type="text" id="lastName" placeholder="M." required />
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" placeholder="sarah@example.com" data-i18n-ph="email" required />
-        </div>
-        <div class="form-group">
-          <label for="subject" data-i18n="subject_label">Subject</label>
-          <select id="subject">
-            <option value="">Select a topic</option>
-            <option>Order Inquiry</option>
-            <option>Returns & Exchanges</option>
-            <option>Size & Fit Help</option>
-            <option>Wholesale & Collaboration</option>
-            <option>Press & Media</option>
-            <option>Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="message" data-i18n="message_label">Message</label>
-          <textarea id="message" placeholder="Tell us how we can help..." data-i18n-ph="message_ph" data-i18n-ph="message_ph" required></textarea>
-        </div>
-        <button type="submit" class="btn-dark" style="width:100%; padding:16px; font-size:13px;" data-i18n="send_message">Send Message</button>
-      </form>
-    </div>
+<!-- ===== HERO ===== -->
+<section class="contact-hero">
+  <div class="contact-hero-bg"></div>
+  <div class="contact-hero-grid"></div>
+  <div class="contact-hero-content">
+    <div class="contact-hero-tag">✦ &nbsp;We're Here to Help</div>
+    <h1>Let's <em>Talk</em></h1>
+    <p class="contact-hero-sub">Have a question about your order, sizing, or just want to say hello? We'd love to hear from you.</p>
   </div>
+</section>
 
-  <!-- MAP -->
-  <div class="map-placeholder">
-    <div class="map-div">
-      <span data-i18n="based_morocco">Based in Morocco — We deliver across Morocco</span>
+<!-- ===== STATS BAR ===== -->
+<div class="contact-stats">
+  <div class="contact-stats-inner">
+    <div class="contact-stat">
+      <span class="contact-stat-val">24h</span>
+      <span class="contact-stat-label">Response Time</span>
+    </div>
+    <div class="contact-stat">
+      <span class="contact-stat-val">3</span>
+      <span class="contact-stat-label">Contact Channels</span>
+    </div>
+    <div class="contact-stat">
+      <span class="contact-stat-val">🇲🇦</span>
+      <span class="contact-stat-label">Based in Morocco</span>
+    </div>
+    <div class="contact-stat">
+      <span class="contact-stat-val">COD</span>
+      <span class="contact-stat-label">Cash on Delivery</span>
     </div>
   </div>
 </div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="contact-main">
+  <div class="contact-main-inner">
+
+    <!-- LEFT — Contact Methods -->
+    <div class="contact-left-wrap">
+      <span class="contact-left-label">Reach out</span>
+      <h2 class="contact-left-title">Get in<br>Touch</h2>
+      <p class="contact-left-desc">We're available on WhatsApp, Instagram, and Facebook. Pick whichever feels most comfortable for you.</p>
+
+      <div class="contact-channels">
+
+        <a href="https://wa.me/212771152186" target="_blank" class="contact-channel-card whatsapp">
+          <div class="contact-channel-icon">
+            <img src="images/whatsapp.svg" alt="WhatsApp" />
+          </div>
+          <div class="contact-channel-body">
+            <div class="contact-channel-name">WhatsApp</div>
+            <div class="contact-channel-handle">Chat with us directly</div>
+          </div>
+          <span class="contact-channel-arrow">→</span>
+        </a>
+
+        <a href="https://www.instagram.com/streetstore1994?igsh=MW5kaW9mZ2VreThhcg%3D%3D&utm_source=qr" target="_blank" class="contact-channel-card instagram">
+          <div class="contact-channel-icon">
+            <img src="images/instagram.svg" alt="Instagram" />
+          </div>
+          <div class="contact-channel-body">
+            <div class="contact-channel-name">Instagram</div>
+            <div class="contact-channel-handle">@streetstore1994</div>
+          </div>
+          <span class="contact-channel-arrow">→</span>
+        </a>
+
+        <a href="https://www.facebook.com/share/1D4WrBg439/?mibextid=wwXIfr" target="_blank" class="contact-channel-card facebook">
+          <div class="contact-channel-icon">
+            <img src="images/facebook.svg" alt="Facebook" />
+          </div>
+          <div class="contact-channel-body">
+            <div class="contact-channel-name">Facebook</div>
+            <div class="contact-channel-handle">StreetStore Morocco</div>
+          </div>
+          <span class="contact-channel-arrow">→</span>
+        </a>
+
+      </div>
+
+      <div class="contact-response-badge">
+        <span class="dot"></span>
+        We typically respond within 24 hours
+      </div>
+    </div>
+
+    <!-- RIGHT — Form -->
+    <div class="contact-form-wrap">
+      <h3 class="contact-form-title">Send a Message</h3>
+      <p class="contact-form-sub">Fill in the form and we'll get back to you as soon as possible.</p>
+
+      <form id="contactForm">
+        <div class="cf-row">
+          <div class="cf-group">
+            <label for="firstName">First Name</label>
+            <div class="cf-field">
+              <span class="cf-field-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="firstName" placeholder="Sarah" required />
+            </div>
+            <div class="cf-underline"></div>
+          </div>
+          <div class="cf-group">
+            <label for="lastName">Last Name</label>
+            <div class="cf-field">
+              <span class="cf-field-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </span>
+              <input type="text" id="lastName" placeholder="M." required />
+            </div>
+            <div class="cf-underline"></div>
+          </div>
+        </div>
+
+        <div class="cf-group">
+          <label for="email">Email Address</label>
+          <div class="cf-field">
+            <span class="cf-field-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            </span>
+            <input type="email" id="email" placeholder="sarah@example.com" required />
+          </div>
+          <div class="cf-underline"></div>
+        </div>
+
+        <div class="cf-group">
+          <label for="subject">Topic</label>
+          <div class="cf-field cf-select-wrap">
+            <span class="cf-field-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </span>
+            <select id="subject">
+              <option value="">Select a topic…</option>
+              <option>Order Inquiry</option>
+              <option>Exchanges &amp; Sizing</option>
+              <option>Size &amp; Fit Help</option>
+              <option>Wholesale &amp; Collaboration</option>
+              <option>Press &amp; Media</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="cf-underline"></div>
+        </div>
+
+        <div class="cf-group">
+          <label for="message">Message</label>
+          <div class="cf-field">
+            <span class="cf-field-icon top">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            <textarea id="message" placeholder="Tell us how we can help…" maxlength="500" required></textarea>
+          </div>
+          <div class="cf-underline"></div>
+          <span class="cf-char-count" id="charCount">0 / 500</span>
+        </div>
+
+        <button type="submit" class="cf-submit">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send Message
+        </button>
+        <p class="cf-note">We'll reply within 24 hours. No spam, ever.</p>
+      </form>
+
+      <div class="cf-success" id="cfSuccess">
+        <div class="cf-success-icon">✓</div>
+        <h3>Message Sent!</h3>
+        <p>Thanks for reaching out. We'll get back to you within 24 hours.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== BOTTOM CTA ===== -->
+<section class="contact-bottom-strip">
+  <div class="contact-bottom-inner">
+    <h2>Prefer to Chat?</h2>
+    <p>WhatsApp is the fastest way to reach us. Send us a message and we'll help you find the perfect pair.</p>
+    <div class="contact-bottom-btns">
+      <a href="https://wa.me/212771152186" target="_blank" class="cbb-wa">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+        Chat on WhatsApp
+      </a>
+      <a href="shop.html" class="cbb-outline">
+        Browse Collection →
+      </a>
+    </div>
+  </div>
+</section>
 
 <!-- ===== FOOTER ===== -->
 <footer class="site-footer">
@@ -159,15 +743,15 @@
       <h4 data-i18n="footer_help">Help</h4>
       <ul>
         <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
-        <li><a href="#" data-i18n="footer_shipping">Shipping &amp; Returns</a></li>
+        <li><a href="shipping.html" data-i18n="footer_shipping">Shipping &amp; Returns</a></li>
         <li><a href="faq.html" data-i18n="footer_faq">FAQ</a></li>
       </ul>
     </div>
     <div class="footer-col">
       <h4 data-i18n="footer_follow">Follow</h4>
       <ul>
-        <li><a href="#">Instagram</a></li>
-        <li><a href="#">TikTok</a></li>
+        <li><a href="https://www.instagram.com/streetstore1994?igsh=MW5kaW9mZ2VreThhcg%3D%3D&utm_source=qr" target="_blank">Instagram</a></li>
+        <li><a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a></li>
         <li><a href="#">Pinterest</a></li>
       </ul>
     </div>
@@ -181,9 +765,28 @@
   </div>
 </footer>
 
-<a href="https://wa.me/212000000000" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><img src="images/icons/whatsapp.png" alt="WhatsApp" style="width:28px;height:28px;filter:brightness(0) invert(1);"></a>
+<a href="https://wa.me/212771152186" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><img src="images/icons/whatsapp.png" alt="WhatsApp" style="width:28px;height:28px;filter:brightness(0) invert(1);"></a>
 <script src="lang.js"></script>
 <script src="i18n.js"></script>
 <script src="script.js"></script>
+<script>
+  // Character counter
+  const msg = document.getElementById('message');
+  const counter = document.getElementById('charCount');
+  if (msg && counter) {
+    msg.addEventListener('input', function() {
+      const len = this.value.length;
+      counter.textContent = len + ' / 500';
+      counter.style.color = len > 450 ? '#c0392b' : len > 350 ? '#e67e22' : '#bbb';
+    });
+  }
+
+  // Form submit
+  document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    this.style.display = 'none';
+    document.getElementById('cfSuccess').style.display = 'block';
+  });
+</script>
 </body>
 </html>
