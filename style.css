@@ -1246,9 +1246,71 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .accordion-body ul li { list-style: disc; margin-bottom: 4px; }
 
 /* Complete the Look */
-.complete-look { padding: 80px 40px; max-width: 1280px; margin: 0 auto; border-top: 1px solid var(--gray-light); }
-.complete-look h2 { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.04em; margin-bottom: 36px; }
-.product-grid-3-related { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.complete-look {
+  padding: 80px 40px;
+  background: var(--off);
+  border-top: 1px solid var(--gray-light);
+}
+.complete-look-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.complete-look-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.complete-look-header-left {}
+.complete-look-eyebrow {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+.complete-look h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(32px, 4vw, 48px);
+  letter-spacing: 0.04em;
+  color: var(--charcoal);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+.complete-look-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #2a7a4b;
+  background: rgba(42,122,75,0.08);
+  border: 1px solid rgba(42,122,75,0.2);
+  padding: 5px 12px;
+  border-radius: 20px;
+}
+.complete-look-viewall {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  text-decoration: none;
+  border-bottom: 1px solid var(--charcoal);
+  padding-bottom: 2px;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.complete-look-viewall:hover { opacity: 0.6; }
+.product-grid-3-related {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
 
 /* Reviews */
 .reviews-section { padding: 80px 40px; background: var(--off); }
@@ -1945,6 +2007,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .breadcrumb { padding: 20px 20px; }
 
   .complete-look { padding: 60px 20px; }
+  .complete-look-header { flex-direction: column; align-items: flex-start; }
   .product-grid-3-related { grid-template-columns: repeat(2, 1fr); }
   .reviews-section { padding: 60px 20px; }
   .reviews-grid { grid-template-columns: 1fr; }
