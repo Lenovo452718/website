@@ -79,7 +79,7 @@
         </div>
       </form>
       <div class="checkout-nav-btns">
-        <a href="#" onclick="history.back();return false;" style="font-size:13px; color:var(--gray); text-decoration:underline;" data-i18n="return_to_cart">← Return to cart</a>
+        <a href="index.html?opencart=1" style="font-size:13px; color:var(--gray); text-decoration:underline;" data-i18n="return_to_cart">← Return to cart</a>
         <button class="btn-dark next-step" data-i18n="continue_to_shipping">Continue to Shipping</button>
       </div>
     </div>
@@ -144,8 +144,25 @@
 
     <div class="summary-items" id="checkoutSummaryItems"></div>
 
+    <!-- UPSELL BANNER — shown when cart has only 1 item -->
+    <div class="checkout-upsell" id="checkoutUpsellBanner" style="display:none;">
+      <div class="upsell-tag">−39 MAD</div>
+      <div class="upsell-body">
+        <strong>Profitez de l'offre duo !</strong>
+        <p>Ajoutez un 2ème jean et économisez 39 MAD sur votre commande.</p>
+      </div>
+      <a href="shop.html" class="upsell-link">Ajouter →</a>
+    </div>
+
+    <!-- DISCOUNT APPLIED — shown when 2+ items in cart -->
+    <div class="checkout-deal-badge" id="checkoutDealBadge" style="display:none;">
+      <span class="deal-check">✓</span>
+      <span>Offre duo appliquée — vous économisez <strong id="checkoutDealSaving">39 MAD</strong> !</span>
+    </div>
+
     <div class="summary-totals">
       <div class="summary-row"><span data-i18n="subtotal">Subtotal</span><span id="checkoutSubtotal">0 MAD</span></div>
+      <div class="summary-row discount-row" id="checkoutDiscountRow" style="display:none;"><span>Réduction offre duo</span><span id="checkoutDiscount">−0 MAD</span></div>
       <div class="summary-row"><span data-i18n="shipping_label">Shipping</span><span id="checkoutShipping">Free</span></div>
       <div class="summary-row total"><span data-i18n="total_label">Total</span><span id="checkoutTotal">0 MAD</span></div>
     </div>

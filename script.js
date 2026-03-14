@@ -19,14 +19,14 @@ function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
 }
 
-function addToCart(name, price, color, size) {
+function addToCart(name, price, color, size, imageUrl) {
   const cart = getCart();
   const id = name + '-' + (color || 'default') + '-' + (size || 'OS');
   const existing = cart.find(i => i.id === id);
   if (existing) {
     existing.qty += 1;
   } else {
-    cart.push({ id, name, price: parseFloat(price), color: color || 'Dark Wash', size: size || 'M', qty: 1 });
+    cart.push({ id, name, price: parseFloat(price), color: color || 'Dark Wash', size: size || 'M', qty: 1, imageUrl: imageUrl || null });
   }
   saveCart(cart);
   updateCartBadge();
@@ -74,8 +74,31 @@ function updateCartBadge() {
 /* ============================================================
    3. CART DRAWER — RENDER ITEMS
    ============================================================ */
+function resolveCartImage(item) {
+  if (item.imageUrl) return item.imageUrl;
+  if (typeof PRODUCTS !== 'undefined') {
+    // Try exact name match
+    const byName = Object.values(PRODUCTS).find(p => p.name === item.name);
+    if (byName && byName.image) return byName.image;
+    // Try partial name match (case-insensitive)
+    const byPartial = Object.values(PRODUCTS).find(p => item.name && p.name && item.name.toLowerCase().includes(p.name.toLowerCase().split(' ')[0]));
+    if (byPartial && byPartial.image) return byPartial.image;
+  }
+  return null;
+}
+
 function renderCartItems() {
-  const cart = getCart();
+  let cart = getCart();
+  // Patch missing imageUrl into stored cart items
+  let patched = false;
+  cart.forEach(item => {
+    if (!item.imageUrl) {
+      const img = resolveCartImage(item);
+      if (img) { item.imageUrl = img; patched = true; }
+    }
+  });
+  if (patched) saveCart(cart);
+
   const container = document.getElementById('cartItems');
   const totalEl = document.getElementById('cartTotal');
   if (!container) return;
@@ -87,7 +110,7 @@ function renderCartItems() {
   } else {
     container.innerHTML = cart.map(item => `
       <div class="cart-item">
-        <div class="cart-item-img" style="${productThumbStyle(item.name)}"></div>
+        <div class="cart-item-img">${(item.imageUrl || getProductImage(item.name)) ? `<img src="${item.imageUrl || getProductImage(item.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="width:100%;height:100%;background:${getProductColor(item.name)};"></div>`}</div>
         <div>
           <p class="cart-item-name">${item.name}</p>
           <p class="cart-item-price">${item.price} MAD &middot; ${item.size}</p>
@@ -442,7 +465,9 @@ function initProductAddToCart() {
     const price = prices ? prices[prices.length - 1] : '179';
     const activeSize = document.querySelector('.size-btn.active')?.textContent?.trim() || 'M';
     const qty = parseInt(document.querySelector('.qty-display')?.textContent) || 1;
-    for (let i = 0; i < qty; i++) addToCart(name, price, 'Dark Wash', activeSize);
+    const pageProductId = document.body.dataset.product;
+    const pageImageUrl = (pageProductId && typeof PRODUCTS !== 'undefined' && PRODUCTS[pageProductId]) ? PRODUCTS[pageProductId].image : null;
+    for (let i = 0; i < qty; i++) addToCart(name, price, 'Dark Wash', activeSize, pageImageUrl);
   });
 }
 
@@ -457,7 +482,10 @@ function initQuickAdd() {
       const card = btn.closest('.product-card');
       const name = card.querySelector('.product-card-name')?.textContent?.trim() || 'Product';
       const price = card.dataset.price || '79';
-      addToCart(name, price, '', 'M');
+      const imgEl = card.querySelector('[data-product-img]');
+      const productId = imgEl ? imgEl.dataset.productImg : null;
+      const imageUrl = (productId && typeof PRODUCTS !== 'undefined' && PRODUCTS[productId]) ? PRODUCTS[productId].image : null;
+      addToCart(name, price, '', 'M', imageUrl);
     });
   });
 }
@@ -547,16 +575,25 @@ function initCheckout() {
       summaryItems.innerHTML = '<p style="font-size:13px;color:var(--gray);padding:12px 0;">Your cart is empty.</p>';
     } else {
       function renderCheckoutSummary() {
-        const c = getCart();
+        let c = getCart();
         if (!summaryItems) return;
         if (c.length === 0) {
           summaryItems.innerHTML = '<p style="font-size:13px;color:var(--gray);padding:12px 0;">Your cart is empty.</p>';
           updateCheckoutTotals(shippingCost || 0);
           return;
         }
+        // Patch missing imageUrl
+        let patched = false;
+        c.forEach(item => {
+          if (!item.imageUrl) {
+            const img = resolveCartImage(item);
+            if (img) { item.imageUrl = img; patched = true; }
+          }
+        });
+        if (patched) saveCart(c);
         summaryItems.innerHTML = c.map(item => `
           <div class="summary-item">
-            <div class="summary-item-img" style="${productThumbStyle(item.name)}">
+            <div class="summary-item-img">${(item.imageUrl || getProductImage(item.name)) ? `<img src="${item.imageUrl || getProductImage(item.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="width:100%;height:100%;background:${getProductColor(item.name)};"></div>`}
               <span class="summary-item-badge">${item.qty}</span>
             </div>
             <div class="summary-item-info">
@@ -584,26 +621,7 @@ function initCheckout() {
         updateCartBadge();
       };
 
-      summaryItems.innerHTML = cart.map(item => `
-        <div class="summary-item">
-          <div class="summary-item-img" style="${productThumbStyle(item.name)}">
-            <span class="summary-item-badge">${item.qty}</span>
-          </div>
-          <div class="summary-item-info">
-            <p class="summary-item-name">${item.name}</p>
-            <p class="summary-item-variant">Size: ${item.size}</p>
-            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-              <button onclick="updateQty('${item.id}',-1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
-              <span style="font-size:13px;min-width:16px;text-align:center;">${item.qty}</span>
-              <button onclick="updateQty('${item.id}',1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-            <span class="summary-item-price">${item.price * item.qty} MAD</span>
-            <button onclick="removeFromCartCheckout('${item.id}')" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
-          </div>
-        </div>
-      `).join('');
+      renderCheckoutSummary();
     }
   }
   updateCheckoutTotals(0);
@@ -613,15 +631,36 @@ function initCheckout() {
 
 function updateCheckoutTotals(shippingCost) {
   const cart = getCart();
+  const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
   const discount = getPackDiscount(cart);
   const total = subtotal - discount + shippingCost;
-  const subtotalEl = document.getElementById('checkoutSubtotal');
-  const shippingEl = document.getElementById('checkoutShipping');
-  const totalEl    = document.getElementById('checkoutTotal');
+
+  const subtotalEl    = document.getElementById('checkoutSubtotal');
+  const shippingEl    = document.getElementById('checkoutShipping');
+  const totalEl       = document.getElementById('checkoutTotal');
+  const discountRow   = document.getElementById('checkoutDiscountRow');
+  const discountEl    = document.getElementById('checkoutDiscount');
+  const upsellBanner  = document.getElementById('checkoutUpsellBanner');
+  const dealBadge     = document.getElementById('checkoutDealBadge');
+  const dealSaving    = document.getElementById('checkoutDealSaving');
+
   if (subtotalEl) subtotalEl.textContent = subtotal + ' MAD';
   if (shippingEl) shippingEl.textContent = shippingCost > 0 ? shippingCost + ' MAD' : 'Free';
   if (totalEl)    totalEl.textContent    = total + ' MAD';
+
+  // Discount row
+  if (discountRow && discountEl) {
+    discountRow.style.display = discount > 0 ? '' : 'none';
+    discountEl.textContent = '−' + discount + ' MAD';
+  }
+
+  // Upsell banner: show when exactly 1 total item in cart
+  if (upsellBanner) upsellBanner.style.display = (totalQty === 1 && subtotal > 0) ? '' : 'none';
+
+  // Deal badge: show when discount is applied
+  if (dealBadge) dealBadge.style.display = discount > 0 ? '' : 'none';
+  if (dealSaving) dealSaving.textContent = discount + ' MAD';
 }
 
 /* ============================================================
@@ -844,4 +883,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initWishlist();
   initSearch();
   initPlaceOrder();
+
+  // Auto-open cart if redirected from checkout "return to cart"
+  if (new URLSearchParams(window.location.search).get('opencart') === '1') {
+    setTimeout(openCart, 300);
+    history.replaceState({}, '', window.location.pathname);
+  }
 });
