@@ -910,14 +910,31 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .filter-checkboxes input[type="checkbox"],
 .filter-checkboxes input[type="radio"] { width: 16px; height: 16px; accent-color: var(--charcoal); cursor: pointer; }
 
-.color-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.color-swatches { display: flex; flex-wrap: wrap; gap: 10px; }
 .color-swatch {
-  width: 28px; height: 28px;
+  width: 30px; height: 30px;
+  border-radius: 50%;
   border: 2px solid transparent;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
   cursor: pointer;
-  transition: border-color var(--transition);
+  position: relative;
+  transition: outline-color 0.15s, transform 0.15s;
 }
-.color-swatch.active, .color-swatch:hover { border-color: var(--charcoal); }
+.color-swatch:hover { outline-color: var(--gray-mid); transform: scale(1.1); }
+.color-swatch.active { outline-color: var(--charcoal); transform: scale(1.1); }
+.color-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+}
 
 .price-range { width: 100%; accent-color: var(--charcoal); }
 .price-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--gray); margin-top: 8px; }

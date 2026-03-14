@@ -358,6 +358,7 @@ function initShopFilters() {
   if (clearAll) {
     clearAll.addEventListener('click', () => {
       document.querySelectorAll('.filter-size, .filter-color').forEach(i => i.checked = false);
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
       const allRadio = document.querySelector('.filter-fit[value="all"]');
       if (allRadio) allRadio.checked = true;
       if (priceRange) { priceRange.value = 300; if (priceMax) priceMax.textContent = '300 MAD'; }
@@ -373,9 +374,12 @@ function initShopFilters() {
 function initColorSwatches() {
   document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
     swatch.addEventListener('click', () => {
-      const group = swatch.closest('.color-swatches');
-      if (group) group.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
       swatch.classList.toggle('active');
+      const cb = swatch.querySelector('.filter-color');
+      if (cb) {
+        cb.checked = swatch.classList.contains('active');
+        cb.dispatchEvent(new Event('change', { bubbles: true }));
+      }
     });
   });
 }
