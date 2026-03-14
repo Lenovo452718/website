@@ -512,19 +512,19 @@ function initCheckout() {
 
     // Populate info summary when reaching step 2
     if (n === 1) {
-      const email   = document.getElementById('info-email')?.value || '';
       const first   = document.getElementById('info-first')?.value || '';
       const last    = document.getElementById('info-last')?.value || '';
       const address = document.getElementById('info-address')?.value || '';
       const city    = document.getElementById('info-city')?.value || '';
       const country = document.getElementById('info-country')?.value || '';
+      const phone   = document.getElementById('info-phone')?.value || '';
       const summary = document.getElementById('infoSummary');
-      if (summary) summary.textContent = `${email} — ${first} ${last}, ${address}, ${city}, ${country}`;
+      if (summary) summary.textContent = `${first} ${last} — ${address}, ${city}, ${country} · ${phone}`;
     }
   }
 
   function validateStep1() {
-    const fields = ['info-email','info-first','info-last','info-address','info-city'];
+    const fields = ['info-first','info-last','info-address','info-city'];
     let valid = true;
     fields.forEach(id => {
       const el = document.getElementById(id);
@@ -538,6 +538,22 @@ function initCheckout() {
         el.style.background = '';
       }
     });
+    // Phone validation — required, min 10 digits
+    const phoneEl = document.getElementById('info-phone');
+    const phoneErr = document.getElementById('phone-error');
+    if (phoneEl) {
+      const digits = phoneEl.value.replace(/\D/g, '');
+      if (digits.length < 10) {
+        phoneEl.style.borderBottom = '2px solid #c0392b';
+        phoneEl.style.background = '#fff5f5';
+        if (phoneErr) phoneErr.style.display = 'block';
+        valid = false;
+      } else {
+        phoneEl.style.borderBottom = '';
+        phoneEl.style.background = '';
+        if (phoneErr) phoneErr.style.display = 'none';
+      }
+    }
     return valid;
   }
 
