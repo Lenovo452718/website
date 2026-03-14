@@ -308,7 +308,7 @@ function initShopFilters() {
   if (!grid) return;
 
   const cards = Array.from(grid.querySelectorAll('.product-card'));
-  const BATCH = 9;
+  const BATCH = 10;
   let displayCount = BATCH;
   let lastVisible = [];
 
