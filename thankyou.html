@@ -19,15 +19,15 @@
   <div class="thankyou-inner">
     <div class="thankyou-check">✓</div>
     <h1 data-i18n="order_confirmed">Order Confirmed!</h1>
-    <p class="subheading" id="tyGreeting">Thank you for your order!</p>
-    <p class="order-msg">Your order has been placed successfully. Our team will contact you before delivery.</p>
-    <p class="delivery-msg">Estimated delivery: <strong>3–5 business days</strong></p>
+    <p class="subheading" id="tyGreeting" data-i18n="order_confirmed"></p>
+    <p class="order-msg" data-i18n="order_confirmed_sub">Your order has been placed successfully. Our team will contact you before delivery.</p>
+    <p class="delivery-msg" data-i18n="order_est_delivery">Estimated delivery: 3–5 business days</p>
 
     <div class="thankyou-summary" id="tySummary"></div>
 
     <div class="thankyou-btns">
-      <a href="shipping.html" class="btn-outline-dark">Shipping Info</a>
-      <a href="shop.html" class="btn-dark">Continue Shopping</a>
+      <a href="shipping.html" class="btn-outline-dark" data-i18n="shipping_info">Shipping Info</a>
+      <a href="shop.html" class="btn-dark" data-i18n="continue_shopping_btn">Continue Shopping</a>
     </div>
   </div>
 </div>
@@ -65,16 +65,16 @@
     `).join('');
 
     container.innerHTML = `
-      <h3>Order Summary</h3>
+      <h3>${t('order_summary')}</h3>
       ${itemsHtml}
       <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gray);padding:10px 0;border-top:1px solid var(--gray-light);margin-top:8px;">
-        <span>Subtotal</span><span>${subtotal} MAD</span>
+        <span>${t('subtotal')}</span><span>${subtotal} MAD</span>
       </div>
       <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gray);padding:4px 0;">
-        <span>Shipping</span><span>Free</span>
+        <span>${t('shipping_label')}</span><span>${t('free')}</span>
       </div>
       <div class="thankyou-total">
-        <span>Total</span>
+        <span>${t('total_label')}</span>
         <span>${subtotal} MAD</span>
       </div>
     `;

@@ -59,9 +59,9 @@
           <input type="text" placeholder="Casablanca" id="info-city" />
         </div>
         <div class="form-group">
-          <label>Numéro de téléphone</label>
+          <label data-i18n="phone_label">Phone Number</label>
           <input type="tel" placeholder="06 12 34 56 78" id="info-phone" maxlength="15" />
-          <span class="field-error" id="phone-error" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;">Le numéro doit contenir au moins 10 chiffres.</span>
+          <span class="field-error" id="phone-error" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;" data-i18n="phone_error">Please enter at least 10 digits.</span>
         </div>
         <div class="form-group">
           <label data-i18n="country">Country</label>
@@ -116,14 +116,14 @@
         <div class="cod-icon"><img src="images/icons/cash.png" alt="Cash" style="width:36px;height:36px;"></div>
         <div class="cod-text">
           <strong data-i18n="cod_title">Cash on Delivery</strong>
-          <p>You will pay in cash when your order arrives at your door. No card required.</p>
+          <p data-i18n="cod_desc">You will pay in cash when your order arrives at your door. No card required.</p>
         </div>
       </div>
       <div class="cod-note">
-        <p>📦 Our delivery agent will contact you before arrival.</p>
-        <p>✅ Please have the exact amount ready.</p>
-        <p>🔒 Your order is 100% secure and guaranteed.</p>
-        <p>🇲🇦 We deliver across Morocco.</p>
+        <p data-i18n="cod_note1">📦 Our delivery agent will contact you before arrival.</p>
+        <p data-i18n="cod_note2">✅ Please have the exact amount ready.</p>
+        <p data-i18n="cod_note3">🔒 Your order is 100% secure and guaranteed.</p>
+        <p data-i18n="cod_note4">🇲🇦 We deliver across Morocco.</p>
       </div>
       <div class="checkout-nav-btns">
         <button class="checkout-back prev-step" data-i18n="back_btn">← Back</button>
@@ -143,21 +143,21 @@
     <div class="checkout-upsell" id="checkoutUpsellBanner" style="display:none;">
       <div class="upsell-tag">−39 MAD</div>
       <div class="upsell-body">
-        <strong>Profitez de l'offre duo !</strong>
-        <p>Ajoutez un 2ème jean et économisez 39 MAD sur votre commande.</p>
+        <strong data-i18n="upsell_title">Take advantage of the duo deal!</strong>
+        <p data-i18n="upsell_desc">Add a 2nd jean and save 39 MAD on your order.</p>
       </div>
-      <a href="shop.html" class="upsell-link">Ajouter →</a>
+      <a href="shop.html" class="upsell-link" data-i18n="upsell_cta">Add →</a>
     </div>
 
     <!-- DISCOUNT APPLIED — shown when 2+ items in cart -->
     <div class="checkout-deal-badge" id="checkoutDealBadge" style="display:none;">
       <span class="deal-check">✓</span>
-      <span>Offre duo appliquée — vous économisez <strong id="checkoutDealSaving">39 MAD</strong> !</span>
+      <span data-i18n="deal_applied_pre">Duo deal applied — you save</span> <strong id="checkoutDealSaving">39 MAD</strong><span data-i18n="deal_applied_suf">!</span>
     </div>
 
     <div class="summary-totals">
       <div class="summary-row"><span data-i18n="subtotal">Subtotal</span><span id="checkoutSubtotal">0 MAD</span></div>
-      <div class="summary-row discount-row" id="checkoutDiscountRow" style="display:none;"><span>Réduction offre duo</span><span id="checkoutDiscount">−0 MAD</span></div>
+      <div class="summary-row discount-row" id="checkoutDiscountRow" style="display:none;"><span data-i18n="discount_label">Duo deal discount</span><span id="checkoutDiscount">−0 MAD</span></div>
       <div class="summary-row"><span data-i18n="shipping_label">Shipping</span><span id="checkoutShipping">Free</span></div>
       <div class="summary-row total"><span data-i18n="total_label">Total</span><span id="checkoutTotal">0 MAD</span></div>
     </div>

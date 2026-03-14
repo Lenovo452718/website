@@ -41,6 +41,11 @@ function applyLang(lang) {
     if (T[key] !== undefined) el.title = T[key];
   });
 
+  /* ── data-lang show/hide (exclude lang-btn switcher buttons) ── */
+  document.querySelectorAll('[data-lang]:not(.lang-btn)').forEach(el => {
+    el.style.display = el.dataset.lang === lang ? '' : 'none';
+  });
+
   /* ── Language switcher active state ── */
   document.querySelectorAll('.lang-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.lang === lang);

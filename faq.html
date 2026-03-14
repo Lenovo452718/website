@@ -280,6 +280,7 @@
     .faq-a.open { display: block; }
     .faq-a strong { color: #111; }
     .faq-a a { color: #0a1628; text-decoration: underline; }
+    .faq-a p { margin: 0; }
 
     /* ─── STILL NEED HELP ───────────────────────────────────── */
     .faq-cta {
@@ -407,17 +408,17 @@
     </div>
   </div>
   <nav class="mobile-menu" id="mobileMenu">
-    <a href="shop.html">Shop</a>
-    <a href="lookbook.html">Lookbook</a>
-    <a href="about.html">About</a>
-    <a href="contact.html">Contact</a>
-    <a href="account.html">Account</a>
+    <a href="shop.html" data-i18n="nav_shop">Shop</a>
+    <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="account.html" data-i18n="nav_account">Account</a>
   </nav>
 </header>
 
 <!-- ===== BREADCRUMB ===== -->
 <nav class="breadcrumb">
-  <a href="index.html">Home</a>
+  <a href="index.html" data-i18n="home">Home</a>
   <span>/</span>
   <span class="current">FAQ</span>
 </nav>
@@ -427,25 +428,28 @@
   <div class="faq-hero-bg"></div>
   <div class="faq-hero-grid"></div>
   <div class="faq-hero-content">
-    <div class="faq-hero-tag">✦ Help Center</div>
-    <h1>Got a <em>question?</em><br>We've got answers.</h1>
-    <p class="faq-hero-sub">Find answers to the most common questions about orders, sizing, shipping, and more.</p>
+    <div class="faq-hero-tag" data-i18n="faq_hero_tag">✦ Help Center</div>
+    <h1>
+      <span data-lang="en">Got a <em>question?</em><br>We've got answers.</span>
+      <span data-lang="fr">Une <em>question ?</em><br>Nous avons les réponses.</span>
+    </h1>
+    <p class="faq-hero-sub" data-i18n="faq_hero_sub">Find answers to the most common questions about orders, sizing, shipping, and more.</p>
     <div class="faq-search-wrap">
-      <input class="faq-search" id="faqSearch" type="text" placeholder="Search questions…" autocomplete="off" />
+      <input class="faq-search" id="faqSearch" type="text" data-i18n-ph="faq_search_ph" placeholder="Search questions…" autocomplete="off" />
       <svg class="faq-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
     </div>
     <div class="faq-stats">
       <div class="faq-stat">
         <div class="faq-stat-num">20<span>+</span></div>
-        <div class="faq-stat-label">Questions answered</div>
+        <div class="faq-stat-label" data-i18n="faq_stat_questions">Questions answered</div>
       </div>
       <div class="faq-stat">
         <div class="faq-stat-num">4</div>
-        <div class="faq-stat-label">Categories</div>
+        <div class="faq-stat-label" data-i18n="faq_stat_categories">Categories</div>
       </div>
       <div class="faq-stat">
         <div class="faq-stat-num">24<span>h</span></div>
-        <div class="faq-stat-label">Response time</div>
+        <div class="faq-stat-label" data-i18n="stat_response">Response time</div>
       </div>
     </div>
   </div>
@@ -456,22 +460,25 @@
 
   <!-- TABS -->
   <div class="faq-tabs">
-    <button class="faq-tab active" data-group="all"><span class="faq-tab-dot"></span>All Questions</button>
-    <button class="faq-tab" data-group="orders"><span class="faq-tab-dot"></span>Orders &amp; Payment</button>
-    <button class="faq-tab" data-group="shipping"><span class="faq-tab-dot"></span>Shipping</button>
-    <button class="faq-tab" data-group="sizing"><span class="faq-tab-dot"></span>Sizing &amp; Fit</button>
-    <button class="faq-tab" data-group="exchange"><span class="faq-tab-dot"></span>Exchanges</button>
+    <button class="faq-tab active" data-group="all"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_all">All Questions</span></button>
+    <button class="faq-tab" data-group="orders"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_orders">Orders &amp; Payment</span></button>
+    <button class="faq-tab" data-group="shipping"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_shipping">Shipping</span></button>
+    <button class="faq-tab" data-group="sizing"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_sizing">Sizing &amp; Fit</span></button>
+    <button class="faq-tab" data-group="exchange"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_exchanges">Exchanges</span></button>
   </div>
 
   <div id="faqNoResults" class="faq-no-results">
-    <p>No results found. Try a different keyword or <a href="contact.html" style="color:#0a1628;">contact us</a>.</p>
+    <p>
+      <span data-lang="en">No results found. Try a different keyword or <a href="contact.html" style="color:#0a1628;">contact us</a>.</span>
+      <span data-lang="fr">Aucun résultat. Essayez un autre mot-clé ou <a href="contact.html" style="color:#0a1628;">contactez-nous</a>.</span>
+    </p>
   </div>
 
   <!-- ── ORDERS & PAYMENT ── -->
   <div class="faq-group active" data-group="orders">
     <div class="faq-group-head">
       <div class="faq-group-icon">💳</div>
-      <span class="faq-group-title">Orders &amp; Payment</span>
+      <span class="faq-group-title" data-i18n="faq_cat_orders">Orders &amp; Payment</span>
       <span class="faq-group-count">5 questions</span>
     </div>
     <div class="faq-list">
@@ -479,48 +486,78 @@
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🛍</span>
-          <span class="faq-q-text">How do I place an order?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">How do I place an order?</span>
+            <span data-lang="fr">Comment passer une commande ?</span>
+          </span>
           <span class="faq-chevron">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
           </span>
         </button>
-        <div class="faq-a">Browse our collection, select your size and color, then click <strong>Add to Cart</strong>. Once you're ready, open the cart and proceed to checkout. Fill in your delivery details and confirm your order.</div>
+        <div class="faq-a">
+          <p data-lang="en">Browse our collection, select your size and color, then click <strong>Add to Cart</strong>. Once you're ready, open the cart and proceed to checkout. Fill in your delivery details and confirm your order.</p>
+          <p data-lang="fr">Parcourez notre collection, sélectionnez votre taille et couleur, puis cliquez sur <strong>Ajouter au panier</strong>. Une fois prêt(e), ouvrez le panier et passez à la caisse. Remplissez vos coordonnées de livraison et confirmez votre commande.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">💰</span>
-          <span class="faq-q-text">What payment methods do you accept?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">What payment methods do you accept?</span>
+            <span data-lang="fr">Quels modes de paiement acceptez-vous ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">We accept <strong>cash on delivery (COD)</strong> — you pay when your order arrives at your door. No card or online payment required.</div>
+        <div class="faq-a">
+          <p data-lang="en">We accept <strong>cash on delivery (COD)</strong> — you pay when your order arrives at your door. No card or online payment required.</p>
+          <p data-lang="fr">Nous acceptons le <strong>paiement à la livraison (COD)</strong> — vous payez en espèces à la réception de votre colis. Aucune carte requise.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">✏️</span>
-          <span class="faq-q-text">Can I modify or cancel my order after placing it?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Can I modify or cancel my order after placing it?</span>
+            <span data-lang="fr">Puis-je modifier ou annuler ma commande ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">You can modify or cancel your order <strong>within 2 hours</strong> of placing it. Contact us immediately via WhatsApp. Once the order has been dispatched, modifications are no longer possible.</div>
+        <div class="faq-a">
+          <p data-lang="en">You can modify or cancel your order <strong>within 2 hours</strong> of placing it. Contact us immediately via WhatsApp. Once the order has been dispatched, modifications are no longer possible.</p>
+          <p data-lang="fr">Vous pouvez modifier ou annuler votre commande <strong>dans les 2 heures</strong> suivant la commande. Contactez-nous immédiatement via WhatsApp. Une fois expédié, aucune modification n'est possible.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">📩</span>
-          <span class="faq-q-text">Will I receive an order confirmation?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Will I receive an order confirmation?</span>
+            <span data-lang="fr">Vais-je recevoir une confirmation de commande ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Yes. Once your order is confirmed, you will receive a message via WhatsApp with your order details and estimated delivery date.</div>
+        <div class="faq-a">
+          <p data-lang="en">Yes. Once your order is confirmed, you will receive a message via WhatsApp with your order details and estimated delivery date.</p>
+          <p data-lang="fr">Oui. Une fois votre commande confirmée, vous recevrez un message WhatsApp avec les détails de votre commande et la date de livraison estimée.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🎁</span>
-          <span class="faq-q-text">How does the pack deal discount work?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">How does the pack deal discount work?</span>
+            <span data-lang="fr">Comment fonctionne la réduction pack duo ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Add any <strong>2 items</strong> to your cart and the price automatically drops to <strong>319 MAD</strong>. Add <strong>3 items</strong> and it becomes <strong>479 MAD</strong>. You can mix and match any styles — no need to buy the same product twice.</div>
+        <div class="faq-a">
+          <p data-lang="en">Add any <strong>2 items</strong> to your cart and the price automatically drops to <strong>319 MAD</strong>. Add <strong>3 items</strong> and it becomes <strong>479 MAD</strong>. You can mix and match any styles — no need to buy the same product twice.</p>
+          <p data-lang="fr">Ajoutez <strong>2 articles</strong> à votre panier et le prix baisse automatiquement à <strong>319 MAD</strong>. Ajoutez <strong>3 articles</strong> et c'est <strong>479 MAD</strong>. Vous pouvez mixer tous les styles — pas besoin d'acheter le même produit deux fois.</p>
+        </div>
       </div>
 
     </div>
@@ -530,7 +567,7 @@
   <div class="faq-group active" data-group="shipping">
     <div class="faq-group-head">
       <div class="faq-group-icon">🚚</div>
-      <span class="faq-group-title">Shipping &amp; Delivery</span>
+      <span class="faq-group-title" data-i18n="faq_grp_shipping">Shipping &amp; Delivery</span>
       <span class="faq-group-count">5 questions</span>
     </div>
     <div class="faq-list">
@@ -538,46 +575,76 @@
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">📦</span>
-          <span class="faq-q-text">How long does delivery take?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">How long does delivery take?</span>
+            <span data-lang="fr">Combien de temps prend la livraison ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Standard delivery takes <strong>2–5 business days</strong>. Express delivery takes <strong>1–2 business days</strong> for an extra 30 MAD. Orders placed before 3 PM are processed the same day.</div>
+        <div class="faq-a">
+          <p data-lang="en">Standard delivery takes <strong>2–5 business days</strong>. Express delivery takes <strong>1–2 business days</strong> for an extra 30 MAD. Orders placed before 3 PM are processed the same day.</p>
+          <p data-lang="fr">La livraison standard prend <strong>2–5 jours ouvrables</strong>. La livraison express prend <strong>1–2 jours ouvrables</strong> avec un supplément de 30 MAD. Les commandes passées avant 15h sont traitées le jour même.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🆓</span>
-          <span class="faq-q-text">Is shipping free?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Is shipping free?</span>
+            <span data-lang="fr">La livraison est-elle gratuite ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a"><strong>Yes — standard shipping is completely free</strong> on all orders across Morocco. Express shipping is available for 30 MAD if you need your order faster.</div>
+        <div class="faq-a">
+          <p data-lang="en"><strong>Yes — standard shipping is completely free</strong> on all orders across Morocco. Express shipping is available for 30 MAD if you need your order faster.</p>
+          <p data-lang="fr"><strong>Oui — la livraison standard est entièrement gratuite</strong> sur toutes les commandes au Maroc. La livraison express est disponible pour 30 MAD si vous avez besoin de votre commande plus vite.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">📍</span>
-          <span class="faq-q-text">Do you deliver everywhere in Morocco?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Do you deliver everywhere in Morocco?</span>
+            <span data-lang="fr">Livrez-vous partout au Maroc ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Yes, we deliver to <strong>all regions of Morocco</strong>. Whether you're in Casablanca, Marrakech, Fes, Rabat, or any other city — we've got you covered.</div>
+        <div class="faq-a">
+          <p data-lang="en">Yes, we deliver to <strong>all regions of Morocco</strong>. Whether you're in Casablanca, Marrakech, Fes, Rabat, or any other city — we've got you covered.</p>
+          <p data-lang="fr">Oui, nous livrons dans <strong>toutes les régions du Maroc</strong>. Que vous soyez à Casablanca, Marrakech, Fès, Rabat ou toute autre ville — nous livrons chez vous.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🔍</span>
-          <span class="faq-q-text">How can I track my order?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">How can I track my order?</span>
+            <span data-lang="fr">Comment suivre ma commande ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Once your order is dispatched, we'll send you a tracking update via WhatsApp. You can also contact us directly at any time for a status update on your delivery.</div>
+        <div class="faq-a">
+          <p data-lang="en">Once your order is dispatched, we'll send you a tracking update via WhatsApp. You can also contact us directly at any time for a status update on your delivery.</p>
+          <p data-lang="fr">Une fois votre commande expédiée, nous vous enverrons une mise à jour de suivi via WhatsApp. Vous pouvez aussi nous contacter à tout moment pour connaître l'état de votre livraison.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🚪</span>
-          <span class="faq-q-text">What if I'm not home when the delivery arrives?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">What if I'm not home when the delivery arrives?</span>
+            <span data-lang="fr">Et si je ne suis pas chez moi lors de la livraison ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">The delivery agent will attempt to contact you. If you're unavailable, a second delivery attempt will be made the following business day. Please make sure someone is available to receive the package.</div>
+        <div class="faq-a">
+          <p data-lang="en">The delivery agent will attempt to contact you. If you're unavailable, a second delivery attempt will be made the following business day. Please make sure someone is available to receive the package.</p>
+          <p data-lang="fr">Le livreur essaiera de vous contacter. Si vous n'êtes pas disponible, une deuxième tentative sera faite le prochain jour ouvrable. Assurez-vous que quelqu'un est disponible pour recevoir le colis.</p>
+        </div>
       </div>
 
     </div>
@@ -587,7 +654,7 @@
   <div class="faq-group active" data-group="sizing">
     <div class="faq-group-head">
       <div class="faq-group-icon">📐</div>
-      <span class="faq-group-title">Sizing &amp; Fit</span>
+      <span class="faq-group-title" data-i18n="faq_cat_sizing">Sizing &amp; Fit</span>
       <span class="faq-group-count">5 questions</span>
     </div>
     <div class="faq-list">
@@ -595,46 +662,76 @@
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">📏</span>
-          <span class="faq-q-text">How do I find my correct size?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">How do I find my correct size?</span>
+            <span data-lang="fr">Comment trouver ma bonne taille ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Use the <strong>Size Guide</strong> available on each product page. Measure your waist and hips in inches, then match to the size chart. When in doubt, size up for a more relaxed fit.</div>
+        <div class="faq-a">
+          <p data-lang="en">Use the <strong>Size Guide</strong> available on each product page. Measure your waist and hips in inches, then match to the size chart. When in doubt, size up for a more relaxed fit.</p>
+          <p data-lang="fr">Utilisez le <strong>Guide des tailles</strong> disponible sur chaque page produit. Mesurez votre tour de taille et de hanches, puis comparez avec le tableau. En cas de doute, prenez la taille au-dessus pour une coupe plus relax.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">✅</span>
-          <span class="faq-q-text">Do the jeans run true to size?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Do the jeans run true to size?</span>
+            <span data-lang="fr">Les jeans correspondent-ils bien aux tailles ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Most of our styles run <strong>true to size</strong>. Our high-rise and skinny styles have a slight stretch due to the elastane blend. For baggy and wide-leg styles, you can size down for a relaxed look.</div>
+        <div class="faq-a">
+          <p data-lang="en">Most of our styles run <strong>true to size</strong>. Our high-rise and skinny styles have a slight stretch due to the elastane blend. For baggy and wide-leg styles, you can size down for a relaxed look.</p>
+          <p data-lang="fr">La plupart de nos modèles sont <strong>fidèles aux tailles</strong>. Nos modèles taille haute et slim ont un léger stretch grâce à l'élasthanne. Pour les modèles baggy et jambe large, vous pouvez prendre une taille en dessous.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🧺</span>
-          <span class="faq-q-text">Will the jeans shrink after washing?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Will the jeans shrink after washing?</span>
+            <span data-lang="fr">Les jeans rétrécissent-ils au lavage ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Minimal shrinkage may occur after the first wash. We recommend washing at <strong>30°C</strong> and air drying rather than tumble drying to preserve the shape and color of your jeans.</div>
+        <div class="faq-a">
+          <p data-lang="en">Minimal shrinkage may occur after the first wash. We recommend washing at <strong>30°C</strong> and air drying rather than tumble drying to preserve the shape and color of your jeans.</p>
+          <p data-lang="fr">Un léger rétrécissement peut survenir après le premier lavage. Nous recommandons de laver à <strong>30°C</strong> et de sécher à l'air plutôt qu'au sèche-linge pour préserver la forme et la couleur.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">👗</span>
-          <span class="faq-q-text">What is the inseam length for each size?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">What is the inseam length for each size?</span>
+            <span data-lang="fr">Quelle est la longueur d'entrejambe selon la taille ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Our standard inseam is approximately <strong>30–32 inches</strong> depending on the style. Wide-leg and flare styles tend to have a longer inseam to complement the silhouette. Exact measurements are on each product page.</div>
+        <div class="faq-a">
+          <p data-lang="en">Our standard inseam is approximately <strong>30–32 inches</strong> depending on the style. Wide-leg and flare styles tend to have a longer inseam to complement the silhouette. Exact measurements are on each product page.</p>
+          <p data-lang="fr">Notre longueur d'entrejambe standard est d'environ <strong>76–81 cm</strong> selon le modèle. Les modèles jambe large et évasés ont un entrejambe plus long. Les mesures exactes sont sur chaque page produit.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🤔</span>
-          <span class="faq-q-text">I'm between two sizes — which should I choose?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">I'm between two sizes — which should I choose?</span>
+            <span data-lang="fr">Je suis entre deux tailles — laquelle choisir ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">For fitted styles (high-rise, skinny), go with the <strong>smaller size</strong> — the fabric has stretch. For relaxed styles (baggy, wide-leg), choose the <strong>larger size</strong> for comfort. Still unsure? Message us on WhatsApp and we'll help you decide.</div>
+        <div class="faq-a">
+          <p data-lang="en">For fitted styles (high-rise, skinny), go with the <strong>smaller size</strong> — the fabric has stretch. For relaxed styles (baggy, wide-leg), choose the <strong>larger size</strong> for comfort. Still unsure? Message us on WhatsApp and we'll help you decide.</p>
+          <p data-lang="fr">Pour les modèles ajustés (taille haute, slim), prenez la <strong>taille inférieure</strong> — le tissu est extensible. Pour les modèles relaxed (baggy, jambe large), choisissez la <strong>taille supérieure</strong>. Encore incertain(e) ? Écrivez-nous sur WhatsApp.</p>
+        </div>
       </div>
 
     </div>
@@ -644,7 +741,7 @@
   <div class="faq-group active" data-group="exchange">
     <div class="faq-group-head">
       <div class="faq-group-icon">🔄</div>
-      <span class="faq-group-title">Exchanges &amp; Policy</span>
+      <span class="faq-group-title" data-i18n="faq_grp_exchanges">Exchanges &amp; Policy</span>
       <span class="faq-group-count">5 questions</span>
     </div>
     <div class="faq-list">
@@ -652,46 +749,76 @@
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">🔁</span>
-          <span class="faq-q-text">Can I return my order for a refund?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Can I return my order for a refund?</span>
+            <span data-lang="fr">Puis-je retourner ma commande pour un remboursement ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a"><strong>No.</strong> All sales are final. We do not accept returns or issue refunds once your order has been delivered. Please review your size carefully before placing your order. See our <a href="shipping.html">Shipping &amp; Exchanges</a> page for full details.</div>
+        <div class="faq-a">
+          <p data-lang="en"><strong>No.</strong> All sales are final. We do not accept returns or issue refunds once your order has been delivered. Please review your size carefully before placing your order. See our <a href="shipping.html">Shipping &amp; Exchanges</a> page for full details.</p>
+          <p data-lang="fr"><strong>Non.</strong> Toutes les ventes sont définitives. Nous n'acceptons pas les retours ni les remboursements une fois votre commande livrée. Vérifiez bien votre taille avant de commander. Consultez notre page <a href="shipping.html">Livraison &amp; Échanges</a> pour plus de détails.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">📐</span>
-          <span class="faq-q-text">Can I exchange my jeans for a different size?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Can I exchange my jeans for a different size?</span>
+            <span data-lang="fr">Puis-je échanger mon jean pour une autre taille ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Yes — you can request a <strong>size exchange within 3 business days</strong> of receiving your order. The item must be unworn, unwashed, and with tags still attached. A <strong>35 MAD re-shipping fee</strong> applies.</div>
+        <div class="faq-a">
+          <p data-lang="en">Yes — you can request a <strong>size exchange within 3 business days</strong> of receiving your order. The item must be unworn, unwashed, and with tags still attached. A <strong>35 MAD re-shipping fee</strong> applies.</p>
+          <p data-lang="fr">Oui — vous pouvez demander un <strong>échange de taille dans les 3 jours ouvrables</strong> suivant la réception. L'article doit être non porté, non lavé, avec les étiquettes. Des <strong>frais de réexpédition de 35 MAD</strong> s'appliquent.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">⏱</span>
-          <span class="faq-q-text">How long do I have to request an exchange?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">How long do I have to request an exchange?</span>
+            <span data-lang="fr">Combien de temps ai-je pour demander un échange ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">You have <strong>3 business days</strong> from the date of delivery to contact us and request a size exchange. Requests made after this window cannot be accepted.</div>
+        <div class="faq-a">
+          <p data-lang="en">You have <strong>3 business days</strong> from the date of delivery to contact us and request a size exchange. Requests made after this window cannot be accepted.</p>
+          <p data-lang="fr">Vous avez <strong>3 jours ouvrables</strong> à compter de la livraison pour nous contacter et demander un échange. Les demandes au-delà de ce délai ne peuvent être acceptées.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">💸</span>
-          <span class="faq-q-text">Why is there a 35 MAD exchange fee?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">Why is there a 35 MAD exchange fee?</span>
+            <span data-lang="fr">Pourquoi y a-t-il des frais d'échange de 35 MAD ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">The <strong>35 MAD</strong> fee covers the cost of re-shipping your new size. It must be paid before we dispatch the replacement. This fee is non-refundable.</div>
+        <div class="faq-a">
+          <p data-lang="en">The <strong>35 MAD</strong> fee covers the cost of re-shipping your new size. It must be paid before we dispatch the replacement. This fee is non-refundable.</p>
+          <p data-lang="fr">Les <strong>35 MAD</strong> couvrent les frais de réexpédition de la nouvelle taille. Ils doivent être payés avant l'expédition. Ces frais ne sont pas remboursables.</p>
+        </div>
       </div>
 
       <div class="faq-item">
         <button class="faq-q">
           <span class="faq-q-icon">📲</span>
-          <span class="faq-q-text">How do I start an exchange request?</span>
+          <span class="faq-q-text">
+            <span data-lang="en">How do I start an exchange request?</span>
+            <span data-lang="fr">Comment initier une demande d'échange ?</span>
+          </span>
           <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
         </button>
-        <div class="faq-a">Message us on <strong>WhatsApp</strong> with your order number and the size you need. Send a photo of the item (unworn, tags attached) so we can confirm eligibility. Once approved, pay the 35 MAD and your new size ships immediately.</div>
+        <div class="faq-a">
+          <p data-lang="en">Message us on <strong>WhatsApp</strong> with your order number and the size you need. Send a photo of the item (unworn, tags attached) so we can confirm eligibility. Once approved, pay the 35 MAD and your new size ships immediately.</p>
+          <p data-lang="fr">Envoyez-nous un message sur <strong>WhatsApp</strong> avec votre numéro de commande et la taille souhaitée. Joignez une photo de l'article (non porté, étiquettes attachées). Une fois approuvé, payez les 35 MAD et votre nouvelle taille est expédiée immédiatement.</p>
+        </div>
       </div>
 
     </div>
@@ -700,15 +827,15 @@
   <!-- CTA -->
   <div class="faq-cta reveal">
     <div class="faq-cta-inner">
-      <p class="faq-cta-tag">Still need help?</p>
-      <h3>We're always here.</h3>
-      <p>Can't find your answer? Our team responds within 24 hours — reach us directly.</p>
+      <p class="faq-cta-tag" data-i18n="still_help">Still need help?</p>
+      <h3 data-i18n="still_here">We're always here.</h3>
+      <p data-i18n="still_help_sub">Can't find your answer? Our team responds within 24 hours — reach us directly.</p>
       <div class="faq-cta-btns">
         <a href="https://wa.me/212771152186" class="btn-wa-green" target="_blank">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Chat on WhatsApp
+          <span data-i18n="chat_whatsapp">Chat on WhatsApp</span>
         </a>
-        <a href="contact.html" class="btn-ghost">Contact Us →</a>
+        <a href="contact.html" class="btn-ghost" data-i18n="contact_us_arrow">Contact Us →</a>
       </div>
     </div>
   </div>
@@ -720,26 +847,26 @@
   <div class="footer-grid">
     <div class="footer-brand">
       <span class="footer-logo">STREETSTORE</span>
-      <p>Premium women's denim crafted for the streets and everywhere in between.</p>
+      <p data-i18n="footer_desc">Premium women's denim crafted for the streets and everywhere in between.</p>
     </div>
     <div class="footer-col">
-      <h4>Shop</h4>
+      <h4 data-i18n="footer_shop">Shop</h4>
       <ul>
-        <li><a href="shop.html">All Jeans</a></li>
-        <li><a href="shop.html">New Arrivals</a></li>
-        <li><a href="shop.html">Sale</a></li>
+        <li><a href="shop.html" data-i18n="footer_all_jeans">All Jeans</a></li>
+        <li><a href="shop.html" data-i18n="footer_new">New Arrivals</a></li>
+        <li><a href="shop.html" data-i18n="footer_sale">Sale</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Help</h4>
+      <h4 data-i18n="footer_help">Help</h4>
       <ul>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="shipping.html">Shipping &amp; Exchanges</a></li>
-        <li><a href="faq.html">FAQ</a></li>
+        <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
+        <li><a href="shipping.html" data-i18n="footer_shipping">Shipping &amp; Returns</a></li>
+        <li><a href="faq.html" data-i18n="footer_faq">FAQ</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Follow</h4>
+      <h4 data-i18n="footer_follow">Follow</h4>
       <ul>
         <li><a href="#">Instagram</a></li>
         <li><a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a></li>
@@ -748,10 +875,10 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2025 StreetStore. All rights reserved.</p>
+    <p data-i18n="footer_rights">© 2025 StreetStore. All rights reserved.</p>
     <div class="footer-bottom-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms</a>
+      <a href="#" data-i18n="privacy">Privacy Policy</a>
+      <a href="#" data-i18n="terms">Terms</a>
     </div>
   </div>
 </footer>
