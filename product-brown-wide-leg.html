@@ -60,8 +60,7 @@
     <!-- VIDEO (shown first, full gallery area) -->
     <div class="gallery-video-wrap" id="galleryVideoWrap">
       <video id="productVideo" autoplay playsinline muted>
-        <source src="IMG_4876.MOV" type="video/mp4">
-        <source src="IMG_4876.MOV" type="video/quicktime">
+        <source src="images/products/brown-wide-leg/video.mp4" type="video/mp4">
       </video>
       <button class="video-skip-btn" id="videoSkipBtn">Skip ›</button>
     </div>
@@ -72,24 +71,27 @@
 
         <!-- Left: vertical thumbnails -->
         <div class="gallery-filmstrip">
-          <div class="thumb-item active" data-num="01">
-            <div style="width:100%;height:100%;background:#6b4c2a;"></div>
+          <div class="thumb-item active" data-num="01" data-src="images/products/brown-wide-leg/1.jpg">
+            <img src="images/products/brown-wide-leg/1.jpg" style="width:100%;height:100%;object-fit:cover;">
           </div>
-          <div class="thumb-item" data-num="02">
-            <div style="width:100%;height:100%;background:#7d5a35;"></div>
+          <div class="thumb-item" data-num="02" data-src="images/products/brown-wide-leg/2.jpg">
+            <img src="images/products/brown-wide-leg/2.jpg" style="width:100%;height:100%;object-fit:cover;">
           </div>
-          <div class="thumb-item" data-num="03">
-            <div style="width:100%;height:100%;background:#583d22;"></div>
+          <div class="thumb-item" data-num="03" data-src="images/products/brown-wide-leg/3.jpg">
+            <img src="images/products/brown-wide-leg/3.jpg" style="width:100%;height:100%;object-fit:cover;">
           </div>
-          <div class="thumb-item" data-num="04">
-            <div style="width:100%;height:100%;background:#8a6340;"></div>
+          <div class="thumb-item" data-num="04" data-src="images/products/brown-wide-leg/4.jpg">
+            <img src="images/products/brown-wide-leg/4.jpg" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+          <div class="thumb-item" data-num="05" data-src="images/products/brown-wide-leg/5.jpg">
+            <img src="images/products/brown-wide-leg/5.jpg" style="width:100%;height:100%;object-fit:cover;">
           </div>
         </div>
 
         <!-- Right: main image -->
-        <div class="gallery-main-new" id="galleryMainNew" data-counter="01 / 04">
+        <div class="gallery-main-new" id="galleryMainNew" data-counter="01 / 05">
           <span class="zoom-hint">⊕ Zoom</span>
-          <div style="width:100%;height:100%;background:#6b4c2a;"></div>
+          <img id="mainProductImg" src="images/products/brown-wide-leg/1.jpg" style="width:100%;height:100%;object-fit:cover;">
         </div>
 
       </div>
