@@ -18,35 +18,15 @@
 <div class="thankyou-wrap">
   <div class="thankyou-inner">
     <div class="thankyou-check">✓</div>
-    <h1data-i18n="order_confirmed">Order Confirmed!</h1>
-    <p class="subheading">Thank you, Sarah!</p>
-    <p class="order-msg">Your order <strong>#SS-2025-0847</strong> has been placed successfully.</p>
-    <p class="delivery-msg">Estimated delivery: <strong>March 15–18, 2025</strong></p>
+    <h1 data-i18n="order_confirmed">Order Confirmed!</h1>
+    <p class="subheading" id="tyGreeting">Thank you for your order!</p>
+    <p class="order-msg">Your order has been placed successfully. Our team will contact you before delivery.</p>
+    <p class="delivery-msg">Estimated delivery: <strong>3–5 business days</strong></p>
 
-    <div class="thankyou-summary">
-      <h3>Order Summary</h3>
-      <div class="thankyou-item">
-        <span>Noir Skinny × 1 (Size S)</span>
-        <span>$79.00</span>
-      </div>
-      <div class="thankyou-item">
-        <span>Sky Wide Leg × 1 (Size M)</span>
-        <span>$89.00</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--gray); padding:10px 0;">
-        <span>Subtotal</span><span>$168.00</span>
-      </div>
-      <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--gray); padding:4px 0;">
-        <span>Shipping</span><span>Free</span>
-      </div>
-      <div class="thankyou-total">
-        <span>Total</span>
-        <span>$168.00</span>
-      </div>
-    </div>
+    <div class="thankyou-summary" id="tySummary"></div>
 
     <div class="thankyou-btns">
-      <a href="#" class="btn-outline-dark">Track Your Order</a>
+      <a href="shipping.html" class="btn-outline-dark">Shipping Info</a>
       <a href="shop.html" class="btn-dark">Continue Shopping</a>
     </div>
   </div>
@@ -54,15 +34,51 @@
 
 <!-- ===== FOOTER BAR ===== -->
 <div class="thankyou-footer">
-  <a href="#">Instagram</a>
+  <a href="https://www.instagram.com/streetstore1994?igsh=MW5kaW9mZ2VreThhcg%3D%3D&utm_source=qr" target="_blank">Instagram</a>
   <a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a>
-  <a href="#">Pinterest</a>
   <a href="contact.html" data-i18n="footer_contact">Contact Us</a>
-  <a href="#" data-i18n="footer_size_guide">Size Guide</a>
+  <a href="faq.html" data-i18n="footer_faq">FAQ</a>
 </div>
 
+<script src="products.js"></script>
 <script src="lang.js"></script>
 <script src="i18n.js"></script>
 <script src="script.js"></script>
+<script>
+  // Read last order from localStorage and render
+  (function() {
+    const order = JSON.parse(localStorage.getItem('streetstore_last_order') || '[]');
+    const container = document.getElementById('tySummary');
+    if (!container) return;
+
+    if (!order.length) {
+      container.style.display = 'none';
+      return;
+    }
+
+    const subtotal = order.reduce((s, i) => s + i.price * i.qty, 0);
+    const itemsHtml = order.map(item => `
+      <div class="thankyou-item">
+        <span>${item.name} × ${item.qty} (Size ${item.size})</span>
+        <span>${item.price * item.qty} MAD</span>
+      </div>
+    `).join('');
+
+    container.innerHTML = `
+      <h3>Order Summary</h3>
+      ${itemsHtml}
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gray);padding:10px 0;border-top:1px solid var(--gray-light);margin-top:8px;">
+        <span>Subtotal</span><span>${subtotal} MAD</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--gray);padding:4px 0;">
+        <span>Shipping</span><span>Free</span>
+      </div>
+      <div class="thankyou-total">
+        <span>Total</span>
+        <span>${subtotal} MAD</span>
+      </div>
+    `;
+  })();
+</script>
 </body>
 </html>

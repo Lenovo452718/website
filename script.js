@@ -126,18 +126,20 @@ function getPackDiscount(cart) {
 
 function getProductColor(name) {
   const map = {
+    // Real products
+    "Patte d'éléphant Jean": '#2a3f65',
+    'High-Rise Dark Blue Jeans': '#1a2744',
+    'Brown Wide-Leg Jean': '#6b4c2a',
+    'Baggy Wide Leg Denim Jeans': '#2d3748',
+    'Jean Skirts': '#1e3a5f',
+    'Denim Jacket & Wide-Leg Pants Set': '#0f1f3d',
+    // Legacy
     'Noir Skinny': '#1a1a1a',
     'Sky Wide Leg': '#5b8db8',
     'Urban Straight': '#8a8a8a',
     'Caramel Skinny': '#c4956a',
-    'Midnight Wide': '#0d0d0d',
-    'Sand Straight': '#d6cbbf',
-    'Classic Mom': '#7aafcc',
-    'Indigo Straight': '#1a2f6b',
-    'White Skinny': '#e8e8e8',
-    'Upsell Skinny': '#2a2a2a',
   };
-  return map[name] || '#555';
+  return map[name] || '#2d3748';
 }
 
 /* ============================================================
@@ -269,7 +271,7 @@ function initShopFilters() {
     const checkedSizes = Array.from(document.querySelectorAll('.filter-size:checked')).map(i => i.value);
     const checkedColors = Array.from(document.querySelectorAll('.filter-color:checked')).map(i => i.value);
     const checkedFit = document.querySelector('.filter-fit:checked')?.value || 'all';
-    const maxPrice = document.getElementById('priceRange')?.value || 200;
+    const maxPrice = document.getElementById('priceRange')?.value || 300;
     const sort = document.getElementById('sortSelect')?.value || 'featured';
 
     let visible = cards.filter(card => {
@@ -316,7 +318,7 @@ function initShopFilters() {
       document.querySelectorAll('.filter-size, .filter-color').forEach(i => i.checked = false);
       const allRadio = document.querySelector('.filter-fit[value="all"]');
       if (allRadio) allRadio.checked = true;
-      if (priceRange) { priceRange.value = 200; if (priceMax) priceMax.textContent = '200 MAD'; }
+      if (priceRange) { priceRange.value = 300; if (priceMax) priceMax.textContent = '300 MAD'; }
       if (sortSelect) sortSelect.value = 'featured';
       applyFilters();
     });
@@ -359,10 +361,12 @@ function initGallery() {
    ============================================================ */
 function initSizeSelector() {
   const btns = document.querySelectorAll('.size-btn:not(.sold-out)');
+  const selectedSizeEl = document.getElementById('selectedSize');
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      if (selectedSizeEl) selectedSizeEl.textContent = btn.textContent.trim();
     });
   });
 }
@@ -458,11 +462,42 @@ function initCheckout() {
     });
     current = n;
     window.scrollTo(0, 0);
+
+    // Populate info summary when reaching step 2
+    if (n === 1) {
+      const email   = document.getElementById('info-email')?.value || '';
+      const first   = document.getElementById('info-first')?.value || '';
+      const last    = document.getElementById('info-last')?.value || '';
+      const address = document.getElementById('info-address')?.value || '';
+      const city    = document.getElementById('info-city')?.value || '';
+      const country = document.getElementById('info-country')?.value || '';
+      const summary = document.getElementById('infoSummary');
+      if (summary) summary.textContent = `${email} — ${first} ${last}, ${address}, ${city}, ${country}`;
+    }
+  }
+
+  function validateStep1() {
+    const fields = ['info-email','info-first','info-last','info-address','info-city'];
+    let valid = true;
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!el.value.trim()) {
+        el.style.borderBottom = '2px solid #c0392b';
+        el.style.background = '#fff5f5';
+        valid = false;
+      } else {
+        el.style.borderBottom = '';
+        el.style.background = '';
+      }
+    });
+    return valid;
   }
 
   document.querySelectorAll('.next-step').forEach(btn => {
     btn.addEventListener('click', e => {
       e.preventDefault();
+      if (current === 0 && !validateStep1()) return;
       if (current < steps.length - 1) goTo(current + 1);
     });
   });
@@ -492,16 +527,61 @@ function initCheckout() {
     if (cart.length === 0) {
       summaryItems.innerHTML = '<p style="font-size:13px;color:var(--gray);padding:12px 0;">Your cart is empty.</p>';
     } else {
+      function renderCheckoutSummary() {
+        const c = getCart();
+        if (!summaryItems) return;
+        if (c.length === 0) {
+          summaryItems.innerHTML = '<p style="font-size:13px;color:var(--gray);padding:12px 0;">Your cart is empty.</p>';
+          updateCheckoutTotals(shippingCost || 0);
+          return;
+        }
+        summaryItems.innerHTML = c.map(item => `
+          <div class="summary-item">
+            <div class="summary-item-img" style="background:${getProductColor(item.name)};">
+              <span class="summary-item-badge">${item.qty}</span>
+            </div>
+            <div class="summary-item-info">
+              <p class="summary-item-name">${item.name}</p>
+              <p class="summary-item-variant">Size: ${item.size}</p>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+                <button onclick="updateQty('${item.id}',-1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
+                <span style="font-size:13px;min-width:16px;text-align:center;">${item.qty}</span>
+                <button onclick="updateQty('${item.id}',1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+              <span class="summary-item-price">${item.price * item.qty} MAD</span>
+              <button onclick="removeFromCartCheckout('${item.id}')" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
+            </div>
+          </div>
+        `).join('');
+        updateCheckoutTotals(0);
+      }
+
+      window.removeFromCartCheckout = function(id) {
+        removeFromCart(id);
+        renderCheckoutSummary();
+        updateCartBadge();
+      };
+
       summaryItems.innerHTML = cart.map(item => `
         <div class="summary-item">
-          <div class="summary-item-img" style="background:#555;">
+          <div class="summary-item-img" style="background:${getProductColor(item.name)};">
             <span class="summary-item-badge">${item.qty}</span>
           </div>
           <div class="summary-item-info">
             <p class="summary-item-name">${item.name}</p>
             <p class="summary-item-variant">Size: ${item.size}</p>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
+              <button onclick="updateQty('${item.id}',-1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
+              <span style="font-size:13px;min-width:16px;text-align:center;">${item.qty}</span>
+              <button onclick="updateQty('${item.id}',1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
+            </div>
           </div>
-          <span class="summary-item-price">${item.price * item.qty} MAD</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+            <span class="summary-item-price">${item.price * item.qty} MAD</span>
+            <button onclick="removeFromCartCheckout('${item.id}')" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
+          </div>
         </div>
       `).join('');
     }
@@ -632,6 +712,94 @@ function initProductVideo() {
   if (skipBtn) skipBtn.addEventListener('click', revealImages);
 }
 
+/* ============================================================
+   WISHLIST TOGGLE
+   ============================================================ */
+function initWishlist() {
+  document.querySelectorAll('.wishlist-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const active = btn.classList.toggle('active');
+      btn.textContent = active ? '♥' : '♡';
+      btn.style.color = active ? '#e74c3c' : '';
+    });
+  });
+}
+
+/* ============================================================
+   SEARCH OVERLAY
+   ============================================================ */
+function initSearch() {
+  const searchBtns = document.querySelectorAll('.nav-icon-btn[aria-label="Search"]');
+  if (!searchBtns.length) return;
+
+  // Create overlay once
+  if (!document.getElementById('searchOverlay')) {
+    const overlay = document.createElement('div');
+    overlay.id = 'searchOverlay';
+    overlay.innerHTML = `
+      <div id="searchBox">
+        <input id="searchInput" type="text" placeholder="Search products…" autocomplete="off">
+        <button id="searchClose" aria-label="Close">✕</button>
+      </div>
+      <div id="searchResults"></div>
+    `;
+    overlay.style.cssText = 'display:none;position:fixed;inset:0;z-index:2000;background:rgba(6,13,26,0.92);padding:120px 40px 40px;';
+    overlay.querySelector('#searchBox').style.cssText = 'max-width:600px;margin:0 auto;display:flex;gap:12px;align-items:center;border-bottom:1.5px solid rgba(255,255,255,0.2);padding-bottom:16px;';
+    overlay.querySelector('#searchInput').style.cssText = 'flex:1;background:none;border:none;outline:none;color:#fff;font-size:24px;font-family:inherit;';
+    overlay.querySelector('#searchClose').style.cssText = 'background:none;border:none;color:#fff;font-size:20px;cursor:pointer;opacity:0.6;';
+    overlay.querySelector('#searchResults').style.cssText = 'max-width:600px;margin:24px auto 0;';
+    document.body.appendChild(overlay);
+
+    // Product data for search
+    const allProducts = typeof PRODUCTS !== 'undefined' ? Object.values(PRODUCTS) : [];
+
+    overlay.querySelector('#searchInput').addEventListener('input', function() {
+      const q = this.value.toLowerCase().trim();
+      const res = overlay.querySelector('#searchResults');
+      if (!q) { res.innerHTML = ''; return; }
+      const matches = allProducts.filter(p => p.name.toLowerCase().includes(q));
+      res.innerHTML = matches.length
+        ? matches.map(p => `<a href="${p.href}" style="display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);color:#fff;text-decoration:none;">
+            <div style="width:48px;height:48px;background:${getProductColor(p.name)};flex-shrink:0;border-radius:4px;${p.image ? `background-image:url(${p.image});background-size:cover;` : ''}"></div>
+            <div><p style="font-size:14px;font-weight:600;margin:0;">${p.name}</p><p style="font-size:12px;color:rgba(255,255,255,0.45);margin:2px 0 0;">${p.price} MAD</p></div>
+          </a>`).join('')
+        : '<p style="color:rgba(255,255,255,0.4);font-size:14px;padding-top:8px;">No products found.</p>';
+    });
+
+    overlay.querySelector('#searchClose').addEventListener('click', () => { overlay.style.display = 'none'; document.body.style.overflow = ''; });
+    overlay.addEventListener('click', e => { if (e.target === overlay) { overlay.style.display = 'none'; document.body.style.overflow = ''; } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { overlay.style.display = 'none'; document.body.style.overflow = ''; } });
+  }
+
+  searchBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const overlay = document.getElementById('searchOverlay');
+      overlay.style.display = 'block';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => overlay.querySelector('#searchInput').focus(), 50);
+    });
+  });
+}
+
+/* ============================================================
+   PLACE ORDER — clear cart and save order to localStorage
+   ============================================================ */
+function initPlaceOrder() {
+  const placeOrderBtn = document.querySelector('.place-order-btn');
+  if (!placeOrderBtn) return;
+  placeOrderBtn.addEventListener('click', e => {
+    e.preventDefault();
+    // Save last order for thank-you page
+    const cart = getCart();
+    localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
+    saveCart([]);
+    updateCartBadge();
+    window.location.href = 'thankyou.html';
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   injectCartDrawer();
   updateCartBadge();
@@ -653,4 +821,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollReveal();
   initProductVideo();
   initNewGallery();
+  initWishlist();
+  initSearch();
+  initPlaceOrder();
 });
