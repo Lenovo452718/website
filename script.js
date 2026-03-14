@@ -54,6 +54,7 @@ function updateQty(id, delta) {
   saveCart(cart);
   updateCartBadge();
   renderCartItems();
+  if (typeof window.renderCheckoutSummary === 'function') window.renderCheckoutSummary();
 }
 
 /* ============================================================
@@ -566,6 +567,7 @@ function initCheckout() {
         updateCheckoutTotals(0);
       }
 
+      window.renderCheckoutSummary = renderCheckoutSummary;
       window.removeFromCartCheckout = function(id) {
         removeFromCart(id);
         renderCheckoutSummary();
