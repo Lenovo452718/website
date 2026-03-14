@@ -534,6 +534,10 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   letter-spacing: 0.02em;
   margin-bottom: 4px;
 }
+[lang="fr"] .hero-heading,
+[lang="fr"] .hero-heading-italic {
+  font-size: clamp(58px, 8.5vw, 115px);
+}
 .hero-heading-italic {
   font-family: 'Bebas Neue', sans-serif;
   font-size: clamp(80px, 12vw, 160px);
@@ -1902,6 +1906,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
   .hero-content { padding: 0 24px; }
   .hero-heading, .hero-heading-italic { font-size: clamp(56px, 14vw, 96px); }
+  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(40px, 10vw, 68px); }
   .hero-cta { flex-direction: column; align-items: flex-start; }
 
   .benefits-inner { grid-template-columns: 1fr; }

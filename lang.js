@@ -7,7 +7,7 @@ const TRANSLATIONS = {
     nav_shop:"Shop", nav_lookbook:"Lookbook", nav_about:"About",
     nav_contact:"Contact", nav_account:"Account",
     // Hero
-    hero_tag:"New Collection — Spring 2025",
+    hero_tag:"New Collection — Spring 2026",
     hero_h1_1:"TIMELESS DENIM.", hero_h1_2:"MODERN FIT.",
     hero_sub:"Premium Moroccan denim fashion. Crafted for bold, modern women.",
     hero_shop:"Shop Now", hero_lookbook:"View Lookbook",
@@ -76,7 +76,7 @@ const TRANSLATIONS = {
     shop_collection_cta:"Shop the Collection",
     stat_customers:"Customers", stat_styles:"Styles", stat_quality:"Quality", stat_payment:"Payment",
     // Lookbook
-    lookbook_subtitle:"Spring / Summer 2025",
+    lookbook_subtitle:"Spring / Summer 2026",
     shop_the_look:"Shop the Look", ready_to_shop:"Ready to Shop?",
     lookbook_ready_sub:"Explore the full collection and find your perfect fit.",
     shop_all_jeans:"Shop All Jeans",
@@ -104,7 +104,7 @@ const TRANSLATIONS = {
     footer_contact:"Contact Us", footer_size_guide:"Size Guide",
     footer_shipping:"Shipping & Returns", footer_faq:"FAQ",
     footer_account:"My Account", footer_track:"Track Order",
-    footer_rights:"© 2025 StreetStore. All rights reserved.",
+    footer_rights:"© 2026 StreetStore. All rights reserved.",
     privacy:"Privacy Policy", terms:"Terms", cookies:"Cookie Policy",
     // Breadcrumb
     home:"Home",
@@ -188,7 +188,7 @@ const TRANSLATIONS = {
   fr: {
     nav_shop:"Boutique", nav_lookbook:"Lookbook", nav_about:"À propos",
     nav_contact:"Contact", nav_account:"Compte",
-    hero_tag:"Nouvelle Collection — Printemps 2025",
+    hero_tag:"Nouvelle Collection — Printemps 2026",
     hero_h1_1:"DENIM INTEMPOREL.", hero_h1_2:"COUPE MODERNE.",
     hero_sub:"Mode denim marocaine premium. Conçue pour les femmes audacieuses et modernes.",
     hero_shop:"Acheter maintenant", hero_lookbook:"Voir le Lookbook",
@@ -245,7 +245,7 @@ const TRANSLATIONS = {
     meet_team:"Rencontrez l'équipe", browse_all:"Voir tous les jeans",
     shop_collection_cta:"Découvrir la Collection",
     stat_customers:"Clientes", stat_styles:"Styles", stat_quality:"Qualité", stat_payment:"Paiement",
-    lookbook_subtitle:"Printemps / Été 2025",
+    lookbook_subtitle:"Printemps / Été 2026",
     shop_the_look:"Acheter le look", ready_to_shop:"Prête à faire du shopping?",
     lookbook_ready_sub:"Explorez la collection complète et trouvez votre style parfait.",
     shop_all_jeans:"Voir tous les jeans",
@@ -270,7 +270,7 @@ const TRANSLATIONS = {
     footer_contact:"Nous contacter", footer_size_guide:"Guide des tailles",
     footer_shipping:"Livraison & Retours", footer_faq:"FAQ",
     footer_account:"Mon compte", footer_track:"Suivre ma commande",
-    footer_rights:"© 2025 StreetStore. Tous droits réservés.",
+    footer_rights:"© 2026 StreetStore. Tous droits réservés.",
     privacy:"Politique de confidentialité", terms:"Conditions", cookies:"Politique cookies",
     home:"Accueil",
     order_confirmed:"Commande confirmée!",
