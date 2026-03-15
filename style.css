@@ -2116,6 +2116,8 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .form-row { grid-template-columns: 1fr; }
   .map-placeholder { padding: 0 20px; }
 
+  .checkout-progress { padding: 20px 16px; }
+  .progress-step { padding: 0 10px; }
   .checkout-form-col { padding: 28px 20px 60px; }
   .checkout-summary-col { padding: 28px 20px; }
   .checkout-form .form-row { grid-template-columns: 1fr; }

@@ -692,6 +692,24 @@
       background: linear-gradient(90deg, transparent, #e8e8e8 20%, #e8e8e8 80%, transparent);
       margin: 0 0 64px;
     }
+
+    /* ─── MOBILE (≤ 768px) ──────────────────────────────────── */
+    @media (max-width: 768px) {
+      .sp-hero { padding: 80px 20px 60px; }
+      .sp-stat { min-width: unset; border-right: none; padding: 0 16px; }
+      .sp-no-return-body { grid-template-columns: 1fr; gap: 20px; padding: 28px 20px 32px; }
+      .sp-no-return-sep { display: none; }
+      .sp-cards { grid-template-columns: 1fr; }
+      .sp-policy-cols { grid-template-columns: 1fr; }
+      .sp-fee { grid-template-columns: 1fr; gap: 16px; }
+      .sp-steps { grid-template-columns: 1fr; }
+      .sp-steps::before { display: none; }
+      .sp-step { flex-direction: row; text-align: left; padding: 0 0 24px; gap: 16px; align-items: flex-start; }
+      .sp-step-num { margin-bottom: 0; }
+      .sp-cta { padding: 32px 20px; }
+      .sp-cta-btns { flex-direction: column; align-items: stretch; }
+      .sp-cta-btns a { text-align: center; justify-content: center; }
+    }
   </style>
 </head>
 <body>
