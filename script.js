@@ -220,10 +220,11 @@ function injectCartDrawer() {
       <!-- Deal offer — shown when cart has exactly 1 item -->
       <div class="cart-deal-offer" id="cartDealOffer" style="display:none;">
         <div class="cart-deal-icon">🎁</div>
-        <p class="cart-deal-title">Add 1 more &amp; save 39 MAD!</p>
-        <p class="cart-deal-sub">Buy 2 items and automatically get a pack deal discount.</p>
-        <a href="shop.html" class="btn-dark" style="display:block;text-align:center;padding:14px;margin-bottom:10px;">Add another item</a>
-        <a href="checkout.html" class="btn-text" id="checkoutAnywayBtn" style="display:block;text-align:center;font-size:12px;color:#999;">Continue with 1 item →</a>
+        <div class="cart-deal-text">
+          <p class="cart-deal-title">Add 1 more &amp; save 39 MAD!</p>
+          <p class="cart-deal-sub">Buy 2 &amp; get a pack discount automatically.</p>
+        </div>
+        <a href="shop.html" style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--charcoal);white-space:nowrap;text-decoration:none;border-bottom:1px solid var(--charcoal);">Add →</a>
       </div>
 
       <div class="cart-footer" id="cartFooter">
