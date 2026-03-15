@@ -357,10 +357,8 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .cart-drawer {
   position: fixed;
-  top: 0; right: 0;
+  top: 0; right: 0; bottom: 0;
   width: 420px;
-  height: 100vh;
-  height: 100dvh;
   background: var(--white);
   z-index: 2001;
   transform: translateX(100%);
@@ -377,6 +375,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   justify-content: space-between;
   padding: 24px 28px;
   border-bottom: 1px solid var(--gray-light);
+  flex-shrink: 0;
 }
 .cart-header h3 {
   font-size: 14px;
@@ -440,6 +439,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   padding: 16px 28px;
   border-top: 1px solid var(--gray-light);
   background: var(--off);
+  flex-shrink: 0;
 }
 .upsell-label {
   font-size: 11px;
@@ -471,7 +471,9 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .cart-footer {
   padding: 20px 28px 28px;
+  padding-bottom: max(28px, calc(28px + env(safe-area-inset-bottom, 0px)));
   border-top: 1px solid var(--gray-light);
+  flex-shrink: 0;
 }
 .cart-subtotal {
   display: flex;
@@ -2380,8 +2382,6 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
   /* Cart drawer full-width on mobile */
   .cart-drawer { width: 100% !important; }
-  /* Cart footer: extra padding so checkout button clears the browser bar */
-  .cart-footer { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
 
   /* WhatsApp float above bottom nav */
   .whatsapp-float { bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
