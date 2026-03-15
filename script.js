@@ -103,6 +103,17 @@ function renderCartItems() {
   const totalEl = document.getElementById('cartTotal');
   if (!container) return;
 
+  // If offer was showing and cart now has 2+ items, dismiss it
+  const offerEl = document.getElementById('cartDealOffer');
+  const footerEl = document.getElementById('cartFooter');
+  if (offerEl && footerEl && offerEl.style.display !== 'none') {
+    const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+    if (totalQty >= 2) {
+      offerEl.style.display = 'none';
+      footerEl.style.display = 'block';
+    }
+  }
+
   if (cart.length === 0) {
     const emptyTxt  = (typeof t === 'function') ? t('cart_empty')  : 'Your cart is empty.';
     const shopTxt   = (typeof t === 'function') ? t('shop_now_btn'): 'Shop Now';
@@ -209,15 +220,18 @@ function injectCartDrawer() {
         </div>
       </div>
       <div class="cart-items" id="cartItems"></div>
-      <div class="cart-upsell">
-        <p class="upsell-label" data-i18n="you_might_like">You might also like</p>
-        <div class="upsell-item">
-          <div class="upsell-img" style="background:#1a1a1a;"></div>
-          <div><p>Noir Skinny</p><span>179 MAD</span></div>
-          <button class="upsell-add" data-name="Noir Skinny" data-price="179">+</button>
-        </div>
+
+      <!-- Deal offer — shown only when cart has 1 item and user taps Checkout -->
+      <div class="cart-deal-offer" id="cartDealOffer" style="display:none;">
+        <button class="cart-deal-close" id="cartDealClose">✕</button>
+        <div class="cart-deal-icon">🎁</div>
+        <p class="cart-deal-title">Add 1 more &amp; save 39 MAD!</p>
+        <p class="cart-deal-sub">Buy 2 items and automatically get a pack deal discount.</p>
+        <a href="shop.html" class="btn-dark" style="display:block;text-align:center;padding:14px;margin-bottom:10px;">Add another item</a>
+        <a href="checkout.html" class="btn-text" id="checkoutAnywayBtn" style="display:block;text-align:center;font-size:12px;color:#999;">Continue with 1 item →</a>
       </div>
-      <div class="cart-footer">
+
+      <div class="cart-footer" id="cartFooter">
         <div class="cart-subtotal"><span data-i18n="subtotal">Subtotal</span><span id="cartSubtotal">0 MAD</span></div>
         <div class="cart-pack-discount" id="cartPackDiscount" style="display:none;">
           <span>🎁 Pack Deal Applied</span>
@@ -225,7 +239,7 @@ function injectCartDrawer() {
         </div>
         <div class="cart-subtotal" style="font-weight:700;"><span>Total</span><span id="cartTotal">0 MAD</span></div>
         <p class="cart-shipping-note" data-i18n="free_ship_note">Free shipping on all orders</p>
-        <a href="checkout.html" class="btn-dark" id="checkoutBtn" style="display:block;text-align:center;padding:16px;" data-i18n="checkout_btn">Checkout</a>
+        <button class="btn-dark" id="checkoutBtn" style="width:100%;padding:16px;border:none;cursor:pointer;font-size:13px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;" data-i18n="checkout_btn">Checkout</button>
         <a href="#" class="btn-text cart-continue" id="continueShopping" data-i18n="continue_shopping">Continue Shopping →</a>
       </div>
     </aside>
@@ -243,12 +257,23 @@ function injectCartDrawer() {
   document.getElementById('cartOverlay').addEventListener('click', closeCart);
   document.getElementById('continueShopping').addEventListener('click', e => { e.preventDefault(); closeCart(); });
 
-  const upsellAdd = document.querySelector('.upsell-add');
-  if (upsellAdd) {
-    upsellAdd.addEventListener('click', () => {
-      addToCart(upsellAdd.dataset.name, upsellAdd.dataset.price, 'Dark Wash', 'M');
-    });
-  }
+  // Checkout button: intercept if only 1 item — show deal offer
+  document.getElementById('checkoutBtn').addEventListener('click', () => {
+    const cart = getCart();
+    const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
+    if (totalQty === 1) {
+      document.getElementById('cartFooter').style.display = 'none';
+      document.getElementById('cartDealOffer').style.display = 'block';
+    } else {
+      window.location.href = 'checkout.html';
+    }
+  });
+
+  // Close offer and restore footer
+  document.getElementById('cartDealClose').addEventListener('click', () => {
+    document.getElementById('cartDealOffer').style.display = 'none';
+    document.getElementById('cartFooter').style.display = 'block';
+  });
 }
 
 /* ============================================================
