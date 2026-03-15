@@ -2136,7 +2136,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 @media (max-width: 480px) {
   .hero-heading, .hero-heading-italic { font-size: clamp(36px, 11vw, 56px); }
   .product-grid-4 { grid-template-columns: 1fr; }
-  .product-grid-3 { grid-template-columns: 1fr; }
+  .product-grid-3 { grid-template-columns: repeat(2, 1fr); }
   .product-grid-3-related { grid-template-columns: 1fr; }
   .instagram-grid { grid-template-columns: repeat(2, 1fr); }
   .stats-inner { grid-template-columns: repeat(2, 1fr); }
