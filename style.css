@@ -2738,6 +2738,9 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 /* Announcement bar */
 .announcement-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1001;
   background: var(--charcoal);
   color: rgba(255,255,255,0.85);
   text-align: center;
@@ -2750,9 +2753,10 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   align-items: center;
   justify-content: center;
   gap: 24px;
-  position: relative;
+  height: 36px;
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
+body.has-bar .site-header { top: 36px; }
 .announcement-bar a { color: #e0c97a; text-decoration: none; }
 .announcement-bar-close {
   position: absolute;

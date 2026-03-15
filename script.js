@@ -5,8 +5,6 @@
 /* ── Announcement Bar ── */
 (function() {
   if (sessionStorage.getItem('barDismissed')) return;
-  const header = document.querySelector('.site-header');
-  if (!header) return;
   const bar = document.createElement('div');
   bar.className = 'announcement-bar';
   bar.innerHTML = `
@@ -17,13 +15,14 @@
     <span>Delivered in 2–5 days</span>
     <button class="announcement-bar-close" aria-label="Close">×</button>
   `;
-  header.prepend(bar);
+  document.body.prepend(bar);
+  document.body.classList.add('has-bar');
   bar.querySelector('.announcement-bar-close').addEventListener('click', () => {
+    bar.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
     bar.style.maxHeight = bar.scrollHeight + 'px';
     bar.style.overflow = 'hidden';
-    bar.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
     requestAnimationFrame(() => { bar.style.maxHeight = '0'; bar.style.opacity = '0'; });
-    setTimeout(() => bar.remove(), 320);
+    setTimeout(() => { bar.remove(); document.body.classList.remove('has-bar'); }, 320);
     sessionStorage.setItem('barDismissed', '1');
   });
 })();
