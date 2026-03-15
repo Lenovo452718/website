@@ -360,6 +360,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   top: 0; right: 0;
   width: 420px;
   height: 100vh;
+  height: 100dvh;
   background: var(--white);
   z-index: 2001;
   transform: translateX(100%);
@@ -2167,7 +2168,6 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 /* Ensure body has room for bottom nav */
 @media (max-width: 768px) {
-  body { padding-bottom: 68px; }
 
   /* ---- Gallery filmstrip: hidden on mobile (dots replace it) ---- */
   .gallery-filmstrip { display: none; }
@@ -2380,9 +2380,20 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
   /* Cart drawer full-width on mobile */
   .cart-drawer { width: 100% !important; }
+  /* Cart footer: extra padding so checkout button clears the browser bar */
+  .cart-footer { padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)); }
 
   /* WhatsApp float above bottom nav */
-  .whatsapp-float { bottom: 78px !important; }
+  .whatsapp-float { bottom: calc(78px + env(safe-area-inset-bottom, 0px)) !important; }
+
+  /* Safe area insets for all fixed bottom bars */
+  body { padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+  .mobile-bottom-nav {
+    height: calc(62px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .shop-sidebar { bottom: calc(62px + env(safe-area-inset-bottom, 0px)) !important; }
+  .sticky-atc-bar { bottom: calc(62px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ============================================================
