@@ -215,6 +215,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   font-size: 13px;
 }
 .nav-icon-btn:hover { color: var(--gray); }
+.nav-icon-btn[aria-label="Account"] { display: none; }
 
 .cart-btn { position: relative; }
 .cart-badge {
