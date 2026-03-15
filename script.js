@@ -2,6 +2,45 @@
    STREETSTORE — Complete JavaScript
    ============================================================ */
 
+/* ── Announcement Bar ── */
+(function() {
+  if (sessionStorage.getItem('barDismissed')) return;
+  const header = document.querySelector('.site-header');
+  if (!header) return;
+  const bar = document.createElement('div');
+  bar.className = 'announcement-bar';
+  bar.innerHTML = `
+    <span>✦ Free shipping on all orders</span>
+    <span class="announcement-bar-sep">·</span>
+    <span>COD available across Morocco</span>
+    <span class="announcement-bar-sep">·</span>
+    <span>Delivered in 2–5 days</span>
+    <button class="announcement-bar-close" aria-label="Close">×</button>
+  `;
+  header.prepend(bar);
+  bar.querySelector('.announcement-bar-close').addEventListener('click', () => {
+    bar.style.maxHeight = bar.scrollHeight + 'px';
+    bar.style.overflow = 'hidden';
+    bar.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
+    requestAnimationFrame(() => { bar.style.maxHeight = '0'; bar.style.opacity = '0'; });
+    setTimeout(() => bar.remove(), 320);
+    sessionStorage.setItem('barDismissed', '1');
+  });
+})();
+
+/* ── Back to Top ── */
+(function() {
+  const btn = document.createElement('button');
+  btn.className = 'back-to-top';
+  btn.setAttribute('aria-label', 'Back to top');
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="18 15 12 9 6 15"/></svg>';
+  document.body.appendChild(btn);
+  window.addEventListener('scroll', () => {
+    btn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+  btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+})();
+
 /* ============================================================
    1. CART SYSTEM (localStorage)
    ============================================================ */
