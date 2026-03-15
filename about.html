@@ -305,7 +305,7 @@
     .values-list { display: flex; flex-direction: column; gap: 0; }
     .value-row {
       display: grid;
-      grid-template-columns: 80px 1fr 1fr;
+      grid-template-columns: 240px 1fr;
       align-items: start;
       gap: 48px;
       padding: 48px 0;
@@ -314,27 +314,31 @@
     }
     .value-row:last-child { border-bottom: none; }
     .value-row:hover { background: var(--off); margin: 0 -40px; padding-left: 40px; padding-right: 40px; }
+    .value-num-title-wrap {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+    }
     .value-num {
       font-family: 'Bebas Neue', sans-serif;
       font-size: 56px;
       color: var(--gray-light);
       letter-spacing: 0.04em;
       line-height: 1;
-      padding-top: 4px;
+      flex-shrink: 0;
     }
     .value-row-title {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      padding-top: 4px;
+      gap: 10px;
+      padding-top: 6px;
     }
     .value-row-icon {
       font-size: 22px;
       display: block;
-      margin-bottom: 4px;
     }
     .value-row-title h3 {
-      font-size: 22px;
+      font-size: 20px;
       font-weight: 700;
       letter-spacing: 0.01em;
     }
@@ -557,41 +561,132 @@
     }
     .about-cta .btn-cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-    /* ── MOBILE ── */
+    /* ══ TABLET (960px) ══ */
     @media (max-width: 960px) {
-      .value-row { grid-template-columns: 60px 1fr; gap: 28px; }
-      .value-row p { grid-column: 2; }
-      .value-row-title { grid-column: 2; }
+      .value-row { grid-template-columns: 1fr; gap: 16px; }
+      .value-row:hover { margin: 0; padding-left: 0; padding-right: 0; background: none; }
+      .value-num-title-wrap { gap: 16px; }
       .about-process-grid { grid-template-columns: repeat(2, 1fr); }
       .process-arrow { display: none; }
     }
+
+    /* ══ MOBILE (768px) ══ */
     @media (max-width: 768px) {
-      .about-hero::after { display: none; }
-      .about-hero-content { padding: 0 24px; }
-      .about-intro { padding: 72px 24px; }
+      /* Hero */
+      .about-hero {
+        height: auto;
+        min-height: 65vh;
+        padding-bottom: 0;
+      }
+      .about-hero::before { display: none; }
+      .about-hero::after  { display: none; }
+      .about-hero-content { padding: 40px 24px 20px; }
+      .about-hero-content h1 { font-size: clamp(72px, 18vw, 110px); }
+      .about-hero-tagline { font-size: 11px; letter-spacing: 0.13em; margin-top: 20px; }
+      .about-hero-ticker-item { padding: 0 18px; font-size: 9px; letter-spacing: 0.18em; }
+
+      /* Intro strip */
+      .about-intro { padding: 60px 20px; }
+      .about-intro h2 { font-size: clamp(32px, 8vw, 48px); margin-bottom: 18px; }
+      .about-intro p { font-size: 15px; }
+
+      /* Split */
       .about-split { grid-template-columns: 1fr; }
-      .about-split-img { min-height: 320px; }
-      .about-split-text { padding: 56px 24px; }
+      .about-split-img {
+        min-height: 260px;
+        order: 0;
+      }
+      .about-split-img::after { font-size: 110px; }
+      .about-split-img-badge { bottom: 20px; left: 20px; font-size: 8px; padding: 7px 12px; }
+      .about-split-text { padding: 44px 20px; }
+      .about-split-text h2 { font-size: clamp(34px, 9vw, 52px); margin-bottom: 20px; }
+      .about-split-text p { font-size: 14px; }
+      .about-split-pull { margin: 20px 0; padding: 16px 18px; }
+      .about-split-pull p { font-size: 13px; }
+
+      /* Stats: 2×2 grid */
       .stats-inner { grid-template-columns: repeat(2, 1fr); }
-      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 48px 24px; }
-      .stat-item:nth-child(even) { border-left: 1px solid rgba(255,255,255,0.07); }
-      .stat-item:last-child, .stat-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
-      .values-section { padding: 80px 0; }
-      .values-inner { padding: 0 20px; }
-      .values-header { flex-direction: column; gap: 8px; }
-      .value-row { grid-template-columns: 48px 1fr; gap: 20px; padding: 36px 0; }
-      .value-num { font-size: 40px; }
-      .about-manifesto { padding: 100px 24px; }
-      .about-manifesto-qdeco { font-size: 80px; }
-      .about-process { padding: 72px 20px; }
-      .about-process-grid { grid-template-columns: 1fr; gap: 2px; }
-      .about-process-step { padding: 32px 24px; }
-      .about-cta { padding: 80px 24px; }
-      .about-ticker-item { font-size: 10px; }
+      .stat-item {
+        padding: 44px 20px;
+        border-right: none;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+      }
+      .stat-item:nth-child(odd)  { border-right: 1px solid rgba(255,255,255,0.07); }
+      .stat-item:nth-child(3),
+      .stat-item:nth-child(4)    { border-bottom: none; }
+      .stat-num { font-size: 60px; }
+
+      /* Values */
+      .values-section { padding: 64px 0; }
+      .values-inner   { padding: 0 20px; }
+      .values-header  {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        margin-bottom: 40px;
+      }
+      .values-header h2 { font-size: clamp(36px, 9vw, 56px); }
+      /* Compact row: number + title inline, description below */
+      .value-row { padding: 28px 0; gap: 10px; }
+      .value-row:hover { background: none; }
+      .value-num-title-wrap { align-items: center; gap: 12px; }
+      .value-num { font-size: 28px; color: var(--gray-mid); }
+      .value-row-title { gap: 4px; padding-top: 0; }
+      .value-row-icon { font-size: 16px; }
+      .value-row-title h3 { font-size: 17px; }
+      .value-row p { font-size: 14px; line-height: 1.7; padding-top: 4px; }
+
+      /* Ticker */
+      .about-ticker { padding: 14px 0; }
+
+      /* Manifesto */
+      .about-manifesto { padding: 80px 20px; }
+      .about-manifesto-bg span { font-size: clamp(80px, 18vw, 160px); }
+      .about-manifesto-qdeco { font-size: 72px; margin-bottom: 12px; }
+      .about-manifesto-quote { font-size: clamp(34px, 8.5vw, 56px); margin-bottom: 36px; }
+      .about-manifesto-line  { margin: 0 auto 32px; }
+
+      /* Process */
+      .about-process { padding: 60px 20px; }
+      .about-process-header { margin-bottom: 40px; }
+      .about-process-grid { grid-template-columns: repeat(2, 1fr); gap: 2px; }
+      .about-process-step { padding: 28px 20px; }
+      .process-step-num { font-size: 48px; }
+      .process-step-icon { font-size: 20px; margin-bottom: 10px; }
+      .about-process-step h4 { font-size: 12px; }
+      .about-process-step p { font-size: 12px; }
+
+      /* CTA */
+      .about-cta { padding: 72px 20px; }
+      .about-cta h2 { font-size: clamp(44px, 11vw, 72px); margin-bottom: 16px; }
+      .about-cta p { font-size: 14px; margin-bottom: 32px; }
+      .btn-cta-group {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        max-width: 320px;
+        margin: 0 auto;
+      }
+      .btn-cta-group a { text-align: center; }
     }
+
+    /* ══ SMALL (480px) ══ */
     @media (max-width: 480px) {
-      .about-manifesto-quote { font-size: clamp(32px, 8vw, 52px); }
-      .about-cta .btn-cta-group { flex-direction: column; align-items: center; }
+      .about-hero { min-height: 58vh; }
+      .about-hero-content h1 { font-size: clamp(64px, 17vw, 88px); }
+      /* Stats: single column on very small */
+      .stats-inner { grid-template-columns: 1fr; }
+      .stat-item {
+        padding: 32px 20px;
+        border-right: none !important;
+        border-bottom: 1px solid rgba(255,255,255,0.07);
+      }
+      .stat-item:last-child { border-bottom: none; }
+      .stat-num { font-size: 52px; }
+      /* Process: 1 column */
+      .about-process-grid { grid-template-columns: 1fr; }
+      /* Manifesto */
+      .about-manifesto-quote { font-size: clamp(30px, 8vw, 44px); }
     }
   </style>
 </head>
@@ -729,26 +824,32 @@
     </div>
     <div class="values-list">
       <div class="value-row reveal">
-        <span class="value-num">01</span>
-        <div class="value-row-title">
-          <span class="value-row-icon">✦</span>
-          <h3 data-i18n="val1_title">Premium Quality</h3>
+        <div class="value-num-title-wrap">
+          <span class="value-num">01</span>
+          <div class="value-row-title">
+            <span class="value-row-icon">✦</span>
+            <h3 data-i18n="val1_title">Premium Quality</h3>
+          </div>
         </div>
         <p data-i18n="val1_desc">We use only the finest denim fabrics, sourced from certified mills. Each pair goes through 40+ quality checks before it reaches you.</p>
       </div>
       <div class="value-row reveal reveal-delay-1">
-        <span class="value-num">02</span>
-        <div class="value-row-title">
-          <span class="value-row-icon">🌿</span>
-          <h3 data-i18n="val2_title">Sustainable</h3>
+        <div class="value-num-title-wrap">
+          <span class="value-num">02</span>
+          <div class="value-row-title">
+            <span class="value-row-icon">🌿</span>
+            <h3 data-i18n="val2_title">Sustainable</h3>
+          </div>
         </div>
         <p data-i18n="val2_desc">Our production process uses 50% less water than industry standard. Packaging is fully recyclable. We offset 100% of our carbon emissions.</p>
       </div>
       <div class="value-row reveal reveal-delay-2">
-        <span class="value-num">03</span>
-        <div class="value-row-title">
-          <span class="value-row-icon">♾</span>
-          <h3 data-i18n="val3_title">Inclusive Sizing</h3>
+        <div class="value-num-title-wrap">
+          <span class="value-num">03</span>
+          <div class="value-row-title">
+            <span class="value-row-icon">♾</span>
+            <h3 data-i18n="val3_title">Inclusive Sizing</h3>
+          </div>
         </div>
         <p data-i18n="val3_desc">Great denim is for every body. We offer sizes XS through XXL and continuously expand our range based on real customer feedback.</p>
       </div>
