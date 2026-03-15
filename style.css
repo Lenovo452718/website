@@ -1970,6 +1970,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   align-items: center;
   justify-content: center;
   padding: 80px 40px;
+  box-sizing: border-box;
 }
 .thankyou-inner { max-width: 560px; width: 100%; text-align: center; }
 .thankyou-check {
@@ -2168,8 +2169,40 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .account-content { padding-left: 0; }
   .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
 
+  /* Inputs: 16px prevents iOS Safari auto-zoom on focus */
+  .form-group input,
+  .form-group select,
+  .form-group textarea { font-size: 16px; }
+
+  /* Product card info — more breathing room in 2-col grid */
+  .product-card-info { padding: 14px 10px 20px; }
+  .product-card-name a { font-size: 13px; }
+
+  /* Color swatches — larger tap target */
+  .color-swatch { width: 36px; height: 36px; }
+
+  /* Page title bar */
+  .page-title-bar { padding: 20px 20px; }
+  .page-title-bar-inner { flex-direction: column; gap: 4px; }
+  .page-title-bar h1 { font-size: 32px; }
+
+  /* Hero CTA buttons full-width on mobile */
+  .hero-cta > a, .hero-cta > button { width: 100%; text-align: center; }
+
+  /* Checkout step headings */
+  .checkout-step h2 { font-size: clamp(18px, 5vw, 28px); margin-bottom: 20px; }
+
+  /* Thank you page */
+  .thankyou-inner h1 { font-size: clamp(36px, 10vw, 64px); }
+  .thankyou-inner .subheading { font-size: 16px; }
+  .thankyou-summary { padding: 20px; }
   .thankyou-btns { flex-direction: column; }
-  .thankyou-footer { flex-wrap: wrap; gap: 16px; }
+  .thankyou-btns a { width: 100%; text-align: center; }
+  .thankyou-footer { flex-wrap: wrap; gap: 12px; justify-content: center; }
+
+  /* Newsletter button full-width when form stacks */
+  .newsletter-form button { width: 100%; min-height: 48px; }
+
   .cart-drawer { width: 100%; }
 }
 
@@ -2188,6 +2221,18 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .wishlist-grid { grid-template-columns: 1fr; }
   .team-grid { grid-template-columns: 1fr; }
   .newsletter-form { flex-direction: column; }
+
+  /* Thank you check icon — smaller on small phones */
+  .thankyou-check { width: 64px; height: 64px; font-size: 28px; }
+  .thankyou-footer a { font-size: 12px; }
+
+  /* Promo form: stack on small screens */
+  .promo-form { flex-direction: column; }
+  .promo-form input { border-right: 1px solid var(--gray-mid); border-bottom: none; }
+  .promo-form button { width: 100%; }
+
+  /* Checkout summary stacks better */
+  .checkout-summary-col h3 { font-size: 14px; }
 }
 
 /* 360px — smallest phones */
@@ -2200,6 +2245,17 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .footer-grid { padding: 0 14px; }
   .product-card-name a { font-size: 12px; }
   .complete-look { padding: 48px 14px; }
+
+  /* Checkout progress: hide text labels, show only step numbers */
+  .step-label { display: none; }
+  .progress-step { padding: 0 8px; }
+  .checkout-form-col, .checkout-summary-col { padding: 20px 14px; }
+
+  /* Thank you page at tiny screens */
+  .thankyou-inner h1 { font-size: clamp(28px, 9vw, 48px); }
+  .thankyou-inner .subheading { font-size: 14px; }
+  .thankyou-summary { padding: 16px; }
+  .thankyou-wrap { padding: 32px 14px; }
 }
 
 /* ============================================================

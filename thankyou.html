@@ -8,6 +8,30 @@
   <title>Order Confirmed — StreetStore</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
+  <style>
+    @media (max-width: 768px) {
+      .thankyou-wrap { padding: 40px 20px; align-items: flex-start; }
+      .thankyou-inner { padding-bottom: 80px; }
+      .thankyou-inner h1 { font-size: clamp(36px, 10vw, 64px); margin-bottom: 10px; }
+      .thankyou-inner .subheading { font-size: 16px; margin-bottom: 14px; }
+      .thankyou-inner .order-msg { font-size: 14px; }
+      .thankyou-inner .delivery-msg { font-size: 13px; margin-bottom: 28px; }
+      .thankyou-check { width: 68px; height: 68px; font-size: 30px; margin-bottom: 24px; }
+      .thankyou-summary { padding: 20px; margin-bottom: 24px; }
+      .thankyou-item { font-size: 13px; gap: 8px; flex-wrap: wrap; }
+      .thankyou-item span:last-child { font-weight: 600; color: var(--charcoal); }
+      .thankyou-total { font-size: 15px; }
+      .thankyou-btns { flex-direction: column; gap: 10px; }
+      .thankyou-btns a { width: 100%; text-align: center; padding: 14px 20px; }
+      .thankyou-footer { padding: 16px 20px; gap: 12px; justify-content: center; }
+      .thankyou-footer a { font-size: 12px; }
+    }
+    @media (max-width: 360px) {
+      .thankyou-wrap { padding: 28px 14px; }
+      .thankyou-check { width: 56px; height: 56px; font-size: 24px; }
+      .thankyou-inner h1 { font-size: clamp(28px, 9vw, 48px); }
+    }
+  </style>
 </head>
 <body>
 

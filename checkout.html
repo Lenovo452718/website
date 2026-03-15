@@ -8,6 +8,51 @@
   <title>Checkout — StreetStore</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
+  <style>
+    @media (max-width: 768px) {
+      /* Checkout: visually separate each step section */
+      .checkout-step { border-radius: 8px; }
+      .checkout-step h2 {
+        font-size: 18px;
+        padding-bottom: 14px;
+        border-bottom: 1px solid var(--gray-light);
+        margin-bottom: 20px;
+      }
+
+      /* Shipping options easier to tap */
+      .shipping-option { padding: 16px; gap: 12px; }
+      .shipping-option input[type="radio"] { width: 20px; height: 20px; flex-shrink: 0; }
+      .shipping-option-name { font-size: 14px; }
+
+      /* COD box */
+      .cod-box { flex-direction: column; align-items: flex-start; gap: 12px; }
+      .cod-note p { font-size: 14px; line-height: 1.6; }
+
+      /* Checkout nav buttons */
+      .checkout-nav-btns { flex-direction: column-reverse; gap: 12px; margin-top: 24px; }
+      .checkout-nav-btns .btn-dark,
+      .checkout-nav-btns .place-order-btn { width: 100%; text-align: center; padding: 16px; font-size: 14px; }
+      .checkout-nav-btns .checkout-back,
+      .checkout-nav-btns > a { text-align: center; }
+
+      /* Summary section */
+      .summary-items { margin-bottom: 16px; }
+      .summary-row { font-size: 14px; padding: 6px 0; }
+      .summary-row.total { font-size: 15px; }
+
+      /* Upsell banner */
+      .checkout-upsell { flex-direction: column; gap: 10px; }
+      .upsell-link { align-self: flex-start; }
+
+      /* Info summary text */
+      .info-summary { font-size: 13px; padding: 12px 14px; word-break: break-word; }
+    }
+
+    @media (max-width: 480px) {
+      .checkout-header { padding: 0 16px; }
+      .checkout-form-col, .checkout-summary-col { padding: 20px 16px; }
+    }
+  </style>
 </head>
 <body>
 
