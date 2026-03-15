@@ -184,11 +184,6 @@ function openCart() {
   const overlay = document.getElementById('cartOverlay');
   if (drawer) drawer.classList.add('open');
   if (overlay) overlay.classList.add('active');
-  // Save scroll position and lock body without breaking fixed-element scroll on iOS
-  document.body._scrollY = window.scrollY;
-  document.body.style.position = 'fixed';
-  document.body.style.top = '-' + document.body._scrollY + 'px';
-  document.body.style.width = '100%';
 }
 
 function closeCart() {
@@ -196,12 +191,6 @@ function closeCart() {
   const overlay = document.getElementById('cartOverlay');
   if (drawer) drawer.classList.remove('open');
   if (overlay) overlay.classList.remove('active');
-  // Restore scroll position
-  const scrollY = document.body._scrollY || 0;
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.width = '';
-  window.scrollTo(0, scrollY);
 }
 
 /* ============================================================

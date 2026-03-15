@@ -138,12 +138,10 @@ function initMobileFilterPanel() {
   function openPanel() {
     sidebar.classList.add('mobile-panel-open');
     backdrop.classList.add('active');
-    document.body.style.overflow = 'hidden';
   }
   function closePanel() {
     sidebar.classList.remove('mobile-panel-open');
     backdrop.classList.remove('active');
-    document.body.style.overflow = '';
   }
 
   document.getElementById('mobileFilterBtn').addEventListener('click', openPanel);
