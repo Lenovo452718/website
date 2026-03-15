@@ -749,9 +749,9 @@
 
 <!-- ===== BREADCRUMB ===== -->
 <nav class="breadcrumb">
-  <a href="index.html">Home</a>
+  <a href="index.html" data-i18n="home">Home</a>
   <span>/</span>
-  <span class="current">Shipping &amp; Exchanges</span>
+  <span class="current" data-i18n="sp_breadcrumb">Shipping &amp; Exchanges</span>
 </nav>
 
 <!-- ===== HERO ===== -->
@@ -759,21 +759,24 @@
   <div class="sp-hero-bg"></div>
   <div class="sp-hero-lines"></div>
   <div class="sp-hero-content">
-    <div class="sp-hero-eyebrow">✦ Our Policies</div>
-    <h1>Shipping &amp; <em>Exchanges</em></h1>
-    <p class="sp-hero-sub">Clear, simple, and honest — everything you need to know before and after your order.</p>
+    <div class="sp-hero-eyebrow" data-i18n="sp_eyebrow">✦ Our Policies</div>
+    <h1>
+      <span data-lang="en">Shipping &amp; <em>Exchanges</em></span>
+      <span data-lang="fr">Livraison &amp; <em>Échanges</em></span>
+    </h1>
+    <p class="sp-hero-sub" data-i18n="sp_hero_sub">Clear, simple, and honest — everything you need to know before and after your order.</p>
     <div class="sp-hero-stats">
       <div class="sp-stat">
-        <div class="sp-stat-val">Free<span></span></div>
-        <div class="sp-stat-label">Shipping</div>
+        <div class="sp-stat-val"><span data-i18n="sp_stat1_val">Free</span></div>
+        <div class="sp-stat-label" data-i18n="sp_stat1_label">Shipping</div>
       </div>
       <div class="sp-stat">
         <div class="sp-stat-val">3<span> days</span></div>
-        <div class="sp-stat-label">Exchange window</div>
+        <div class="sp-stat-label" data-i18n="sp_stat2_label">Exchange window</div>
       </div>
       <div class="sp-stat">
         <div class="sp-stat-val">35<span> MAD</span></div>
-        <div class="sp-stat-label">Exchange fee</div>
+        <div class="sp-stat-label" data-i18n="sp_stat3_label">Exchange fee</div>
       </div>
     </div>
   </div>
@@ -789,23 +792,30 @@
     <div class="sp-no-return-inner">
       <div class="sp-no-return-top">
         <div class="sp-no-return-top-dot"></div>
-        <span>Important — Please Read Before Ordering</span>
+        <span data-i18n="sp_important">Important — Please Read Before Ordering</span>
         <div class="sp-no-return-top-dot"></div>
       </div>
       <div class="sp-no-return-body">
         <div class="sp-no-return-left">
           <div class="sp-no-return-icon-wrap">🚫</div>
-          <span class="sp-no-return-badge">Final Sale</span>
+          <span class="sp-no-return-badge" data-i18n="sp_final_sale">Final Sale</span>
         </div>
         <div class="sp-no-return-sep"></div>
         <div class="sp-no-return-text">
-          <h3>No Returns.<br><em>No Refunds.</em></h3>
-          <p>All sales are final. Once your order has been delivered, we do not accept returns or issue refunds under any circumstances. Please check your size carefully before ordering.<br><br>
-          The only exception is a <strong>size exchange within 3 business days</strong> of delivery.</p>
+          <h3>
+            <span data-lang="en">No Returns.<br><em>No Refunds.</em></span>
+            <span data-lang="fr">Aucun retour.<br><em>Aucun remboursement.</em></span>
+          </h3>
+          <p>
+            <span data-lang="en">All sales are final. Once your order has been delivered, we do not accept returns or issue refunds under any circumstances. Please check your size carefully before ordering.<br><br>
+            The only exception is a <strong>size exchange within 3 business days</strong> of delivery.</span>
+            <span data-lang="fr">Toutes les ventes sont définitives. Une fois votre commande livrée, nous n'acceptons aucun retour ni remboursement. Vérifiez votre taille attentivement avant de commander.<br><br>
+            La seule exception est un <strong>échange de taille dans les 3 jours ouvrables</strong> suivant la livraison.</span>
+          </p>
           <div class="sp-no-return-pills">
-            <span class="sp-no-return-pill">✗ No refunds</span>
-            <span class="sp-no-return-pill">✗ No returns</span>
-            <span class="sp-no-return-pill">✓ Size exchange only</span>
+            <span class="sp-no-return-pill" data-i18n="sp_pill1">✗ No refunds</span>
+            <span class="sp-no-return-pill" data-i18n="sp_pill2">✗ No returns</span>
+            <span class="sp-no-return-pill" data-i18n="sp_pill3">✓ Size exchange only</span>
           </div>
         </div>
       </div>
@@ -816,34 +826,46 @@
   <div class="sp-section reveal">
     <div class="sp-section-head">
       <div class="sp-section-icon">🚚</div>
-      <h2><span>Delivery</span>Shipping</h2>
+      <h2>
+        <span data-lang="en"><span>Delivery</span>Shipping</span>
+        <span data-lang="fr"><span>Livraison</span>Expédition</span>
+      </h2>
     </div>
 
     <div class="sp-cards">
       <div class="sp-card">
         <span class="sp-card-icon">📦</span>
-        <p class="sp-card-label">Standard Delivery</p>
-        <p class="sp-card-val">Free</p>
-        <p class="sp-card-note">All orders across Morocco. Delivered within 2–5 business days.</p>
+        <p class="sp-card-label" data-i18n="sp_card1_label">Standard Delivery</p>
+        <p class="sp-card-val" data-i18n="sp_card1_val">Free</p>
+        <p class="sp-card-note" data-i18n="sp_card1_note">All orders across Morocco. Delivered within 2–5 business days.</p>
       </div>
       <div class="sp-card">
         <span class="sp-card-icon">⚡</span>
-        <p class="sp-card-label">Express Delivery</p>
+        <p class="sp-card-label" data-i18n="sp_card2_label">Express Delivery</p>
         <p class="sp-card-val">30 MAD</p>
-        <p class="sp-card-note">Priority dispatch. Delivered within 1–2 business days.</p>
+        <p class="sp-card-note" data-i18n="sp_card2_note">Priority dispatch. Delivered within 1–2 business days.</p>
       </div>
       <div class="sp-card dark">
         <span class="sp-card-icon">⏱</span>
-        <p class="sp-card-label">Order Processing</p>
+        <p class="sp-card-label" data-i18n="sp_card3_label">Order Processing</p>
         <p class="sp-card-val">24 h</p>
-        <p class="sp-card-note">Orders before 3 PM are processed the same day.</p>
+        <p class="sp-card-note" data-i18n="sp_card3_note">Orders before 3 PM are processed the same day.</p>
       </div>
     </div>
 
     <ul class="sp-checklist">
-      <li><span class="sp-check yes">✓</span> You will receive a confirmation message once your order is dispatched.</li>
-      <li><span class="sp-check yes">✓</span> Delivery available across all regions of Morocco.</li>
-      <li><span class="sp-check yes">✓</span> Someone must be present to receive the package upon delivery.</li>
+      <li><span class="sp-check yes">✓</span>
+        <span data-lang="en"> You will receive a confirmation message once your order is dispatched.</span>
+        <span data-lang="fr"> Vous recevrez un message de confirmation une fois votre commande expédiée.</span>
+      </li>
+      <li><span class="sp-check yes">✓</span>
+        <span data-lang="en"> Delivery available across all regions of Morocco.</span>
+        <span data-lang="fr"> Livraison disponible dans toutes les régions du Maroc.</span>
+      </li>
+      <li><span class="sp-check yes">✓</span>
+        <span data-lang="en"> Someone must be present to receive the package upon delivery.</span>
+        <span data-lang="fr"> Une personne doit être présente pour réceptionner le colis à la livraison.</span>
+      </li>
     </ul>
   </div>
 
@@ -853,48 +875,80 @@
   <div class="sp-section reveal">
     <div class="sp-section-head">
       <div class="sp-section-icon">🔄</div>
-      <h2><span>Policy</span>Size Exchange</h2>
+      <h2>
+        <span data-lang="en"><span>Policy</span>Size Exchange</span>
+        <span data-lang="fr"><span>Politique</span>Échange de taille</span>
+      </h2>
     </div>
 
     <div class="sp-policy-cols">
       <div class="sp-policy-col can">
         <div class="sp-policy-col-head green">
           <span class="head-icon">✓</span>
-          What you CAN do
+          <span data-lang="en">What you CAN do</span>
+          <span data-lang="fr">Ce que vous POUVEZ faire</span>
         </div>
         <div class="sp-policy-col-body">
-          <p class="sp-policy-col-item">Request a size exchange within <strong>3 business days</strong> of receiving your order.</p>
-          <p class="sp-policy-col-item">Exchange for the same product in a <strong>different size</strong>.</p>
-          <p class="sp-policy-col-item">Return the item to our delivery agent when your new size arrives.</p>
+          <p class="sp-policy-col-item">
+            <span data-lang="en">Request a size exchange within <strong>3 business days</strong> of receiving your order.</span>
+            <span data-lang="fr">Demander un échange de taille dans les <strong>3 jours ouvrables</strong> suivant la réception de votre commande.</span>
+          </p>
+          <p class="sp-policy-col-item">
+            <span data-lang="en">Exchange for the same product in a <strong>different size</strong>.</span>
+            <span data-lang="fr">Échanger pour le même produit dans une <strong>taille différente</strong>.</span>
+          </p>
+          <p class="sp-policy-col-item">
+            <span data-lang="en">Return the item to our delivery agent when your new size arrives.</span>
+            <span data-lang="fr">Remettre l'article à notre livreur lors de la livraison de votre nouvelle taille.</span>
+          </p>
         </div>
       </div>
       <div class="sp-policy-col cant">
         <div class="sp-policy-col-head red">
           <span class="head-icon">✗</span>
-          What you CANNOT do
+          <span data-lang="en">What you CANNOT do</span>
+          <span data-lang="fr">Ce que vous NE POUVEZ PAS faire</span>
         </div>
         <div class="sp-policy-col-body">
-          <p class="sp-policy-col-item">Request a <strong>refund or return</strong> — all sales are final once delivered.</p>
-          <p class="sp-policy-col-item">Exchange a worn, washed, or damaged item.</p>
-          <p class="sp-policy-col-item">Make a request <strong>after 3 business days</strong> of delivery.</p>
+          <p class="sp-policy-col-item">
+            <span data-lang="en">Request a <strong>refund or return</strong> — all sales are final once delivered.</span>
+            <span data-lang="fr">Demander un <strong>remboursement ou retour</strong> — toutes les ventes sont définitives une fois livrées.</span>
+          </p>
+          <p class="sp-policy-col-item">
+            <span data-lang="en">Exchange a worn, washed, or damaged item.</span>
+            <span data-lang="fr">Échanger un article porté, lavé ou endommagé.</span>
+          </p>
+          <p class="sp-policy-col-item">
+            <span data-lang="en">Make a request <strong>after 3 business days</strong> of delivery.</span>
+            <span data-lang="fr">Faire une demande <strong>après 3 jours ouvrables</strong> suivant la livraison.</span>
+          </p>
         </div>
       </div>
     </div>
 
     <ul class="sp-checklist" style="margin-bottom:24px;">
-      <li><span class="sp-check yes">✓</span> Item must be <strong>unworn, unwashed, and in original condition</strong> with tags still attached.</li>
-      <li><span class="sp-check no">✗</span> Exchanges are for <strong>size only</strong> — you cannot swap to a different product or color.</li>
+      <li><span class="sp-check yes">✓</span>
+        <span data-lang="en"> Item must be <strong>unworn, unwashed, and in original condition</strong> with tags still attached.</span>
+        <span data-lang="fr"> L'article doit être <strong>non porté, non lavé et en état d'origine</strong> avec les étiquettes attachées.</span>
+      </li>
+      <li><span class="sp-check no">✗</span>
+        <span data-lang="en"> Exchanges are for <strong>size only</strong> — you cannot swap to a different product or color.</span>
+        <span data-lang="fr"> Les échanges concernent la <strong>taille uniquement</strong> — vous ne pouvez pas changer de produit ou de couleur.</span>
+      </li>
     </ul>
 
     <div class="sp-fee">
       <div class="sp-fee-left">
-        <p class="sp-fee-tag">Exchange Fee</p>
+        <p class="sp-fee-tag" data-i18n="sp_fee_tag">Exchange Fee</p>
         <p class="sp-fee-amount">35</p>
         <p class="sp-fee-unit">MAD</p>
       </div>
       <div class="sp-fee-right">
-        <h3>Re-shipping fee applies</h3>
-        <p>A flat fee of <strong style="color:#e0c97a;">35 MAD</strong> is required for every size exchange to cover re-shipping costs. This must be paid before the new size is dispatched to you.</p>
+        <h3 data-i18n="sp_fee_h3">Re-shipping fee applies</h3>
+        <p>
+          <span data-lang="en">A flat fee of <strong style="color:#e0c97a;">35 MAD</strong> is required for every size exchange to cover re-shipping costs. This must be paid before the new size is dispatched to you.</span>
+          <span data-lang="fr">Des frais forfaitaires de <strong style="color:#e0c97a;">35 MAD</strong> sont requis pour chaque échange de taille afin de couvrir les frais de réexpédition. Ce paiement doit être effectué avant l'envoi de votre nouvelle taille.</span>
+        </p>
       </div>
     </div>
   </div>
@@ -905,36 +959,39 @@
   <div class="sp-section reveal">
     <div class="sp-section-head">
       <div class="sp-section-icon">📋</div>
-      <h2><span>Step by Step</span>How to Request an Exchange</h2>
+      <h2>
+        <span data-lang="en"><span>Step by Step</span>How to Request an Exchange</span>
+        <span data-lang="fr"><span>Étape par étape</span>Comment demander un échange</span>
+      </h2>
     </div>
 
     <div class="sp-steps">
       <div class="sp-step">
         <div class="sp-step-num">1</div>
         <div class="sp-step-body">
-          <h4>Contact us</h4>
-          <p>Message us on WhatsApp or via the contact form within 3 business days of delivery.</p>
+          <h4 data-i18n="sp_step1_h4">Contact us</h4>
+          <p data-i18n="sp_step1_p">Message us on WhatsApp or via the contact form within 3 business days of delivery.</p>
         </div>
       </div>
       <div class="sp-step">
         <div class="sp-step-num">2</div>
         <div class="sp-step-body">
-          <h4>Send a photo</h4>
-          <p>Photo of the item — unworn, tags attached — so we can confirm eligibility.</p>
+          <h4 data-i18n="sp_step2_h4">Send a photo</h4>
+          <p data-i18n="sp_step2_p">Photo of the item — unworn, tags attached — so we can confirm eligibility.</p>
         </div>
       </div>
       <div class="sp-step">
         <div class="sp-step-num">3</div>
         <div class="sp-step-body">
-          <h4>Pay the 35 MAD</h4>
-          <p>Pay the exchange fee. Your new size is dispatched immediately after confirmation.</p>
+          <h4 data-i18n="sp_step3_h4">Pay the 35 MAD</h4>
+          <p data-i18n="sp_step3_p">Pay the exchange fee. Your new size is dispatched immediately after confirmation.</p>
         </div>
       </div>
       <div class="sp-step">
         <div class="sp-step-num">4</div>
         <div class="sp-step-body">
-          <h4>Hand back the item</h4>
-          <p>Give the original item to our delivery agent when they arrive with your new size.</p>
+          <h4 data-i18n="sp_step4_h4">Hand back the item</h4>
+          <p data-i18n="sp_step4_p">Give the original item to our delivery agent when they arrive with your new size.</p>
         </div>
       </div>
     </div>
@@ -942,15 +999,15 @@
 
   <!-- ── CTA ── -->
   <div class="sp-cta reveal">
-    <p class="sp-cta-eyebrow">We're here for you</p>
-    <h3>Still have questions?</h3>
-    <p>Reach our team on WhatsApp or through the contact page — we respond fast.</p>
+    <p class="sp-cta-eyebrow" data-i18n="sp_cta_eyebrow">We're here for you</p>
+    <h3 data-i18n="sp_cta_h3">Still have questions?</h3>
+    <p data-i18n="sp_cta_p">Reach our team on WhatsApp or through the contact page — we respond fast.</p>
     <div class="sp-cta-btns">
       <a href="https://wa.me/212771152186" class="btn-wa" target="_blank">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Chat on WhatsApp
+        <span data-i18n="sp_cta_wa">Chat on WhatsApp</span>
       </a>
-      <a href="contact.html" class="btn-contact">Contact Us →</a>
+      <a href="contact.html" class="btn-contact" data-i18n="sp_cta_contact">Contact Us →</a>
     </div>
   </div>
 
@@ -961,38 +1018,38 @@
   <div class="footer-grid">
     <div class="footer-brand">
       <span class="footer-logo">STREETSTORE</span>
-      <p>Premium women's denim crafted for the streets and everywhere in between.</p>
+      <p data-i18n="footer_desc">Premium women's denim crafted for the streets and everywhere in between.</p>
     </div>
     <div class="footer-col">
-      <h4>Shop</h4>
+      <h4 data-i18n="footer_shop">Shop</h4>
       <ul>
-        <li><a href="shop.html">All Jeans</a></li>
-        <li><a href="shop.html">New Arrivals</a></li>
-        <li><a href="shop.html">Sale</a></li>
+        <li><a href="shop.html" data-i18n="footer_all_jeans">All Jeans</a></li>
+        <li><a href="shop.html" data-i18n="footer_new">New Arrivals</a></li>
+        <li><a href="shop.html" data-i18n="footer_sale">Sale</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Help</h4>
+      <h4 data-i18n="footer_help">Help</h4>
       <ul>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="shipping.html">Shipping &amp; Exchanges</a></li>
-        <li><a href="#">FAQ</a></li>
+        <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
+        <li><a href="shipping.html" data-i18n="footer_shipping">Shipping &amp; Exchanges</a></li>
+        <li><a href="faq.html" data-i18n="footer_faq">FAQ</a></li>
       </ul>
     </div>
     <div class="footer-col">
-      <h4>Follow</h4>
+      <h4 data-i18n="footer_follow">Follow</h4>
       <ul>
-        <li><a href="#">Instagram</a></li>
+        <li><a href="https://www.instagram.com/streetstore1994" target="_blank">Instagram</a></li>
         <li><a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a></li>
         <li><a href="#">Pinterest</a></li>
       </ul>
     </div>
   </div>
   <div class="footer-bottom">
-    <p>© 2026 StreetStore. All rights reserved.</p>
+    <p data-i18n="footer_rights">© 2026 StreetStore. All rights reserved.</p>
     <div class="footer-bottom-links">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms</a>
+      <a href="#" data-i18n="privacy">Privacy Policy</a>
+      <a href="#" data-i18n="terms">Terms</a>
     </div>
   </div>
 </footer>
