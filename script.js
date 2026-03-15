@@ -103,15 +103,11 @@ function renderCartItems() {
   const totalEl = document.getElementById('cartTotal');
   if (!container) return;
 
-  // If offer was showing and cart now has 2+ items, dismiss it
+  // Show deal offer when exactly 1 item in cart, hide when 2+
   const offerEl = document.getElementById('cartDealOffer');
-  const footerEl = document.getElementById('cartFooter');
-  if (offerEl && footerEl && offerEl.style.display !== 'none') {
+  if (offerEl) {
     const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
-    if (totalQty >= 2) {
-      offerEl.style.display = 'none';
-      footerEl.style.display = 'block';
-    }
+    offerEl.style.display = (totalQty === 1) ? 'block' : 'none';
   }
 
   if (cart.length === 0) {
@@ -221,9 +217,8 @@ function injectCartDrawer() {
       </div>
       <div class="cart-items" id="cartItems"></div>
 
-      <!-- Deal offer — shown only when cart has 1 item and user taps Checkout -->
+      <!-- Deal offer — shown when cart has exactly 1 item -->
       <div class="cart-deal-offer" id="cartDealOffer" style="display:none;">
-        <button class="cart-deal-close" id="cartDealClose">✕</button>
         <div class="cart-deal-icon">🎁</div>
         <p class="cart-deal-title">Add 1 more &amp; save 39 MAD!</p>
         <p class="cart-deal-sub">Buy 2 items and automatically get a pack deal discount.</p>
@@ -257,22 +252,8 @@ function injectCartDrawer() {
   document.getElementById('cartOverlay').addEventListener('click', closeCart);
   document.getElementById('continueShopping').addEventListener('click', e => { e.preventDefault(); closeCart(); });
 
-  // Checkout button: intercept if only 1 item — show deal offer
   document.getElementById('checkoutBtn').addEventListener('click', () => {
-    const cart = getCart();
-    const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
-    if (totalQty === 1) {
-      document.getElementById('cartFooter').style.display = 'none';
-      document.getElementById('cartDealOffer').style.display = 'block';
-    } else {
-      window.location.href = 'checkout.html';
-    }
-  });
-
-  // Close offer and restore footer
-  document.getElementById('cartDealClose').addEventListener('click', () => {
-    document.getElementById('cartDealOffer').style.display = 'none';
-    document.getElementById('cartFooter').style.display = 'block';
+    window.location.href = 'checkout.html';
   });
 }
 
