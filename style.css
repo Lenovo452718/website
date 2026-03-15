@@ -2075,8 +2075,19 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
    RESPONSIVE — 768px
    ============================================================ */
 @media (max-width: 768px) {
-  .nav-inner { padding: 0 20px; }
+  /* Nav: logo left, icons right — no left column needed */
+  .nav-inner {
+    padding: 0 20px;
+    grid-template-columns: auto 1fr;
+  }
   .nav-left { display: none; }
+  .nav-logo { text-align: left; }
+  .nav-right {
+    justify-content: flex-end;
+    gap: 10px;
+  }
+  /* Hide header cart — already in the bottom nav bar */
+  .nav-right .cart-btn { display: none; }
   .mobile-menu { padding: 20px 20px 28px; }
 
   .hero-content { padding: 0 24px; }
