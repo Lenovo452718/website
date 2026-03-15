@@ -9,194 +9,589 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
   <style>
-    /* ── ABOUT PAGE ENHANCED STYLES ── */
+    /* ══════════════════════════════════════════
+       ABOUT PAGE — PREMIUM REDESIGN
+    ══════════════════════════════════════════ */
 
-    /* Hero */
+    /* ── HERO ── */
     .about-hero {
-      min-height: 80vh;
+      height: calc(100vh - 72px);
+      min-height: 560px;
       background: var(--denim);
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       margin-top: 72px;
       position: relative;
       overflow: hidden;
     }
+    /* large ghost background text */
     .about-hero::before {
-      content: 'SS';
+      content: 'STREET\ASTORE';
+      white-space: pre;
       position: absolute;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(220px, 30vw, 400px);
-      color: rgba(255,255,255,0.03);
-      letter-spacing: -0.05em;
-      right: -2%;
+      font-size: clamp(100px, 18vw, 240px);
+      color: rgba(255,255,255,0.04);
+      letter-spacing: 0.06em;
+      line-height: 0.9;
+      text-align: center;
+      left: 50%;
       top: 50%;
-      transform: translateY(-50%);
-      line-height: 1;
+      transform: translate(-50%, -50%);
       pointer-events: none;
       user-select: none;
     }
+    /* vertical accent line left */
+    .about-hero::after {
+      content: '';
+      position: absolute;
+      left: 48px;
+      top: 20%;
+      bottom: 20%;
+      width: 1px;
+      background: rgba(255,255,255,0.12);
+    }
     .about-hero-content {
-      padding: 0 40px;
       text-align: center;
       position: relative;
       z-index: 1;
+      padding: 0 40px;
     }
     .about-hero-eye {
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      margin-bottom: 24px;
       display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: #e0c97a;
+      margin-bottom: 20px;
     }
     .about-hero-content h1 {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(72px, 12vw, 160px);
+      font-size: clamp(80px, 14vw, 180px);
       color: var(--white);
       letter-spacing: 0.04em;
-      line-height: 0.88;
+      line-height: 0.85;
     }
-    .about-hero-rule {
-      width: 48px;
-      height: 2px;
-      background: rgba(255,255,255,0.25);
-      margin: 32px auto 0;
+    .about-hero-tagline {
+      margin-top: 28px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+    /* scrolling ticker at bottom of hero */
+    .about-hero-ticker {
+      position: absolute;
+      bottom: 0;
+      left: 0; right: 0;
+      overflow: hidden;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.2);
+      padding: 12px 0;
+    }
+    .about-hero-ticker-track {
+      display: flex;
+      gap: 0;
+      width: max-content;
+      animation: tickerScroll 22s linear infinite;
+    }
+    .about-hero-ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 0 28px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      white-space: nowrap;
+    }
+    .about-hero-ticker-item::after {
+      content: '✦';
+      color: #e0c97a;
+      font-size: 8px;
+    }
+    @keyframes tickerScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
     }
 
-    /* Split section */
+    /* ── INTRO STRIP ── */
+    .about-intro {
+      background: var(--white);
+      padding: 100px 40px;
+      text-align: center;
+      border-bottom: 1px solid var(--gray-light);
+    }
+    .about-intro-inner { max-width: 780px; margin: 0 auto; }
+    .about-intro-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--gray);
+      margin-bottom: 28px;
+    }
+    .about-intro-label::before,
+    .about-intro-label::after {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 1px;
+      background: var(--gray-mid);
+    }
+    .about-intro h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 5vw, 64px);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      margin-bottom: 24px;
+    }
+    .about-intro p {
+      font-size: 16px;
+      color: var(--gray);
+      line-height: 1.85;
+      font-weight: 300;
+    }
+
+    /* ── SPLIT STORY ── */
+    .about-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      max-width: 100%;
+      align-items: stretch;
+      gap: 0;
+    }
     .about-split-img {
-      background: linear-gradient(145deg, #0f1f3d 0%, #1e3560 50%, #162a52 100%);
+      background: linear-gradient(160deg, #0a1628 0%, #1a3060 60%, #0f1f3d 100%);
+      min-height: 640px;
       position: relative;
       overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-    .about-split-img::after {
+    /* diagonal stripe overlay */
+    .about-split-img::before {
       content: '';
       position: absolute;
       inset: 0;
       background: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 18px,
-        rgba(255,255,255,0.025) 18px,
-        rgba(255,255,255,0.025) 19px
+        -45deg, transparent, transparent 20px,
+        rgba(255,255,255,0.022) 20px,
+        rgba(255,255,255,0.022) 21px
       );
     }
+    /* big monogram */
+    .about-split-img::after {
+      content: 'SS';
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 18vw, 220px);
+      color: rgba(255,255,255,0.06);
+      letter-spacing: -0.04em;
+      line-height: 1;
+      position: relative;
+      z-index: 1;
+      user-select: none;
+    }
+    .about-split-img-badge {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      background: #e0c97a;
+      color: #0a1628;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      z-index: 2;
+    }
+    .about-split-text {
+      padding: 80px 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .about-split-text .section-subtitle { margin-bottom: 20px; }
+    .about-split-text h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 4.5vw, 62px);
+      letter-spacing: 0.04em;
+      margin-bottom: 28px;
+      line-height: 0.95;
+    }
+    .about-split-text p {
+      font-size: 15px;
+      color: var(--gray);
+      line-height: 1.85;
+      margin-bottom: 16px;
+    }
+    .about-split-pull {
+      margin: 24px 0;
+      padding: 20px 24px;
+      border-left: 3px solid #e0c97a;
+      background: var(--off);
+    }
+    .about-split-pull p {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--charcoal);
+      font-style: italic;
+      line-height: 1.6;
+      margin: 0;
+    }
 
-    /* Stats bar */
-    .stats-bar { background: var(--charcoal); }
+    /* ── STATS BAR ── */
+    .stats-bar {
+      background: var(--charcoal);
+      color: var(--white);
+    }
+    .stats-inner {
+      max-width: 100%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
     .stat-item {
-      padding: 56px 40px;
-      border-right: 1px solid rgba(255,255,255,0.08);
+      padding: 64px 40px;
+      border-right: 1px solid rgba(255,255,255,0.07);
       text-align: center;
+      position: relative;
     }
     .stat-item:last-child { border-right: none; }
     .stat-num {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 72px;
+      font-size: 80px;
       letter-spacing: 0.02em;
       display: block;
       margin-bottom: 6px;
       line-height: 1;
+      color: var(--white);
     }
+    .stat-num.gold { color: #e0c97a; }
     .stat-label {
-      font-size: 11px;
-      letter-spacing: 0.16em;
+      font-size: 10px;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
-      font-weight: 600;
+      color: rgba(255,255,255,0.35);
+      font-weight: 700;
     }
 
-    /* Values */
-    .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-    .value-card {
-      padding: 52px 40px;
-      background: var(--off);
-      border-top: 3px solid var(--charcoal);
-      border-left: none;
+    /* ── VALUES — EDITORIAL NUMBERED ── */
+    .values-section { padding: 120px 0; background: var(--white); }
+    .values-inner { max-width: 1280px; margin: 0 auto; padding: 0 40px; }
+    .values-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 72px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--gray-light);
+    }
+    .values-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 5vw, 72px);
+      letter-spacing: 0.04em;
+    }
+    .values-header .section-subtitle { margin: 0; }
+    .values-list { display: flex; flex-direction: column; gap: 0; }
+    .value-row {
+      display: grid;
+      grid-template-columns: 80px 1fr 1fr;
+      align-items: start;
+      gap: 48px;
+      padding: 48px 0;
+      border-bottom: 1px solid var(--gray-light);
       transition: background 0.2s;
     }
-    .value-card:hover { background: #f0ede6; }
-    .value-card-icon { font-size: 28px; margin-bottom: 24px; display: block; }
-    .value-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 14px; letter-spacing: 0.02em; }
-    .value-card p { font-size: 14px; color: var(--gray); line-height: 1.75; }
+    .value-row:last-child { border-bottom: none; }
+    .value-row:hover { background: var(--off); margin: 0 -40px; padding-left: 40px; padding-right: 40px; }
+    .value-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 56px;
+      color: var(--gray-light);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      padding-top: 4px;
+    }
+    .value-row-title {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding-top: 4px;
+    }
+    .value-row-icon {
+      font-size: 22px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .value-row-title h3 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+    .value-row p { font-size: 14px; color: var(--gray); line-height: 1.8; padding-top: 4px; }
 
-    /* Manifesto (replaces team) */
+    /* ── TICKER BAND ── */
+    .about-ticker {
+      background: var(--denim);
+      padding: 18px 0;
+      overflow: hidden;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .about-ticker-track {
+      display: flex;
+      width: max-content;
+      animation: tickerScroll 28s linear infinite;
+    }
+    .about-ticker-item {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 0 24px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+      white-space: nowrap;
+    }
+    .about-ticker-item span { color: #e0c97a; font-size: 7px; }
+
+    /* ── MANIFESTO ── */
     .about-manifesto {
       background: var(--denim);
-      padding: 120px 40px;
+      padding: 140px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
     }
-    .about-manifesto::before {
-      content: '✦';
+    .about-manifesto-bg {
       position: absolute;
-      font-size: 300px;
-      color: rgba(255,255,255,0.02);
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       pointer-events: none;
+      user-select: none;
+      overflow: hidden;
+    }
+    .about-manifesto-bg span {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 20vw, 280px);
+      color: rgba(255,255,255,0.025);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
     }
     .about-manifesto-inner {
-      max-width: 860px;
+      max-width: 900px;
       margin: 0 auto;
       position: relative;
       z-index: 1;
     }
-    .about-manifesto .section-subtitle { color: rgba(255,255,255,0.4); margin-bottom: 32px; }
+    .about-manifesto-qdeco {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 120px;
+      color: #e0c97a;
+      line-height: 0.5;
+      display: block;
+      margin-bottom: 24px;
+      opacity: 0.35;
+    }
+    .about-manifesto .section-subtitle {
+      color: rgba(255,255,255,0.3);
+      margin-bottom: 36px;
+      display: block;
+    }
     .about-manifesto-quote {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(36px, 5.5vw, 72px);
+      font-size: clamp(38px, 6vw, 80px);
       color: var(--white);
       letter-spacing: 0.04em;
-      line-height: 1.05;
-      margin-bottom: 40px;
+      line-height: 1.0;
+      margin-bottom: 48px;
     }
     .about-manifesto-quote em {
       font-style: normal;
       color: #e0c97a;
     }
+    .about-manifesto-line {
+      width: 60px;
+      height: 2px;
+      background: rgba(255,255,255,0.2);
+      margin: 0 auto 40px;
+    }
 
-    /* CTA */
-    .about-cta {
+    /* ── PROCESS ── */
+    .about-process {
       background: var(--off);
+      padding: 100px 40px;
+      border-top: 1px solid var(--gray-light);
+    }
+    .about-process-inner { max-width: 1280px; margin: 0 auto; }
+    .about-process-header { text-align: center; margin-bottom: 64px; }
+    .about-process-header h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 4.5vw, 60px);
+      letter-spacing: 0.04em;
+    }
+    .about-process-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+    }
+    .about-process-step {
+      background: var(--white);
+      padding: 40px 32px;
+      position: relative;
+    }
+    .about-process-step::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--gray-light);
+    }
+    .about-process-step:first-child::before { background: var(--charcoal); }
+    .process-step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px;
+      color: var(--gray-light);
+      line-height: 1;
+      margin-bottom: 16px;
+      display: block;
+    }
+    .process-step-icon {
+      font-size: 24px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .about-process-step h4 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .about-process-step p {
+      font-size: 13px;
+      color: var(--gray);
+      line-height: 1.7;
+    }
+    .process-arrow {
+      position: absolute;
+      right: -13px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      background: var(--white);
+      border: 1px solid var(--gray-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      z-index: 1;
+    }
+    .about-process-step:last-child .process-arrow { display: none; }
+
+    /* ── CTA ── */
+    .about-cta {
+      background: var(--charcoal);
       padding: 120px 40px;
       text-align: center;
-      border-top: 3px solid var(--charcoal);
+      position: relative;
+      overflow: hidden;
+    }
+    .about-cta::before {
+      content: 'SHOP';
+      position: absolute;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(150px, 22vw, 320px);
+      color: rgba(255,255,255,0.03);
+      letter-spacing: 0.04em;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+    .about-cta-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+    .about-cta-eye {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      color: #e0c97a;
+      margin-bottom: 20px;
     }
     .about-cta h2 {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(44px, 6vw, 80px);
+      font-size: clamp(52px, 7.5vw, 100px);
       letter-spacing: 0.04em;
-      margin-bottom: 20px;
+      color: var(--white);
+      line-height: 0.9;
+      margin-bottom: 24px;
     }
     .about-cta p {
       font-size: 15px;
-      color: var(--gray);
-      margin-bottom: 36px;
-      max-width: 440px;
-      margin-left: auto;
-      margin-right: auto;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 40px;
+      line-height: 1.7;
     }
+    .about-cta .btn-cta-group { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
-    /* Mobile */
+    /* ── MOBILE ── */
+    @media (max-width: 960px) {
+      .value-row { grid-template-columns: 60px 1fr; gap: 28px; }
+      .value-row p { grid-column: 2; }
+      .value-row-title { grid-column: 2; }
+      .about-process-grid { grid-template-columns: repeat(2, 1fr); }
+      .process-arrow { display: none; }
+    }
     @media (max-width: 768px) {
-      .about-hero { min-height: 70vh; }
-      .about-hero::before { display: none; }
+      .about-hero::after { display: none; }
       .about-hero-content { padding: 0 24px; }
-      .about-manifesto { padding: 80px 20px; }
-      .about-manifesto-quote { font-size: clamp(30px, 8vw, 48px); }
-      .values-grid { grid-template-columns: 1fr; gap: 2px; }
-      .value-card { padding: 40px 28px; }
-      .stat-item { padding: 40px 20px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
-      .stat-item:last-child { border-bottom: none; }
-      .about-cta { padding: 80px 20px; }
+      .about-intro { padding: 72px 24px; }
+      .about-split { grid-template-columns: 1fr; }
+      .about-split-img { min-height: 320px; }
+      .about-split-text { padding: 56px 24px; }
+      .stats-inner { grid-template-columns: repeat(2, 1fr); }
+      .stat-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); padding: 48px 24px; }
+      .stat-item:nth-child(even) { border-left: 1px solid rgba(255,255,255,0.07); }
+      .stat-item:last-child, .stat-item:nth-last-child(2):nth-child(odd) { border-bottom: none; }
+      .values-section { padding: 80px 0; }
+      .values-inner { padding: 0 20px; }
+      .values-header { flex-direction: column; gap: 8px; }
+      .value-row { grid-template-columns: 48px 1fr; gap: 20px; padding: 36px 0; }
+      .value-num { font-size: 40px; }
+      .about-manifesto { padding: 100px 24px; }
+      .about-manifesto-qdeco { font-size: 80px; }
+      .about-process { padding: 72px 20px; }
+      .about-process-grid { grid-template-columns: 1fr; gap: 2px; }
+      .about-process-step { padding: 32px 24px; }
+      .about-cta { padding: 80px 24px; }
+      .about-ticker-item { font-size: 10px; }
     }
     @media (max-width: 480px) {
-      .about-manifesto-quote { font-size: clamp(26px, 7.5vw, 38px); }
+      .about-manifesto-quote { font-size: clamp(32px, 8vw, 52px); }
+      .about-cta .btn-cta-group { flex-direction: column; align-items: center; }
     }
   </style>
 </head>
@@ -208,7 +603,7 @@
     <nav class="nav-left">
       <a href="shop.html" data-i18n="nav_shop">Shop</a>
       <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
-      <a href="about.html" style="border-bottom: 1px solid currentColor; padding-bottom: 2px;">About</a>
+      <a href="about.html" style="border-bottom:1px solid currentColor;padding-bottom:2px;">About</a>
     </nav>
     <a href="index.html" class="nav-logo">STREETSTORE</a>
     <div class="nav-right">
@@ -235,26 +630,71 @@
   </nav>
 </header>
 
-<!-- ===== ABOUT HERO ===== -->
+<!-- ===== HERO ===== -->
 <section class="about-hero">
-  <div class="about-hero-content">
+  <div class="about-hero-content reveal">
     <span class="about-hero-eye" data-i18n="about_est">Est. — Morocco</span>
     <h1>WE ARE<br>STREET<br>STORE</h1>
-    <div class="about-hero-rule"></div>
+    <p class="about-hero-tagline">
+      <span data-lang="en">Premium Denim · Women's Fashion · Made for You</span>
+      <span data-lang="fr">Denim Premium · Mode Féminine · Fait pour Vous</span>
+    </p>
+  </div>
+  <!-- scrolling bottom ticker -->
+  <div class="about-hero-ticker">
+    <div class="about-hero-ticker-track">
+      <span class="about-hero-ticker-item">Premium Denim</span>
+      <span class="about-hero-ticker-item">Free Shipping</span>
+      <span class="about-hero-ticker-item">COD Available</span>
+      <span class="about-hero-ticker-item">Based in Morocco</span>
+      <span class="about-hero-ticker-item">Women's Fashion</span>
+      <span class="about-hero-ticker-item">Est. 2024</span>
+      <span class="about-hero-ticker-item">Quality First</span>
+      <span class="about-hero-ticker-item">Premium Denim</span>
+      <span class="about-hero-ticker-item">Free Shipping</span>
+      <span class="about-hero-ticker-item">COD Available</span>
+      <span class="about-hero-ticker-item">Based in Morocco</span>
+      <span class="about-hero-ticker-item">Women's Fashion</span>
+      <span class="about-hero-ticker-item">Est. 2024</span>
+      <span class="about-hero-ticker-item">Quality First</span>
+    </div>
   </div>
 </section>
 
-<!-- ===== SPLIT SECTION ===== -->
-<div class="about-split">
-  <div class="about-split-img"></div>
-  <div class="about-split-text reveal">
-    <span class="section-subtitle" data-i18n="our_story">Our Story</span>
+<!-- ===== INTRO STRIP ===== -->
+<section class="about-intro reveal">
+  <div class="about-intro-inner">
+    <span class="about-intro-label" data-i18n="our_story">Our Story</span>
     <h2>
       <span data-lang="en">Born on the street.<br>Built for you.</span>
       <span data-lang="fr">Né dans la rue.<br>Fait pour vous.</span>
     </h2>
     <p data-i18n="about_story_p">StreetStore was born from a passion for premium denim fashion. Based in Morocco, we bring you the latest in women's denim — from wide-leg classics to modern baggy fits — at prices that make sense. Every piece is carefully selected for quality, comfort, and style.</p>
-    <a href="shop.html" class="btn-dark" style="margin-top:12px;" data-i18n="explore_collection">Explore the Collection</a>
+  </div>
+</section>
+
+<!-- ===== SPLIT STORY ===== -->
+<div class="about-split">
+  <div class="about-split-img">
+    <span class="about-split-img-badge">
+      <span data-lang="en">Premium · Morocco</span>
+      <span data-lang="fr">Premium · Maroc</span>
+    </span>
+  </div>
+  <div class="about-split-text reveal">
+    <span class="section-subtitle" data-i18n="our_story">Our Story</span>
+    <h2>
+      <span data-lang="en">Every stitch<br>tells a story.</span>
+      <span data-lang="fr">Chaque couture<br>raconte une histoire.</span>
+    </h2>
+    <p data-i18n="about_story_p">StreetStore was born from a passion for premium denim fashion. Based in Morocco, we bring you the latest in women's denim — from wide-leg classics to modern baggy fits — at prices that make sense.</p>
+    <div class="about-split-pull">
+      <p>
+        <span data-lang="en">"Every piece is carefully selected for quality, comfort, and style — because you deserve nothing less."</span>
+        <span data-lang="fr">« Chaque pièce est soigneusement sélectionnée pour sa qualité, son confort et son style — parce que vous méritez le meilleur. »</span>
+      </p>
+    </div>
+    <a href="shop.html" class="btn-dark" style="align-self:flex-start;margin-top:8px;" data-i18n="explore_collection">Explore the Collection</a>
   </div>
 </div>
 
@@ -266,7 +706,7 @@
       <span class="stat-label" data-i18n="stat_styles">Styles</span>
     </div>
     <div class="stat-item reveal reveal-delay-1">
-      <span class="stat-num">100%</span>
+      <span class="stat-num gold">100%</span>
       <span class="stat-label" data-i18n="stat_quality">Quality</span>
     </div>
     <div class="stat-item reveal reveal-delay-2">
@@ -280,50 +720,155 @@
   </div>
 </div>
 
-<!-- ===== VALUES SECTION ===== -->
+<!-- ===== VALUES ===== -->
 <section class="values-section">
   <div class="values-inner">
     <div class="values-header reveal">
+      <h2 data-i18n="our_values">Our Values</h2>
       <span class="section-subtitle" data-i18n="what_we_stand">What We Stand For</span>
-      <h2 class="section-title" data-i18n="our_values">Our Values</h2>
     </div>
-    <div class="values-grid">
-      <div class="value-card reveal">
-        <span class="value-card-icon">✦</span>
-        <h3 data-i18n="val1_title">Premium Quality</h3>
+    <div class="values-list">
+      <div class="value-row reveal">
+        <span class="value-num">01</span>
+        <div class="value-row-title">
+          <span class="value-row-icon">✦</span>
+          <h3 data-i18n="val1_title">Premium Quality</h3>
+        </div>
         <p data-i18n="val1_desc">We use only the finest denim fabrics, sourced from certified mills. Each pair goes through 40+ quality checks before it reaches you.</p>
       </div>
-      <div class="value-card reveal reveal-delay-1">
-        <span class="value-card-icon">🌿</span>
-        <h3 data-i18n="val2_title">Sustainable</h3>
+      <div class="value-row reveal reveal-delay-1">
+        <span class="value-num">02</span>
+        <div class="value-row-title">
+          <span class="value-row-icon">🌿</span>
+          <h3 data-i18n="val2_title">Sustainable</h3>
+        </div>
         <p data-i18n="val2_desc">Our production process uses 50% less water than industry standard. Packaging is fully recyclable. We offset 100% of our carbon emissions.</p>
       </div>
-      <div class="value-card reveal reveal-delay-2">
-        <span class="value-card-icon">♾</span>
-        <h3 data-i18n="val3_title">Inclusive Sizing</h3>
+      <div class="value-row reveal reveal-delay-2">
+        <span class="value-num">03</span>
+        <div class="value-row-title">
+          <span class="value-row-icon">♾</span>
+          <h3 data-i18n="val3_title">Inclusive Sizing</h3>
+        </div>
         <p data-i18n="val3_desc">Great denim is for every body. We offer sizes XS through XXL and continuously expand our range based on real customer feedback.</p>
       </div>
     </div>
   </div>
 </section>
 
+<!-- ===== TICKER BAND ===== -->
+<div class="about-ticker">
+  <div class="about-ticker-track">
+    <span class="about-ticker-item">Premium Denim <span>✦</span></span>
+    <span class="about-ticker-item">Free Shipping Across Morocco <span>✦</span></span>
+    <span class="about-ticker-item">Cash on Delivery <span>✦</span></span>
+    <span class="about-ticker-item">Quality You Can Feel <span>✦</span></span>
+    <span class="about-ticker-item">New Styles Every Season <span>✦</span></span>
+    <span class="about-ticker-item">Women's Fashion <span>✦</span></span>
+    <span class="about-ticker-item">Premium Denim <span>✦</span></span>
+    <span class="about-ticker-item">Free Shipping Across Morocco <span>✦</span></span>
+    <span class="about-ticker-item">Cash on Delivery <span>✦</span></span>
+    <span class="about-ticker-item">Quality You Can Feel <span>✦</span></span>
+    <span class="about-ticker-item">New Styles Every Season <span>✦</span></span>
+    <span class="about-ticker-item">Women's Fashion <span>✦</span></span>
+  </div>
+</div>
+
 <!-- ===== MANIFESTO ===== -->
-<section class="about-manifesto reveal">
-  <div class="about-manifesto-inner">
+<section class="about-manifesto">
+  <div class="about-manifesto-bg"><span>IDENTITY</span></div>
+  <div class="about-manifesto-inner reveal">
     <span class="section-subtitle" data-i18n="about_manifesto_label">Our Manifesto</span>
+    <span class="about-manifesto-qdeco">"</span>
     <p class="about-manifesto-quote">
       <span data-lang="en">Denim is not just fabric —<br>it's <em>identity.</em><br>We build pieces that<br>carry your story.</span>
       <span data-lang="fr">Le denim n'est pas<br>juste un tissu —<br>c'est une <em>identité.</em><br>Nous créons des pièces<br>qui portent votre histoire.</span>
     </p>
+    <div class="about-manifesto-line"></div>
     <a href="shop.html" class="btn-outline" data-i18n="explore_collection">Explore the Collection</a>
   </div>
 </section>
 
+<!-- ===== HOW IT WORKS ===== -->
+<section class="about-process">
+  <div class="about-process-inner">
+    <div class="about-process-header reveal">
+      <span class="section-subtitle">
+        <span data-lang="en">Simple &amp; Fast</span>
+        <span data-lang="fr">Simple &amp; Rapide</span>
+      </span>
+      <h2>
+        <span data-lang="en">How it works</span>
+        <span data-lang="fr">Comment ça marche</span>
+      </h2>
+    </div>
+    <div class="about-process-grid">
+      <div class="about-process-step reveal">
+        <span class="process-step-num">01</span>
+        <span class="process-step-icon">👗</span>
+        <h4>
+          <span data-lang="en">Browse &amp; Choose</span>
+          <span data-lang="fr">Parcourir &amp; Choisir</span>
+        </h4>
+        <p>
+          <span data-lang="en">Explore our curated collection of premium denim styles.</span>
+          <span data-lang="fr">Parcourez notre collection de styles denim premium.</span>
+        </p>
+        <span class="process-arrow">→</span>
+      </div>
+      <div class="about-process-step reveal reveal-delay-1">
+        <span class="process-step-num">02</span>
+        <span class="process-step-icon">📦</span>
+        <h4>
+          <span data-lang="en">Place Your Order</span>
+          <span data-lang="fr">Passer votre commande</span>
+        </h4>
+        <p>
+          <span data-lang="en">Order with confidence — Cash on Delivery, no prepayment needed.</span>
+          <span data-lang="fr">Commandez en toute confiance — paiement à la livraison.</span>
+        </p>
+        <span class="process-arrow">→</span>
+      </div>
+      <div class="about-process-step reveal reveal-delay-2">
+        <span class="process-step-num">03</span>
+        <span class="process-step-icon">🚚</span>
+        <h4>
+          <span data-lang="en">We Ship Free</span>
+          <span data-lang="fr">Livraison gratuite</span>
+        </h4>
+        <p>
+          <span data-lang="en">Free shipping across all of Morocco, delivered in 2–5 business days.</span>
+          <span data-lang="fr">Livraison gratuite partout au Maroc en 2 à 5 jours.</span>
+        </p>
+        <span class="process-arrow">→</span>
+      </div>
+      <div class="about-process-step reveal reveal-delay-3">
+        <span class="process-step-num">04</span>
+        <span class="process-step-icon">✦</span>
+        <h4>
+          <span data-lang="en">Wear &amp; Love</span>
+          <span data-lang="fr">Porter &amp; Aimer</span>
+        </h4>
+        <p>
+          <span data-lang="en">Receive your order, try it on, and wear it with confidence.</span>
+          <span data-lang="fr">Recevez votre commande et portez-la avec confiance.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ===== CTA ===== -->
-<section class="about-cta reveal">
-  <h2 data-i18n="shop_collection_cta">Shop the Collection</h2>
-  <p data-i18n="cta_sub">Premium denim for the modern woman. Explore our signature styles, crafted to last.</p>
-  <a href="shop.html" class="btn-dark" data-i18n="browse_all">Browse All Jeans</a>
+<section class="about-cta">
+  <div class="about-cta-inner reveal">
+    <span class="about-cta-eye" data-i18n="about_est">Est. — Morocco</span>
+    <h2 data-i18n="shop_collection_cta">Shop the Collection</h2>
+    <p data-i18n="cta_sub">Premium denim for the modern woman. Explore our signature styles, crafted to last.</p>
+    <div class="btn-cta-group">
+      <a href="shop.html" class="btn-dark" data-i18n="browse_all">Browse All Jeans</a>
+      <a href="contact.html" class="btn-outline" data-i18n="nav_contact">Contact Us</a>
+    </div>
+  </div>
 </section>
 
 <!-- ===== FOOTER ===== -->
