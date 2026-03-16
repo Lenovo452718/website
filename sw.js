@@ -1,4 +1,4 @@
-const CACHE = 'streetstore-v8';
+const CACHE = 'streetstore-v9';
 const ASSETS = [
   '/', '/index.html', '/shop.html', '/style.css', '/script.js',
   '/lang.js', '/i18n.js', '/products.js',

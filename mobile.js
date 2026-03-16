@@ -168,14 +168,22 @@ function initStickyAddToCart() {
 
   const bar = document.createElement('div');
   bar.className = 'sticky-atc-bar';
-  const nameEl = document.querySelector('.product-name');
   bar.innerHTML = `
-    <span class="sticky-atc-name">${nameEl ? nameEl.textContent.trim() : ''}</span>
-    <button class="sticky-atc-btn">Add to Cart</button>
+    <button class="sticky-atc-btn sticky-atc-cart">Add to Cart</button>
+    <button class="sticky-atc-btn sticky-atc-buynow">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Buy Now
+    </button>
   `;
   document.body.appendChild(bar);
 
-  bar.querySelector('.sticky-atc-btn').addEventListener('click', () => addBtn.click());
+  bar.querySelector('.sticky-atc-cart').addEventListener('click', () => addBtn.click());
+
+  bar.querySelector('.sticky-atc-buynow').addEventListener('click', () => {
+    // Trigger click on the Buy Now button injected by script.js
+    const buyNowBtn = document.querySelector('.buy-now-btn');
+    if (buyNowBtn) buyNowBtn.click();
+  });
 
   // Show bar only when original button is off-screen
   new IntersectionObserver(entries => {

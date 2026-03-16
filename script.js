@@ -1146,7 +1146,7 @@ document.addEventListener('DOMContentLoaded', () => {
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-  document.getElementById('buyNowForm').addEventListener('submit', e => {
+  document.getElementById('buyNowForm').addEventListener('submit', async e => {
     e.preventDefault();
     const name    = document.getElementById('bnSummaryName').textContent;
     const meta    = document.getElementById('bnSummaryMeta').textContent;
@@ -1178,6 +1178,25 @@ document.addEventListener('DOMContentLoaded', () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(orderData),
         });
+        if (resp.status === 403) {
+          // Blocked customer — show explanation, do NOT fall through to WhatsApp
+          const data = await resp.json().catch(() => ({}));
+          const msg = data.message || 'Your access has been blocked. Please contact us on WhatsApp.';
+          const submitBtn = document.getElementById('buyNowForm').querySelector('.buynow-submit');
+          submitBtn.textContent = '🚫 Order blocked';
+          submitBtn.style.background = '#8b0000';
+          submitBtn.disabled = true;
+          // Show explanation below the button
+          let errBox = document.getElementById('blockedErrorMsg');
+          if (!errBox) {
+            errBox = document.createElement('p');
+            errBox.id = 'blockedErrorMsg';
+            errBox.style.cssText = 'color:#8b0000;font-size:13px;margin-top:12px;text-align:center;line-height:1.5;padding:10px 14px;background:#fff5f5;border-radius:6px;border:1px solid #f5c6cb';
+            submitBtn.parentNode.insertBefore(errBox, submitBtn.nextSibling);
+          }
+          errBox.textContent = msg;
+          return; // hard stop — no WhatsApp fallback
+        }
         if (resp.ok) {
           closeModal();
           // Show success message

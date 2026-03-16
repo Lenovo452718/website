@@ -10,9 +10,12 @@ const PRODUCTS = {
     price: 179,
     originalPrice: 249,
     fit: "Wide Flare Leg",
+    fitFilter: "wide",
     href: "product-patte-elephant.html",
     badge: "sale",
-    // ↓ Change this path to update the card image on ALL pages
+    color: "navy",
+    sizes: "34,36,38,40,42",
+    inStock: true,
     image: "images/products/patte-elephant/1.jpg",
     gallery: [
       "images/products/patte-elephant/1.jpg",
@@ -20,7 +23,7 @@ const PRODUCTS = {
       "images/products/patte-elephant/3.jpg",
       "images/products/patte-elephant/4.jpg",
     ],
-    video: "images/products/patte-elephant/video.mp4"
+    video: "videos/placeholder.mp4"
   },
 
   'high-rise-dark-blue': {
@@ -28,8 +31,12 @@ const PRODUCTS = {
     price: 179,
     originalPrice: 249,
     fit: "High Waist",
+    fitFilter: "skinny",
     href: "product-high-rise-dark-blue.html",
     badge: "sale",
+    color: "navy",
+    sizes: "34,36,38,40,42,44",
+    inStock: true,
     image: "images/products/high-rise-dark-blue/1.jpg",
     gallery: [
       "images/products/high-rise-dark-blue/1.jpg",
@@ -38,7 +45,7 @@ const PRODUCTS = {
       "images/products/high-rise-dark-blue/4.jpg",
       "images/products/high-rise-dark-blue/5.jpg",
     ],
-    video: "images/products/high-rise-dark-blue/video.mp4"
+    video: "videos/placeholder.mp4"
   },
 
   'brown-wide-leg': {
@@ -46,8 +53,12 @@ const PRODUCTS = {
     price: 179,
     originalPrice: 299,
     fit: "Wide Leg",
+    fitFilter: "wide",
     href: "product-brown-wide-leg.html",
     badge: "sale",
+    color: "caramel",
+    sizes: "36,38,40,42",
+    inStock: true,
     image: "images/products/brown-wide-leg/1.jpg",
     gallery: [
       "images/products/brown-wide-leg/1.jpg",
@@ -56,7 +67,7 @@ const PRODUCTS = {
       "images/products/brown-wide-leg/4.jpg",
       "images/products/brown-wide-leg/5.jpg",
     ],
-    video: "images/products/brown-wide-leg/video.mp4"
+    video: "videos/placeholder.mp4"
   },
 
   'baggy-wide-leg': {
@@ -64,8 +75,12 @@ const PRODUCTS = {
     price: 179,
     originalPrice: 250,
     fit: "Oversized Baggy",
+    fitFilter: "wide",
     href: "product-baggy-wide-leg.html",
     badge: "sale",
+    color: "black",
+    sizes: "34,36,38,40",
+    inStock: true,
     image: "images/products/baggy-wide-leg/1.jpg",
     gallery: [
       "images/products/baggy-wide-leg/1.jpg",
@@ -74,7 +89,7 @@ const PRODUCTS = {
       "images/products/baggy-wide-leg/4.jpg",
       "images/products/baggy-wide-leg/5.jpg",
     ],
-    video: "images/products/baggy-wide-leg/video.mp4"
+    video: "videos/placeholder.mp4"
   },
 
   'jean-skirts': {
@@ -82,9 +97,13 @@ const PRODUCTS = {
     price: 179,
     originalPrice: 299,
     fit: "Denim Mini Skirt",
+    fitFilter: "straight",
     href: "product-jean-skirts.html",
     badge: "sale",
-    image: null,   // ← drop photo here when ready
+    color: "blue",
+    sizes: "34,36,38,40,42",
+    inStock: true,
+    image: null,
     gallery: [],
     video: null
   },
@@ -94,33 +113,94 @@ const PRODUCTS = {
     price: 299,
     originalPrice: 350,
     fit: "Full Denim Set",
+    fitFilter: "straight",
     href: "product-denim-set.html",
     badge: "trending",
-    image: null,   // ← drop photo here when ready
+    color: "navy",
+    sizes: "36,38,40,42",
+    inStock: true,
+    image: null,
     gallery: [],
     video: null
   }
 
 };
 
+/* ── Apply admin overrides from localStorage ─────────────── */
+(function applyAdminOverrides() {
+  try {
+    var ov = JSON.parse(localStorage.getItem('ss_products_override') || '{}');
+    Object.keys(ov).forEach(function(id) {
+      if (ov[id] === null) {
+        delete PRODUCTS[id];
+      } else {
+        PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]);
+      }
+    });
+  } catch(e) {}
+})();
+
+/* ── Render shop product grid dynamically ────────────────── */
+(function renderShopGrid() {
+  var grid = document.getElementById('shopProductGrid');
+  if (!grid) return;
+
+  var colorNames = {
+    navy: '#0f1f3d', blue: '#1e3a5f', caramel: '#8b6347',
+    black: '#1a1a1a', white: '#f0ede8', gray: '#888888',
+    brown: '#6b4e30', red: '#8b2020', green: '#1e4a2e'
+  };
+  function toBg(c) { if (!c) return '#888'; return c.startsWith('#') ? c : (colorNames[c]||'#888'); }
+  var badgeLabel = { sale: 'Sale', trending: 'Trending', 'new-badge': 'New', bestseller: 'Best Seller' };
+
+  var html = Object.keys(PRODUCTS).map(function(id) {
+    var p = PRODUCTS[id];
+    var bg = toBg(p.color);
+    var imgHtml = p.image
+      ? '<img class="product-card-img-inner" data-product-img="' + id + '" src="' + p.image + '" alt="' + p.name + '">'
+      : '<div class="product-card-img-inner" data-product-img="' + id + '" style="background:' + bg + '"></div>';
+    var badgeHtml = p.badge ? '<span class="product-badge ' + p.badge + '">' + (badgeLabel[p.badge] || p.badge) + '</span>' : '';
+    var stockHtml = p.inStock === false ? '<span class="product-badge" style="background:#888;color:#fff">Out of Stock</span>' : '';
+    var href = p.href || '#';
+    var name = p.name.replace(/&/g, '&amp;');
+    return (
+      '<div class="product-card" data-price="' + p.price + '" data-fit="' + (p.fitFilter || 'wide') + '" data-color="' + (p.color || '') + '" data-size="' + (p.sizes || '') + '">' +
+        '<a href="' + href + '">' +
+          '<div class="product-card-img">' +
+            imgHtml + badgeHtml + stockHtml +
+            '<button class="wishlist-btn">♡</button>' +
+            '<button class="product-card-quick" data-name="' + p.name + '" data-price="' + p.price + '">Quick Add</button>' +
+          '</div>' +
+        '</a>' +
+        '<div class="product-card-info">' +
+          '<p class="product-card-name"><a href="' + href + '">' + name + '</a></p>' +
+          '<p class="product-card-fit">' + (p.fit || '') + '</p>' +
+          '<p class="product-card-price"><span class="original">' + p.originalPrice + ' MAD</span>' + p.price + ' MAD</p>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+
+  grid.innerHTML = html || '<p style="padding:40px;text-align:center;color:#888">No products available.</p>';
+})();
+
 /* ── Auto-populate all product card images on the page ─────── */
 (function initProductImages() {
-  document.querySelectorAll('[data-product-img]').forEach(el => {
-    const id      = el.dataset.productImg;
-    const product = PRODUCTS[id];
+  document.querySelectorAll('[data-product-img]').forEach(function(el) {
+    var id      = el.dataset.productImg;
+    var product = PRODUCTS[id];
     if (!product || !product.image) return;
 
     if (el.tagName === 'IMG') {
       el.src = product.image;
       el.alt = product.name;
     } else {
-      // Swap placeholder div → real img
-      const img = document.createElement('img');
-      img.className       = el.className;
+      var img = document.createElement('img');
+      img.className          = el.className;
       img.dataset.productImg = id;
-      img.src             = product.image;
-      img.alt             = product.name;
-      img.style.cssText   = 'width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);';
+      img.src                = product.image;
+      img.alt                = product.name;
+      img.style.cssText      = 'width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.5s cubic-bezier(0.16,1,0.3,1);';
       el.parentNode.replaceChild(img, el);
     }
   });
@@ -128,30 +208,28 @@ const PRODUCTS = {
 
 /* ── Auto-populate product page gallery (filmstrip + video) ── */
 (function initProductGallery() {
-  const page = document.body.dataset.product;
+  var page = document.body.dataset.product;
   if (!page) return;
-  const product = PRODUCTS[page];
+  var product = PRODUCTS[page];
   if (!product) return;
 
-  // Video source
-  const videoSrc = document.getElementById('productVideoSrc');
+  var videoSrc = document.getElementById('productVideoSrc');
   if (videoSrc && product.video) {
     videoSrc.src = product.video;
-    const vid = document.getElementById('productVideo');
+    var vid = document.getElementById('productVideo');
     if (vid) vid.load();
   }
 
-  // Filmstrip thumbnails
-  const thumbs   = document.querySelectorAll('.thumb-item[data-gallery-index]');
-  const mainImg  = document.getElementById('mainProductImg');
-  const mainWrap = document.getElementById('galleryMainNew');
+  var thumbs   = document.querySelectorAll('.thumb-item[data-gallery-index]');
+  var mainImg  = document.getElementById('mainProductImg');
+  var mainWrap = document.getElementById('galleryMainNew');
 
-  thumbs.forEach(thumb => {
-    const idx = parseInt(thumb.dataset.galleryIndex, 10);
-    const src = product.gallery[idx];
+  thumbs.forEach(function(thumb) {
+    var idx = parseInt(thumb.dataset.galleryIndex, 10);
+    var src = product.gallery[idx];
     if (!src) return;
     thumb.dataset.src = src;
-    const img = thumb.querySelector('img');
+    var img = thumb.querySelector('img');
     if (img) img.src = src;
   });
 
