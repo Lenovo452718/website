@@ -1031,3 +1031,135 @@ document.addEventListener('DOMContentLoaded', () => {
     history.replaceState({}, '', window.location.pathname);
   }
 });
+
+/* ============================================================
+   BUY NOW — Quick Order Modal
+   ============================================================ */
+(function () {
+  const addBtn = document.querySelector('.add-to-cart-btn');
+  if (!addBtn) return;
+
+  /* ── Inject Buy Now button ── */
+  const buyBtn = document.createElement('button');
+  buyBtn.className = 'buy-now-btn';
+  buyBtn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Buy Now';
+  addBtn.insertAdjacentElement('afterend', buyBtn);
+
+  /* ── Inject modal ── */
+  const WA_SVG = '<svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+
+  const overlay = document.createElement('div');
+  overlay.id = 'buyNowOverlay';
+  overlay.className = 'buynow-overlay';
+  overlay.innerHTML = `
+    <div class="buynow-modal" id="buyNowModal">
+      <button class="buynow-close" id="buyNowClose" aria-label="Close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <p class="buynow-title">Quick Order</p>
+
+      <div class="buynow-summary">
+        <div class="buynow-summary-name" id="bnSummaryName"></div>
+        <div class="buynow-summary-meta" id="bnSummaryMeta"></div>
+        <div class="buynow-summary-price" id="bnSummaryPrice"></div>
+      </div>
+
+      <div class="buynow-upsell" id="buyNowUpsell">
+        <span class="buynow-upsell-icon">💡</span>
+        <div>
+          <strong>Save more — grab a 2nd item!</strong>
+          <span>2 items → <b>319 MAD</b> &nbsp;·&nbsp; 3 items → <b>479 MAD</b></span>
+        </div>
+      </div>
+
+      <form class="buynow-form" id="buyNowForm" novalidate>
+        <div class="buynow-field">
+          <label for="bnName">Full Name</label>
+          <input type="text" id="bnName" placeholder="Your full name" required autocomplete="name">
+        </div>
+        <div class="buynow-field">
+          <label for="bnPhone">Phone Number</label>
+          <input type="tel" id="bnPhone" placeholder="06 XX XX XX XX" required autocomplete="tel">
+        </div>
+        <div class="buynow-field">
+          <label for="bnCity">City</label>
+          <input type="text" id="bnCity" placeholder="Your city" required autocomplete="address-level2">
+        </div>
+        <div class="buynow-field">
+          <label for="bnAddress">Address <span class="buynow-optional">(optional)</span></label>
+          <input type="text" id="bnAddress" placeholder="Street / neighbourhood" autocomplete="street-address">
+        </div>
+        <button type="submit" class="buynow-submit">${WA_SVG} Confirm Order via WhatsApp</button>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  /* ── Helpers ── */
+  function getProductData() {
+    const name = document.querySelector('.product-name')?.textContent?.trim() || '';
+    const activeSize = document.querySelector('.size-btn.active');
+    const size = activeSize ? activeSize.textContent.trim() : 'Not selected';
+    const qty = parseInt(document.querySelector('.qty-display')?.textContent || '1', 10);
+    const priceEl = document.querySelector('.product-price-display');
+    let price = '';
+    if (priceEl) {
+      const clone = priceEl.cloneNode(true);
+      clone.querySelector('.original')?.remove();
+      price = clone.textContent.trim();
+    }
+    return { name, size, qty, price };
+  }
+
+  function openModal() {
+    const { name, size, qty, price } = getProductData();
+    document.getElementById('bnSummaryName').textContent = name;
+    document.getElementById('bnSummaryMeta').textContent = `Size: ${size}  ·  Qty: ${qty}`;
+    document.getElementById('bnSummaryPrice').textContent = price;
+    document.getElementById('buyNowUpsell').style.display = qty === 1 ? 'flex' : 'none';
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('bnName').focus(), 350);
+  }
+
+  function closeModal() {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Events ── */
+  buyBtn.addEventListener('click', openModal);
+  document.getElementById('buyNowClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  document.getElementById('buyNowForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const name    = document.getElementById('bnSummaryName').textContent;
+    const meta    = document.getElementById('bnSummaryMeta').textContent;
+    const price   = document.getElementById('bnSummaryPrice').textContent;
+    const cName   = document.getElementById('bnName').value.trim();
+    const cPhone  = document.getElementById('bnPhone').value.trim();
+    const cCity   = document.getElementById('bnCity').value.trim();
+    const cAddr   = document.getElementById('bnAddress').value.trim();
+
+    if (!cName || !cPhone || !cCity) return;
+
+    const lines = [
+      '🛍️ *New Order — StreetStore*',
+      '',
+      `📦 *Product:* ${name}`,
+      `📐 *${meta}*`,
+      `💰 *Price:* ${price}`,
+      '',
+      `👤 *Name:* ${cName}`,
+      `📞 *Phone:* ${cPhone}`,
+      `🏙️ *City:* ${cCity}`,
+      cAddr ? `📍 *Address:* ${cAddr}` : null,
+    ].filter(Boolean).join('\n');
+
+    window.open(`https://wa.me/212771152186?text=${encodeURIComponent(lines)}`, '_blank');
+    closeModal();
+  });
+})();

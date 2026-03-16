@@ -3184,3 +3184,227 @@ body.rtl {
 [dir="rtl"] .summary-row         { flex-direction: row-reverse; }
 [dir="rtl"] .promo-form          { flex-direction: row-reverse; }
 [dir="rtl"] .promo-form input    { text-align: right; direction: rtl; }
+
+/* ============================================================
+   BUY NOW BUTTON + QUICK ORDER MODAL
+   ============================================================ */
+
+/* ── Buy Now Button ── */
+.buy-now-btn {
+  width: 100%;
+  padding: 16px;
+  background: transparent;
+  color: var(--charcoal);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid var(--charcoal);
+  cursor: pointer;
+  margin-bottom: 12px;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.15s, color 0.15s;
+  border-radius: 0;
+}
+.buy-now-btn:hover { background: var(--charcoal); color: var(--white); }
+.buy-now-btn:hover svg { stroke: var(--white); }
+
+/* ── Overlay backdrop ── */
+.buynow-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 1200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s;
+}
+.buynow-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── Modal panel ── */
+.buynow-modal {
+  background: var(--white);
+  width: 100%;
+  max-width: 520px;
+  border-radius: 16px 16px 0 0;
+  padding: 32px 24px calc(32px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  transform: translateY(100%);
+  transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 92vh;
+  overflow-y: auto;
+}
+.buynow-overlay.open .buynow-modal { transform: translateY(0); }
+
+/* drag handle hint */
+.buynow-modal::before {
+  content: '';
+  display: block;
+  width: 36px;
+  height: 4px;
+  background: var(--gray-light);
+  border-radius: 2px;
+  margin: 0 auto 24px;
+}
+
+/* ── Close button ── */
+.buynow-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.buynow-close:hover { color: var(--charcoal); }
+
+/* ── Title ── */
+.buynow-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 0.06em;
+  margin-bottom: 18px;
+  color: var(--charcoal);
+}
+
+/* ── Product summary box ── */
+.buynow-summary {
+  background: var(--off);
+  border: 1px solid var(--gray-light);
+  border-radius: 6px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.buynow-summary-name {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  color: var(--charcoal);
+}
+.buynow-summary-meta {
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 8px;
+}
+.buynow-summary-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--charcoal);
+}
+
+/* ── Pack deal upsell ── */
+.buynow-upsell {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: linear-gradient(135deg, #0f1f3d 0%, #1a3060 100%);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  color: white;
+}
+.buynow-upsell-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.buynow-upsell strong {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #e0c97a;
+  margin-bottom: 4px;
+}
+.buynow-upsell span { font-size: 13px; color: rgba(255,255,255,0.8); line-height: 1.5; }
+.buynow-upsell b { color: #e0c97a; }
+
+/* ── Form ── */
+.buynow-form { display: flex; flex-direction: column; gap: 14px; }
+
+.buynow-field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--charcoal);
+  margin-bottom: 6px;
+}
+.buynow-optional { font-weight: 400; text-transform: none; letter-spacing: 0; opacity: 0.55; }
+
+.buynow-field input {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1.5px solid var(--gray-light);
+  border-radius: 4px;
+  font-size: 16px; /* 16px prevents iOS zoom */
+  font-family: 'Inter', sans-serif;
+  color: var(--charcoal);
+  background: var(--white);
+  outline: none;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+.buynow-field input:focus { border-color: var(--charcoal); }
+.buynow-field input::placeholder { color: var(--gray); }
+
+/* ── Submit / WhatsApp button ── */
+.buynow-submit {
+  width: 100%;
+  background: #25D366;
+  color: white;
+  border: none;
+  padding: 16px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Inter', sans-serif;
+  min-height: 52px;
+  transition: background 0.15s;
+  margin-top: 4px;
+  -webkit-tap-highlight-color: transparent;
+}
+.buynow-submit:hover { background: #1da851; }
+
+/* Desktop: centered modal */
+@media (min-width: 769px) {
+  .buynow-overlay { align-items: center; }
+  .buynow-modal {
+    border-radius: 8px;
+    transform: translateY(20px);
+    padding: 40px 36px;
+    max-height: 88vh;
+  }
+  .buynow-modal::before { display: none; }
+  .buynow-overlay.open .buynow-modal { transform: translateY(0); }
+}
+
+/* Mobile: ensure ATC sticky bar doesn't overlap */
+@media (max-width: 768px) {
+  .buy-now-btn { font-size: 12px; padding: 14px; min-height: 48px; }
+}
