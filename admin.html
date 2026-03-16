@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin — StreetStore</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #0f1f3d;
+      --navy-light: #1a3060;
+      --gold: #e0c97a;
+      --charcoal: #1a1a1a;
+      --white: #ffffff;
+      --off: #f7f7f5;
+      --gray: #888;
+      --gray-light: #e8e8e4;
+      --green: #25D366;
+      --red: #c0392b;
+      --orange: #e67e22;
+      --sidebar-w: 230px;
+    }
+    body { font-family: 'Inter', system-ui, sans-serif; background: var(--off); color: var(--charcoal); min-height: 100vh; }
+
+    /* ── LOGIN ── */
+    #loginScreen {
+      min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: var(--navy);
+    }
+    .login-box {
+      background: var(--white); width: 360px; padding: 48px 40px; border-radius: 8px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+    }
+    .login-logo { font-size: 22px; font-weight: 900; letter-spacing: 0.14em; text-transform: uppercase; color: var(--navy); margin-bottom: 6px; }
+    .login-sub { font-size: 12px; color: var(--gray); margin-bottom: 32px; letter-spacing: 0.04em; }
+    .login-field { margin-bottom: 16px; }
+    .login-field label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--charcoal); margin-bottom: 6px; }
+    .login-field input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--gray-light); border-radius: 4px; font-size: 15px; outline: none; transition: border-color 0.15s; }
+    .login-field input:focus { border-color: var(--navy); }
+    .login-btn { width: 100%; padding: 13px; background: var(--navy); color: var(--white); border: none; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; margin-top: 8px; transition: background 0.15s; }
+    .login-btn:hover { background: var(--navy-light); }
+    .login-error { font-size: 12px; color: var(--red); margin-top: 12px; text-align: center; display: none; }
+
+    /* ── LAYOUT ── */
+    #adminPanel { display: flex; min-height: 100vh; }
+
+    /* ── SIDEBAR ── */
+    #sidebar {
+      width: var(--sidebar-w); background: var(--navy); position: fixed; top: 0; left: 0; bottom: 0;
+      display: flex; flex-direction: column; z-index: 100; overflow-y: auto;
+    }
+    .sidebar-brand { padding: 28px 24px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .sidebar-brand-logo { font-size: 16px; font-weight: 900; letter-spacing: 0.14em; color: var(--white); }
+    .sidebar-brand-tag { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-top: 3px; }
+
+    .sidebar-nav { flex: 1; padding: 16px 0; }
+    .nav-section-label { font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 16px 24px 6px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 12px; padding: 11px 24px;
+      color: rgba(255,255,255,0.6); font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.15s; border-left: 3px solid transparent; text-decoration: none;
+    }
+    .nav-item:hover { color: var(--white); background: rgba(255,255,255,0.05); }
+    .nav-item.active { color: var(--white); background: rgba(255,255,255,0.08); border-left-color: var(--gold); }
+    .nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-badge { margin-left: auto; background: var(--red); color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center; }
+
+    .sidebar-footer { padding: 16px 24px; border-top: 1px solid rgba(255,255,255,0.08); }
+    .logout-btn { display: flex; align-items: center; gap: 10px; background: none; border: none; color: rgba(255,255,255,0.4); font-size: 12px; cursor: pointer; transition: color 0.15s; padding: 0; }
+    .logout-btn:hover { color: rgba(255,255,255,0.8); }
+
+    /* ── MAIN CONTENT ── */
+    #mainContent { margin-left: var(--sidebar-w); flex: 1; padding: 32px 36px 60px; min-width: 0; }
+
+    /* ── PAGE HEADER ── */
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 26px; font-weight: 800; letter-spacing: -0.01em; }
+    .page-header p { font-size: 13px; color: var(--gray); margin-top: 4px; }
+
+    /* ── SECTIONS ── */
+    .admin-section { display: none; }
+    .admin-section.active { display: block; }
+
+    /* ── STAT CARDS ── */
+    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat-card { background: var(--white); border-radius: 8px; padding: 20px 24px; border: 1px solid var(--gray-light); }
+    .stat-card-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+    .stat-card-value { font-size: 28px; font-weight: 800; color: var(--charcoal); }
+    .stat-card-sub { font-size: 12px; color: var(--gray); margin-top: 4px; }
+    .stat-card.accent { background: var(--navy); border-color: var(--navy); }
+    .stat-card.accent .stat-card-label { color: rgba(255,255,255,0.5); }
+    .stat-card.accent .stat-card-value { color: var(--gold); }
+    .stat-card.accent .stat-card-sub { color: rgba(255,255,255,0.4); }
+
+    /* ── CARDS / PANELS ── */
+    .panel { background: var(--white); border: 1px solid var(--gray-light); border-radius: 8px; margin-bottom: 24px; overflow: hidden; }
+    .panel-header { padding: 18px 24px; border-bottom: 1px solid var(--gray-light); display: flex; align-items: center; justify-content: space-between; }
+    .panel-header h2 { font-size: 14px; font-weight: 700; letter-spacing: 0.02em; }
+    .panel-body { padding: 24px; }
+
+    /* ── TABLE ── */
+    .admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .admin-table th { text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray); padding: 10px 14px; border-bottom: 1px solid var(--gray-light); white-space: nowrap; }
+    .admin-table td { padding: 14px 14px; border-bottom: 1px solid var(--gray-light); vertical-align: middle; }
+    .admin-table tr:last-child td { border-bottom: none; }
+    .admin-table tr:hover td { background: var(--off); }
+    .empty-row td { text-align: center; color: var(--gray); padding: 40px; font-size: 13px; }
+
+    /* ── STATUS BADGES ── */
+    .status-badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+    .status-new { background: #fff3cd; color: #856404; }
+    .status-processing { background: #cce5ff; color: #004085; }
+    .status-done { background: #d4edda; color: #155724; }
+    .status-cancelled { background: #f8d7da; color: #721c24; }
+
+    /* ── BUTTONS ── */
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 4px; font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; cursor: pointer; border: none; transition: all 0.15s; font-family: inherit; }
+    .btn-primary { background: var(--navy); color: var(--white); }
+    .btn-primary:hover { background: var(--navy-light); }
+    .btn-success { background: var(--green); color: var(--white); }
+    .btn-success:hover { background: #1da851; }
+    .btn-danger { background: var(--red); color: var(--white); }
+    .btn-danger:hover { background: #a93226; }
+    .btn-outline { background: transparent; color: var(--charcoal); border: 1.5px solid var(--gray-light); }
+    .btn-outline:hover { border-color: var(--charcoal); }
+    .btn-sm { padding: 6px 12px; font-size: 10px; }
+    .btn-icon { background: none; border: none; cursor: pointer; color: var(--gray); padding: 4px; display: inline-flex; align-items: center; transition: color 0.15s; }
+    .btn-icon:hover { color: var(--charcoal); }
+    .btn-icon.danger:hover { color: var(--red); }
+
+    /* ── FORM FIELDS ── */
+    .field-group { margin-bottom: 18px; }
+    .field-label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--charcoal); margin-bottom: 7px; }
+    .field-hint { font-size: 11px; color: var(--gray); margin-bottom: 7px; display: block; }
+    .field-input { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-light); border-radius: 4px; font-size: 14px; font-family: inherit; color: var(--charcoal); outline: none; transition: border-color 0.15s; background: var(--white); }
+    .field-input:focus { border-color: var(--navy); }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+    /* ── SELECT ── */
+    .field-select { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-light); border-radius: 4px; font-size: 14px; font-family: inherit; color: var(--charcoal); outline: none; background: var(--white); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+
+    /* ── TOGGLE ── */
+    .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+    .toggle { position: relative; width: 40px; height: 22px; }
+    .toggle input { display: none; }
+    .toggle-track { position: absolute; inset: 0; background: var(--gray-light); border-radius: 11px; cursor: pointer; transition: background 0.2s; }
+    .toggle input:checked + .toggle-track { background: var(--green); }
+    .toggle-thumb { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; background: white; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(18px); }
+    .toggle-label { font-size: 13px; color: var(--charcoal); }
+
+    /* ── PRODUCT EDIT GRID ── */
+    .product-edit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .product-edit-card { border: 1.5px solid var(--gray-light); border-radius: 8px; overflow: hidden; }
+    .product-edit-card-head { background: var(--off); padding: 16px; border-bottom: 1px solid var(--gray-light); }
+    .product-edit-card-name { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+    .product-edit-card-id { font-size: 10px; color: var(--gray); letter-spacing: 0.06em; text-transform: uppercase; }
+    .product-edit-card-body { padding: 16px; }
+    .mini-field { margin-bottom: 12px; }
+    .mini-field label { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gray); display: block; margin-bottom: 5px; }
+    .mini-field input, .mini-field select { width: 100%; padding: 8px 10px; border: 1.5px solid var(--gray-light); border-radius: 4px; font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.15s; background: var(--white); }
+    .mini-field input:focus, .mini-field select:focus { border-color: var(--navy); }
+    .product-save-btn { width: 100%; padding: 9px; background: var(--navy); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: background 0.15s; font-family: inherit; }
+    .product-save-btn:hover { background: var(--navy-light); }
+
+    /* ── ANNOUNCEMENT PREVIEW ── */
+    .preview-bar { background: var(--charcoal); color: rgba(255,255,255,0.85); text-align: center; padding: 9px 40px; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 4px; margin-top: 16px; }
+
+    /* ── PACK DEAL PREVIEW ── */
+    .pack-preview {
+      background: linear-gradient(135deg, #0f1f3d 0%, #1a3060 100%);
+      border-radius: 10px; padding: 16px 18px; color: white; margin-top: 16px;
+    }
+    .pack-preview-tag { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+    .pack-preview-main { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .pack-preview-main span { color: var(--gold); }
+    .pack-preview-sub { font-size: 12px; color: rgba(255,255,255,0.65); margin-bottom: 10px; }
+    .pack-preview-badge { display: inline-block; background: var(--gold); color: #0f1f3d; font-size: 10px; font-weight: 800; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; }
+
+    /* ── TOAST ── */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; background: var(--charcoal); color: white;
+      padding: 12px 20px; border-radius: 6px; font-size: 13px; font-weight: 600;
+      z-index: 9999; transform: translateY(80px); opacity: 0; transition: all 0.3s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.success { background: #155724; }
+    .toast.error { background: var(--red); }
+
+    /* ── ORDER ACTIONS ── */
+    .order-actions { display: flex; gap: 6px; }
+
+    /* ── FILTER TABS ── */
+    .filter-tabs { display: flex; gap: 4px; margin-bottom: 20px; }
+    .filter-tab { padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--gray-light); background: none; color: var(--gray); transition: all 0.15s; font-family: inherit; }
+    .filter-tab.active { background: var(--navy); color: white; border-color: var(--navy); }
+
+    /* ── DANGER ZONE ── */
+    .danger-zone { border: 1.5px solid #f8d7da; border-radius: 8px; padding: 20px 24px; background: #fff8f8; }
+    .danger-zone h3 { font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 8px; }
+    .danger-zone p { font-size: 13px; color: var(--gray); margin-bottom: 16px; }
+
+    /* ── MOBILE ── */
+    .mobile-menu-btn { display: none; position: fixed; top: 16px; left: 16px; z-index: 200; background: var(--navy); color: white; border: none; border-radius: 6px; padding: 8px; cursor: pointer; }
+    @media (max-width: 900px) {
+      :root { --sidebar-w: 0px; }
+      #sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      #sidebar.open { transform: translateX(0); --sidebar-w: 230px; }
+      #mainContent { margin-left: 0; padding: 20px 16px 60px; }
+      .mobile-menu-btn { display: flex; }
+      .stat-grid { grid-template-columns: 1fr 1fr; }
+      .product-edit-grid { grid-template-columns: 1fr; }
+      .field-row, .field-row-3 { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="loginScreen">
+  <div class="login-box">
+    <p class="login-logo">StreetStore</p>
+    <p class="login-sub">Admin Panel — Restricted Access</p>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPwd" placeholder="Enter admin password" autocomplete="current-password">
+    </div>
+    <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+    <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+  </div>
+</div>
+
+<!-- ── ADMIN PANEL ── -->
+<div id="adminPanel" style="display:none">
+
+  <button class="mobile-menu-btn" onclick="toggleSidebar()">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </button>
+
+  <!-- SIDEBAR -->
+  <nav id="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-logo">StreetStore</div>
+      <div class="sidebar-brand-tag">Admin Panel</div>
+    </div>
+    <div class="sidebar-nav">
+      <div class="nav-section-label">Overview</div>
+      <a class="nav-item active" onclick="showSection('dashboard')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </a>
+      <a class="nav-item" onclick="showSection('orders')" id="navOrders">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>
+        Orders
+        <span class="nav-badge" id="newOrdersBadge" style="display:none">0</span>
+      </a>
+
+      <div class="nav-section-label">Catalog</div>
+      <a class="nav-item" onclick="showSection('products')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>
+        Products
+      </a>
+
+      <div class="nav-section-label">Content</div>
+      <a class="nav-item" onclick="showSection('announcement')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        Announcement Bar
+      </a>
+      <a class="nav-item" onclick="showSection('packdeal')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Pack Deal
+      </a>
+
+      <div class="nav-section-label">System</div>
+      <a class="nav-item" onclick="showSection('settings')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </a>
+    </div>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="mainContent">
+
+    <!-- ── DASHBOARD ── -->
+    <section class="admin-section active" id="secDashboard">
+      <div class="page-header">
+        <h1>Dashboard</h1>
+        <p>Welcome back. Here's what's happening with your store.</p>
+      </div>
+      <div class="stat-grid" id="dashStats"></div>
+      <div class="panel">
+        <div class="panel-header">
+          <h2>Recent Orders</h2>
+          <button class="btn btn-outline btn-sm" onclick="showSection('orders')">View All</button>
+        </div>
+        <div class="panel-body" style="padding:0">
+          <table class="admin-table" id="dashRecentOrders"></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── ORDERS ── -->
+    <section class="admin-section" id="secOrders">
+      <div class="page-header">
+        <h1>Orders</h1>
+        <p>All orders submitted via the Quick Order (Buy Now) form.</p>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:gap;">
+        <div class="filter-tabs" id="orderFilterTabs">
+          <button class="filter-tab active" onclick="filterOrders('all')">All</button>
+          <button class="filter-tab" onclick="filterOrders('new')">New</button>
+          <button class="filter-tab" onclick="filterOrders('processing')">Processing</button>
+          <button class="filter-tab" onclick="filterOrders('done')">Done</button>
+        </div>
+        <button class="btn btn-outline btn-sm" onclick="exportOrders()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export CSV
+        </button>
+      </div>
+      <div class="panel">
+        <div class="panel-body" style="padding:0">
+          <table class="admin-table" id="ordersTable"></table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PRODUCTS ── -->
+    <section class="admin-section" id="secProducts">
+      <div class="page-header">
+        <h1>Products</h1>
+        <p>Edit prices, badges and availability. Changes apply immediately on all pages.</p>
+      </div>
+      <div class="product-edit-grid" id="productsGrid"></div>
+      <div style="margin-top:8px;padding:12px 16px;background:var(--off);border-radius:6px;border:1px solid var(--gray-light);font-size:12px;color:var(--gray);">
+        ⚠️ Changes are saved to your browser (localStorage). To make them permanent, update <code>products.js</code> directly in your code.
+      </div>
+    </section>
+
+    <!-- ── ANNOUNCEMENT ── -->
+    <section class="admin-section" id="secAnnouncement">
+      <div class="page-header">
+        <h1>Announcement Bar</h1>
+        <p>The 3 messages that rotate every 3.5 seconds at the top of every page.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>Messages</h2></div>
+        <div class="panel-body">
+          <div class="field-row-3">
+            <div class="field-group">
+              <label class="field-label">Message 1</label>
+              <input class="field-input" id="annMsg1" placeholder="✦ Free shipping on all orders">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Message 2</label>
+              <input class="field-input" id="annMsg2" placeholder="✦ COD available across Morocco">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Message 3</label>
+              <input class="field-input" id="annMsg3" placeholder="✦ Delivered in 2–5 days">
+            </div>
+          </div>
+          <div class="field-group">
+            <div class="toggle-wrap">
+              <label class="toggle">
+                <input type="checkbox" id="annEnabled" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+              <span class="toggle-label">Announcement bar visible</span>
+            </div>
+          </div>
+          <div>
+            <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray);margin-bottom:6px;">Preview</p>
+            <div class="preview-bar" id="annPreview">✦ Free shipping on all orders</div>
+          </div>
+          <div style="margin-top:20px;">
+            <button class="btn btn-primary" onclick="saveAnnouncement()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PACK DEAL ── -->
+    <section class="admin-section" id="secPackDeal">
+      <div class="page-header">
+        <h1>Pack Deal</h1>
+        <p>The bundle discount offer shown on product pages and in the Quick Order modal.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h2>Prices & Text</h2></div>
+        <div class="panel-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">2-Item Price (MAD)</label>
+              <input class="field-input" id="pd2price" type="number" placeholder="319">
+            </div>
+            <div class="field-group">
+              <label class="field-label">3-Item Price (MAD)</label>
+              <input class="field-input" id="pd3price" type="number" placeholder="479">
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">Badge Text</label>
+              <input class="field-input" id="pdBadge" placeholder="Save up to 10% off">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Subtitle</label>
+              <input class="field-input" id="pdSub" placeholder="Mix & match any styles — discount applied automatically in cart">
+            </div>
+          </div>
+          <div>
+            <p style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--gray);margin-bottom:8px;">Preview</p>
+            <div class="pack-preview" id="packPreview">
+              <p class="pack-preview-tag">🎁 Limited Offer</p>
+              <p class="pack-preview-main">2 items → <span id="pvP2">319 MAD</span> &nbsp;·&nbsp; 3 items → <span id="pvP3">479 MAD</span></p>
+              <p class="pack-preview-sub" id="pvSub">Mix &amp; match any styles — discount applied automatically in cart</p>
+              <span class="pack-preview-badge" id="pvBadge">Save up to 10% off</span>
+            </div>
+          </div>
+          <div style="margin-top:20px;">
+            <button class="btn btn-primary" onclick="savePackDeal()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SETTINGS ── -->
+    <section class="admin-section" id="secSettings">
+      <div class="page-header">
+        <h1>Settings</h1>
+        <p>Store configuration and admin access.</p>
+      </div>
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header"><h2>Store Settings</h2></div>
+        <div class="panel-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">WhatsApp Number</label>
+              <span class="field-hint">International format without + (e.g. 212771152186)</span>
+              <input class="field-input" id="settWa" placeholder="212771152186">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Store Name</label>
+              <input class="field-input" id="settName" placeholder="StreetStore">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </div>
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header"><h2>Change Admin Password</h2></div>
+        <div class="panel-body">
+          <div class="field-row">
+            <div class="field-group">
+              <label class="field-label">New Password</label>
+              <input class="field-input" id="newPwd" type="password" placeholder="New password">
+            </div>
+            <div class="field-group">
+              <label class="field-label">Confirm Password</label>
+              <input class="field-input" id="confirmPwd" type="password" placeholder="Repeat new password">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+      <div class="danger-zone">
+        <h3>⚠️ Danger Zone</h3>
+        <p>Permanently delete all stored orders. This cannot be undone.</p>
+        <button class="btn btn-danger btn-sm" onclick="clearAllOrders()">Delete All Orders</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   STREETSTORE ADMIN PANEL
+   ============================================================ */
+
+const ADMIN_PWD_KEY  = 'ss_admin_pwd';
+const SETTINGS_KEY   = 'admin_settings';
+const ORDERS_KEY     = 'ss_orders';
+const SESSION_KEY    = 'ss_admin_session';
+const DEFAULT_PWD    = 'streetstore2026';
+
+/* ── Auth ── */
+function getStoredPwd() {
+  return localStorage.getItem(ADMIN_PWD_KEY) || DEFAULT_PWD;
+}
+
+function attemptLogin() {
+  const val = document.getElementById('loginPwd').value;
+  if (val === getStoredPwd()) {
+    sessionStorage.setItem(SESSION_KEY, '1');
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'flex';
+    initAdmin();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+document.getElementById('loginPwd').addEventListener('keydown', e => {
+  if (e.key === 'Enter') attemptLogin();
+});
+
+function logout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+/* ── Settings helpers ── */
+function getSettings() {
+  try { return JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}'); }
+  catch { return {}; }
+}
+function saveSettingsObj(obj) {
+  const current = getSettings();
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify({ ...current, ...obj }));
+}
+
+/* ── Orders helpers ── */
+function getOrders() {
+  try { return JSON.parse(localStorage.getItem(ORDERS_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveOrdersArr(arr) {
+  localStorage.setItem(ORDERS_KEY, JSON.stringify(arr));
+}
+
+/* ── Init ── */
+function initAdmin() {
+  loadDashboard();
+  loadOrdersTable('all');
+  loadProductsGrid();
+  loadAnnouncementForm();
+  loadPackDealForm();
+  loadSettingsForm();
+  updateNewOrdersBadge();
+}
+
+/* ── Section nav ── */
+function showSection(id) {
+  document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('sec' + id.charAt(0).toUpperCase() + id.slice(1)).classList.add('active');
+  event.currentTarget.classList.add('active');
+  if (window.innerWidth <= 900) document.getElementById('sidebar').classList.remove('open');
+  if (id === 'orders') { loadOrdersTable(currentOrderFilter); updateNewOrdersBadge(); }
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+/* ── Toast ── */
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = (type === 'success' ? '✓ ' : '✕ ') + msg;
+  t.className = 'toast show ' + type;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── DASHBOARD ── */
+function loadDashboard() {
+  const orders  = getOrders();
+  const newOrds = orders.filter(o => o.status === 'new').length;
+  const revenue = orders.filter(o => o.status !== 'cancelled').reduce((s, o) => {
+    const n = parseFloat((o.price || '0').replace(/[^0-9.]/g, ''));
+    return s + (isNaN(n) ? 0 : n);
+  }, 0);
+
+  const stats = [
+    { label: 'Total Orders', value: orders.length, sub: 'All time', accent: false },
+    { label: 'New Orders', value: newOrds, sub: 'Awaiting action', accent: newOrds > 0 },
+    { label: 'Completed', value: orders.filter(o => o.status === 'done').length, sub: 'Fulfilled orders', accent: false },
+    { label: 'Est. Revenue', value: revenue.toLocaleString() + ' MAD', sub: 'From confirmed orders', accent: true },
+  ];
+
+  document.getElementById('dashStats').innerHTML = stats.map(s => `
+    <div class="stat-card ${s.accent ? 'accent' : ''}">
+      <div class="stat-card-label">${s.label}</div>
+      <div class="stat-card-value">${s.value}</div>
+      <div class="stat-card-sub">${s.sub}</div>
+    </div>`).join('');
+
+  const recent = orders.slice(0, 5);
+  document.getElementById('dashRecentOrders').innerHTML =
+    orderTableRows(recent, true) || '<tr class="empty-row"><td colspan="7">No orders yet.</td></tr>';
+}
+
+/* ── ORDERS ── */
+let currentOrderFilter = 'all';
+
+function filterOrders(filter) {
+  currentOrderFilter = filter;
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  loadOrdersTable(filter);
+}
+
+function loadOrdersTable(filter) {
+  const orders = getOrders();
+  const filtered = filter === 'all' ? orders : orders.filter(o => o.status === filter);
+  document.getElementById('ordersTable').innerHTML =
+    orderTableRows(filtered, false) || '<tr class="empty-row"><td colspan="8">No orders found.</td></tr>';
+}
+
+function orderTableRows(orders, compact) {
+  if (!orders.length) return '';
+  const header = `<thead><tr>
+    <th>#</th><th>Date</th><th>Product</th><th>Size / Qty</th><th>Price</th>
+    <th>Customer</th>${compact ? '' : '<th>Phone</th>'}<th>Status</th>
+    ${compact ? '' : '<th>Actions</th>'}
+  </tr></thead>`;
+  const rows = orders.map((o, i) => {
+    const d = new Date(o.date);
+    const dateStr = d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'2-digit' });
+    const statusHtml = `<span class="status-badge status-${o.status}">${o.status}</span>`;
+    const actions = compact ? '' : `
+      <td><div class="order-actions">
+        ${o.status !== 'processing' && o.status !== 'done' ? `<button class="btn btn-sm btn-outline" onclick="setOrderStatus(${o.id},'processing')">Process</button>` : ''}
+        ${o.status !== 'done' ? `<button class="btn btn-sm btn-success" onclick="setOrderStatus(${o.id},'done')">Done</button>` : ''}
+        <button class="btn-icon danger" onclick="deleteOrder(${o.id})" title="Delete">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        </button>
+      </div></td>`;
+    return `<tr>
+      <td style="color:var(--gray);font-size:11px">#${String(i+1).padStart(3,'0')}</td>
+      <td>${dateStr}</td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.product || '—'}</td>
+      <td>${o.size || '—'} / ${o.qty || 1}</td>
+      <td style="font-weight:700">${o.price || '—'}</td>
+      <td><div style="font-weight:600">${o.customer || '—'}</div><div style="font-size:11px;color:var(--gray)">${o.city || ''}</div></td>
+      ${compact ? '' : `<td>${o.phone || '—'}</td>`}
+      <td>${statusHtml}</td>
+      ${actions}
+    </tr>`;
+  }).join('');
+  return header + '<tbody>' + rows + '</tbody>';
+}
+
+function setOrderStatus(id, status) {
+  const orders = getOrders();
+  const idx = orders.findIndex(o => o.id === id);
+  if (idx > -1) { orders[idx].status = status; saveOrdersArr(orders); }
+  loadOrdersTable(currentOrderFilter);
+  loadDashboard();
+  updateNewOrdersBadge();
+  showToast('Order updated to ' + status);
+}
+
+function deleteOrder(id) {
+  if (!confirm('Delete this order?')) return;
+  const orders = getOrders().filter(o => o.id !== id);
+  saveOrdersArr(orders);
+  loadOrdersTable(currentOrderFilter);
+  loadDashboard();
+  updateNewOrdersBadge();
+  showToast('Order deleted', 'error');
+}
+
+function updateNewOrdersBadge() {
+  const n = getOrders().filter(o => o.status === 'new').length;
+  const badge = document.getElementById('newOrdersBadge');
+  badge.textContent = n;
+  badge.style.display = n > 0 ? 'inline-block' : 'none';
+}
+
+function exportOrders() {
+  const orders = getOrders();
+  if (!orders.length) { showToast('No orders to export', 'error'); return; }
+  const headers = ['#','Date','Product','Size','Qty','Price','Customer','Phone','City','Address','Status'];
+  const rows = orders.map((o, i) => [
+    i+1, new Date(o.date).toLocaleDateString(), o.product, o.size, o.qty,
+    o.price, o.customer, o.phone, o.city, o.address || '', o.status
+  ].map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(','));
+  const csv = [headers.join(','), ...rows].join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  a.download = 'streetstore-orders-' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  showToast('Orders exported as CSV');
+}
+
+/* ── PRODUCTS ── */
+const PRODUCT_DEFS = {
+  'patte-elephant':      { name: "Patte d'éléphant Jean",         price: 179, originalPrice: 249, fit: 'Wide Flare Leg' },
+  'high-rise-dark-blue': { name: 'High-Rise Dark Blue Jeans',      price: 179, originalPrice: 249, fit: 'High Waist' },
+  'brown-wide-leg':      { name: 'Brown Wide-Leg Jean',            price: 179, originalPrice: 299, fit: 'Wide Leg' },
+  'baggy-wide-leg':      { name: 'Baggy Wide Leg Denim Jeans',     price: 179, originalPrice: 250, fit: 'Oversized Baggy' },
+  'jean-skirts':         { name: 'Jean Skirts',                    price: 179, originalPrice: 299, fit: 'Denim Mini Skirt' },
+  'denim-set':           { name: 'Denim Jacket & Wide-Leg Set',    price: 299, originalPrice: 350, fit: 'Full Denim Set' },
+};
+
+function loadProductsGrid() {
+  const settings = getSettings();
+  const overrides = settings.products || {};
+  const html = Object.entries(PRODUCT_DEFS).map(([id, def]) => {
+    const p = { ...def, ...(overrides[id] || {}) };
+    return `
+    <div class="product-edit-card">
+      <div class="product-edit-card-head">
+        <div class="product-edit-card-name">${def.name}</div>
+        <div class="product-edit-card-id">${id}</div>
+      </div>
+      <div class="product-edit-card-body">
+        <div class="mini-field">
+          <label>Sale Price (MAD)</label>
+          <input type="number" id="p_${id}_price" value="${p.price}">
+        </div>
+        <div class="mini-field">
+          <label>Original Price (MAD)</label>
+          <input type="number" id="p_${id}_original" value="${p.originalPrice}">
+        </div>
+        <div class="mini-field">
+          <label>Badge</label>
+          <select id="p_${id}_badge">
+            <option value="sale" ${p.badge==='sale'?'selected':''}>Sale</option>
+            <option value="new-badge" ${p.badge==='new-badge'?'selected':''}>New</option>
+            <option value="trending" ${p.badge==='trending'?'selected':''}>Trending</option>
+            <option value="bestseller" ${p.badge==='bestseller'?'selected':''}>Best Seller</option>
+            <option value="" ${!p.badge?'selected':''}>None</option>
+          </select>
+        </div>
+        <div class="mini-field" style="display:flex;align-items:center;gap:10px;margin-top:4px">
+          <label class="toggle" style="margin:0">
+            <input type="checkbox" id="p_${id}_stock" ${p.inStock !== false ? 'checked' : ''}>
+            <div class="toggle-track"></div><div class="toggle-thumb"></div>
+          </label>
+          <span style="font-size:12px;color:var(--charcoal)">In Stock</span>
+        </div>
+        <button class="product-save-btn" style="margin-top:14px" onclick="saveProduct('${id}')">Save Product</button>
+      </div>
+    </div>`;
+  }).join('');
+  document.getElementById('productsGrid').innerHTML = html;
+}
+
+function saveProduct(id) {
+  const price    = parseFloat(document.getElementById(`p_${id}_price`).value);
+  const original = parseFloat(document.getElementById(`p_${id}_original`).value);
+  const badge    = document.getElementById(`p_${id}_badge`).value;
+  const inStock  = document.getElementById(`p_${id}_stock`).checked;
+  const settings = getSettings();
+  if (!settings.products) settings.products = {};
+  settings.products[id] = { price, originalPrice: original, badge, inStock };
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+  showToast(`${PRODUCT_DEFS[id].name} saved`);
+}
+
+/* ── ANNOUNCEMENT ── */
+function loadAnnouncementForm() {
+  const s = getSettings();
+  const msgs = s.announcementMessages || ['✦ Free shipping on all orders', '✦ COD available across Morocco', '✦ Delivered in 2–5 days'];
+  document.getElementById('annMsg1').value = msgs[0] || '';
+  document.getElementById('annMsg2').value = msgs[1] || '';
+  document.getElementById('annMsg3').value = msgs[2] || '';
+  document.getElementById('annEnabled').checked = s.announcementEnabled !== false;
+  updateAnnPreview();
+
+  ['annMsg1','annMsg2','annMsg3'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updateAnnPreview);
+  });
+}
+
+function updateAnnPreview() {
+  const m1 = document.getElementById('annMsg1').value || '✦ Free shipping on all orders';
+  document.getElementById('annPreview').textContent = m1;
+}
+
+function saveAnnouncement() {
+  const msgs = [
+    document.getElementById('annMsg1').value || '✦ Free shipping on all orders',
+    document.getElementById('annMsg2').value || '✦ COD available across Morocco',
+    document.getElementById('annMsg3').value || '✦ Delivered in 2–5 days',
+  ];
+  const enabled = document.getElementById('annEnabled').checked;
+  saveSettingsObj({ announcementMessages: msgs, announcementEnabled: enabled });
+  showToast('Announcement bar saved. Reload the site to see changes.');
+}
+
+/* ── PACK DEAL ── */
+function loadPackDealForm() {
+  const s = getSettings();
+  document.getElementById('pd2price').value = s.packDeal2 || '319';
+  document.getElementById('pd3price').value = s.packDeal3 || '479';
+  document.getElementById('pdBadge').value  = s.packDealBadge || 'Save up to 10% off';
+  document.getElementById('pdSub').value    = s.packDealSub || 'Mix & match any styles — discount applied automatically in cart';
+  updatePackPreview();
+
+  ['pd2price','pd3price','pdBadge','pdSub'].forEach(id => {
+    document.getElementById(id).addEventListener('input', updatePackPreview);
+  });
+}
+
+function updatePackPreview() {
+  document.getElementById('pvP2').textContent  = (document.getElementById('pd2price').value || '319') + ' MAD';
+  document.getElementById('pvP3').textContent  = (document.getElementById('pd3price').value || '479') + ' MAD';
+  document.getElementById('pvBadge').textContent = document.getElementById('pdBadge').value || 'Save up to 10% off';
+  document.getElementById('pvSub').textContent   = document.getElementById('pdSub').value || 'Mix & match any styles';
+}
+
+function savePackDeal() {
+  saveSettingsObj({
+    packDeal2:    document.getElementById('pd2price').value || '319',
+    packDeal3:    document.getElementById('pd3price').value || '479',
+    packDealBadge:document.getElementById('pdBadge').value,
+    packDealSub:  document.getElementById('pdSub').value,
+  });
+  showToast('Pack deal saved. Reload product pages to see changes.');
+}
+
+/* ── SETTINGS ── */
+function loadSettingsForm() {
+  const s = getSettings();
+  document.getElementById('settWa').value   = s.waNumber || '212771152186';
+  document.getElementById('settName').value = s.storeName || 'StreetStore';
+}
+
+function saveSettings() {
+  saveSettingsObj({
+    waNumber:  document.getElementById('settWa').value.trim(),
+    storeName: document.getElementById('settName').value.trim(),
+  });
+  showToast('Settings saved');
+}
+
+function changePassword() {
+  const np = document.getElementById('newPwd').value;
+  const cp = document.getElementById('confirmPwd').value;
+  if (!np) { showToast('Password cannot be empty', 'error'); return; }
+  if (np !== cp) { showToast('Passwords do not match', 'error'); return; }
+  localStorage.setItem(ADMIN_PWD_KEY, np);
+  document.getElementById('newPwd').value = '';
+  document.getElementById('confirmPwd').value = '';
+  showToast('Password updated');
+}
+
+function clearAllOrders() {
+  if (!confirm('Delete ALL orders permanently? This cannot be undone.')) return;
+  localStorage.removeItem(ORDERS_KEY);
+  loadOrdersTable('all');
+  loadDashboard();
+  updateNewOrdersBadge();
+  showToast('All orders deleted', 'error');
+}
+
+/* ── Boot ── */
+if (sessionStorage.getItem(SESSION_KEY) === '1') {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'flex';
+  initAdmin();
+}
+</script>
+</body>
+</html>

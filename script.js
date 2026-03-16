@@ -6,7 +6,10 @@
 (function() {
   if (sessionStorage.getItem('barDismissed')) return;
 
-  const messages = [
+  const adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+  if (adminSettings.announcementEnabled === false) return;
+
+  const messages = adminSettings.announcementMessages || [
     '✦ Free shipping on all orders',
     '✦ COD available across Morocco',
     '✦ Delivered in 2–5 days',
@@ -1155,6 +1158,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!cName || !cPhone || !cCity) return;
 
+    // Parse size and qty from summary meta ("Size: S  ·  Qty: 2")
+    const metaParts = meta.split('·');
+    const orderSize = (metaParts[0] || '').replace('Size:', '').trim();
+    const orderQty  = parseInt((metaParts[1] || '1').replace('Qty:', '').trim(), 10) || 1;
+
+    // Save order to localStorage for admin panel
+    const orders = JSON.parse(localStorage.getItem('ss_orders') || '[]');
+    orders.unshift({
+      id: Date.now(), date: new Date().toISOString(),
+      product: name, size: orderSize, qty: orderQty, price,
+      customer: cName, phone: cPhone, city: cCity, address: cAddr,
+      status: 'new'
+    });
+    localStorage.setItem('ss_orders', JSON.stringify(orders));
+
     const lines = [
       '🛍️ *New Order — StreetStore*',
       '',
@@ -1168,7 +1186,9 @@ document.addEventListener('DOMContentLoaded', () => {
       cAddr ? `📍 *Address:* ${cAddr}` : null,
     ].filter(Boolean).join('\n');
 
-    window.open(`https://wa.me/212771152186?text=${encodeURIComponent(lines)}`, '_blank');
+    const adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+    const waNumber = adminSettings.waNumber || '212771152186';
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(lines)}`, '_blank');
     closeModal();
   });
 })();
