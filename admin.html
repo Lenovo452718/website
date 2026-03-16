@@ -111,6 +111,20 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
 .status-cancelled,.status-failed{background:#f8d7da;color:#721c24}
 .status-edited{background:#e2d9f3;color:#4a2c6e}
 .status-transit{background:#d1ecf1;color:#0c5460}
+.status-reported{background:#fff0e0;color:#b35a00}
+.status-called{background:#e8f4fd;color:#1a5276}
+
+/* Order row colored outlines */
+.order-row-confirmed  { border-left:4px solid #27ae60!important; background:#f6fff8; }
+.order-row-cancelled  { border-left:4px solid #e74c3c!important; background:#fff8f8; }
+.order-row-reported   { border-left:4px solid #e67e22!important; background:#fffaf5; }
+.order-row-called     { border-left:4px solid #2980b9!important; background:#f5f9ff; }
+.order-row-processing { border-left:4px solid #2980b9!important; background:#f5f9ff; }
+.order-row-pending    { border-left:4px solid #f0ad4e!important; background:#fffdf5; }
+.order-row-new        { border-left:4px solid #aaa!important; }
+
+/* Status dropdown in orders */
+.status-select{padding:7px 10px;border-radius:6px;border:1.5px solid var(--gray-light);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--white);min-width:160px}
 
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:4px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
@@ -423,13 +437,19 @@ textarea.field-input{resize:vertical;min-height:80px}
     <section class="admin-section" id="secOrders">
       <div class="page-header"><h1>Orders</h1><p>Manage all customer orders.</p></div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
-        <div class="filter-tabs" style="margin-bottom:0">
-          <button class="filter-tab active" onclick="filterOrders('all',this)">All</button>
-          <button class="filter-tab" onclick="filterOrders('new',this)">New</button>
-          <button class="filter-tab" onclick="filterOrders('pending',this)">Pending</button>
-          <button class="filter-tab" onclick="filterOrders('processing',this)">Processing</button>
-          <button class="filter-tab" onclick="filterOrders('done',this)">Done</button>
-          <button class="filter-tab" onclick="filterOrders('cancelled',this)">Cancelled</button>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <select class="status-select" id="orderStatusFilter" onchange="filterOrders(this.value)">
+            <option value="all">📋 All Orders</option>
+            <option value="new">🆕 New</option>
+            <option value="pending">⏳ Pending</option>
+            <option value="processing">⚙️ Processing</option>
+            <option value="confirmed">✅ Confirmed</option>
+            <option value="called">📞 Called</option>
+            <option value="reported">⚠️ Reported</option>
+            <option value="cancelled">❌ Cancelled</option>
+            <option value="done">🏁 Done</option>
+          </select>
+          <span id="orderCountBadge" style="font-size:12px;color:var(--gray);font-weight:600"></span>
         </div>
         <button class="btn btn-outline btn-sm" onclick="exportOrders()">Export CSV</button>
       </div>
@@ -1230,10 +1250,10 @@ function renderTopProducts(orders) {
 ═══════════════════════════════════════════ */
 let _orderFilter = 'all';
 
-function filterOrders(filter, btn) {
+function filterOrders(filter) {
   _orderFilter = filter;
-  document.querySelectorAll('.filter-tab').forEach(t=>t.classList.remove('active'));
-  if (btn) btn.classList.add('active');
+  const sel = document.getElementById('orderStatusFilter');
+  if (sel) sel.value = filter;
   loadOrdersTable();
 }
 
@@ -1242,6 +1262,8 @@ function loadOrdersTable() {
   let orders = getOrders();
   if (_orderFilter!=='all') orders = orders.filter(o=>o.status===_orderFilter);
   if (q) orders = orders.filter(o=>(o.customer||'').toLowerCase().includes(q)||(o.product||'').toLowerCase().includes(q)||(o.phone||'').includes(q)||(o.id||'').includes(q));
+  const badge = document.getElementById('orderCountBadge');
+  if (badge) badge.textContent = orders.length + ' order' + (orders.length!==1?'s':'');
   document.getElementById('ordersTable').innerHTML =
     orderTableRows(orders,false) || '<tr class="empty-row"><td colspan="9">No orders found.</td></tr>';
 }
@@ -1256,13 +1278,25 @@ function orderTableRows(orders, compact) {
   const rows = orders.map((o,i)=>{
     const d = new Date(o.date||o.createdAt||Date.now());
     const ds = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
-    const st = `<span class="status-badge status-${o.status||'pending'}">${o.status||'pending'}</span>`;
+    const status = o.status || 'pending';
+    const rowClass = `order-row-${status}`;
+    const statusColors = { confirmed:'#27ae60', cancelled:'#e74c3c', reported:'#e67e22', called:'#2980b9', processing:'#2980b9', pending:'#f0ad4e', done:'#27ae60', new:'#aaa' };
+    const statusEmoji  = { confirmed:'✅', cancelled:'❌', reported:'⚠️', called:'📞', processing:'⚙️', pending:'⏳', done:'🏁', new:'🆕' };
+    const st = `<select class="status-select" onchange="setOrderStatus('${o.id}',this.value)" style="border-color:${statusColors[status]||'#ccc'};color:${statusColors[status]||'#333'};font-size:11px;padding:4px 8px;min-width:130px">
+      <option value="new"        ${status==='new'        ?'selected':''}>🆕 New</option>
+      <option value="pending"    ${status==='pending'    ?'selected':''}>⏳ Pending</option>
+      <option value="processing" ${status==='processing' ?'selected':''}>⚙️ Processing</option>
+      <option value="confirmed"  ${status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
+      <option value="called"     ${status==='called'     ?'selected':''}>📞 Called</option>
+      <option value="reported"   ${status==='reported'   ?'selected':''}>⚠️ Reported</option>
+      <option value="cancelled"  ${status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
+      <option value="done"       ${status==='done'       ?'selected':''}>🏁 Done</option>
+    </select>`;
     const act = compact ? '' : `<td><div style="display:flex;gap:4px">
       <button class="btn-icon" onclick="openOrderModal('${o.id}')" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      ${o.status!=='done'?`<button class="btn-icon" onclick="setOrderStatus('${o.id}','done')" title="Mark done"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></button>`:''}
       <button class="btn-icon danger" onclick="deleteOrder('${o.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
     </div></td>`;
-    return `<tr>
+    return `<tr class="${rowClass}">
       <td style="color:var(--gray);font-size:11px">${escHtml(o.id)||'#'+String(i+1).padStart(3,'0')}</td>
       <td style="font-size:12px">${ds}</td>
       <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(o.product)||'—'}</td>
@@ -1339,11 +1373,14 @@ function openOrderModal(id) {
       </div>
       <div class="field-group"><label class="field-label">Order Status</label>
         <select class="field-input" id="omStatus">
-          <option value="new" ${order.status==='new'?'selected':''}>New</option>
-          <option value="pending" ${order.status==='pending'?'selected':''}>Pending</option>
-          <option value="processing" ${order.status==='processing'?'selected':''}>Processing</option>
-          <option value="done" ${order.status==='done'?'selected':''}>Done</option>
-          <option value="cancelled" ${order.status==='cancelled'?'selected':''}>Cancelled</option>
+          <option value="new"        ${order.status==='new'        ?'selected':''}>🆕 New</option>
+          <option value="pending"    ${order.status==='pending'    ?'selected':''}>⏳ Pending</option>
+          <option value="processing" ${order.status==='processing' ?'selected':''}>⚙️ Processing</option>
+          <option value="confirmed"  ${order.status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
+          <option value="called"     ${order.status==='called'     ?'selected':''}>📞 Called</option>
+          <option value="reported"   ${order.status==='reported'   ?'selected':''}>⚠️ Reported</option>
+          <option value="cancelled"  ${order.status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
+          <option value="done"       ${order.status==='done'       ?'selected':''}>🏁 Done</option>
         </select>
       </div>
     </div>

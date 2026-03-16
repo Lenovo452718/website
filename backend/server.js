@@ -406,7 +406,7 @@ app.get('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
 app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
   const { status, size, qty, city, address } = req.body;
-  const allowed = ['pending','confirmed','cancelled','edited','processing'];
+  const allowed = ['new','pending','confirmed','cancelled','edited','processing','called','reported','done'];
   if (status && !allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
   const updated = updateOrder(req.params.id, {
     status,
