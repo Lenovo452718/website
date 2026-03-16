@@ -5,18 +5,39 @@
 /* ── Announcement Bar ── */
 (function() {
   if (sessionStorage.getItem('barDismissed')) return;
+
+  const messages = [
+    '✦ Free shipping on all orders',
+    '✦ COD available across Morocco',
+    '✦ Delivered in 2–5 days',
+  ];
+
   const bar = document.createElement('div');
   bar.className = 'announcement-bar';
   bar.innerHTML = `
-    <span>✦ Free shipping on all orders</span>
-    <span class="announcement-bar-sep">·</span>
-    <span>COD available across Morocco</span>
-    <span class="announcement-bar-sep">·</span>
-    <span>Delivered in 2–5 days</span>
+    <span class="announcement-bar-text">${messages[0]}</span>
     <button class="announcement-bar-close" aria-label="Close">×</button>
   `;
   document.body.prepend(bar);
   document.body.classList.add('has-bar');
+
+  /* Rotate messages */
+  const textEl = bar.querySelector('.announcement-bar-text');
+  let idx = 0;
+  setInterval(() => {
+    textEl.style.opacity = '0';
+    textEl.style.transform = 'translateY(-6px)';
+    setTimeout(() => {
+      idx = (idx + 1) % messages.length;
+      textEl.textContent = messages[idx];
+      textEl.style.transform = 'translateY(6px)';
+      requestAnimationFrame(() => {
+        textEl.style.opacity = '1';
+        textEl.style.transform = 'translateY(0)';
+      });
+    }, 280);
+  }, 3500);
+
   bar.querySelector('.announcement-bar-close').addEventListener('click', () => {
     bar.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
     bar.style.maxHeight = bar.scrollHeight + 'px';

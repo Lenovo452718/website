@@ -2774,6 +2774,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 body.has-bar .site-header { top: 36px; }
 .announcement-bar a { color: #e0c97a; text-decoration: none; }
+.announcement-bar-text { transition: opacity 0.28s ease, transform 0.28s ease; display: inline-block; }
 .announcement-bar-close {
   position: absolute;
   right: 16px;
@@ -2820,7 +2821,6 @@ body.has-bar .site-header { top: 36px; }
   .whatsapp-float { animation: none; } /* don't animate on mobile — save battery */
   .announcement-bar { font-size: 9px; letter-spacing: 0.08em; padding: 8px 36px 8px 16px; gap: 10px; }
   .announcement-bar-sep { display: none; }
-  .announcement-bar > span:not(:first-child) { display: none; }
 }
 
 /* ============================================================
