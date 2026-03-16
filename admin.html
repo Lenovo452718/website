@@ -593,13 +593,16 @@ textarea.field-input{resize:vertical;min-height:80px}
 
     <!-- ── INTEGRATIONS ── -->
     <section class="admin-section" id="secIntegrations">
-      <div class="page-header"><h1>Integrations</h1><p>Connect your delivery service API to track and manage shipments directly from the admin panel.</p></div>
+      <div class="page-header"><h1>Integrations</h1><p>Connect Olivraison Maroc to manage your deliveries directly from the admin panel.</p></div>
 
       <!-- Delivery Service Selector -->
       <div class="panel">
-        <div class="panel-header"><h2>Delivery Service</h2></div>
+        <div class="panel-header">
+          <h2>Delivery Partner</h2>
+          <img src="https://olivraison.com/logo.png" alt="Olivraison" style="height:28px;object-fit:contain" onerror="this.style.display='none'">
+        </div>
         <div class="panel-body">
-          <p style="font-size:13px;color:var(--gray);margin-bottom:18px">Choose your delivery provider and enter your API credentials. Once connected, order tracking will be available directly in the Orders section.</p>
+          <p style="font-size:13px;color:var(--gray);margin-bottom:18px">Enter your Olivraison API credentials to connect your delivery account. Once saved, you can track and manage shipments from your orders.</p>
           <div class="field-group" style="margin-bottom:20px">
             <label class="field-label">Provider</label>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-top:8px" id="providerGrid">
@@ -2144,93 +2147,27 @@ function updateSuspiciousBadge(count) {
 ═══════════════════════════════════════════ */
 const DELIVERY_PROVIDERS = [
   {
-    id: 'amana',
-    name: 'Amana',
-    logo: '📦',
-    color: '#e67e22',
+    id: 'olivraison',
+    name: 'Olivraison Maroc',
+    logoUrl: 'https://olivraison.com/logo.png',
+    color: '#2ecc71',
+    website: 'https://www.olivraison.com',
     fields: [
-      { id: 'apiKey',    label: 'API Key',    type: 'password', placeholder: 'Enter your Amana API key' },
-      { id: 'storeCode', label: 'Store Code', type: 'text',     placeholder: 'Your Amana store code' },
+      { id: 'publicKey',  label: 'Public Key',  type: 'text',     placeholder: 'Your Olivraison public key' },
+      { id: 'privateKey', label: 'Private Key', type: 'password', placeholder: 'Your Olivraison private key' },
     ],
-    testUrl: 'https://www.amana.ma',
-    help: `<b>Steps to get your Amana API key:</b><ol style="margin:10px 0 0 18px">
-      <li>Log in to your Amana merchant account at <b>amana.ma</b></li>
-      <li>Go to <b>Settings → API Access</b></li>
-      <li>Generate a new API key and copy it here</li>
-      <li>Copy your Store Code from the same page</li></ol>`
-  },
-  {
-    id: 'guepex',
-    name: 'Guepex',
-    logo: '🚚',
-    color: '#e74c3c',
-    fields: [
-      { id: 'apiKey',  label: 'API Key',  type: 'password', placeholder: 'Enter your Guepex API key' },
-      { id: 'apiUser', label: 'Username', type: 'text',     placeholder: 'Your Guepex username' },
-    ],
-    testUrl: 'https://www.guepex.ma',
-    help: `<b>Steps to get your Guepex API key:</b><ol style="margin:10px 0 0 18px">
-      <li>Log in to your Guepex account at <b>guepex.ma</b></li>
-      <li>Navigate to <b>Mon compte → Intégration API</b></li>
-      <li>Create an API key and paste it above</li></ol>`
-  },
-  {
-    id: 'delivry',
-    name: 'Delivry',
-    logo: '🛵',
-    color: '#8e44ad',
-    fields: [
-      { id: 'apiKey',    label: 'API Key',      type: 'password', placeholder: 'Enter your Delivry API key' },
-      { id: 'clientId',  label: 'Client ID',    type: 'text',     placeholder: 'Your client ID' },
-    ],
-    testUrl: 'https://www.delivry.ma',
-    help: `<b>Steps to get your Delivry API key:</b><ol style="margin:10px 0 0 18px">
-      <li>Log in at <b>delivry.ma</b></li>
-      <li>Go to <b>Settings → Developer → API Keys</b></li>
-      <li>Copy your API Key and Client ID here</li></ol>`
-  },
-  {
-    id: 'maystro',
-    name: 'Maystro',
-    logo: '📬',
-    color: '#2980b9',
-    fields: [
-      { id: 'apiKey',  label: 'API Token', type: 'password', placeholder: 'Bearer token from Maystro' },
-      { id: 'storeId', label: 'Store ID',  type: 'text',     placeholder: 'Your Maystro store ID' },
-    ],
-    testUrl: 'https://www.maystrodelivery.com',
-    help: `<b>Steps to get your Maystro API token:</b><ol style="margin:10px 0 0 18px">
-      <li>Log in at <b>maystrodelivery.com</b></li>
-      <li>Go to <b>Account → API</b></li>
-      <li>Copy your Bearer token and Store ID</li></ol>`
-  },
-  {
-    id: 'noest',
-    name: 'Noest',
-    logo: '⚡',
-    color: '#27ae60',
-    fields: [
-      { id: 'apiKey',  label: 'API Key',  type: 'password', placeholder: 'Your Noest API key' },
-      { id: 'centerId',label: 'Center ID',type: 'text',     placeholder: 'Your pickup center ID' },
-    ],
-    testUrl: 'https://www.noest.dz',
-    help: `<b>Steps to get your Noest API key:</b><ol style="margin:10px 0 0 18px">
-      <li>Log in at <b>noest.dz</b></li>
-      <li>Go to <b>Settings → API</b></li>
-      <li>Copy your API Key and Center ID</li></ol>`
-  },
-  {
-    id: 'other',
-    name: 'Other / Custom',
-    logo: '🔧',
-    color: '#555',
-    fields: [
-      { id: 'apiKey',  label: 'API Key / Token', type: 'password', placeholder: 'Your API key' },
-      { id: 'baseUrl', label: 'API Base URL',     type: 'text',     placeholder: 'https://api.yourservice.com' },
-      { id: 'note',    label: 'Notes',            type: 'text',     placeholder: 'e.g. header name, version...' },
-    ],
-    testUrl: null,
-    help: `Enter your delivery service API credentials manually. Contact your delivery provider to get the API key and base URL.`
+    help: `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+      <img src="https://olivraison.com/logo.png" style="height:36px;object-fit:contain">
+      <a href="https://www.olivraison.com" target="_blank" style="font-size:12px;color:var(--blue)">olivraison.com ↗</a>
+    </div>
+    <b>Steps to get your Olivraison API keys:</b>
+    <ol style="margin:10px 0 0 18px;line-height:2">
+      <li>Log in to your Olivraison merchant account at <a href="https://www.olivraison.com" target="_blank" style="color:var(--blue)">olivraison.com</a></li>
+      <li>Go to <b>Profile Settings → API</b></li>
+      <li>Copy your <b>Public Key</b> and <b>Private Key</b></li>
+      <li>Paste them in the fields above and click <b>Save & Connect</b></li>
+    </ol>
+    <p style="margin-top:12px;font-size:12px;color:var(--gray)">Need help? Contact Olivraison support directly from your dashboard.</p>`
   },
 ];
 
@@ -2238,20 +2175,25 @@ let _selectedProvider = null;
 
 function loadIntegrations() {
   const saved = JSON.parse(localStorage.getItem('ss_integrations') || '{}');
-  _selectedProvider = saved.provider || null;
+  // Auto-select the only provider
+  _selectedProvider = saved.provider || 'olivraison';
+  if (!saved.provider) { saved.provider = 'olivraison'; localStorage.setItem('ss_integrations', JSON.stringify(saved)); }
 
   // Render provider grid
   const grid = document.getElementById('providerGrid');
   if (!grid) return;
   grid.innerHTML = DELIVERY_PROVIDERS.map(p => {
     const active = p.id === _selectedProvider;
+    const logoHtml = p.logoUrl
+      ? `<img src="${p.logoUrl}" alt="${p.name}" style="height:44px;object-fit:contain;max-width:110px;margin-bottom:8px" onerror="this.style.display='none'">`
+      : `<div style="font-size:28px;margin-bottom:8px">${p.logo||'📦'}</div>`;
     return `<div onclick="selectProvider('${p.id}')" style="
       cursor:pointer;border:2px solid ${active ? p.color : 'var(--gray-light)'};
-      border-radius:8px;padding:14px 10px;text-align:center;transition:all .15s;
-      background:${active ? p.color+'18' : 'var(--white)'};user-select:none">
-      <div style="font-size:24px;margin-bottom:6px">${p.logo}</div>
+      border-radius:10px;padding:18px 14px;text-align:center;transition:all .2s;
+      background:${active ? p.color+'15' : 'var(--white)'};user-select:none;min-width:140px">
+      ${logoHtml}
       <div style="font-size:12px;font-weight:700;color:${active ? p.color : 'var(--charcoal)'}">${p.name}</div>
-      ${active ? `<div style="font-size:10px;color:${p.color};margin-top:3px;font-weight:600">● Selected</div>` : ''}
+      ${active ? `<div style="font-size:10px;color:${p.color};margin-top:4px;font-weight:600">● Connected</div>` : ''}
     </div>`;
   }).join('');
 
@@ -2278,9 +2220,13 @@ function renderIntegForm(id, saved) {
   const helpBody = document.getElementById('integHelpBody');
 
   formEl.innerHTML = `
-    <h3 style="font-size:13px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px">
-      <span style="font-size:20px">${provider.logo}</span> ${provider.name} Credentials
-    </h3>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--gray-light)">
+      ${provider.logoUrl ? `<img src="${provider.logoUrl}" alt="${provider.name}" style="height:38px;object-fit:contain">` : `<span style="font-size:24px">${provider.logo||'📦'}</span>`}
+      <div>
+        <p style="font-weight:700;font-size:14px">${provider.name}</p>
+        ${provider.website ? `<a href="${provider.website}" target="_blank" style="font-size:11px;color:var(--blue)">${provider.website.replace('https://','').replace('www.','')} ↗</a>` : ''}
+      </div>
+    </div>
     ${provider.fields.map(f => `
       <div class="field-group" style="margin-bottom:14px">
         <label class="field-label">${f.label}</label>
@@ -2320,8 +2266,8 @@ function testIntegration() {
   if (!resultEl) return;
   const provider = DELIVERY_PROVIDERS.find(p => p.id === _selectedProvider);
   if (!provider) return;
-  const key = document.getElementById('integ_apiKey')?.value.trim();
-  if (!key) { showToast('Enter your API key first', 'error'); return; }
+  const key = (document.getElementById('integ_publicKey') || document.getElementById('integ_apiKey'))?.value.trim();
+  if (!key) { showToast('Enter your credentials first', 'error'); return; }
 
   resultEl.style.display = 'block';
   resultEl.innerHTML = '<span style="color:var(--gray)">⏳ Testing connection...</span>';
@@ -2344,7 +2290,7 @@ function showIntegStatus(provider, creds) {
   const connectedAt = saved.connectedAt ? new Date(saved.connectedAt).toLocaleString() : '—';
   body.innerHTML = `
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
-      <span style="font-size:28px">${provider.logo}</span>
+      ${provider.logoUrl ? `<img src="${provider.logoUrl}" alt="${provider.name}" style="height:40px;object-fit:contain">` : `<span style="font-size:28px">${provider.logo||'📦'}</span>`}
       <div>
         <p style="font-weight:700;font-size:14px">${provider.name}</p>
         <p style="font-size:12px;color:var(--gray)">Connected on ${connectedAt}</p>
