@@ -2818,8 +2818,9 @@ body.has-bar .site-header { top: 36px; }
 @media (max-width: 768px) {
   .back-to-top { right: 20px; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; }
   .whatsapp-float { animation: none; } /* don't animate on mobile — save battery */
-  .announcement-bar { font-size: 10px; letter-spacing: 0.1em; padding: 8px 36px 8px 16px; gap: 10px; }
+  .announcement-bar { font-size: 9px; letter-spacing: 0.08em; padding: 8px 36px 8px 16px; gap: 10px; }
   .announcement-bar-sep { display: none; }
+  .announcement-bar > span:not(:first-child) { display: none; }
 }
 
 /* ============================================================
