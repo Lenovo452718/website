@@ -1,5 +1,8 @@
 node_modules/
 .env
 .wwebjs_auth/
+.wwebjs_cache/
 orders.json
+auth.json
+backups/
 *.log

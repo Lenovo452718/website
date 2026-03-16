@@ -1,9 +1,5 @@
 /**
- * StreetStore — Order & Admin API
- * ─────────────────────────────────
- * 1. Receives orders from the website via POST /api/orders
- * 2. Saves them to orders.json
- * 3. Exposes REST API for admin panel
+ * StreetStore — Secure Order & Admin API
  */
 
 require('dotenv').config();
@@ -15,7 +11,68 @@ const rateLimit = require('express-rate-limit');
 const multer    = require('multer');
 const path      = require('path');
 const fs        = require('fs');
+const bcrypt    = require('bcryptjs');
+const jwt       = require('jsonwebtoken');
+const speakeasy = require('speakeasy');
+const QRCode    = require('qrcode');
 const { createOrder, readOrders, getOrder, updateOrder } = require('./db');
+
+/* ════════════════════════════════════════
+   AUTH STORE — hashed password + 2FA secret
+════════════════════════════════════════ */
+const AUTH_FILE    = path.join(__dirname, 'auth.json');
+const JWT_SECRET   = process.env.JWT_SECRET || 'change-me-in-production';
+const JWT_EXPIRY   = '8h';
+const BCRYPT_ROUNDS = 12;
+
+function readAuth() {
+  try {
+    if (fs.existsSync(AUTH_FILE)) return JSON.parse(fs.readFileSync(AUTH_FILE, 'utf8'));
+  } catch {}
+  return { passwordHash: null, twoFactorSecret: null, twoFactorEnabled: false };
+}
+
+function writeAuth(data) {
+  fs.writeFileSync(AUTH_FILE, JSON.stringify(data, null, 2));
+}
+
+/* On first run: hash API_SECRET and store it */
+(async function bootstrap() {
+  const auth = readAuth();
+  if (!auth.passwordHash) {
+    const raw = process.env.API_SECRET || 'admin123';
+    const hash = await bcrypt.hash(raw, BCRYPT_ROUNDS);
+    writeAuth({ ...auth, passwordHash: hash });
+    console.log('🔐 Password hashed and stored in auth.json');
+  }
+})();
+
+/* ── Login attempt tracker (in-memory) ── */
+const loginAttempts = new Map(); // ip → { count, lockedUntil }
+const MAX_ATTEMPTS  = 5;
+const LOCK_MINUTES  = 15;
+
+function checkLoginLock(ip) {
+  const rec = loginAttempts.get(ip);
+  if (!rec) return false;
+  if (rec.lockedUntil && Date.now() < rec.lockedUntil) return true;
+  if (rec.lockedUntil && Date.now() >= rec.lockedUntil) loginAttempts.delete(ip);
+  return false;
+}
+
+function recordFailedLogin(ip) {
+  const rec = loginAttempts.get(ip) || { count: 0, lockedUntil: null };
+  rec.count++;
+  if (rec.count >= MAX_ATTEMPTS) {
+    rec.lockedUntil = Date.now() + LOCK_MINUTES * 60 * 1000;
+    console.warn(`🔒 IP ${ip} locked out for ${LOCK_MINUTES} min after ${MAX_ATTEMPTS} failed logins`);
+  }
+  loginAttempts.set(ip, rec);
+}
+
+function resetLoginAttempts(ip) {
+  loginAttempts.delete(ip);
+}
 
 /* ── Blocked IPs store ── */
 const BLOCKED_IPS_FILE = path.join(__dirname, 'blocked_ips.json');
@@ -25,23 +82,46 @@ function readBlockedIps() {
 }
 function writeBlockedIps(list) { fs.writeFileSync(BLOCKED_IPS_FILE, JSON.stringify(list, null, 2)); }
 
-/* ── Get real client IP ── */
-function getClientIp(req) {
-  return req.socket?.remoteAddress || 'unknown';
+/* ── Backup ── */
+const BACKUP_DIR = path.join(__dirname, 'backups');
+if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
+
+function runBackup() {
+  const ordersFile = path.join(__dirname, 'orders.json');
+  if (!fs.existsSync(ordersFile)) return;
+  const ts   = new Date().toISOString().slice(0,10);
+  const dest = path.join(BACKUP_DIR, `orders-${ts}.json`);
+  fs.copyFileSync(ordersFile, dest);
+  // Keep only last 30 backups
+  const files = fs.readdirSync(BACKUP_DIR).filter(f=>f.startsWith('orders-')).sort();
+  if (files.length > 30) {
+    files.slice(0, files.length - 30).forEach(f => fs.unlinkSync(path.join(BACKUP_DIR, f)));
+  }
+  console.log(`💾 Backup saved: ${dest}`);
 }
 
-/* ── Sanitize string: strip HTML tags, trim, limit length ── */
+// Daily backup at startup, then every 24h
+runBackup();
+setInterval(runBackup, 24 * 60 * 60 * 1000);
+
+/* ── Helpers ── */
+function getClientIp(req) { return req.socket?.remoteAddress || 'unknown'; }
+
 function sanitize(str, maxLen = 200) {
   if (typeof str !== 'string') return '';
   return str.replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
 }
 
-/* ── Validate ID format ── */
 function isValidId(id) {
   return typeof id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(id);
 }
 
-/* ── File upload setup ── */
+function isStrongPassword(p) {
+  // min 8 chars, at least 1 letter + 1 number
+  return typeof p === 'string' && p.length >= 8 && /[A-Za-z]/.test(p) && /[0-9]/.test(p);
+}
+
+/* ── File upload ── */
 const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
@@ -67,9 +147,8 @@ const app  = express();
 const PORT = process.env.PORT || 3000;
 
 /* ════════════════════════════════════════
-   SECURITY MIDDLEWARE
+   MIDDLEWARE
 ════════════════════════════════════════ */
-
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: false,
@@ -93,41 +172,42 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 
 /* ── Rate limiters ── */
 const orderLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 5,
-  standardHeaders: true, legacyHeaders: false,
-  message: { error: 'Too many orders submitted. Please wait 15 minutes and try again.' },
-  keyGenerator: (req) => req.socket?.remoteAddress || 'unknown',
+  windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false,
+  message: { error: 'Too many orders submitted. Please wait 15 minutes.' },
+  keyGenerator: (req) => getClientIp(req),
 });
 
 const adminLimiter = rateLimit({
-  windowMs: 60 * 1000, max: 60,
-  standardHeaders: true, legacyHeaders: false,
+  windowMs: 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many requests.' },
-  keyGenerator: (req) => req.socket?.remoteAddress || 'unknown',
+  keyGenerator: (req) => getClientIp(req),
 });
 
 const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 10,
-  standardHeaders: true, legacyHeaders: false,
+  windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false,
   message: { error: 'Too many authentication attempts. Try again later.' },
-  keyGenerator: (req) => req.socket?.remoteAddress || 'unknown',
+  keyGenerator: (req) => getClientIp(req),
 });
 
-/* ── API key auth ── */
+/* ── JWT auth middleware ── */
 function requireAuth(req, res, next) {
-  const key = req.headers['x-api-key'];
-  if (!key || key !== process.env.API_SECRET) {
-    console.warn(`⚠️  Unauthorized access attempt from ${getClientIp(req)}`);
+  const header = req.headers['authorization'] || '';
+  const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) {
+    console.warn(`⚠️  No token from ${getClientIp(req)}`);
     return res.status(401).json({ error: 'Unauthorized' });
   }
-  next();
+  try {
+    req.admin = jwt.verify(token, JWT_SECRET);
+    next();
+  } catch(e) {
+    return res.status(401).json({ error: 'Token expired or invalid. Please log in again.' });
+  }
 }
 
 /* ════════════════════════════════════════
    PUBLIC ROUTES
 ════════════════════════════════════════ */
-
-/* Health check */
 app.get('/', (req, res) => {
   res.json({ service: 'StreetStore API', status: 'running', timestamp: new Date().toISOString() });
 });
@@ -137,7 +217,6 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
   const clientIp = getClientIp(req);
 
   if (readBlockedIps().includes(clientIp)) {
-    console.log(`🚫 Blocked IP tried to order: ${clientIp}`);
     return res.status(403).json({
       error: 'blocked',
       message: 'Your account has been blocked due to multiple undelivered or cancelled orders. If you believe this is a mistake, please contact us on WhatsApp.'
@@ -169,28 +248,146 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
   const order = createOrder({ product, size, qty, price, customer, phone, city, address, clientIp });
   console.log(`🆕 New order: ${order.id} — ${customer} — ${product}`);
 
-  res.status(201).json({
-    success: true,
-    orderId: order.id,
-    message: 'Order received successfully.',
+  res.status(201).json({ success: true, orderId: order.id, message: 'Order received successfully.' });
+});
+
+/* ════════════════════════════════════════
+   AUTH ROUTES
+════════════════════════════════════════ */
+
+/* POST /api/admin/login */
+app.post('/api/admin/login', authLimiter, async (req, res) => {
+  const ip = getClientIp(req);
+
+  // Check lockout
+  if (checkLoginLock(ip)) {
+    return res.status(429).json({ error: `Too many failed attempts. Try again in ${LOCK_MINUTES} minutes.` });
+  }
+
+  const { password, totpCode } = req.body;
+  if (!password) return res.status(400).json({ error: 'Password required' });
+
+  const auth = readAuth();
+
+  // Verify password
+  const valid = auth.passwordHash
+    ? await bcrypt.compare(password, auth.passwordHash)
+    : password === process.env.API_SECRET; // fallback before first hash
+
+  if (!valid) {
+    recordFailedLogin(ip);
+    const rec = loginAttempts.get(ip) || {};
+    const remaining = MAX_ATTEMPTS - (rec.count || 0);
+    console.warn(`🔐 Failed login from ${ip} (${rec.count || 1}/${MAX_ATTEMPTS})`);
+    if (remaining <= 0) {
+      return res.status(429).json({ error: `Account locked for ${LOCK_MINUTES} minutes.` });
+    }
+    return res.status(401).json({ error: `Wrong password. ${remaining} attempt${remaining===1?'':'s'} remaining.` });
+  }
+
+  // 2FA check
+  if (auth.twoFactorEnabled) {
+    if (!totpCode) {
+      return res.status(200).json({ require2fa: true });
+    }
+    const verified = speakeasy.totp.verify({
+      secret: auth.twoFactorSecret,
+      encoding: 'base32',
+      token: totpCode,
+      window: 1,
+    });
+    if (!verified) {
+      recordFailedLogin(ip);
+      return res.status(401).json({ error: 'Invalid 2FA code.' });
+    }
+  }
+
+  resetLoginAttempts(ip);
+
+  const token = jwt.sign({ role: 'admin', ip }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
+  console.log(`✅ Admin login from ${ip}`);
+  res.json({ token, expiresIn: JWT_EXPIRY });
+});
+
+/* POST /api/admin/change-password */
+app.post('/api/admin/change-password', authLimiter, requireAuth, async (req, res) => {
+  const { newPassword } = req.body;
+  if (!isStrongPassword(newPassword)) {
+    return res.status(400).json({ error: 'Password must be at least 8 characters and include a letter and a number.' });
+  }
+  const hash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+  const auth = readAuth();
+  writeAuth({ ...auth, passwordHash: hash });
+  console.log(`🔐 Password changed by admin`);
+  res.json({ success: true });
+});
+
+/* GET /api/admin/2fa/setup — generate TOTP secret + QR code */
+app.get('/api/admin/2fa/setup', adminLimiter, requireAuth, async (req, res) => {
+  const secret = speakeasy.generateSecret({ name: 'StreetStore Admin', length: 20 });
+  const qr = await QRCode.toDataURL(secret.otpauth_url);
+  // Store temp secret (not enabled yet)
+  const auth = readAuth();
+  writeAuth({ ...auth, twoFactorSecret: secret.base32, twoFactorEnabled: false });
+  res.json({ qr, secret: secret.base32 });
+});
+
+/* POST /api/admin/2fa/verify — verify code and enable 2FA */
+app.post('/api/admin/2fa/verify', adminLimiter, requireAuth, (req, res) => {
+  const { code } = req.body;
+  const auth = readAuth();
+  if (!auth.twoFactorSecret) return res.status(400).json({ error: 'Run setup first' });
+  const valid = speakeasy.totp.verify({
+    secret: auth.twoFactorSecret,
+    encoding: 'base32',
+    token: String(code),
+    window: 1,
   });
+  if (!valid) return res.status(400).json({ error: 'Invalid code. Try again.' });
+  writeAuth({ ...auth, twoFactorEnabled: true });
+  console.log('🔒 2FA enabled');
+  res.json({ success: true });
+});
+
+/* POST /api/admin/2fa/disable */
+app.post('/api/admin/2fa/disable', adminLimiter, requireAuth, (req, res) => {
+  const auth = readAuth();
+  writeAuth({ ...auth, twoFactorSecret: null, twoFactorEnabled: false });
+  console.log('🔓 2FA disabled');
+  res.json({ success: true });
+});
+
+/* GET /api/admin/2fa/status */
+app.get('/api/admin/2fa/status', adminLimiter, requireAuth, (req, res) => {
+  const auth = readAuth();
+  res.json({ enabled: auth.twoFactorEnabled || false });
+});
+
+/* POST /api/admin/backup — manual backup */
+app.post('/api/admin/backup', adminLimiter, requireAuth, (req, res) => {
+  try {
+    runBackup();
+    const files = fs.readdirSync(BACKUP_DIR).filter(f=>f.startsWith('orders-'));
+    res.json({ success: true, backupCount: files.length });
+  } catch(e) {
+    res.status(500).json({ error: 'Backup failed' });
+  }
+});
+
+/* GET /api/admin/backups — list backups */
+app.get('/api/admin/backups', adminLimiter, requireAuth, (req, res) => {
+  const files = fs.readdirSync(BACKUP_DIR)
+    .filter(f=>f.startsWith('orders-'))
+    .sort()
+    .reverse()
+    .map(f => ({ name: f, size: fs.statSync(path.join(BACKUP_DIR,f)).size, date: f.replace('orders-','').replace('.json','') }));
+  res.json(files);
 });
 
 /* ════════════════════════════════════════
    ADMIN ROUTES
 ════════════════════════════════════════ */
 
-/* POST /api/admin/login */
-app.post('/api/admin/login', authLimiter, (req, res) => {
-  const { password } = req.body;
-  if (!password || password !== process.env.API_SECRET) {
-    console.warn(`🔐 Failed login attempt from ${getClientIp(req)}`);
-    return res.status(401).json({ error: 'Wrong password' });
-  }
-  res.json({ token: process.env.API_SECRET });
-});
-
-/* GET all orders */
 app.get('/api/admin/orders', adminLimiter, requireAuth, (req, res) => {
   const orders = readOrders();
   const { status } = req.query;
@@ -199,7 +396,6 @@ app.get('/api/admin/orders', adminLimiter, requireAuth, (req, res) => {
   res.json(filtered.slice(0, limit));
 });
 
-/* GET single order */
 app.get('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
   const order = getOrder(req.params.id);
@@ -207,46 +403,35 @@ app.get('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   res.json(order);
 });
 
-/* PATCH update order */
 app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
   const { status, size, qty, city, address } = req.body;
   const allowed = ['pending','confirmed','cancelled','edited','processing'];
-  if (status && !allowed.includes(status)) {
-    return res.status(400).json({ error: 'Invalid status' });
-  }
+  if (status && !allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
   const updated = updateOrder(req.params.id, {
     status,
     size:    sanitize(size || '', 10),
-    qty:     qty ? Math.min(Math.max(parseInt(qty) || 1, 1), 99) : undefined,
+    qty:     qty ? Math.min(Math.max(parseInt(qty)||1,1),99) : undefined,
     city:    sanitize(city || '', 60),
     address: sanitize(address || '', 200),
   });
   if (!updated) return res.status(404).json({ error: 'Order not found' });
-  console.log(`📝 Admin updated order ${req.params.id} → ${status || 'fields updated'}`);
   res.json(updated);
 });
 
-/* DELETE order */
 app.delete('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
   const orders = readOrders();
-  const exists = orders.find(o => o.id === req.params.id);
-  if (!exists) return res.status(404).json({ error: 'Order not found' });
-  const filtered = orders.filter(o => o.id !== req.params.id);
-  fs.writeFileSync(path.join(__dirname, 'orders.json'), JSON.stringify(filtered, null, 2));
-  console.log(`🗑️  Admin deleted order ${req.params.id}`);
+  if (!orders.find(o => o.id === req.params.id)) return res.status(404).json({ error: 'Order not found' });
+  fs.writeFileSync(path.join(__dirname, 'orders.json'), JSON.stringify(orders.filter(o => o.id !== req.params.id), null, 2));
   res.json({ success: true });
 });
 
-/* POST upload file */
 app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  console.log(`📁 Uploaded: ${req.file.filename}`);
   res.json({ url: `uploads/${req.file.filename}`, filename: req.file.filename });
 });
 
-/* GET suspicious customers */
 app.get('/api/admin/suspicious', adminLimiter, requireAuth, (req, res) => {
   const orders = readOrders();
   const map = {};
@@ -261,32 +446,23 @@ app.get('/api/admin/suspicious', adminLimiter, requireAuth, (req, res) => {
   res.json(Object.values(map).filter(c => c.failedCount >= 3));
 });
 
-/* GET blocked IPs */
-app.get('/api/admin/blocked-ips', adminLimiter, requireAuth, (req, res) => {
-  res.json(readBlockedIps());
-});
+app.get('/api/admin/blocked-ips', adminLimiter, requireAuth, (req, res) => res.json(readBlockedIps()));
 
-/* POST block IP */
 app.post('/api/admin/block-ip', adminLimiter, requireAuth, (req, res) => {
   const ip = sanitize(req.body.ip || '', 45);
   if (!ip || !/^[\d.:a-fA-F]+$/.test(ip)) return res.status(400).json({ error: 'Invalid IP' });
   const list = readBlockedIps();
   if (!list.includes(ip)) { list.push(ip); writeBlockedIps(list); }
-  console.log(`🚫 Blocked IP: ${ip}`);
   res.json({ success: true, blocked: list });
 });
 
-/* DELETE unblock IP */
 app.delete('/api/admin/block-ip/:ip', adminLimiter, requireAuth, (req, res) => {
   const ip = decodeURIComponent(req.params.ip);
   if (!/^[\d.:a-fA-F]+$/.test(ip)) return res.status(400).json({ error: 'Invalid IP' });
-  const list = readBlockedIps().filter(x => x !== ip);
-  writeBlockedIps(list);
-  console.log(`✅ Unblocked IP: ${ip}`);
-  res.json({ success: true, blocked: list });
+  writeBlockedIps(readBlockedIps().filter(x => x !== ip));
+  res.json({ success: true });
 });
 
-/* GET stats */
 app.get('/api/admin/stats', adminLimiter, requireAuth, (req, res) => {
   const orders = readOrders();
   res.json({
@@ -303,6 +479,5 @@ app.get('/api/admin/stats', adminLimiter, requireAuth, (req, res) => {
    START
 ════════════════════════════════════════ */
 app.listen(PORT, () => {
-  console.log(`\n🚀 StreetStore API running on port ${PORT}`);
-  console.log(`📊 Admin: http://localhost:${PORT}/api/admin/orders\n`);
+  console.log(`\n🚀 StreetStore API running on port ${PORT}\n`);
 });

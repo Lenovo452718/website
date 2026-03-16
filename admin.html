@@ -282,11 +282,28 @@ textarea.field-input{resize:vertical;min-height:80px}
   <div class="login-box">
     <p class="login-logo">StreetStore</p>
     <p class="login-sub">Admin Panel — Restricted Access</p>
-    <div class="login-field">
-      <label>Password</label>
-      <input type="password" id="loginPwd" placeholder="Enter admin password" autocomplete="current-password">
+
+    <!-- Step 1: Password -->
+    <div id="loginStep1">
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPwd" placeholder="Enter admin password" autocomplete="current-password">
+      </div>
+      <button class="login-btn" onclick="attemptLogin()">Sign In</button>
     </div>
-    <button class="login-btn" onclick="attemptLogin()">Sign In</button>
+
+    <!-- Step 2: 2FA (shown only if enabled) -->
+    <div id="loginStep2" style="display:none">
+      <p style="font-size:13px;color:var(--gray);margin-bottom:16px;text-align:center">Open your authenticator app and enter the 6-digit code.</p>
+      <div class="login-field">
+        <label>2FA Code</label>
+        <input type="text" id="loginTotp" placeholder="000000" maxlength="6" autocomplete="one-time-code"
+          style="font-size:22px;letter-spacing:6px;text-align:center">
+      </div>
+      <button class="login-btn" onclick="submitTotp()">Verify</button>
+      <button style="width:100%;background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-top:8px" onclick="resetLoginSteps()">← Back</button>
+    </div>
+
     <p class="login-error" id="loginError">Incorrect password. Try again.</p>
   </div>
 </div>
@@ -628,11 +645,39 @@ textarea.field-input{resize:vertical;min-height:80px}
       <div class="panel">
         <div class="panel-header"><h2>Change Password</h2></div>
         <div class="panel-body">
+          <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Min 8 characters · must include a letter and a number.</p>
           <div class="field-row">
             <div class="field-group"><label class="field-label">New Password</label><input class="field-input" id="newPwd" type="password" placeholder="New password"></div>
             <div class="field-group"><label class="field-label">Confirm Password</label><input class="field-input" id="confirmPwd" type="password" placeholder="Repeat password"></div>
           </div>
           <button class="btn btn-outline" onclick="changePassword()">Update Password</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Two-Factor Authentication (2FA)</h2><span id="twoFaStatusBadge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;background:#e8e8e4;color:var(--gray)">Loading...</span></div>
+        <div class="panel-body">
+          <div id="twoFaDisabledView">
+            <p style="font-size:13px;color:var(--gray);margin-bottom:16px">Add an extra layer of security. After entering your password, you'll need a 6-digit code from your authenticator app (Google Authenticator, Authy, etc.).</p>
+            <button class="btn btn-primary" onclick="setup2fa()">Enable 2FA</button>
+          </div>
+          <div id="twoFaSetupView" style="display:none">
+            <p style="font-size:13px;margin-bottom:14px">Scan this QR code with your authenticator app, then enter the 6-digit code to confirm.</p>
+            <div style="text-align:center;margin-bottom:16px"><img id="twoFaQr" src="" style="width:180px;height:180px;border:2px solid var(--gray-light);border-radius:8px"></div>
+            <p style="font-size:11px;color:var(--gray);text-align:center;margin-bottom:16px">Or enter this key manually: <code id="twoFaSecret" style="font-size:11px;word-break:break-all"></code></p>
+            <div class="field-row" style="align-items:flex-end">
+              <div class="field-group"><label class="field-label">Verification Code</label><input class="field-input" id="twoFaCode" placeholder="000000" maxlength="6" style="letter-spacing:4px;font-size:18px;text-align:center"></div>
+              <button class="btn btn-primary" onclick="verify2fa()">Confirm & Enable</button>
+            </div>
+            <button style="background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-top:8px" onclick="cancel2faSetup()">Cancel</button>
+          </div>
+          <div id="twoFaEnabledView" style="display:none">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+              <span style="font-size:32px">🔒</span>
+              <div><p style="font-weight:700;font-size:14px">2FA is active</p><p style="font-size:12px;color:var(--gray)">Your account is protected with a second factor.</p></div>
+            </div>
+            <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red)" onclick="disable2fa()">Disable 2FA</button>
+          </div>
         </div>
       </div>
 
@@ -647,6 +692,14 @@ textarea.field-input{resize:vertical;min-height:80px}
         <div class="panel-header"><h2>Blocked IPs</h2><button class="btn btn-outline btn-sm" onclick="loadBlockedIpsSettings()">↻ Refresh</button></div>
         <div id="blockedIpsSettings" style="padding:16px 20px">
           <p style="font-size:13px;color:var(--gray)">Loading...</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><h2>Backups</h2><button class="btn btn-outline btn-sm" onclick="runManualBackup()">Backup Now</button></div>
+        <div class="panel-body">
+          <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Orders are backed up automatically every 24 hours. Last 30 backups are kept.</p>
+          <div id="backupsList" style="font-size:13px;color:var(--gray)">Loading...</div>
         </div>
       </div>
 
@@ -911,41 +964,118 @@ function getActiveProducts() {
 /* ═══════════════════════════════════════════
    AUTH
 ═══════════════════════════════════════════ */
+let _pendingPassword = '';
+
+function resetLoginSteps() {
+  document.getElementById('loginStep1').style.display = 'block';
+  document.getElementById('loginStep2').style.display = 'none';
+  document.getElementById('loginError').style.display = 'none';
+  document.getElementById('loginTotp').value = '';
+  _pendingPassword = '';
+}
+
 async function attemptLogin() {
   const pwd = document.getElementById('loginPwd').value;
-  const btn = document.querySelector('.login-btn');
+  const btn = document.querySelector('#loginStep1 .login-btn');
   const err = document.getElementById('loginError');
   err.style.display = 'none';
+  if (!pwd) return;
   btn.textContent = 'Signing in...';
   btn.disabled = true;
 
   try {
-    const res = await fetch(`${BACKEND_URL}/api/admin/login`, {
+    const res  = await fetch(`${BACKEND_URL}/api/admin/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: pwd }),
     });
     const data = await res.json();
-    if (res.ok && data.token) {
-      API_KEY = data.token;
-      sessionStorage.setItem(SESSION_KEY, btoa(data.token)); // store obfuscated
-      document.getElementById('loginScreen').style.display = 'none';
-      document.getElementById('adminPanel').style.display  = 'flex';
-      logActivity('Login', 'Admin signed in');
-      initAdmin();
+
+    if (res.ok && data.require2fa) {
+      // Need 2FA step
+      _pendingPassword = pwd;
+      document.getElementById('loginStep1').style.display = 'none';
+      document.getElementById('loginStep2').style.display = 'block';
+      setTimeout(() => document.getElementById('loginTotp').focus(), 100);
+    } else if (res.ok && data.token) {
+      finishLogin(data.token);
     } else {
-      err.textContent = data.error || 'Incorrect password. Try again.';
+      err.textContent = data.error || 'Incorrect password.';
       err.style.display = 'block';
     }
   } catch(e) {
-    err.textContent = '⚠ Cannot connect to backend server. Is it running?';
+    err.textContent = '⚠ Cannot connect to backend. Is the server running?';
     err.style.display = 'block';
   } finally {
     btn.textContent = 'Sign In';
     btn.disabled = false;
   }
 }
+
+async function submitTotp() {
+  const code = document.getElementById('loginTotp').value.trim();
+  const btn  = document.querySelector('#loginStep2 .login-btn');
+  const err  = document.getElementById('loginError');
+  err.style.display = 'none';
+  if (!code) return;
+  btn.textContent = 'Verifying...';
+  btn.disabled = true;
+
+  try {
+    const res  = await fetch(`${BACKEND_URL}/api/admin/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: _pendingPassword, totpCode: code }),
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      _pendingPassword = '';
+      finishLogin(data.token);
+    } else {
+      err.textContent = data.error || 'Invalid 2FA code.';
+      err.style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = '⚠ Cannot connect to backend.';
+    err.style.display = 'block';
+  } finally {
+    btn.textContent = 'Verify';
+    btn.disabled = false;
+  }
+}
+
+function finishLogin(token) {
+  API_KEY = token;
+  sessionStorage.setItem(SESSION_KEY, btoa(token));
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('adminPanel').style.display  = 'flex';
+  logActivity('Login', 'Admin signed in');
+  initAdmin();
+  startInactivityTimer();
+}
+
 document.getElementById('loginPwd').addEventListener('keydown', e => { if(e.key==='Enter') attemptLogin(); });
+document.getElementById('loginTotp').addEventListener('keydown', e => { if(e.key==='Enter') submitTotp(); });
+
+/* ── Auto-logout after 15 min inactivity ── */
+const INACTIVITY_MS = 15 * 60 * 1000;
+let _inactivityTimer = null;
+
+function startInactivityTimer() {
+  clearTimeout(_inactivityTimer);
+  _inactivityTimer = setTimeout(() => {
+    showToast('Session expired due to inactivity', 'error');
+    setTimeout(logout, 1500);
+  }, INACTIVITY_MS);
+}
+
+function resetInactivityTimer() {
+  if (_inactivityTimer) startInactivityTimer();
+}
+
+['mousemove','keydown','click','touchstart'].forEach(ev =>
+  document.addEventListener(ev, resetInactivityTimer, { passive: true })
+);
 
 function logout() {
   logActivity('Logout','Admin signed out');
@@ -976,7 +1106,7 @@ function showSection(id, el) {
   if (id==='content')       loadContentForms();
   if (id==='media')         loadMediaGrid();
   if (id==='notifications') loadNotifFullList();
-  if (id==='settings')      { loadSettingsForm(); loadActivityLog(); loadBlockedIpsSettings(); }
+  if (id==='settings')      { loadSettingsForm(); loadActivityLog(); loadBlockedIpsSettings(); load2faStatus(); loadBackupsList(); }
   if (id==='integrations')  loadIntegrations();
   if (id==='suspicious')    loadSuspiciousCustomers();
 }
@@ -1695,21 +1825,33 @@ function saveSettings() {
   showToast('Settings saved');
 }
 
-function changePassword() {
+async function changePassword() {
   const np = document.getElementById('newPwd').value;
   const cp = document.getElementById('confirmPwd').value;
-  if (!np || np.length < 4) { showToast('Password must be at least 4 characters','error'); return; }
-  if (np!==cp) { showToast('Passwords do not match','error'); return; }
-  // Save to .env is not possible from frontend — store locally for next session
-  // The real password lives in .env API_SECRET; this updates the local copy only
-  localStorage.setItem(ADMIN_PWD_KEY, np);
-  // Update the in-memory token so current session continues working
-  API_KEY = np;
-  sessionStorage.setItem(SESSION_KEY, btoa(np));
-  document.getElementById('newPwd').value='';
-  document.getElementById('confirmPwd').value='';
-  logActivity('Password changed');
-  showToast('Password updated — remember to update API_SECRET in your .env file too');
+  if (np.length < 8 || !/[A-Za-z]/.test(np) || !/[0-9]/.test(np)) {
+    showToast('Password must be 8+ chars with a letter and a number','error'); return;
+  }
+  if (np !== cp) { showToast('Passwords do not match','error'); return; }
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/admin/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+API_KEY },
+      body: JSON.stringify({ newPassword: np }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      document.getElementById('newPwd').value = '';
+      document.getElementById('confirmPwd').value = '';
+      logActivity('Password changed');
+      showToast('Password updated successfully');
+      // Force re-login with new password
+      setTimeout(logout, 2000);
+    } else {
+      showToast(data.error || 'Failed to update password','error');
+    }
+  } catch(e) {
+    showToast('Server error','error');
+  }
 }
 
 function loadActivityLog() {
@@ -1781,7 +1923,7 @@ async function uploadFileToField(input, fieldId) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/admin/upload`, {
       method: 'POST',
-      headers: { 'x-api-key': API_KEY },
+      headers: { 'Authorization': 'Bearer ' + API_KEY },
       body: formData
     });
     const data = await res.json();
@@ -1836,7 +1978,7 @@ async function uploadMediaFile(file) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/admin/upload`, {
       method: 'POST',
-      headers: { 'x-api-key': API_KEY },
+      headers: { 'Authorization': 'Bearer ' + API_KEY },
       body: formData
     });
     const data = await res.json();
@@ -1870,8 +2012,8 @@ async function loadSuspiciousCustomers() {
   try {
     // Fetch suspicious customers
     const [suspRes, blockedRes] = await Promise.all([
-      fetch(`${BACKEND_URL}/api/admin/suspicious`, { headers: { 'x-api-key': API_KEY } }),
-      fetch(`${BACKEND_URL}/api/admin/blocked-ips`,  { headers: { 'x-api-key': API_KEY } })
+      fetch(`${BACKEND_URL}/api/admin/suspicious`, { headers: { 'Authorization': 'Bearer ' + API_KEY } }),
+      fetch(`${BACKEND_URL}/api/admin/blocked-ips`,  { headers: { 'Authorization': 'Bearer ' + API_KEY } })
     ]);
     const suspicious = await suspRes.json();
     const blockedIps = await blockedRes.json();
@@ -1931,7 +2073,7 @@ async function blockIp(ip) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/admin/block-ip`, {
       method: 'POST',
-      headers: { 'x-api-key': API_KEY, 'Content-Type': 'application/json' },
+      headers: { 'Authorization': 'Bearer ' + API_KEY, 'Content-Type': 'application/json' },
       body: JSON.stringify({ ip })
     });
     if (res.ok) {
@@ -1951,7 +2093,7 @@ async function unblockIp(ip) {
   try {
     const res = await fetch(`${BACKEND_URL}/api/admin/block-ip/${encodeURIComponent(ip)}`, {
       method: 'DELETE',
-      headers: { 'x-api-key': API_KEY }
+      headers: { 'Authorization': 'Bearer ' + API_KEY }
     });
     if (res.ok) {
       showToast(`IP ${ip} unblocked`);
@@ -1970,7 +2112,7 @@ async function loadBlockedIpsSettings() {
   const el = document.getElementById('blockedIpsSettings');
   if (!el) return;
   try {
-    const res = await fetch(`${BACKEND_URL}/api/admin/blocked-ips`, { headers: { 'x-api-key': API_KEY } });
+    const res = await fetch(`${BACKEND_URL}/api/admin/blocked-ips`, { headers: { 'Authorization': 'Bearer ' + API_KEY } });
     const ips = await res.json();
     if (!ips.length) {
       el.innerHTML = '<p style="font-size:13px;color:var(--gray)">No IPs are currently blocked.</p>';
@@ -2239,6 +2381,105 @@ function updateIntegBadge(on) {
 }
 
 /* ═══════════════════════════════════════════
+   2FA MANAGEMENT
+═══════════════════════════════════════════ */
+async function load2faStatus() {
+  try {
+    const res  = await fetch(`${BACKEND_URL}/api/admin/2fa/status`, { headers: {'Authorization':'Bearer '+API_KEY} });
+    const data = await res.json();
+    const badge = document.getElementById('twoFaStatusBadge');
+    if (data.enabled) {
+      if (badge) { badge.textContent = '● Enabled'; badge.style.background='#f0faf4'; badge.style.color='#1e7e34'; }
+      document.getElementById('twoFaDisabledView').style.display = 'none';
+      document.getElementById('twoFaSetupView').style.display    = 'none';
+      document.getElementById('twoFaEnabledView').style.display  = 'block';
+    } else {
+      if (badge) { badge.textContent = '○ Disabled'; badge.style.background='#fff5f5'; badge.style.color='var(--red)'; }
+      document.getElementById('twoFaDisabledView').style.display = 'block';
+      document.getElementById('twoFaSetupView').style.display    = 'none';
+      document.getElementById('twoFaEnabledView').style.display  = 'none';
+    }
+  } catch(e) {}
+}
+
+async function setup2fa() {
+  try {
+    const res  = await fetch(`${BACKEND_URL}/api/admin/2fa/setup`, { headers: {'Authorization':'Bearer '+API_KEY} });
+    const data = await res.json();
+    document.getElementById('twoFaQr').src      = data.qr;
+    document.getElementById('twoFaSecret').textContent = data.secret;
+    document.getElementById('twoFaDisabledView').style.display = 'none';
+    document.getElementById('twoFaSetupView').style.display    = 'block';
+  } catch(e) { showToast('Failed to generate QR code','error'); }
+}
+
+async function verify2fa() {
+  const code = document.getElementById('twoFaCode').value.trim();
+  if (!code) return;
+  try {
+    const res  = await fetch(`${BACKEND_URL}/api/admin/2fa/verify`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+API_KEY},
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      showToast('2FA enabled — you will need your authenticator on next login');
+      logActivity('2FA enabled','');
+      load2faStatus();
+    } else {
+      showToast(data.error || 'Invalid code','error');
+    }
+  } catch(e) { showToast('Server error','error'); }
+}
+
+async function disable2fa() {
+  if (!confirm('Disable two-factor authentication? Your account will be less secure.')) return;
+  try {
+    await fetch(`${BACKEND_URL}/api/admin/2fa/disable`, {
+      method: 'POST', headers: {'Authorization':'Bearer '+API_KEY}
+    });
+    showToast('2FA disabled');
+    logActivity('2FA disabled','');
+    load2faStatus();
+  } catch(e) { showToast('Server error','error'); }
+}
+
+function cancel2faSetup() {
+  document.getElementById('twoFaSetupView').style.display    = 'none';
+  document.getElementById('twoFaDisabledView').style.display = 'block';
+}
+
+/* ═══════════════════════════════════════════
+   BACKUPS
+═══════════════════════════════════════════ */
+async function loadBackupsList() {
+  const el = document.getElementById('backupsList');
+  if (!el) return;
+  try {
+    const res   = await fetch(`${BACKEND_URL}/api/admin/backups`, { headers:{'Authorization':'Bearer '+API_KEY} });
+    const files = await res.json();
+    if (!files.length) { el.textContent = 'No backups yet.'; return; }
+    el.innerHTML = files.slice(0,10).map(f=>`
+      <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gray-light)">
+        <span>📄 ${f.date}</span>
+        <span style="color:var(--gray)">${(f.size/1024).toFixed(1)} KB</span>
+      </div>`).join('') + (files.length>10 ? `<p style="font-size:11px;color:var(--gray);margin-top:8px">+${files.length-10} more</p>` : '');
+  } catch(e) { el.textContent = 'Could not load backups.'; }
+}
+
+async function runManualBackup() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/admin/backup`, {
+      method:'POST', headers:{'Authorization':'Bearer '+API_KEY}
+    });
+    const data = await res.json();
+    if (res.ok) { showToast(`Backup saved (${data.backupCount} total)`); loadBackupsList(); }
+    else showToast('Backup failed','error');
+  } catch(e) { showToast('Server error','error'); }
+}
+
+/* ═══════════════════════════════════════════
    LOW STOCK CHECK
 ═══════════════════════════════════════════ */
 function checkLowStockNotifications() {
@@ -2260,7 +2501,7 @@ function initAdmin() {
   // Show integration badge if already configured
   if (localStorage.getItem('ss_integrations')) updateIntegBadge(true);
   // Fetch suspicious count for badge + dashboard alert
-  fetch(`${BACKEND_URL}/api/admin/suspicious`, { headers: { 'x-api-key': API_KEY } })
+  fetch(`${BACKEND_URL}/api/admin/suspicious`, { headers: { 'Authorization': 'Bearer ' + API_KEY } })
     .then(r=>r.json()).then(d=>{
       updateSuspiciousBadge(d.length);
       const alertEl = document.getElementById('suspiciousAlert');
@@ -2280,6 +2521,7 @@ if (_storedSession) {
     document.getElementById('loginScreen').style.display='none';
     document.getElementById('adminPanel').style.display='flex';
     initAdmin();
+    startInactivityTimer();
   } catch(e) {
     sessionStorage.removeItem(SESSION_KEY);
   }
