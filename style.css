@@ -648,7 +648,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   padding: 0 40px;
 }
 
-.product-card { position: relative; overflow: hidden; cursor: pointer; }
+.product-card { position: relative; overflow: hidden; cursor: pointer; display: flex; flex-direction: column; }
 
 .product-card-img {
   display: block;
@@ -689,7 +689,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .product-card-quick { opacity: 1; transform: translateY(0); font-size: 11px; padding: 10px; }
 }
 
-.product-card-info { padding: 16px 4px 24px; }
+.product-card-info { padding: 16px 4px 24px; flex: 1; display: flex; flex-direction: column; }
 .product-card-name { font-size: 15px; font-weight: 500; margin-bottom: 4px; }
 .product-card-fit {
   font-size: 12px;
@@ -698,7 +698,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-.product-card-price { font-size: 15px; font-weight: 700; }
+.product-card-price { font-size: 15px; font-weight: 700; margin-top: auto; padding-top: 8px; }
 .product-card-price .original { color: var(--gray); text-decoration: line-through; margin-right: 8px; font-weight: 400; font-size: 13px; }
 
 .product-badge {
@@ -2159,8 +2159,23 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .product-grid-3 { grid-template-columns: repeat(2, 1fr); padding-left: 0; }
 
   .product-layout { grid-template-columns: 1fr; padding: 0 20px 60px; }
-  .product-gallery { padding-right: 0; margin-bottom: 40px; }
+  .product-gallery { padding-right: 0; margin-bottom: 28px; }
   .product-info { position: static; padding-left: 0; }
+
+  /* Product detail — mobile typography */
+  .product-name { font-size: clamp(28px, 8vw, 40px); line-height: 0.95; margin-bottom: 10px; }
+  .product-price-display { font-size: 21px; margin-bottom: 16px; }
+  .product-option-label { font-size: 13px; margin-bottom: 10px; }
+  .fit-note { font-size: 13px; margin-bottom: 18px; }
+  .pack-deal { padding: 14px 16px; margin-bottom: 14px; }
+  .pack-deal-main { font-size: 15px; }
+  .trust-item span:last-child { font-size: 12px; }
+  .accordion-body p, .accordion-body li { font-size: 14px; line-height: 1.65; }
+
+  /* General mobile typography */
+  .section-title { font-size: clamp(22px, 6.5vw, 36px); }
+  .section-subtitle { font-size: 11px; letter-spacing: 0.1em; }
+  .hero-subtitle { font-size: 15px; line-height: 1.65; }
   .breadcrumb { padding: 20px 20px; }
 
   .complete-look { padding: 60px 20px; }
