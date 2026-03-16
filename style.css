@@ -2792,32 +2792,7 @@ body.has-bar .site-header { top: 36px; }
 .announcement-bar-close:hover { color: rgba(255,255,255,0.9); }
 .announcement-bar-sep { color: rgba(255,255,255,0.2); font-size: 8px; }
 
-/* Back to top */
-.back-to-top {
-  position: fixed;
-  bottom: 36px;
-  right: 104px;
-  width: 44px;
-  height: 44px;
-  background: var(--charcoal);
-  color: var(--white);
-  border: none;
-  border-radius: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
-  transform: translateY(8px);
-  transition: opacity 0.25s, transform 0.25s;
-  z-index: 900;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-}
-.back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.back-to-top:hover { background: #000; }
 @media (max-width: 768px) {
-  .back-to-top { right: 20px; bottom: calc(78px + env(safe-area-inset-bottom, 0px)); width: 40px; height: 40px; }
   .whatsapp-float { animation: none; } /* don't animate on mobile — save battery */
   .announcement-bar { font-size: 9px; letter-spacing: 0.08em; padding: 8px 36px 8px 16px; gap: 10px; }
   .announcement-bar-sep { display: none; }
