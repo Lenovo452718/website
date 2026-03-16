@@ -1163,26 +1163,44 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderSize = (metaParts[0] || '').replace('Size:', '').trim();
     const orderQty  = parseInt((metaParts[1] || '1').replace('Qty:', '').trim(), 10) || 1;
 
-    // Save order to localStorage for admin panel
-    const orders = JSON.parse(localStorage.getItem('ss_orders') || '[]');
-    orders.unshift({
-      id: Date.now(), date: new Date().toISOString(),
+    const orderData = {
       product: name, size: orderSize, qty: orderQty, price,
       customer: cName, phone: cPhone, city: cCity, address: cAddr,
-      status: 'new'
+    };
+
+    // ── Try backend bot first (auto WhatsApp message to customer) ──
+    const BACKEND_URL = typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : null;
+
+    if (BACKEND_URL) {
+      try {
+        const resp = await fetch(BACKEND_URL + '/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData),
+        });
+        if (resp.ok) {
+          closeModal();
+          // Show success message
+          const submitBtn = document.getElementById('buyNowForm').querySelector('.buynow-submit');
+          submitBtn.textContent = '✅ Order received! Check WhatsApp.';
+          submitBtn.style.background = '#155724';
+          setTimeout(closeModal, 2500);
+          return;
+        }
+      } catch (_) { /* fall through to WhatsApp fallback */ }
+    }
+
+    // ── Fallback: save to localStorage + open WhatsApp manually ──
+    const orders = JSON.parse(localStorage.getItem('ss_orders') || '[]');
+    orders.unshift({
+      id: Date.now(), date: new Date().toISOString(), status: 'new', ...orderData
     });
     localStorage.setItem('ss_orders', JSON.stringify(orders));
 
     const lines = [
-      '🛍️ *New Order — StreetStore*',
-      '',
-      `📦 *Product:* ${name}`,
-      `📐 *${meta}*`,
-      `💰 *Price:* ${price}`,
-      '',
-      `👤 *Name:* ${cName}`,
-      `📞 *Phone:* ${cPhone}`,
-      `🏙️ *City:* ${cCity}`,
+      '🛍️ *New Order — StreetStore*', '',
+      `📦 *Product:* ${name}`, `📐 *${meta}*`, `💰 *Price:* ${price}`, '',
+      `👤 *Name:* ${cName}`, `📞 *Phone:* ${cPhone}`, `🏙️ *City:* ${cCity}`,
       cAddr ? `📍 *Address:* ${cAddr}` : null,
     ].filter(Boolean).join('\n');
 
