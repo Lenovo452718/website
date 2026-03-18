@@ -52,46 +52,70 @@ function initMobileBottomNav() {
   }
 }
 
-/* ---- 2. Product Gallery — swipe gestures + dot indicators ---- */
+/* ---- 2. Product Gallery — horizontal slide carousel ---- */
 function initMobileGallerySwipe() {
   if (window.innerWidth > 768) return;
   const mainWrap = document.getElementById('galleryMainNew');
   const thumbItems = Array.from(document.querySelectorAll('.thumb-item'));
   if (!mainWrap || !thumbItems.length) return;
 
-  let currentIndex = 0;
-  let startX = 0;
+  // Collect image srcs from thumb-items (already populated by products.js)
+  const srcs = thumbItems.map(t =>
+    t.dataset.src || (t.querySelector('img') ? t.querySelector('img').getAttribute('src') : null)
+  ).filter(Boolean);
+  if (!srcs.length) return;
 
-  // Create dot indicators below the main image
+  // Build CSS scroll-snap slider
+  const slider = document.createElement('div');
+  slider.className = 'mobile-gallery-slider';
+  slider.style.cssText = 'display:flex;overflow-x:scroll;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;-ms-overflow-style:none;height:100%;';
+
+  srcs.forEach(src => {
+    const slide = document.createElement('div');
+    slide.style.cssText = 'flex:0 0 100%;scroll-snap-align:start;height:100%;overflow:hidden;';
+    const img = document.createElement('img');
+    img.src = src;
+    img.draggable = false;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;';
+    slide.appendChild(img);
+    slider.appendChild(slide);
+  });
+
+  // Replace main image with slider
+  mainWrap.querySelector('#mainProductImg')?.remove();
+  mainWrap.querySelector('.zoom-hint')?.remove();
+  mainWrap.style.overflow = 'hidden';
+  mainWrap.style.cursor = 'default';
+  mainWrap.insertBefore(slider, mainWrap.firstChild);
+
+  // Dot indicators
   const dotsWrap = document.createElement('div');
   dotsWrap.className = 'gallery-dots';
-  thumbItems.forEach((_, i) => {
+  srcs.forEach((_, i) => {
     const dot = document.createElement('span');
     dot.className = 'gallery-dot' + (i === 0 ? ' active' : '');
     dotsWrap.appendChild(dot);
   });
   mainWrap.insertAdjacentElement('afterend', dotsWrap);
 
-  function updateDots(i) {
-    document.querySelectorAll('.gallery-dot').forEach((d, j) => d.classList.toggle('active', j === i));
-  }
-  function goTo(i) {
-    currentIndex = Math.max(0, Math.min(i, thumbItems.length - 1));
-    thumbItems[currentIndex].click();
-    updateDots(currentIndex);
-  }
-
-  // Touch swipe
-  mainWrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; }, { passive: true });
-  mainWrap.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) < 40) return;
-    goTo(dx < 0 ? currentIndex + 1 : currentIndex - 1);
+  // Update dots + counter + thumb sync on scroll
+  let scrollTimer;
+  slider.addEventListener('scroll', () => {
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(() => {
+      const w = slider.offsetWidth || 1;
+      const idx = Math.round(slider.scrollLeft / w);
+      dotsWrap.querySelectorAll('.gallery-dot').forEach((d, j) => d.classList.toggle('active', j === idx));
+      mainWrap.setAttribute('data-counter', String(idx + 1).padStart(2, '0') + ' / ' + String(srcs.length).padStart(2, '0'));
+      thumbItems.forEach((t, j) => t.classList.toggle('active', j === idx));
+    }, 60);
   }, { passive: true });
 
-  // Keep dot in sync when filmstrip thumb is clicked manually
+  // Keep slider in sync when a thumb is clicked (desktop filmstrip click carried over)
   thumbItems.forEach((thumb, i) => {
-    thumb.addEventListener('click', () => { currentIndex = i; updateDots(i); });
+    thumb.addEventListener('click', () => {
+      slider.scrollTo({ left: i * slider.offsetWidth, behavior: 'smooth' });
+    });
   });
 }
 

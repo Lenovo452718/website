@@ -2316,9 +2316,10 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 /* Ensure body has room for bottom nav */
 @media (max-width: 768px) {
 
-  /* ---- Gallery filmstrip: hidden on mobile (dots replace it) ---- */
+  /* ---- Gallery filmstrip: hidden on mobile (slide carousel replaces it) ---- */
   .gallery-filmstrip { display: none; }
   .zoom-hint { display: none; }
+  .mobile-gallery-slider::-webkit-scrollbar { display: none; }
 
   /* Dot indicators */
   .gallery-dots {

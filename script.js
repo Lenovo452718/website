@@ -304,6 +304,7 @@ function injectCartDrawer() {
   document.getElementById('continueShopping').addEventListener('click', e => { e.preventDefault(); closeCart(); });
 
   document.getElementById('checkoutBtn').addEventListener('click', () => {
+    if (getCart().length === 0) return;
     window.location.href = 'checkout.html';
   });
 }
