@@ -23,7 +23,7 @@ const PRODUCTS = {
       "images/products/patte-elephant/3.jpg",
       "images/products/patte-elephant/4.jpg",
     ],
-    video: "videos/placeholder.mp4"
+    video: null
   },
 
   'high-rise-dark-blue': {
@@ -45,7 +45,7 @@ const PRODUCTS = {
       "images/products/high-rise-dark-blue/4.jpg",
       "images/products/high-rise-dark-blue/5.jpg",
     ],
-    video: "videos/placeholder.mp4"
+    video: null
   },
 
   'brown-wide-leg': {
@@ -67,7 +67,7 @@ const PRODUCTS = {
       "images/products/brown-wide-leg/4.jpg",
       "images/products/brown-wide-leg/5.jpg",
     ],
-    video: "videos/placeholder.mp4"
+    video: null
   },
 
   'baggy-wide-leg': {
@@ -89,7 +89,7 @@ const PRODUCTS = {
       "images/products/baggy-wide-leg/4.jpg",
       "images/products/baggy-wide-leg/5.jpg",
     ],
-    video: "videos/placeholder.mp4"
+    video: null
   },
 
   'jean-skirts': {
