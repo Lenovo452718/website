@@ -1102,8 +1102,10 @@ document.addEventListener('DOMContentLoaded', () => {
           <label for="bnAddress">Address <span class="buynow-optional">(optional)</span></label>
           <input type="text" id="bnAddress" placeholder="Street / neighbourhood" autocomplete="street-address">
         </div>
-        <button type="submit" class="buynow-submit">${WA_SVG} Confirm Order via WhatsApp</button>
+        <button type="submit" class="buynow-submit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg> Confirm Order</button>
       </form>
+      <div style="display:flex;align-items:center;gap:10px;margin:12px 0 4px"><hr style="flex:1;border:none;border-top:1px solid #e5e0d8"><span style="color:#999;font-size:12px">or</span><hr style="flex:1;border:none;border-top:1px solid #e5e0d8"></div>
+      <button type="button" id="bnWhatsAppBtn" style="width:100%;padding:13px;background:#25D366;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px">${WA_SVG} Order via WhatsApp</button>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -1145,6 +1147,25 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('buyNowClose').addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  document.getElementById('bnWhatsAppBtn').addEventListener('click', () => {
+    const { name, size, qty, price } = getProductData();
+    const cName  = document.getElementById('bnName').value.trim();
+    const cPhone = document.getElementById('bnPhone').value.trim();
+    const cCity  = document.getElementById('bnCity').value.trim();
+    const cAddr  = document.getElementById('bnAddress').value.trim();
+    const meta   = `Size: ${size}  ·  Qty: ${qty}`;
+    const lines  = [
+      '🛍️ *New Order — StreetStore*', '',
+      `📦 *Product:* ${name}`, `📐 *${meta}*`, `💰 *Price:* ${price}`, '',
+      `👤 *Name:* ${cName || '—'}`, `📞 *Phone:* ${cPhone || '—'}`, `🏙️ *City:* ${cCity || '—'}`,
+      cAddr ? `📍 *Address:* ${cAddr}` : null,
+    ].filter(Boolean).join('\n');
+    const adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+    const waNumber = adminSettings.waNumber || '212771152186';
+    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(lines)}`, '_blank');
+    closeModal();
+  });
 
   document.getElementById('buyNowForm').addEventListener('submit', async e => {
     e.preventDefault();
@@ -1201,7 +1222,7 @@ document.addEventListener('DOMContentLoaded', () => {
           closeModal();
           // Show success message
           const submitBtn = document.getElementById('buyNowForm').querySelector('.buynow-submit');
-          submitBtn.textContent = '✅ Order received! Check WhatsApp.';
+          submitBtn.textContent = '✅ Order placed!';
           submitBtn.style.background = '#155724';
           setTimeout(closeModal, 2500);
           return;
@@ -1209,23 +1230,17 @@ document.addEventListener('DOMContentLoaded', () => {
       } catch (_) { /* fall through to WhatsApp fallback */ }
     }
 
-    // ── Fallback: save to localStorage + open WhatsApp manually ──
+    // ── Fallback: save to localStorage ──
     const orders = JSON.parse(localStorage.getItem('ss_orders') || '[]');
     orders.unshift({
       id: Date.now(), date: new Date().toISOString(), status: 'new', ...orderData
     });
     localStorage.setItem('ss_orders', JSON.stringify(orders));
 
-    const lines = [
-      '🛍️ *New Order — StreetStore*', '',
-      `📦 *Product:* ${name}`, `📐 *${meta}*`, `💰 *Price:* ${price}`, '',
-      `👤 *Name:* ${cName}`, `📞 *Phone:* ${cPhone}`, `🏙️ *City:* ${cCity}`,
-      cAddr ? `📍 *Address:* ${cAddr}` : null,
-    ].filter(Boolean).join('\n');
-
-    const adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
-    const waNumber = adminSettings.waNumber || '212771152186';
-    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(lines)}`, '_blank');
-    closeModal();
+    const submitBtn = document.getElementById('buyNowForm').querySelector('.buynow-submit');
+    submitBtn.innerHTML = '✅ Order placed!';
+    submitBtn.style.background = '#155724';
+    submitBtn.disabled = true;
+    setTimeout(closeModal, 2500);
   });
 })();

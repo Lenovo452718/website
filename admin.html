@@ -1743,7 +1743,7 @@ function saveProductModal() {
     color:      document.getElementById('pmColor').value,
     image:      document.getElementById('pmImage').value.trim()||null,
     video:      document.getElementById('pmVideo').value.trim()||null,
-    href:       document.getElementById('pmHref').value.trim()||'#',
+    href:       document.getElementById('pmHref').value.trim()||('product.html?id='+id),
     description:document.getElementById('pmDesc').value.trim(),
     inStock:    document.getElementById('pmStock').checked,
   };

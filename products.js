@@ -206,6 +206,38 @@ const PRODUCTS = {
   });
 })();
 
+/* ── Auto-populate product info panel (name, price, sizes…) ── */
+(function initProductInfo() {
+  var page = document.body.dataset.product;
+  if (!page) return;
+  var product = PRODUCTS[page];
+  if (!product) return;
+
+  document.title = product.name + ' — StreetStore';
+
+  var crumb = document.querySelector('.breadcrumb .current');
+  if (crumb) crumb.textContent = product.name;
+
+  var nameEl = document.querySelector('.product-name');
+  if (nameEl) nameEl.textContent = product.name.toUpperCase();
+
+  var priceEl = document.querySelector('.product-price-display');
+  if (priceEl) priceEl.innerHTML = '<span class="original" style="font-size:16px;color:var(--gray);text-decoration:line-through;margin-right:8px;">' + product.originalPrice + ' MAD</span>' + product.price + ' MAD';
+
+  var sizeWrap = document.querySelector('.size-selector');
+  if (sizeWrap && product.sizes) {
+    sizeWrap.innerHTML = product.sizes.split(',').map(function(s, i) {
+      return '<button class="size-btn' + (i === 0 ? ' active' : '') + '">' + s.trim() + '</button>';
+    }).join('');
+  }
+
+  var fitNote = document.querySelector('.fit-note');
+  if (fitNote && product.fit) fitNote.textContent = product.fit;
+
+  var cartBtn = document.querySelector('.add-to-cart-btn');
+  if (cartBtn) { cartBtn.dataset.name = product.name; cartBtn.dataset.price = product.price; }
+})();
+
 /* ── Auto-populate product page gallery (filmstrip + video) ── */
 (function initProductGallery() {
   var page = document.body.dataset.product;
