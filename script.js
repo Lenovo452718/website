@@ -172,12 +172,12 @@ function renderCartItems() {
           <p class="cart-item-name">${item.name}</p>
           <p class="cart-item-price">${item.price} MAD &middot; ${item.size}</p>
           <div class="cart-item-qty">
-            <button onclick="updateQty('${item.id}', -1)">−</button>
+            <button onclick="updateQty(${JSON.stringify(item.id)}, -1)">−</button>
             <span>${item.qty}</span>
-            <button onclick="updateQty('${item.id}', 1)">+</button>
+            <button onclick="updateQty(${JSON.stringify(item.id)}, 1)">+</button>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="removeFromCart('${item.id}')">✕</button>
+        <button class="cart-item-remove" onclick="removeFromCart(${JSON.stringify(item.id)})">✕</button>
       </div>
     `).join('');
   }
@@ -922,6 +922,11 @@ function initProductVideo() {
   }
 
   video.addEventListener('ended', revealImages);
+  video.addEventListener('error', revealImages);
+  video.addEventListener('stalled', function() { setTimeout(revealImages, 2000); });
+  // Auto-skip if video hasn't started playing within 4 seconds (missing file, mobile block, slow network)
+  var videoTimeout = setTimeout(revealImages, 4000);
+  video.addEventListener('playing', function() { clearTimeout(videoTimeout); }, { once: true });
   if (skipBtn) skipBtn.addEventListener('click', revealImages);
 }
 
