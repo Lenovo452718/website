@@ -1480,11 +1480,16 @@ function orderTableRows(orders, compact) {
   if (!orders.length) return '';
   const allConfirmedIds = orders.filter(o=>o.status==='confirmed').map(o=>o.id);
   const allChecked = allConfirmedIds.length > 0 && allConfirmedIds.every(id=>_selectedOrders.has(id));
+  const checkedAttr = allChecked ? 'checked' : '';
+  const idsJson = JSON.stringify(allConfirmedIds).replace(/"/g, "'");
+  const checkboxTh = compact ? '' : `<th style="width:32px"><input type="checkbox" title="Select all confirmed" ${checkedAttr} onchange="allConfirmedIds=${idsJson};this.checked?allConfirmedIds.forEach(id=>_selectedOrders.add(id)):_selectedOrders.clear();loadOrdersTable();updateOlivraisonBar()"></th>`;
+  const phoneTh   = compact ? '' : '<th>Phone</th>';
+  const actionsTh = compact ? '' : '<th>Actions</th>';
   const hdr = `<thead><tr>
-    ${compact?'':'<th style="width:32px"><input type="checkbox" title="Select all confirmed" ${allChecked?'checked':''} onchange="allConfirmedIds=${JSON.stringify(allConfirmedIds).replace(/"/g,"'")};this.checked?allConfirmedIds.forEach(id=>_selectedOrders.add(id)):_selectedOrders.clear();loadOrdersTable();updateOlivraisonBar()"></th>'}
+    ${checkboxTh}
     <th>#</th><th>Date</th><th>Product</th><th>Size/Qty</th><th>Price</th>
-    <th>Customer</th>${compact?'':'<th>Phone</th>'}<th>Status</th>
-    ${compact?'':'<th>Actions</th>'}
+    <th>Customer</th>${phoneTh}<th>Status</th>
+    ${actionsTh}
   </tr></thead>`;
   const rows = orders.map((o,i)=>{
     const d = new Date(o.date||o.createdAt||Date.now());
