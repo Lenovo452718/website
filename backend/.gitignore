@@ -4,5 +4,7 @@ node_modules/
 .wwebjs_cache/
 orders.json
 auth.json
+blocked_ips.json
+product_overrides.json
 backups/
 *.log

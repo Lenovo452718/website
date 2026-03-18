@@ -923,12 +923,14 @@ textarea.field-input{resize:vertical;min-height:80px}
 <div class="toast" id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="config.js"></script>
 <script>
 /* ═══════════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════════ */
 let   API_KEY      = '';  // set after backend login — never hardcoded
-const BACKEND_URL  = 'http://localhost:3000';
+// Backend URL is set in config.js — change it there when you deploy
+const BACKEND_URL  = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
 
 async function authFetch(path, opts = {}) {
   const url = path.startsWith('http') ? path : `${BACKEND_URL}${path}`;

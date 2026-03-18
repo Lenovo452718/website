@@ -16,6 +16,15 @@ const jwt       = require('jsonwebtoken');
 const speakeasy = require('speakeasy');
 const QRCode    = require('qrcode');
 const { createOrder, readOrders, getOrder, updateOrder } = require('./db');
+const cloudinary = require('cloudinary').v2;
+
+/* ── Cloudinary setup (only when CLOUDINARY_URL env var is set) ── */
+const USE_CLOUDINARY = !!process.env.CLOUDINARY_URL;
+if (USE_CLOUDINARY) {
+  // CLOUDINARY_URL format: cloudinary://api_key:api_secret@cloud_name
+  cloudinary.config({ secure: true });
+  console.log('☁️  Cloudinary enabled for file uploads');
+}
 
 /* ════════════════════════════════════════
    AUTH STORE — hashed password + 2FA secret
@@ -428,8 +437,27 @@ app.delete('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), (req, res) => {
+app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+  if (USE_CLOUDINARY) {
+    try {
+      const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: isVideo ? 'video' : 'image',
+        folder: 'streetstore',
+        use_filename: true,
+        unique_filename: true,
+      });
+      // Delete local temp file
+      fs.unlink(req.file.path, () => {});
+      return res.json({ url: result.secure_url, filename: result.public_id });
+    } catch (err) {
+      console.error('Cloudinary upload error:', err.message);
+      // Fall through to local storage if Cloudinary fails
+    }
+  }
+
   res.json({ url: `uploads/${req.file.filename}`, filename: req.file.filename });
 });
 
