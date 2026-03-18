@@ -169,6 +169,7 @@ app.use(cors({
 }));
 
 app.use('/uploads', express.static(UPLOADS_DIR));
+app.use(express.static(path.join(__dirname, '..')));
 
 /* ── Rate limiters ── */
 const orderLimiter = rateLimit({
@@ -473,6 +474,70 @@ app.get('/api/admin/stats', adminLimiter, requireAuth, (req, res) => {
     edited:     orders.filter(o => o.status === 'edited').length,
     processing: orders.filter(o => o.status === 'processing').length,
   });
+});
+
+/* ════════════════════════════════════════
+   OLIVRAISON — Send confirmed orders
+════════════════════════════════════════ */
+app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, res) => {
+  const { orderIds, publicKey, privateKey } = req.body;
+  if (!Array.isArray(orderIds) || !orderIds.length) return res.status(400).json({ error: 'No order IDs provided' });
+  if (!publicKey || !privateKey) return res.status(400).json({ error: 'Olivraison credentials required' });
+
+  const GRAPHQL_URL = 'https://api.olivraison.com/graphql';
+  const orders = readOrders();
+  const results = [];
+
+  for (const id of orderIds.slice(0, 100)) { // cap at 100 to prevent abuse
+    const order = orders.find(o => o.id === id);
+    if (!order) { results.push({ orderId: id, success: false, error: 'Order not found' }); continue; }
+
+    const mutation = `mutation CreateShipment($input: ShipmentInput!) {
+      createShipment(input: $input) {
+        id trackingCode status
+      }
+    }`;
+
+    const variables = {
+      input: {
+        recipientName:    order.customer  || 'Unknown',
+        recipientPhone:   order.phone     || '',
+        recipientAddress: order.address   || '',
+        recipientCity:    order.city      || '',
+        description:      order.product   || '',
+        weight:           1,
+        price:            order.total     || 0,
+        codAmount:        order.total     || 0,
+        externalId:       order.id,
+      }
+    };
+
+    try {
+      const resp = await fetch(GRAPHQL_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-public-key':  publicKey,
+          'x-private-key': privateKey,
+        },
+        body: JSON.stringify({ query: mutation, variables }),
+      });
+      const json = await resp.json();
+
+      if (json.errors && json.errors.length) {
+        results.push({ orderId: id, customer: order.customer, success: false, error: json.errors[0].message });
+      } else {
+        const shipment = json.data?.createShipment;
+        // Update order status to 'processing' and store tracking code
+        updateOrder(id, { status: 'processing', trackingCode: shipment?.trackingCode || null, olivraisonId: shipment?.id || null });
+        results.push({ orderId: id, customer: order.customer, success: true, trackingCode: shipment?.trackingCode || null });
+      }
+    } catch (err) {
+      results.push({ orderId: id, customer: order.customer, success: false, error: err.message });
+    }
+  }
+
+  res.json({ results });
 });
 
 /* ════════════════════════════════════════

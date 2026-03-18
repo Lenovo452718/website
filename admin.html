@@ -292,7 +292,7 @@ textarea.field-input{resize:vertical;min-height:80px}
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen">
+<div id="loginScreen" style="display:flex">
   <div class="login-box">
     <p class="login-logo">StreetStore</p>
     <p class="login-sub">Admin Panel — Restricted Access</p>
@@ -318,7 +318,31 @@ textarea.field-input{resize:vertical;min-height:80px}
       <button style="width:100%;background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-top:8px" onclick="resetLoginSteps()">← Back</button>
     </div>
 
-    <p class="login-error" id="loginError">Incorrect password. Try again.</p>
+    <p class="login-error" id="loginError"></p>
+
+    <!-- Forgot password -->
+    <p style="text-align:center;margin-top:10px">
+      <a href="#" onclick="toggleResetForm();return false;" style="font-size:12px;color:var(--gray);text-decoration:underline">Forgot password?</a>
+    </p>
+
+    <!-- Reset password form -->
+    <div id="resetForm" style="display:none;margin-top:18px;border-top:1px solid var(--gray-light);padding-top:18px">
+      <p style="font-size:12px;color:var(--gray);margin-bottom:14px;text-align:center">Enter your <code>API_SECRET</code> from the <code>.env</code> file, then set a new password.</p>
+      <div class="login-field">
+        <label>API Secret</label>
+        <input type="password" id="resetSecret" placeholder="Value of API_SECRET in .env">
+      </div>
+      <div class="login-field">
+        <label>New Password</label>
+        <input type="password" id="resetNewPwd" placeholder="Min 8 chars, letter + number">
+      </div>
+      <div class="login-field">
+        <label>Confirm New Password</label>
+        <input type="password" id="resetConfirmPwd" placeholder="Repeat new password">
+      </div>
+      <button class="login-btn" onclick="resetPassword()">Reset Password</button>
+      <p class="login-error" id="resetError" style="display:none"></p>
+    </div>
   </div>
 </div>
 
@@ -453,6 +477,20 @@ textarea.field-input{resize:vertical;min-height:80px}
         </div>
         <button class="btn btn-outline btn-sm" onclick="exportOrders()">Export CSV</button>
       </div>
+
+      <!-- Olivraison action bar — shows when confirmed orders are selected -->
+      <div id="olivraisonBar" style="display:none;background:#f0faf4;border:1.5px solid #27ae60;border-radius:8px;padding:12px 16px;margin-bottom:12px;display:none;align-items:center;gap:12px;flex-wrap:wrap">
+        <img src="https://olivraison.com/logo.png" alt="Olivraison" style="height:24px;object-fit:contain" onerror="this.style.display='none'">
+        <span id="olivraisonSelCount" style="font-size:13px;font-weight:600;color:#155724">0 orders selected</span>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="selectAllConfirmed()">Select All Confirmed</button>
+          <button class="btn btn-outline btn-sm" onclick="clearOrderSelection()">Clear Selection</button>
+          <button class="btn btn-primary" style="background:#27ae60;border-color:#27ae60" onclick="sendToOlivraison()">
+            🚚 Send to Olivraison
+          </button>
+        </div>
+      </div>
+
       <div class="search-wrap">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="search-input" id="orderSearch" placeholder="Search by customer, product, phone..." oninput="loadOrdersTable()">
@@ -461,6 +499,18 @@ textarea.field-input{resize:vertical;min-height:80px}
         <div class="table-wrap"><table class="admin-table" id="ordersTable"></table></div>
       </div>
     </section>
+
+    <!-- ── OLIVRAISON RESULTS MODAL ── -->
+    <div class="modal-overlay" id="olivraisonModal">
+      <div class="modal-box" style="max-width:560px">
+        <button class="modal-close" onclick="document.getElementById('olivraisonModal').classList.remove('open')">×</button>
+        <h2 class="modal-title">Olivraison — Send Results</h2>
+        <div id="olivraisonResults" style="margin-top:16px;max-height:420px;overflow-y:auto"></div>
+        <div style="margin-top:20px;text-align:right">
+          <button class="btn btn-outline" onclick="document.getElementById('olivraisonModal').classList.remove('open')">Close</button>
+        </div>
+      </div>
+    </div>
 
     <!-- ── PRODUCTS ── -->
     <section class="admin-section" id="secProducts">
@@ -880,6 +930,22 @@ textarea.field-input{resize:vertical;min-height:80px}
 let   API_KEY      = '';  // set after backend login — never hardcoded
 const BACKEND_URL  = 'http://localhost:3000';
 
+async function authFetch(path, opts = {}) {
+  const url = path.startsWith('http') ? path : `${BACKEND_URL}${path}`;
+  opts.headers = { ...(opts.headers || {}), 'Authorization': 'Bearer ' + API_KEY };
+  return fetch(url, opts);
+}
+
+async function loadOrders() {
+  try {
+    const res = await authFetch('/api/admin/orders?limit=500');
+    if (res.ok) {
+      const orders = await res.json();
+      saveOrdersArr(orders);
+    }
+  } catch(e) {}
+}
+
 /* ═══════════════════════════════════════════
    CONSTANTS
 ═══════════════════════════════════════════ */
@@ -1080,6 +1146,58 @@ function finishLogin(token) {
 document.getElementById('loginPwd').addEventListener('keydown', e => { if(e.key==='Enter') attemptLogin(); });
 document.getElementById('loginTotp').addEventListener('keydown', e => { if(e.key==='Enter') submitTotp(); });
 
+function toggleResetForm() {
+  const f = document.getElementById('resetForm');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+  if (f.style.display === 'block') document.getElementById('resetSecret').focus();
+}
+
+async function resetPassword() {
+  const secret  = document.getElementById('resetSecret').value;
+  const np      = document.getElementById('resetNewPwd').value;
+  const cp      = document.getElementById('resetConfirmPwd').value;
+  const err     = document.getElementById('resetError');
+  err.style.display = 'none';
+
+  if (!secret) { err.textContent = 'API secret is required.'; err.style.display = 'block'; return; }
+  if (np.length < 8 || !/[A-Za-z]/.test(np) || !/[0-9]/.test(np)) {
+    err.textContent = 'Password must be 8+ chars with a letter and a number.'; err.style.display = 'block'; return;
+  }
+  if (np !== cp) { err.textContent = 'Passwords do not match.'; err.style.display = 'block'; return; }
+
+  try {
+    const loginRes = await fetch(`${BACKEND_URL}/api/admin/login`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: secret })
+    });
+    const loginData = await loginRes.json();
+    if (!loginRes.ok || !loginData.token) {
+      err.textContent = loginData.error || 'Invalid API secret.'; err.style.display = 'block'; return;
+    }
+    const changeRes = await fetch(`${BACKEND_URL}/api/admin/change-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + loginData.token },
+      body: JSON.stringify({ newPassword: np })
+    });
+    const changeData = await changeRes.json();
+    if (changeRes.ok) {
+      document.getElementById('resetForm').style.display = 'none';
+      const msg = document.getElementById('loginError');
+      msg.textContent = '✓ Password reset! Log in with your new password.';
+      msg.style.color = '#1e7e34';
+      msg.style.display = 'block';
+      document.getElementById('resetSecret').value = '';
+      document.getElementById('resetNewPwd').value = '';
+      document.getElementById('resetConfirmPwd').value = '';
+    } else {
+      err.textContent = changeData.error || 'Failed to reset password.'; err.style.display = 'block';
+    }
+  } catch(e) {
+    err.textContent = '⚠ Cannot connect to backend.'; err.style.display = 'block';
+  }
+}
+
+
 /* ── Auto-logout after 15 min inactivity ── */
 const INACTIVITY_MS = 15 * 60 * 1000;
 let _inactivityTimer = null;
@@ -1121,10 +1239,10 @@ function showSection(id, el) {
   if (el) el.classList.add('active');
   if (window.innerWidth<=900) document.getElementById('sidebar').classList.remove('open');
   // Section-specific loaders
-  if (id==='dashboard')     loadDashboard();
-  if (id==='orders')        loadOrdersTable();
+  if (id==='dashboard')     loadOrders().then(()=>loadDashboard());
+  if (id==='orders')        loadOrders().then(()=>loadOrdersTable());
   if (id==='products')      loadProductsGrid();
-  if (id==='customers')     loadCustomersTable();
+  if (id==='customers')     loadOrders().then(()=>loadCustomersTable());
   if (id==='discounts')     loadDiscountsTable();
   if (id==='content')       loadContentForms();
   if (id==='media')         loadMediaGrid();
@@ -1249,6 +1367,96 @@ function renderTopProducts(orders) {
    ORDERS
 ═══════════════════════════════════════════ */
 let _orderFilter = 'all';
+const _selectedOrders = new Set();
+
+function toggleOrderSelect(id, chk) {
+  if (chk.checked) _selectedOrders.add(id); else _selectedOrders.delete(id);
+  updateOlivraisonBar();
+}
+
+function selectAllConfirmed() {
+  const orders = getOrders().filter(o => o.status === 'confirmed');
+  orders.forEach(o => _selectedOrders.add(o.id));
+  loadOrdersTable();
+  updateOlivraisonBar();
+}
+
+function clearOrderSelection() {
+  _selectedOrders.clear();
+  loadOrdersTable();
+  updateOlivraisonBar();
+}
+
+function updateOlivraisonBar() {
+  const bar = document.getElementById('olivraisonBar');
+  const cnt = document.getElementById('olivraisonSelCount');
+  if (!bar) return;
+  if (_selectedOrders.size > 0) {
+    bar.style.display = 'flex';
+    cnt.textContent = _selectedOrders.size + ' order' + (_selectedOrders.size !== 1 ? 's' : '') + ' selected';
+  } else {
+    bar.style.display = 'none';
+  }
+}
+
+async function sendToOlivraison() {
+  const ids = [..._selectedOrders];
+  if (!ids.length) return;
+
+  const saved = JSON.parse(localStorage.getItem('ss_integrations') || '{}');
+  const creds = saved.credentials || {};
+  if (!creds.publicKey || !creds.privateKey) {
+    showToast('Please save your Olivraison credentials in Integrations first', 'error');
+    return;
+  }
+
+  const modal = document.getElementById('olivraisonModal');
+  const body  = document.getElementById('olivraisonResults');
+  body.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray)">Sending orders to Olivraison…</div>';
+  modal.classList.add('open');
+
+  try {
+    const res = await authFetch('/api/admin/olivraison/send', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderIds: ids, publicKey: creds.publicKey, privateKey: creds.privateKey })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      body.innerHTML = `<div style="color:var(--red);padding:8px">${escHtml(data.error || 'Request failed')}</div>`;
+      return;
+    }
+
+    const results = data.results || [];
+    let html = '<table class="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Tracking</th></tr></thead><tbody>';
+    results.forEach(r => {
+      const statusColor = r.success ? '#27ae60' : '#c0392b';
+      html += `<tr>
+        <td><span class="badge badge-outline">#${escHtml(r.orderId)}</span></td>
+        <td>${escHtml(r.customer || '')}</td>
+        <td><span style="color:${statusColor};font-weight:700">${r.success ? '✓ Sent' : '✗ Failed'}</span>${r.error ? `<br><span style="font-size:11px;color:var(--gray)">${escHtml(r.error)}</span>` : ''}</td>
+        <td>${r.trackingCode ? `<code style="font-size:12px">${escHtml(r.trackingCode)}</code>` : '—'}</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+
+    const sentCount  = results.filter(r => r.success).length;
+    const failCount  = results.length - sentCount;
+    html = `<div style="margin-bottom:14px;font-size:13px">
+      <span style="color:#27ae60;font-weight:700">${sentCount} sent</span>
+      ${failCount ? `&nbsp;·&nbsp;<span style="color:var(--red);font-weight:700">${failCount} failed</span>` : ''}
+    </div>` + html;
+
+    body.innerHTML = html;
+
+    // Refresh table so updated statuses show
+    clearOrderSelection();
+    await loadOrders();
+  } catch (e) {
+    body.innerHTML = `<div style="color:var(--red);padding:8px">Network error: ${escHtml(e.message)}</div>`;
+  }
+}
 
 function filterOrders(filter) {
   _orderFilter = filter;
@@ -1270,7 +1478,10 @@ function loadOrdersTable() {
 
 function orderTableRows(orders, compact) {
   if (!orders.length) return '';
+  const allConfirmedIds = orders.filter(o=>o.status==='confirmed').map(o=>o.id);
+  const allChecked = allConfirmedIds.length > 0 && allConfirmedIds.every(id=>_selectedOrders.has(id));
   const hdr = `<thead><tr>
+    ${compact?'':'<th style="width:32px"><input type="checkbox" title="Select all confirmed" ${allChecked?'checked':''} onchange="allConfirmedIds=${JSON.stringify(allConfirmedIds).replace(/"/g,"'")};this.checked?allConfirmedIds.forEach(id=>_selectedOrders.add(id)):_selectedOrders.clear();loadOrdersTable();updateOlivraisonBar()"></th>'}
     <th>#</th><th>Date</th><th>Product</th><th>Size/Qty</th><th>Price</th>
     <th>Customer</th>${compact?'':'<th>Phone</th>'}<th>Status</th>
     ${compact?'':'<th>Actions</th>'}
@@ -1296,7 +1507,9 @@ function orderTableRows(orders, compact) {
       <button class="btn-icon" onclick="openOrderModal('${o.id}')" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <button class="btn-icon danger" onclick="deleteOrder('${o.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
     </div></td>`;
+    const isConfirmed = status === 'confirmed';
     return `<tr class="${rowClass}">
+      ${compact?'':`<td><input type="checkbox" ${_selectedOrders.has(o.id)?'checked':''} ${isConfirmed?'':'style="opacity:.3"'} onchange="toggleOrderSelect('${o.id}',this)"></td>`}
       <td style="color:var(--gray);font-size:11px">${escHtml(o.id)||'#'+String(i+1).padStart(3,'0')}</td>
       <td style="font-size:12px">${ds}</td>
       <td style="max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${escHtml(o.product)||'—'}</td>
@@ -1311,7 +1524,7 @@ function orderTableRows(orders, compact) {
   return hdr+'<tbody>'+rows+'</tbody>';
 }
 
-function setOrderStatus(id, status) {
+async function setOrderStatus(id, status) {
   const orders = getOrders();
   const idx = orders.findIndex(o=>o.id===id||String(o.id)===String(id));
   if (idx>-1) { orders[idx].status=status; orders[idx].updatedAt=new Date().toISOString(); saveOrdersArr(orders); }
@@ -1320,9 +1533,16 @@ function setOrderStatus(id, status) {
   updateNewOrdersBadge();
   logActivity('Order status changed', `${id} → ${status}`);
   showToast('Order updated to '+status);
+  try {
+    await authFetch(`/api/admin/orders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+  } catch(e) {}
 }
 
-function deleteOrder(id) {
+async function deleteOrder(id) {
   if (!confirm('Delete this order?')) return;
   saveOrdersArr(getOrders().filter(o=>o.id!==id&&String(o.id)!==String(id)));
   loadOrdersTable();
@@ -1330,6 +1550,9 @@ function deleteOrder(id) {
   updateNewOrdersBadge();
   logActivity('Order deleted', id);
   showToast('Order deleted','error');
+  try {
+    await authFetch(`/api/admin/orders/${id}`, { method: 'DELETE' });
+  } catch(e) {}
 }
 
 function updateNewOrdersBadge() {
@@ -1393,11 +1616,11 @@ function openOrderModal(id) {
   document.body.style.overflow='hidden';
 }
 
-function saveOrderModal(id) {
+async function saveOrderModal(id) {
   const orders = getOrders();
   const idx = orders.findIndex(o=>o.id===id||String(o.id)===String(id));
   if (idx>-1) {
-    orders[idx] = { ...orders[idx],
+    const updates = {
       status: document.getElementById('omStatus').value,
       trackingNumber: document.getElementById('omTracking').value,
       deliveryCompany: document.getElementById('omCompany').value,
@@ -1405,7 +1628,15 @@ function saveOrderModal(id) {
       notes: document.getElementById('omNotes').value,
       updatedAt: new Date().toISOString()
     };
+    orders[idx] = { ...orders[idx], ...updates };
     saveOrdersArr(orders);
+    try {
+      await authFetch(`/api/admin/orders/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: updates.status })
+      });
+    } catch(e) {}
     logActivity('Order updated', id);
     showToast('Order saved');
   }
@@ -1791,7 +2022,8 @@ function addMedia() {
   const url = document.getElementById('mediaUrl').value.trim();
   if (!url) { showToast('URL is required','error'); return; }
   const items = getMedia();
-  items.unshift({ id:'m-'+Date.now(), url, name:document.getElementById('mediaName').value.trim()||url.split('/').pop(), type:document.getElementById('mediaType').value, addedAt:new Date().toISOString() });
+  const isVideo = /\.(mp4|mov|webm|avi)$/i.test(url);
+  items.unshift({ id:'m-'+Date.now(), url, name:document.getElementById('mediaName').value.trim()||url.split('/').pop(), type: isVideo ? 'video' : 'image', addedAt:new Date().toISOString() });
   saveMedia(items);
   document.getElementById('mediaUrl').value='';
   document.getElementById('mediaName').value='';
@@ -1913,14 +2145,18 @@ function clearActivityLog() {
   showToast('Activity log cleared');
 }
 
-function clearAllOrders() {
+async function clearAllOrders() {
   if (!confirm('Delete ALL orders permanently? This cannot be undone.')) return;
+  const orders = getOrders();
   localStorage.removeItem(ORDERS_KEY);
   loadOrdersTable();
   loadDashboard();
   updateNewOrdersBadge();
   logActivity('All orders deleted');
   showToast('All orders deleted','error');
+  for (const o of orders) {
+    try { await authFetch(`/api/admin/orders/${o.id}`, { method: 'DELETE' }); } catch(e) {}
+  }
 }
 
 /* ═══════════════════════════════════════════
@@ -2475,7 +2711,8 @@ function checkLowStockNotifications() {
 /* ═══════════════════════════════════════════
    INIT
 ═══════════════════════════════════════════ */
-function initAdmin() {
+async function initAdmin() {
+  await loadOrders();
   loadDashboard();
   loadProductsGrid();
   updateNewOrdersBadge();
@@ -2484,7 +2721,7 @@ function initAdmin() {
   // Show integration badge if already configured
   if (localStorage.getItem('ss_integrations')) updateIntegBadge(true);
   // Fetch suspicious count for badge + dashboard alert
-  fetch(`${BACKEND_URL}/api/admin/suspicious`, { headers: { 'Authorization': 'Bearer ' + API_KEY } })
+  authFetch('/api/admin/suspicious')
     .then(r=>r.json()).then(d=>{
       updateSuspiciousBadge(d.length);
       const alertEl = document.getElementById('suspiciousAlert');
