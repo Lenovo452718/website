@@ -126,19 +126,49 @@ const PRODUCTS = {
 
 };
 
-/* ── Apply admin overrides from localStorage ─────────────── */
+/* ── Apply admin overrides (localStorage first, then backend) ── */
 (function applyAdminOverrides() {
   try {
     var ov = JSON.parse(localStorage.getItem('ss_products_override') || '{}');
     Object.keys(ov).forEach(function(id) {
-      if (ov[id] === null) {
-        delete PRODUCTS[id];
-      } else {
-        PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]);
-      }
+      if (ov[id] === null) { delete PRODUCTS[id]; }
+      else { PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]); }
     });
   } catch(e) {}
 })();
+
+/* ── Fetch overrides from backend so all devices stay in sync ── */
+setTimeout(function() {
+  var backend = window.STREETSTORE_BACKEND;
+  if (!backend) return;
+  fetch(backend + '/api/products/overrides')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(ov) {
+      if (!ov || typeof ov !== 'object') return;
+      // Cache in localStorage for next load
+      localStorage.setItem('ss_products_override', JSON.stringify(ov));
+      // Apply to PRODUCTS and re-init video if it changed for the current page
+      var page = document.body.dataset.product;
+      var prevVideo = page && PRODUCTS[page] ? PRODUCTS[page].video : undefined;
+      Object.keys(ov).forEach(function(id) {
+        if (ov[id] === null) { delete PRODUCTS[id]; }
+        else { PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]); }
+      });
+      if (!page || !PRODUCTS[page]) return;
+      var newVideo = PRODUCTS[page].video;
+      if (newVideo && newVideo !== prevVideo) {
+        var videoSrc = document.getElementById('productVideoSrc');
+        var vid = document.getElementById('productVideo');
+        if (videoSrc && vid) {
+          videoSrc.src = newVideo;
+          vid.load();
+          var p = vid.play();
+          if (p && p.catch) p.catch(function() {});
+        }
+      }
+    })
+    .catch(function() {});
+}, 0);
 
 /* ── Render shop product grid dynamically ────────────────── */
 (function renderShopGrid() {

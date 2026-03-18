@@ -135,7 +135,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = /\.(jpg|jpeg|png|gif|webp|mp4|mov|webm|avi)$/i;
     if (allowed.test(path.extname(file.originalname))) cb(null, true);
@@ -538,6 +538,31 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
   }
 
   res.json({ results });
+});
+
+/* ════════════════════════════════════════
+   PRODUCT OVERRIDES
+════════════════════════════════════════ */
+const OVERRIDES_FILE = path.join(__dirname, 'product_overrides.json');
+
+function readOverrides() {
+  try { return JSON.parse(fs.existsSync(OVERRIDES_FILE) ? fs.readFileSync(OVERRIDES_FILE, 'utf8') : '{}'); }
+  catch { return {}; }
+}
+
+/* GET /api/products/overrides — public, used by product pages on all devices */
+app.get('/api/products/overrides', (req, res) => {
+  res.json(readOverrides());
+});
+
+/* PUT /api/admin/products/overrides — admin only, called when admin saves a product */
+app.put('/api/admin/products/overrides', adminLimiter, requireAuth, (req, res) => {
+  const overrides = req.body;
+  if (typeof overrides !== 'object' || Array.isArray(overrides)) {
+    return res.status(400).json({ error: 'Invalid overrides data' });
+  }
+  fs.writeFileSync(OVERRIDES_FILE, JSON.stringify(overrides, null, 2));
+  res.json({ success: true });
 });
 
 /* ════════════════════════════════════════

@@ -983,7 +983,10 @@ const saveOrdersArr   = a  => localStorage.setItem(ORDERS_KEY, JSON.stringify(a)
 const getSettings     = () => { try { return JSON.parse(localStorage.getItem(SETTINGS_KEY)||'{}'); } catch { return {}; } };
 const saveSettingsObj = o  => { const s={...getSettings(),...o}; localStorage.setItem(SETTINGS_KEY,JSON.stringify(s)); };
 const getProductOverrides = () => { try { return JSON.parse(localStorage.getItem(PRODUCTS_OVERRIDE_KEY)||'{}'); } catch { return {}; } };
-const saveProductOverrides= o  => localStorage.setItem(PRODUCTS_OVERRIDE_KEY,JSON.stringify(o));
+const saveProductOverrides= o  => {
+  localStorage.setItem(PRODUCTS_OVERRIDE_KEY,JSON.stringify(o));
+  if (API_KEY) authFetch('/api/admin/products/overrides',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(o)}).catch(()=>{});
+};
 const getDiscounts    = () => { try { return JSON.parse(localStorage.getItem(DISCOUNTS_KEY)||'[]'); } catch { return []; } };
 const saveDiscounts   = a  => localStorage.setItem(DISCOUNTS_KEY,JSON.stringify(a));
 const getMedia        = () => { try { return JSON.parse(localStorage.getItem(MEDIA_KEY)||'[]'); } catch { return []; } };
@@ -2717,6 +2720,11 @@ function checkLowStockNotifications() {
    INIT
 ═══════════════════════════════════════════ */
 async function initAdmin() {
+  // Sync product overrides from backend into localStorage
+  try {
+    const r = await fetch(BACKEND_URL + '/api/products/overrides');
+    if (r.ok) { const ov = await r.json(); localStorage.setItem(PRODUCTS_OVERRIDE_KEY, JSON.stringify(ov)); }
+  } catch(_) {}
   await loadOrders();
   loadDashboard();
   loadProductsGrid();
