@@ -430,6 +430,10 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   background: none;
   border: none;
   transition: color var(--transition);
+  padding: 8px;
+  margin: -8px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 .cart-item-remove:hover { color: var(--charcoal); }
 
@@ -2533,6 +2537,8 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .qty-btn { min-height: 44px; min-width: 44px; }
   .add-to-cart-btn { min-height: 52px; font-size: 13px; }
   .accordion-trigger { min-height: 48px; }
+  .cart-item-remove { min-width: 44px; min-height: 44px; padding: 12px; margin: -12px; font-size: 20px; }
+  .cart-item-qty button { width: 36px; height: 36px; }
   .nav-icon-btn { min-height: 44px; min-width: 44px; }
 
   /* Cart drawer full-width on mobile */

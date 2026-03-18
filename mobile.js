@@ -9,7 +9,7 @@ function initMobileBottomNav() {
   if (document.querySelector('.mobile-bottom-nav')) return;
 
   const page = window.location.pathname.split('/').pop() || 'index.html';
-  const isProduct = page.startsWith('product-');
+  const isProduct = page.startsWith('product');
   const nav = document.createElement('nav');
   nav.className = 'mobile-bottom-nav';
   nav.innerHTML = `
