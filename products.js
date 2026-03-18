@@ -249,7 +249,11 @@ const PRODUCTS = {
   if (videoSrc && product.video) {
     videoSrc.src = product.video;
     var vid = document.getElementById('productVideo');
-    if (vid) vid.load();
+    if (vid) {
+      vid.load();
+      var p = vid.play();
+      if (p && p.catch) p.catch(function() {});
+    }
   }
 
   var thumbs   = document.querySelectorAll('.thumb-item[data-gallery-index]');
