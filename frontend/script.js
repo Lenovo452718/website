@@ -375,7 +375,6 @@ function initShopFilters() {
   const grid = document.querySelector('.product-grid-3');
   if (!grid) return;
 
-  const cards = Array.from(grid.querySelectorAll('.product-card'));
   const BATCH = 10;
   let displayCount = BATCH;
   let lastVisible = [];
@@ -423,6 +422,7 @@ function initShopFilters() {
   }
 
   function applyFilters() {
+    const cards = Array.from(grid.querySelectorAll('.product-card'));
     const checkedSizes = Array.from(document.querySelectorAll('.filter-size:checked')).map(i => i.value);
     const checkedColors = Array.from(document.querySelectorAll('.filter-color:checked')).map(i => i.value);
     const checkedFit = document.querySelector('.filter-fit:checked')?.value || 'all';
