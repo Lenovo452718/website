@@ -131,7 +131,7 @@ function isStrongPassword(p) {
 }
 
 /* ── File upload ── */
-const UPLOADS_DIR = path.join(__dirname, '..', 'uploads');
+const UPLOADS_DIR = path.join(__dirname, '../frontend/uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
@@ -179,7 +179,7 @@ app.use(cors({
 }));
 
 app.use('/uploads', express.static(UPLOADS_DIR));
-app.use(express.static(path.join(__dirname, '..')));
+app.use(express.static(path.join(__dirname, '../frontend')));
 
 /* ── Rate limiters ── */
 const orderLimiter = rateLimit({

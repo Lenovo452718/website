@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+backend/node_modules/
+
+# Environment secrets
+backend/.env
+.env
+
+# Uploaded files (stored in cloud via Cloudinary)
+frontend/uploads/*
+!frontend/uploads/.gitkeep
+
+# Backend data files (generated at runtime)
+backend/orders.json
+backend/auth.json
+backend/product_overrides.json
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.log
