@@ -162,6 +162,19 @@ setTimeout(function() {
       if (newGallery && newGallery !== prevGallery && typeof initGallerySlider === 'function') {
         initGallerySlider();
       }
+      // Re-apply per-size stock status
+      var sizesInStock = PRODUCTS[page].sizesInStock;
+      if (Array.isArray(sizesInStock)) {
+        document.querySelectorAll('.size-btn').forEach(function(btn) {
+          var s = btn.textContent.trim();
+          if (!sizesInStock.includes(s)) { btn.classList.add('sold-out'); btn.disabled = true; }
+          else { btn.classList.remove('sold-out'); btn.disabled = false; }
+        });
+      } else {
+        document.querySelectorAll('.size-btn').forEach(function(btn) {
+          btn.classList.remove('sold-out'); btn.disabled = false;
+        });
+      }
       var newVideo = PRODUCTS[page].video;
       if (newVideo && newVideo !== prevVideo) {
         var videoSrc = document.getElementById('productVideoSrc');
@@ -313,5 +326,17 @@ renderShopGrid();
   }
   if (mainWrap) {
     mainWrap.setAttribute('data-counter', '01 / ' + String(gallery.length).padStart(2, '0'));
+  }
+
+  // Apply per-size stock status from admin settings
+  var sizesInStock = product.sizesInStock; // null = all in stock; array = only listed sizes
+  if (Array.isArray(sizesInStock)) {
+    document.querySelectorAll('.size-btn').forEach(function(btn) {
+      var s = btn.textContent.trim();
+      if (!sizesInStock.includes(s)) {
+        btn.classList.add('sold-out');
+        btn.disabled = true;
+      }
+    });
   }
 })();
