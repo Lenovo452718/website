@@ -72,33 +72,17 @@
 
     <!-- IMAGES (hidden, reveals after video ends) -->
     <div class="gallery-images-wrap" id="galleryImagesWrap">
-      <div class="gallery-new">
-
-        <!-- Left: vertical thumbnails -->
-        <div class="gallery-filmstrip">
-          <div class="thumb-item active" data-num="01" data-src="images/products/brown-wide-leg/1.jpg">
-            <img src="images/products/brown-wide-leg/1.jpg" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-          <div class="thumb-item" data-num="02" data-src="images/products/brown-wide-leg/2.jpg">
-            <img src="images/products/brown-wide-leg/2.jpg" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-          <div class="thumb-item" data-num="03" data-src="images/products/brown-wide-leg/3.jpg">
-            <img src="images/products/brown-wide-leg/3.jpg" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-          <div class="thumb-item" data-num="04" data-src="images/products/brown-wide-leg/4.jpg">
-            <img src="images/products/brown-wide-leg/4.jpg" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-          <div class="thumb-item" data-num="05" data-src="images/products/brown-wide-leg/5.jpg">
-            <img src="images/products/brown-wide-leg/5.jpg" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-        </div>
-
-        <!-- Right: main image -->
-        <div class="gallery-main-new" id="galleryMainNew" data-counter="01 / 05">
-          <span class="zoom-hint">⊕ Zoom</span>
-          <img id="mainProductImg" src="images/products/brown-wide-leg/1.jpg" style="width:100%;height:100%;object-fit:cover;">
-        </div>
-
+      <div class="gallery-slider" id="gallerySlider">
+        <div class="gallery-track" id="galleryTrack"></div>
+        <button class="gallery-arrow gallery-prev" id="galleryPrev" aria-label="Previous">&#8249;</button>
+        <button class="gallery-arrow gallery-next" id="galleryNext" aria-label="Next">&#8250;</button>
+      </div>
+      <div class="gallery-thumbstrip">
+        <div class="thumb-item active" data-gallery-index="0" data-src="images/products/brown-wide-leg/1.jpg"><img src="images/products/brown-wide-leg/1.jpg"></div>
+        <div class="thumb-item" data-gallery-index="1" data-src="images/products/brown-wide-leg/2.jpg"><img src="images/products/brown-wide-leg/2.jpg"></div>
+        <div class="thumb-item" data-gallery-index="2" data-src="images/products/brown-wide-leg/3.jpg"><img src="images/products/brown-wide-leg/3.jpg"></div>
+        <div class="thumb-item" data-gallery-index="3" data-src="images/products/brown-wide-leg/4.jpg"><img src="images/products/brown-wide-leg/4.jpg"></div>
+        <div class="thumb-item" data-gallery-index="4" data-src="images/products/brown-wide-leg/5.jpg"><img src="images/products/brown-wide-leg/5.jpg"></div>
       </div>
     </div>
 
