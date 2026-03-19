@@ -882,24 +882,54 @@ function initScrollReveal() {
    NEW GALLERY THUMBNAILS — click to switch main image
    ============================================================ */
 function initGallerySlider() {
-  const sliderEl = document.getElementById('gallerySlider');
+  const sliderEl   = document.getElementById('gallerySlider');
   if (!sliderEl) return;
 
-  const track    = document.getElementById('galleryTrack');
-  const prevBtn  = document.getElementById('galleryPrev');
-  const nextBtn  = document.getElementById('galleryNext');
-  const thumbs   = Array.from(document.querySelectorAll('.thumb-item'));
+  const track      = document.getElementById('galleryTrack');
+  const prevBtn    = document.getElementById('galleryPrev');
+  const nextBtn    = document.getElementById('galleryNext');
+  const thumbstrip = document.querySelector('.gallery-thumbstrip');
 
-  // Collect image srcs from thumb-items (populated by products.js)
-  const srcs = thumbs.map(t =>
-    t.dataset.src || t.querySelector('img')?.getAttribute('src') || null
-  ).filter(Boolean);
+  // ── Source priority: PRODUCTS[pageId].gallery  >  DOM thumb-items ──
+  const pageId = document.body.dataset && document.body.dataset.product;
+  let srcs;
+  let activeThumbs;
+
+  if (pageId && window.PRODUCTS && PRODUCTS[pageId] && (PRODUCTS[pageId].gallery || []).length) {
+    // Build thumb-items dynamically from gallery so any number of images works
+    srcs = PRODUCTS[pageId].gallery.filter(Boolean);
+    if (thumbstrip) {
+      thumbstrip.innerHTML = '';
+      srcs.forEach((src, i) => {
+        const t = document.createElement('div');
+        t.className = 'thumb-item' + (i === 0 ? ' active' : '');
+        t.dataset.galleryIndex = i;
+        t.dataset.src = src;
+        const img = document.createElement('img');
+        img.src = src;
+        t.appendChild(img);
+        thumbstrip.appendChild(t);
+      });
+    }
+    activeThumbs = thumbstrip ? Array.from(thumbstrip.querySelectorAll('.thumb-item')) : [];
+  } else {
+    // Static product pages: read from pre-built thumb-items in the HTML
+    activeThumbs = Array.from(document.querySelectorAll('.thumb-item'));
+    srcs = activeThumbs.map(t =>
+      t.dataset.src || t.querySelector('img')?.getAttribute('src') || null
+    ).filter(Boolean);
+  }
 
   if (!srcs.length) {
     if (prevBtn) prevBtn.style.display = 'none';
     if (nextBtn) nextBtn.style.display = 'none';
     return;
   }
+
+  // Clear any previous slides/dots (safe to re-init)
+  track.innerHTML = '';
+  const existingDots = sliderEl.parentElement.querySelector('.gallery-dot-row');
+  if (existingDots) existingDots.remove();
 
   // Build slides
   srcs.forEach(src => {
@@ -929,16 +959,14 @@ function initGallerySlider() {
     current = (idx + srcs.length) % srcs.length;
     track.style.transform = `translateX(-${current * 100}%)`;
     dotsRow.querySelectorAll('.gallery-dot').forEach((d, i) => d.classList.toggle('active', i === current));
-    thumbs.forEach((t, i) => t.classList.toggle('active', i === current));
+    activeThumbs.forEach((t, i) => t.classList.toggle('active', i === current));
   }
 
   if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
   if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
 
-  // Thumb clicks
-  thumbs.forEach((thumb, i) => thumb.addEventListener('click', () => goTo(i)));
+  activeThumbs.forEach((thumb, i) => thumb.addEventListener('click', () => goTo(i)));
 
-  // Touch swipe
   let touchX = 0;
   sliderEl.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
   sliderEl.addEventListener('touchend', e => {
@@ -946,7 +974,6 @@ function initGallerySlider() {
     if (Math.abs(delta) > 40) goTo(delta > 0 ? current + 1 : current - 1);
   });
 
-  // Hide arrows when only 1 image
   if (srcs.length <= 1) {
     if (prevBtn) prevBtn.style.display = 'none';
     if (nextBtn) nextBtn.style.display = 'none';

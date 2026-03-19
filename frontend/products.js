@@ -149,13 +149,19 @@ setTimeout(function() {
       localStorage.setItem('ss_products_override', JSON.stringify(ov));
       // Apply to PRODUCTS and re-init video if it changed for the current page
       var page = document.body.dataset.product;
-      var prevVideo = page && PRODUCTS[page] ? PRODUCTS[page].video : undefined;
+      var prevVideo   = page && PRODUCTS[page] ? PRODUCTS[page].video : undefined;
+      var prevGallery = page && PRODUCTS[page] ? (PRODUCTS[page].gallery || []).join(',') : '';
       Object.keys(ov).forEach(function(id) {
         if (ov[id] === null) { delete PRODUCTS[id]; }
         else { PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]); }
       });
       renderShopGrid();
       if (!page || !PRODUCTS[page]) return;
+      // Re-init gallery slider if gallery changed (covers first cross-device visit)
+      var newGallery = (PRODUCTS[page].gallery || []).join(',');
+      if (newGallery && newGallery !== prevGallery && typeof initGallerySlider === 'function') {
+        initGallerySlider();
+      }
       var newVideo = PRODUCTS[page].video;
       if (newVideo && newVideo !== prevVideo) {
         var videoSrc = document.getElementById('productVideoSrc');
