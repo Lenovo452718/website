@@ -6,7 +6,8 @@
 (function() {
   if (sessionStorage.getItem('barDismissed')) return;
 
-  const adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+  let adminSettings = {};
+  try { adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}'); } catch (e) {}
   if (adminSettings.announcementEnabled === false) return;
 
   const messages = adminSettings.announcementMessages || [
@@ -18,7 +19,7 @@
   const bar = document.createElement('div');
   bar.className = 'announcement-bar';
   bar.innerHTML = `
-    <span class="announcement-bar-text">${messages[0]}</span>
+    <span class="announcement-bar-text"></span>
     <button class="announcement-bar-close" aria-label="Close">×</button>
   `;
   document.body.prepend(bar);
@@ -26,8 +27,9 @@
 
   /* Rotate messages */
   const textEl = bar.querySelector('.announcement-bar-text');
+  textEl.textContent = messages[0];
   let idx = 0;
-  setInterval(() => {
+  const rotateInterval = setInterval(() => {
     textEl.style.opacity = '0';
     textEl.style.transform = 'translateY(-6px)';
     setTimeout(() => {
@@ -42,6 +44,7 @@
   }, 3500);
 
   bar.querySelector('.announcement-bar-close').addEventListener('click', () => {
+    clearInterval(rotateInterval);
     bar.style.transition = 'max-height 0.3s ease, opacity 0.3s ease';
     bar.style.maxHeight = bar.scrollHeight + 'px';
     bar.style.overflow = 'hidden';
@@ -67,6 +70,15 @@ function getCart() {
 
 function saveCart(cart) {
   localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function addToCart(name, price, color, size, imageUrl) {
@@ -169,8 +181,8 @@ function renderCartItems() {
       <div class="cart-item">
         <div class="cart-item-img">${(item.imageUrl || getProductImage(item.name)) ? `<img src="${item.imageUrl || getProductImage(item.name)}" style="width:100%;height:100%;object-fit:cover;display:block;">` : `<div style="width:100%;height:100%;background:${getProductColor(item.name)};"></div>`}</div>
         <div>
-          <p class="cart-item-name">${item.name}</p>
-          <p class="cart-item-price">${item.price} MAD &middot; ${item.size}</p>
+          <p class="cart-item-name">${escapeHtml(item.name)}</p>
+          <p class="cart-item-price">${item.price} MAD &middot; ${escapeHtml(item.size)}</p>
           <div class="cart-item-qty">
             <button onclick="updateQty(${JSON.stringify(item.id)}, -1)">−</button>
             <span>${item.qty}</span>
@@ -602,7 +614,7 @@ function initProductAddToCart() {
     const prices = priceEl ? priceEl.textContent.match(/\d+/g) : null;
     const price = prices ? prices[prices.length - 1] : '179';
     const activeSize = document.querySelector('.size-btn.active')?.textContent?.trim() || 'M';
-    const qty = parseInt(document.querySelector('.qty-display')?.textContent) || 1;
+    const qty = parseInt(document.querySelector('.qty-display')?.textContent, 10) || 1;
     const pageProductId = document.body.dataset.product;
     const pageImageUrl = (pageProductId && typeof PRODUCTS !== 'undefined' && PRODUCTS[pageProductId]) ? PRODUCTS[pageProductId].image : null;
     for (let i = 0; i < qty; i++) addToCart(name, price, 'Dark Wash', activeSize, pageImageUrl);
@@ -751,17 +763,17 @@ function initCheckout() {
               <span class="summary-item-badge">${item.qty}</span>
             </div>
             <div class="summary-item-info">
-              <p class="summary-item-name">${item.name}</p>
-              <p class="summary-item-variant">Size: ${item.size}</p>
+              <p class="summary-item-name">${escapeHtml(item.name)}</p>
+              <p class="summary-item-variant">Size: ${escapeHtml(item.size)}</p>
               <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-                <button onclick="updateQty('${item.id}',-1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
+                <button onclick="updateQty(${JSON.stringify(item.id)},-1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
                 <span style="font-size:13px;min-width:16px;text-align:center;">${item.qty}</span>
-                <button onclick="updateQty('${item.id}',1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
+                <button onclick="updateQty(${JSON.stringify(item.id)},1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
               </div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
               <span class="summary-item-price">${item.price * item.qty} MAD</span>
-              <button onclick="removeFromCartCheckout('${item.id}')" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
+              <button onclick="removeFromCartCheckout(${JSON.stringify(item.id)})" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
             </div>
           </div>
         `).join('');
@@ -981,7 +993,7 @@ function initSearch() {
       res.innerHTML = matches.length
         ? matches.map(p => `<a href="${p.href}" style="display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.08);color:#fff;text-decoration:none;">
             <div style="width:48px;height:48px;background:${getProductColor(p.name)};flex-shrink:0;border-radius:4px;${p.image ? `background-image:url(${p.image});background-size:cover;` : ''}"></div>
-            <div><p style="font-size:14px;font-weight:600;margin:0;">${p.name}</p><p style="font-size:12px;color:rgba(255,255,255,0.45);margin:2px 0 0;">${p.price} MAD</p></div>
+            <div><p style="font-size:14px;font-weight:600;margin:0;">${escapeHtml(p.name)}</p><p style="font-size:12px;color:rgba(255,255,255,0.45);margin:2px 0 0;">${p.price} MAD</p></div>
           </a>`).join('')
         : '<p style="color:rgba(255,255,255,0.4);font-size:14px;padding-top:8px;">No products found.</p>';
     });

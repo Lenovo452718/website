@@ -1738,6 +1738,7 @@ function saveProductModal() {
   if (!name) { showToast('Product name required','error'); return; }
   const price = parseFloat(document.getElementById('pmPrice').value);
   if (!price) { showToast('Price required','error'); return; }
+  const existing = getActiveProducts()[id] || {};
   const data = {
     name, price,
     originalPrice: parseFloat(document.getElementById('pmOriginal').value)||price,
@@ -1751,6 +1752,7 @@ function saveProductModal() {
     href:       document.getElementById('pmHref').value.trim()||('product.html?id='+id),
     description:document.getElementById('pmDesc').value.trim(),
     inStock:    document.getElementById('pmStock').checked,
+    gallery:    existing.gallery || [],
   };
   const ov = getProductOverrides();
   if (!editId && (PRODUCT_DEFAULTS[id]||(ov[id]&&ov[id]!==null))) { showToast('ID already exists','error'); return; }

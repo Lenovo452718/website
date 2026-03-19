@@ -154,6 +154,7 @@ setTimeout(function() {
         if (ov[id] === null) { delete PRODUCTS[id]; }
         else { PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]); }
       });
+      renderShopGrid();
       if (!page || !PRODUCTS[page]) return;
       var newVideo = PRODUCTS[page].video;
       if (newVideo && newVideo !== prevVideo) {
@@ -171,7 +172,7 @@ setTimeout(function() {
 }, 0);
 
 /* ── Render shop product grid dynamically ────────────────── */
-(function renderShopGrid() {
+function renderShopGrid() {
   var grid = document.getElementById('shopProductGrid');
   if (!grid) return;
 
@@ -212,7 +213,8 @@ setTimeout(function() {
   }).join('');
 
   grid.innerHTML = html || '<p style="padding:40px;text-align:center;color:#888">No products available.</p>';
-})();
+}
+renderShopGrid();
 
 /* ── Auto-populate all product card images on the page ─────── */
 (function initProductImages() {
@@ -289,20 +291,21 @@ setTimeout(function() {
   var thumbs   = document.querySelectorAll('.thumb-item[data-gallery-index]');
   var mainImg  = document.getElementById('mainProductImg');
   var mainWrap = document.getElementById('galleryMainNew');
+  var gallery  = product.gallery || [];
 
   thumbs.forEach(function(thumb) {
     var idx = parseInt(thumb.dataset.galleryIndex, 10);
-    var src = product.gallery[idx];
+    var src = gallery[idx];
     if (!src) return;
     thumb.dataset.src = src;
     var img = thumb.querySelector('img');
     if (img) img.src = src;
   });
 
-  if (mainImg && product.gallery[0]) {
-    mainImg.src = product.gallery[0];
+  if (mainImg && gallery[0]) {
+    mainImg.src = gallery[0];
   }
   if (mainWrap) {
-    mainWrap.setAttribute('data-counter', '01 / ' + String(product.gallery.length).padStart(2, '0'));
+    mainWrap.setAttribute('data-counter', '01 / ' + String(gallery.length).padStart(2, '0'));
   }
 })();

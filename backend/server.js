@@ -146,8 +146,9 @@ const upload = multer({
   storage,
   limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const allowed = /\.(jpg|jpeg|png|gif|webp|mp4|mov|webm|avi)$/i;
-    if (allowed.test(path.extname(file.originalname))) cb(null, true);
+    const allowedExt  = /\.(jpg|jpeg|png|gif|webp|mp4|mov|webm|avi)$/i;
+    const allowedMime = /^(image\/(jpeg|png|gif|webp)|video\/(mp4|quicktime|webm|x-msvideo))$/;
+    if (allowedExt.test(path.extname(file.originalname)) && allowedMime.test(file.mimetype)) cb(null, true);
     else cb(new Error('Only images and videos are allowed'));
   }
 });
@@ -534,8 +535,8 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
         recipientCity:    order.city      || '',
         description:      order.product   || '',
         weight:           1,
-        price:            order.total     || 0,
-        codAmount:        order.total     || 0,
+        price:            (parseFloat(order.price) * (order.qty || 1)) || 0,
+        codAmount:        (parseFloat(order.price) * (order.qty || 1)) || 0,
         externalId:       order.id,
       }
     };
