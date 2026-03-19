@@ -232,6 +232,9 @@ function renderShopGrid() {
   }).join('');
 
   grid.innerHTML = html || '<p style="padding:40px;text-align:center;color:#888">No products available.</p>';
+
+  // Re-apply filters so new/updated products respect the current filter state
+  if (typeof window._shopApplyFilters === 'function') window._shopApplyFilters();
 }
 renderShopGrid();
 

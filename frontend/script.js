@@ -512,6 +512,12 @@ function initShopFilters() {
 
   const emptyClearBtn = document.getElementById('emptyClearBtn');
   if (emptyClearBtn && clearAll) emptyClearBtn.addEventListener('click', () => clearAll.click());
+
+  // Expose so renderShopGrid() can re-apply after async backend updates
+  window._shopApplyFilters = applyFilters;
+
+  // Initial render pass — sets count, load-more, and hides any out-of-range cards
+  applyFilters();
 }
 
 /* ============================================================
