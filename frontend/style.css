@@ -36,7 +36,7 @@ input, select, textarea { font-family: 'Inter', sans-serif; font-size: 14px; }
   --off: #eef5fb;
   --denim: #a8d4ea;
   --charcoal: #111111;
-  --gray: #7aaabb;
+  --gray: #333333;
   --gray-light: #d8ecf6;
   --gray-mid: #b8d8ea;
   --transition: 0.3s ease;
@@ -856,40 +856,91 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 
 /* Style Editorial */
-.style-editorial { background: var(--charcoal); padding: 120px 0; }
-.editorial-header { text-align: center; margin-bottom: 64px; padding: 0 40px; }
-.editorial-header .section-subtitle { color: rgba(255,255,255,0.4); }
-.editorial-header .section-title { color: var(--white); }
+.style-editorial { background: var(--charcoal); padding: 100px 0 80px; }
+
+.editorial-header { text-align: center; margin-bottom: 56px; padding: 0 40px; }
+.editorial-header .section-subtitle { color: rgba(255,255,255,0.35); }
+.editorial-header .section-title { color: var(--white); margin-bottom: 12px; }
+.editorial-header-desc { font-size: 13px; letter-spacing: 0.12em; color: rgba(255,255,255,0.45); text-transform: uppercase; }
 
 .editorial-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2px;
-  max-width: 1280px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 3px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 0 40px;
 }
+
 .editorial-card { position: relative; overflow: hidden; cursor: pointer; }
 .editorial-card-img {
   width: 100%;
-  height: 480px;
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  height: 560px;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.editorial-card:hover .editorial-card-img { transform: scale(1.04); }
-.editorial-card-info { padding: 20px 0 4px; }
-.editorial-card-info span { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.4); display: block; margin-bottom: 6px; }
-.editorial-card-info h3 { font-size: 18px; font-weight: 500; color: var(--white); margin-bottom: 8px; }
-.editorial-card-info a {
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.08em;
+.editorial-card:hover .editorial-card-img { transform: scale(1.05); }
+
+/* Look number top-left */
+.editorial-card-num {
+  position: absolute;
+  top: 18px; left: 20px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: rgba(255,255,255,0.5);
+  z-index: 2;
+}
+
+/* Bottom overlay — always visible gradient, text+btn appear on hover */
+.editorial-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 55%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 24px 20px;
+  transition: background var(--transition);
+}
+.editorial-card:hover .editorial-card-overlay { background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.25) 60%, transparent 100%); }
+
+.editorial-card-tag {
+  font-size: 10px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: rgba(255,255,255,0.55);
-  border-bottom: 1px solid rgba(255,255,255,0.25);
-  padding-bottom: 2px;
-  transition: color var(--transition);
+  color: var(--denim);
+  display: block;
+  margin-bottom: 6px;
 }
-.editorial-card-info a:hover { color: var(--white); }
+.editorial-card-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 30px;
+  letter-spacing: 0.04em;
+  color: var(--white);
+  line-height: 1;
+  margin-bottom: 0;
+}
+.editorial-card-cta {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--white);
+  border-bottom: 1px solid rgba(255,255,255,0.4);
+  padding-bottom: 2px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.editorial-card:hover .editorial-card-cta { opacity: 1; transform: translateY(0); }
+
+.editorial-footer {
+  text-align: center;
+  margin-top: 56px;
+}
 
 /* Instagram Grid */
 .instagram-section { padding: 120px 0; }
@@ -2174,7 +2225,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .trending-grid { grid-template-columns: 1fr; }
   .trending-section { padding: 48px 24px 80px; }
   .trending-panel-main .trending-panel-img { height: 520px; }
-  .editorial-cards { grid-template-columns: 1fr 1fr; padding: 0 24px; }
+  .editorial-cards { grid-template-columns: 1fr 1fr; padding: 0 24px; gap: 3px; }
   .instagram-grid { grid-template-columns: repeat(3, 1fr); padding: 0 24px; }
   .footer-grid { grid-template-columns: 1fr 1fr; padding: 0 24px; }
   .shop-layout { grid-template-columns: 240px 1fr; padding: 32px 24px; }
@@ -2227,8 +2278,8 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .trending-panel-img { height: 380px; }
 
   .editorial-cards { grid-template-columns: 1fr; padding: 0 20px; }
-  .style-editorial { padding: 80px 0; }
-  .editorial-card-img { height: 360px; }
+  .style-editorial { padding: 80px 0 60px; }
+  .editorial-card-img { height: 400px; }
 
   .instagram-grid { grid-template-columns: repeat(3, 1fr); padding: 0 20px; }
   .instagram-section { padding: 80px 0; }

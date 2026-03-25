@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Size Guide — StreetStore</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="rtl.css" />
+  <style>
+    .size-guide-page { max-width: 900px; margin: 0 auto; padding: 60px 40px 100px; }
+    .size-guide-page h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px, 7vw, 80px); letter-spacing: 0.04em; margin-bottom: 8px; }
+    .size-guide-page .sg-intro { font-size: 14px; color: var(--gray); letter-spacing: 0.06em; margin-bottom: 56px; max-width: 520px; line-height: 1.7; }
+
+    /* How to measure */
+    .sg-measure { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 56px; }
+    .sg-measure-card { background: var(--off); padding: 28px 24px; }
+    .sg-measure-card h4 { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; }
+    .sg-measure-card p { font-size: 13px; color: var(--gray); line-height: 1.7; }
+    .sg-measure-icon { font-size: 28px; margin-bottom: 12px; }
+
+    /* Size tables */
+    .sg-section { margin-bottom: 48px; }
+    .sg-section-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .sg-section-sub { font-size: 12px; color: var(--gray); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px; }
+
+    .sg-table { width: 100%; border-collapse: collapse; }
+    .sg-table th { background: var(--charcoal); color: var(--white); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 16px; text-align: center; font-weight: 600; }
+    .sg-table td { padding: 13px 16px; text-align: center; font-size: 14px; border-bottom: 1px solid var(--gray-light); }
+    .sg-table tr:nth-child(even) td { background: var(--off); }
+    .sg-table td:first-child { font-weight: 700; font-size: 15px; }
+    .sg-table td.highlight { color: var(--denim); font-weight: 600; }
+
+    /* Fit notes */
+    .sg-fit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 56px; }
+    .sg-fit-card { border: 1px solid var(--gray-light); padding: 22px 20px; }
+    .sg-fit-card h5 { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
+    .sg-fit-card p { font-size: 13px; color: var(--gray); line-height: 1.65; }
+    .sg-fit-tag { display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; background: var(--denim); color: var(--white); padding: 3px 9px; margin-bottom: 10px; }
+
+    /* Tips */
+    .sg-tips { background: var(--charcoal); color: var(--white); padding: 36px 32px; margin-bottom: 48px; }
+    .sg-tips h4 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.06em; margin-bottom: 16px; }
+    .sg-tips ul { list-style: none; padding: 0; }
+    .sg-tips ul li { font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.8; padding-left: 16px; position: relative; }
+    .sg-tips ul li::before { content: "—"; position: absolute; left: 0; color: var(--denim); }
+
+    /* CTA */
+    .sg-cta { text-align: center; padding: 40px; background: var(--off); }
+    .sg-cta p { font-size: 14px; color: var(--gray); margin-bottom: 20px; }
+
+    /* Infographic */
+    .sg-infographic { display: flex; align-items: center; gap: 48px; margin-bottom: 64px; justify-content: center; }
+    .sg-body-svg { width: 380px; height: auto; flex-shrink: 0; }
+    .sg-infographic-legend { display: flex; flex-direction: column; gap: 28px; }
+    .sg-legend-item { display: flex; align-items: flex-start; gap: 14px; }
+    .sg-legend-dot { width: 12px; height: 12px; border-radius: 50%; background: #a8d4ea; flex-shrink: 0; margin-top: 4px; }
+    .sg-legend-item strong { display: block; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
+    .sg-legend-item span { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+    @media (max-width: 768px) {
+      .size-guide-page { padding: 40px 20px 80px; }
+      .sg-measure { grid-template-columns: 1fr; }
+      .sg-fit-grid { grid-template-columns: 1fr; }
+      .sg-table th, .sg-table td { padding: 10px 10px; font-size: 13px; }
+      .sg-infographic { flex-direction: column; gap: 32px; }
+      .sg-body-svg { width: 280px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="nav-inner">
+    <nav class="nav-left">
+      <a href="shop.html" data-i18n="nav_shop">Shop</a>
+      <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+      <a href="about.html" data-i18n="nav_about">About</a>
+    </nav>
+    <a href="index.html" class="nav-logo">STREETSTORE</a>
+    <div class="nav-right">
+      <a href="contact.html" data-i18n="nav_contact">Contact</a>
+      <button class="nav-icon-btn" aria-label="Search">
+        <img src="images/icons/search.png" alt="Search" style="width:18px;height:18px;opacity:0.75;">
+      </button>
+      <button class="nav-icon-btn cart-btn" aria-label="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <span class="cart-badge">0</span>
+      </button>
+      <a href="signup.html" class="nav-icon-btn" aria-label="Account" style="display:flex;align-items:center;justify-content:center;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </a>
+      <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
+      <button class="hamburger" id="hamburger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+  <nav class="mobile-menu" id="mobileMenu">
+    <a href="shop.html" data-i18n="nav_shop">Shop</a>
+    <a href="lookbook.html" data-i18n="nav_lookbook">Lookbook</a>
+    <a href="about.html" data-i18n="nav_about">About</a>
+    <a href="contact.html" data-i18n="nav_contact">Contact</a>
+    <a href="account.html" data-i18n="nav_account">Account</a>
+  </nav>
+</header>
+
+<!-- ===== BREADCRUMB ===== -->
+<nav class="breadcrumb">
+  <a href="index.html" data-i18n="home">Home</a>
+  <span>/</span>
+  <span data-i18n="size_guide">Size Guide</span>
+</nav>
+
+<!-- ===== SIZE GUIDE CONTENT ===== -->
+<div class="size-guide-page">
+
+  <h1 data-i18n="size_guide">Size Guide</h1>
+  <p class="sg-intro" data-lang="en">All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
+  <p class="sg-intro" data-lang="fr" style="display:none;">Tous nos jeans sont coupés en taille marocaine. Utilisez les mesures ci-dessous pour trouver votre taille parfaite. En cas d'hésitation entre deux tailles, nous recommandons de prendre la taille supérieure.</p>
+
+  <!-- ===== BODY INFOGRAPHIC ===== -->
+  <div class="sg-infographic">
+    <svg class="sg-body-svg" viewBox="280 20 480 1000" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Downloaded body figure (figure 1, left silhouette) -->
+      <image href="images/figure-body.svg" x="0" y="0" width="1536" height="1024"/>
+
+      <!-- ================================ -->
+      <!-- WAIST measurement ring -->
+      <ellipse cx="415" cy="385" rx="42" ry="10" fill="none" stroke="#a8d4ea" stroke-width="2.5" stroke-dasharray="8,4"/>
+      <!-- WAIST leader — left -->
+      <circle cx="373" cy="385" r="3.5" fill="#6fa8cc"/>
+      <line x1="369" y1="385" x2="305" y2="385" stroke="#6fa8cc" stroke-width="1.5"/>
+      <line x1="305" y1="377" x2="305" y2="395" stroke="#6fa8cc" stroke-width="1.5"/>
+      <text x="300" y="380" text-anchor="end" font-family="-apple-system,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#111111">WAIST</text>
+      <text x="300" y="397" text-anchor="end" font-family="-apple-system,Helvetica,sans-serif" font-size="12" fill="#6fa8cc">61 – 89 cm</text>
+
+      <!-- HIP measurement ring -->
+      <ellipse cx="415" cy="510" rx="62" ry="14" fill="none" stroke="#a8d4ea" stroke-width="2.5" stroke-dasharray="8,4"/>
+      <!-- HIP leader — right -->
+      <circle cx="477" cy="510" r="3.5" fill="#6fa8cc"/>
+      <line x1="481" y1="510" x2="540" y2="510" stroke="#6fa8cc" stroke-width="1.5"/>
+      <line x1="540" y1="502" x2="540" y2="520" stroke="#6fa8cc" stroke-width="1.5"/>
+      <text x="548" y="505" font-family="-apple-system,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#111111">HIP</text>
+      <text x="548" y="522" font-family="-apple-system,Helvetica,sans-serif" font-size="12" fill="#6fa8cc">86 – 114 cm</text>
+
+      <!-- THIGH measurement ring (right leg) -->
+      <ellipse cx="438" cy="630" rx="36" ry="11" fill="none" stroke="#a8d4ea" stroke-width="2.5" stroke-dasharray="6,4"/>
+      <!-- THIGH leader — right -->
+      <circle cx="474" cy="630" r="3.5" fill="#6fa8cc"/>
+      <line x1="478" y1="630" x2="540" y2="630" stroke="#6fa8cc" stroke-width="1.5"/>
+      <line x1="540" y1="622" x2="540" y2="638" stroke="#6fa8cc" stroke-width="1.5"/>
+      <text x="548" y="625" font-family="-apple-system,Helvetica,sans-serif" font-size="15" font-weight="700" fill="#111111">THIGH</text>
+      <text x="548" y="642" font-family="-apple-system,Helvetica,sans-serif" font-size="12" fill="#6fa8cc">Upper leg</text>
+
+    </svg>
+
+    <!-- Legend -->
+    <div class="sg-infographic-legend">
+      <div class="sg-legend-item">
+        <div class="sg-legend-dot"></div>
+        <div>
+          <strong>Waist</strong>
+          <span>Narrowest part of the torso, just above the belly button</span>
+        </div>
+      </div>
+      <div class="sg-legend-item">
+        <div class="sg-legend-dot"></div>
+        <div>
+          <strong>Hip</strong>
+          <span>Fullest part of the hips and seat — approx. 20 cm below the waist</span>
+        </div>
+      </div>
+      <div class="sg-legend-item">
+        <div class="sg-legend-dot"></div>
+        <div>
+          <strong>Thigh</strong>
+          <span>Upper thigh circumference, just below the hip joint</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How to Measure -->
+  <div class="sg-measure">
+    <div class="sg-measure-card">
+      <div class="sg-measure-icon">📏</div>
+      <h4 data-lang="en">How to Measure Your Waist</h4>
+      <h4 data-lang="fr" style="display:none;">Comment mesurer votre tour de taille</h4>
+      <p data-lang="en">Wrap a soft measuring tape around the narrowest part of your waist — usually just above your belly button. Keep the tape snug but not tight. Breathe naturally.</p>
+      <p data-lang="fr" style="display:none;">Enroulez un mètre souple autour de la partie la plus étroite de votre taille — généralement juste au-dessus du nombril. Le mètre doit être ajusté sans être trop serré.</p>
+    </div>
+    <div class="sg-measure-card">
+      <div class="sg-measure-icon">📐</div>
+      <h4 data-lang="en">How to Measure Your Hips</h4>
+      <h4 data-lang="fr" style="display:none;">Comment mesurer votre tour de hanches</h4>
+      <p data-lang="en">Stand with feet together and measure around the fullest part of your hips and seat — usually about 20–23 cm below your waist. Make sure the tape is level all around.</p>
+      <p data-lang="fr" style="display:none;">Tenez-vous debout, pieds joints, et mesurez autour de la partie la plus large de vos hanches — généralement 20 à 23 cm sous la taille. Vérifiez que le mètre est bien horizontal.</p>
+    </div>
+  </div>
+
+  <!-- Main Size Table -->
+  <div class="sg-section">
+    <div class="sg-section-title" data-lang="en">Jeans Size Chart</div>
+    <div class="sg-section-title" data-lang="fr" style="display:none;">Guide des Tailles — Jeans</div>
+    <div class="sg-section-sub" data-lang="en">Measurements in inches &amp; centimetres</div>
+    <div class="sg-section-sub" data-lang="fr" style="display:none;">Mesures en pouces &amp; centimètres</div>
+
+    <table class="sg-table">
+      <thead>
+        <tr>
+          <th data-lang="en">Size</th>
+          <th data-lang="fr" style="display:none;">Taille</th>
+          <th data-lang="en">Waist (in)</th>
+          <th data-lang="fr" style="display:none;">Tour de taille (po)</th>
+          <th data-lang="en">Waist (cm)</th>
+          <th data-lang="fr" style="display:none;">Tour de taille (cm)</th>
+          <th data-lang="en">Hip (in)</th>
+          <th data-lang="fr" style="display:none;">Tour de hanches (po)</th>
+          <th data-lang="en">Hip (cm)</th>
+          <th data-lang="fr" style="display:none;">Tour de hanches (cm)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>34</td><td>24–25"</td><td>61–63 cm</td><td>34–35"</td><td>86–89 cm</td></tr>
+        <tr><td>36</td><td>26–27"</td><td>66–68 cm</td><td>36–37"</td><td>91–94 cm</td></tr>
+        <tr><td>38</td><td class="highlight">28–29"</td><td class="highlight">71–73 cm</td><td class="highlight">38–39"</td><td class="highlight">96–99 cm</td></tr>
+        <tr><td>40</td><td>30–31"</td><td>76–78 cm</td><td>40–41"</td><td>101–104 cm</td></tr>
+        <tr><td>42</td><td>32–33"</td><td>81–83 cm</td><td>42–43"</td><td>106–109 cm</td></tr>
+        <tr><td>44</td><td>34–35"</td><td>86–89 cm</td><td>44–45"</td><td>111–114 cm</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Fit Guide -->
+  <div class="sg-section">
+    <div class="sg-section-title" data-lang="en">Fit Guide</div>
+    <div class="sg-section-title" data-lang="fr" style="display:none;">Guide des Coupes</div>
+    <div class="sg-section-sub" data-lang="en">How each style fits</div>
+    <div class="sg-section-sub" data-lang="fr" style="display:none;">Comment chaque coupe se porte</div>
+    <div class="sg-fit-grid">
+      <div class="sg-fit-card">
+        <div class="sg-fit-tag">Wide Leg</div>
+        <h5 data-lang="en">Wide &amp; Relaxed</h5>
+        <h5 data-lang="fr" style="display:none;">Large &amp; Décontracté</h5>
+        <p data-lang="en">Generous through the hip and thigh, with a wide straight leg. True to size — size up for extra flow.</p>
+        <p data-lang="fr" style="display:none;">Ample au niveau des hanches et des cuisses, avec une jambe large et droite. Taille réelle — prenez une taille au-dessus pour plus d'ampleur.</p>
+      </div>
+      <div class="sg-fit-card">
+        <div class="sg-fit-tag">Balloon</div>
+        <h5 data-lang="en">Relaxed Balloon</h5>
+        <h5 data-lang="fr" style="display:none;">Ballon Décontracté</h5>
+        <p data-lang="en">High-waisted with a roomy balloon silhouette that tapers slightly at the ankle. Size down if in between.</p>
+        <p data-lang="fr" style="display:none;">Taille haute avec une silhouette ballon spacieuse qui se resserre légèrement à la cheville. Prenez une taille en dessous si vous hésitez.</p>
+      </div>
+      <div class="sg-fit-card">
+        <div class="sg-fit-tag">High Waist</div>
+        <h5 data-lang="en">Slim High Rise</h5>
+        <h5 data-lang="fr" style="display:none;">Slim Taille Haute</h5>
+        <p data-lang="en">Fitted through the hip with a high waist. Stretchy fabric allows for comfort. True to size.</p>
+        <p data-lang="fr" style="display:none;">Ajusté au niveau des hanches avec une taille haute. Le tissu extensible assure le confort. Taille réelle.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tips -->
+  <div class="sg-tips">
+    <h4 data-lang="en">Sizing Tips</h4>
+    <h4 data-lang="fr" style="display:none;">Conseils de Taille</h4>
+    <ul>
+      <li data-lang="en">Always measure yourself — don't rely on clothing from other brands as sizes vary.</li>
+      <li data-lang="fr" style="display:none;">Mesurez-vous toujours — ne vous fiez pas aux vêtements d'autres marques car les tailles varient.</li>
+      <li data-lang="en">Our denim has minimal stretch, so measure carefully.</li>
+      <li data-lang="fr" style="display:none;">Notre denim a peu d'élasticité, mesurez-vous donc avec soin.</li>
+      <li data-lang="en">If your waist and hip measurements fall in different sizes, size up to accommodate the hips.</li>
+      <li data-lang="fr" style="display:none;">Si vos mesures de taille et de hanches correspondent à des tailles différentes, choisissez la plus grande pour les hanches.</li>
+      <li data-lang="en">Still unsure? Contact us on WhatsApp — we'll help you pick the right size.</li>
+      <li data-lang="fr" style="display:none;">Encore incertain(e) ? Contactez-nous sur WhatsApp — nous vous aiderons à choisir la bonne taille.</li>
+    </ul>
+  </div>
+
+  <!-- CTA -->
+  <div class="sg-cta">
+    <p data-lang="en">Need help choosing your size? We're here for you.</p>
+    <p data-lang="fr" style="display:none;">Besoin d'aide pour choisir votre taille ? Nous sommes là pour vous.</p>
+    <a href="contact.html" class="btn-dark" data-i18n="footer_contact">Contact Us</a>
+  </div>
+
+</div>
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <span class="footer-logo">STREETSTORE</span>
+      <p data-i18n="footer_desc">Premium women's denim crafted for the streets and everywhere in between.</p>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer_shop">Shop</h4>
+      <ul>
+        <li><a href="shop.html" data-i18n="footer_all_jeans">All Jeans</a></li>
+        <li><a href="shop.html" data-i18n="footer_new">New Arrivals</a></li>
+        <li><a href="shop.html" data-i18n="footer_sale">Sale</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer_help">Help</h4>
+      <ul>
+        <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
+        <li><a href="shipping.html" data-i18n="footer_shipping">Shipping &amp; Exchanges</a></li>
+        <li><a href="faq.html" data-i18n="footer_faq">FAQ</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4 data-i18n="footer_follow">Follow</h4>
+      <ul>
+        <li><a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p data-i18n="footer_rights">© 2026 StreetStore. All rights reserved.</p>
+    <div class="footer-bottom-links">
+      <a href="#" data-i18n="privacy">Privacy Policy</a>
+      <a href="#" data-i18n="terms">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/212771152186" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+<script src="products.js"></script>
+<script src="lang.js"></script>
+<script src="i18n.js"></script>
+<script src="script.js"></script>
+<script src="mobile.js"></script>
+</body>
+</html>
