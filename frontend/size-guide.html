@@ -51,13 +51,11 @@
     .sg-cta p { font-size: 14px; color: var(--gray); margin-bottom: 20px; }
 
     /* Infographic */
-    .sg-infographic { display: flex; align-items: center; gap: 40px; margin-bottom: 64px; justify-content: center; }
-    .sg-body-svg { width: 480px; height: auto; flex-shrink: 0; }
-    .sg-infographic-legend { display: flex; flex-direction: column; gap: 28px; }
-    .sg-legend-item { display: flex; align-items: flex-start; gap: 14px; }
-    .sg-legend-dot { width: 12px; height: 12px; border-radius: 50%; background: #a8d4ea; flex-shrink: 0; margin-top: 4px; }
-    .sg-legend-item strong { display: block; font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 4px; }
-    .sg-legend-item span { font-size: 13px; color: var(--gray); line-height: 1.5; }
+    .sg-infographic { display: flex; align-items: center; gap: 56px; margin-bottom: 64px; }
+    .sg-body-svg { width: 200px; height: auto; flex-shrink: 0; }
+    .sg-labels { display: flex; flex-direction: column; gap: 48px; }
+    .sg-label-item h4 { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #111111; margin: 0 0 8px 0; }
+    .sg-label-item p { font-size: 13px; color: #666666; line-height: 1.65; margin: 0; font-weight: 400; max-width: 240px; }
 
     @media (max-width: 768px) {
       .size-guide-page { padding: 40px 20px 80px; }
@@ -65,7 +63,7 @@
       .sg-fit-grid { grid-template-columns: 1fr; }
       .sg-table th, .sg-table td { padding: 10px 10px; font-size: 13px; }
       .sg-infographic { flex-direction: column; gap: 32px; }
-      .sg-body-svg { width: 280px; }
+      .sg-body-svg { width: 160px; }
     }
   </style>
 </head>
@@ -123,73 +121,22 @@
 
   <!-- ===== BODY INFOGRAPHIC ===== -->
   <div class="sg-infographic">
-    <svg class="sg-body-svg" viewBox="255 20 575 1000" xmlns="http://www.w3.org/2000/svg">
-
-      <!-- Body figure -->
+    <svg class="sg-body-svg" viewBox="270 15 240 1009" xmlns="http://www.w3.org/2000/svg">
       <image href="images/figure-body.svg" x="0" y="0" width="1536" height="1024"/>
-
-      <!-- vertical alignment guide x for all labels: 540 -->
-
-      <!-- ===== WAIST — natural waist, narrowest point just under ribs ===== -->
-      <!-- top arc: receding, lighter (perspective) -->
-      <path d="M 365,295 A 50,12 0 0 0 465,295"
-            fill="none" stroke="#a8d4ea" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.5"/>
-      <!-- bottom arc: front face, bolder -->
-      <path d="M 365,295 A 50,12 0 0 1 465,295"
-            fill="none" stroke="#5aabcf" stroke-width="3" stroke-dasharray="8,4"/>
-      <!-- leader -->
-      <circle cx="465" cy="295" r="4" fill="#5aabcf"/>
-      <line x1="469" y1="295" x2="530" y2="295" stroke="#5aabcf" stroke-width="1.5"/>
-      <line x1="530" y1="287" x2="530" y2="303" stroke="#5aabcf" stroke-width="1.5"/>
-      <text x="539" y="291" font-family="-apple-system,Helvetica,sans-serif" font-size="14" font-weight="700" letter-spacing="0.07em" fill="#222222">WAIST</text>
-      <text x="539" y="307" font-family="-apple-system,Helvetica,sans-serif" font-size="11" fill="#5aabcf">61 – 89 cm</text>
-
-      <!-- ===== HIP — fullest part of hips, below waistband ===== -->
-      <path d="M 338,525 A 77,18 0 0 0 492,525"
-            fill="none" stroke="#a8d4ea" stroke-width="1.5" stroke-dasharray="8,4" opacity="0.5"/>
-      <path d="M 338,525 A 77,18 0 0 1 492,525"
-            fill="none" stroke="#5aabcf" stroke-width="3" stroke-dasharray="8,4"/>
-      <circle cx="492" cy="525" r="4" fill="#5aabcf"/>
-      <line x1="496" y1="525" x2="530" y2="525" stroke="#5aabcf" stroke-width="1.5"/>
-      <line x1="530" y1="517" x2="530" y2="533" stroke="#5aabcf" stroke-width="1.5"/>
-      <text x="539" y="521" font-family="-apple-system,Helvetica,sans-serif" font-size="14" font-weight="700" letter-spacing="0.07em" fill="#222222">HIP</text>
-      <text x="539" y="537" font-family="-apple-system,Helvetica,sans-serif" font-size="11" fill="#5aabcf">86 – 114 cm</text>
-
-      <!-- ===== THIGH — upper thigh, just below hip joint ===== -->
-      <path d="M 406,562 A 37,11 0 0 0 480,562"
-            fill="none" stroke="#a8d4ea" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.5"/>
-      <path d="M 406,562 A 37,11 0 0 1 480,562"
-            fill="none" stroke="#5aabcf" stroke-width="3" stroke-dasharray="6,4"/>
-      <circle cx="480" cy="562" r="4" fill="#5aabcf"/>
-      <line x1="484" y1="562" x2="530" y2="562" stroke="#5aabcf" stroke-width="1.5"/>
-      <line x1="530" y1="554" x2="530" y2="570" stroke="#5aabcf" stroke-width="1.5"/>
-      <text x="539" y="558" font-family="-apple-system,Helvetica,sans-serif" font-size="14" font-weight="700" letter-spacing="0.07em" fill="#222222">THIGH</text>
-      <text x="539" y="574" font-family="-apple-system,Helvetica,sans-serif" font-size="11" fill="#5aabcf">Upper leg</text>
-
     </svg>
 
-    <!-- Legend -->
-    <div class="sg-infographic-legend">
-      <div class="sg-legend-item">
-        <div class="sg-legend-dot"></div>
-        <div>
-          <strong>Waist</strong>
-          <span>Narrowest part of the torso, just above the belly button</span>
-        </div>
+    <div class="sg-labels">
+      <div class="sg-label-item">
+        <h4>Waist</h4>
+        <p>Narrowest part of the torso,<br>just above the belly button.</p>
       </div>
-      <div class="sg-legend-item">
-        <div class="sg-legend-dot"></div>
-        <div>
-          <strong>Hip</strong>
-          <span>Fullest part of the hips and seat — approx. 20 cm below the waist</span>
-        </div>
+      <div class="sg-label-item">
+        <h4>Hip</h4>
+        <p>Fullest part of the hips and seat —<br>approx. 20 cm below the waist.</p>
       </div>
-      <div class="sg-legend-item">
-        <div class="sg-legend-dot"></div>
-        <div>
-          <strong>Thigh</strong>
-          <span>Upper thigh circumference, just below the hip joint</span>
-        </div>
+      <div class="sg-label-item">
+        <h4>Thigh</h4>
+        <p>Upper thigh circumference,<br>just below the hip joint.</p>
       </div>
     </div>
   </div>
