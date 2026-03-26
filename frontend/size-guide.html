@@ -9,61 +9,259 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
   <style>
-    .size-guide-page { max-width: 900px; margin: 0 auto; padding: 60px 40px 100px; }
-    .size-guide-page h1 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(48px, 7vw, 80px); letter-spacing: 0.04em; margin-bottom: 8px; }
-    .size-guide-page .sg-intro { font-size: 14px; color: var(--gray); letter-spacing: 0.06em; margin-bottom: 56px; max-width: 520px; line-height: 1.7; }
+    /* ── PAGE WRAPPER ── */
+    .sg-page { max-width: 1100px; margin: 0 auto; padding: 0 40px 100px; }
 
-    /* How to measure */
-    .sg-measure { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 56px; }
-    .sg-measure-card { background: var(--off); padding: 28px 24px; }
-    .sg-measure-card h4 { font-size: 13px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; }
-    .sg-measure-card p { font-size: 13px; color: var(--gray); line-height: 1.7; }
-    .sg-measure-icon { font-size: 28px; margin-bottom: 12px; }
+    /* ── HERO ── */
+    .sg-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      padding: 56px 0 52px;
+      border-bottom: 1px solid var(--gray-light);
+      margin-bottom: 72px;
+    }
+    .sg-hero-title .sg-season {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--denim);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .sg-hero-title h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(72px, 9vw, 120px);
+      letter-spacing: 0.03em;
+      line-height: 0.88;
+      color: #111;
+      margin: 0;
+    }
+    .sg-hero-info {
+      padding-left: 56px;
+      border-left: 1px solid var(--gray-light);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+    }
+    .sg-hero-info h3 {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin: 0;
+    }
+    .sg-hero-info p {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.8;
+      margin: 0;
+      max-width: 380px;
+    }
 
-    /* Size tables */
-    .sg-section { margin-bottom: 48px; }
-    .sg-section-title { font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 0.06em; margin-bottom: 4px; }
-    .sg-section-sub { font-size: 12px; color: var(--gray); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 20px; }
+    /* ── BODY + MEASUREMENT PANEL ── */
+    .sg-body-panel {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 72px;
+      align-items: start;
+      margin-bottom: 80px;
+    }
+    .sg-figure { display: flex; flex-direction: column; align-items: center; }
+    .sg-body-svg { width: 210px; height: auto; display: block; }
 
+    .sg-measure-panel h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px;
+      letter-spacing: 0.06em;
+      margin: 0 0 8px;
+      color: #111;
+    }
+    .sg-measure-panel .sg-panel-sub {
+      font-size: 12px;
+      color: #999;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+      display: block;
+    }
+    .sg-measure-rows { display: flex; flex-direction: column; }
+    .sg-measure-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 28px;
+      padding: 24px 0;
+      border-bottom: 1px solid #e5eff7;
+      align-items: start;
+    }
+    .sg-measure-row:first-child { border-top: 1px solid #e5eff7; }
+    .sg-row-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #111;
+      padding-top: 2px;
+    }
+    .sg-row-label .sg-range {
+      display: block;
+      font-size: 13px;
+      letter-spacing: 0;
+      font-weight: 600;
+      color: #5aabcf;
+      margin-top: 6px;
+      font-family: 'Courier New', monospace;
+    }
+    .sg-row-body p { font-size: 13px; color: #444; line-height: 1.7; margin: 0 0 6px; }
+    .sg-row-body small { font-size: 12px; color: #888; line-height: 1.6; display: block; }
+
+    /* ── SECTION HEADER ── */
+    .sg-section { margin-bottom: 64px; }
+    .sg-section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      border-bottom: 2px solid #111;
+      padding-bottom: 14px;
+      margin-bottom: 0;
+    }
+    .sg-section-head h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px;
+      letter-spacing: 0.06em;
+      margin: 0;
+      color: #111;
+    }
+    .sg-section-head span {
+      font-size: 11px;
+      color: #999;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    /* ── SIZE TABLE ── */
     .sg-table { width: 100%; border-collapse: collapse; }
-    .sg-table th { background: var(--charcoal); color: var(--white); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; padding: 12px 16px; text-align: center; font-weight: 600; }
-    .sg-table td { padding: 13px 16px; text-align: center; font-size: 14px; border-bottom: 1px solid var(--gray-light); }
-    .sg-table tr:nth-child(even) td { background: var(--off); }
-    .sg-table td:first-child { font-weight: 700; font-size: 15px; }
-    .sg-table td.highlight { color: var(--denim); font-weight: 600; }
+    .sg-table thead tr { background: #111; }
+    .sg-table th {
+      color: #fff;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 14px 20px;
+      font-weight: 500;
+      text-align: left;
+    }
+    .sg-table th:first-child { text-align: center; width: 72px; }
+    .sg-table td {
+      padding: 15px 20px;
+      font-size: 14px;
+      border-bottom: 1px solid #e5eff7;
+      color: #444;
+    }
+    .sg-table td:first-child {
+      text-align: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.04em;
+      color: #111;
+    }
+    .sg-table td.sg-bold { color: #111; font-weight: 600; }
+    .sg-table tr.sg-pop td { background: #eef6fb; }
+    .sg-table tr.sg-pop td:first-child { color: #5aabcf; }
+    .sg-table tr.sg-pop td.sg-bold { color: #5aabcf; }
 
-    /* Fit notes */
-    .sg-fit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 56px; }
-    .sg-fit-card { border: 1px solid var(--gray-light); padding: 22px 20px; }
-    .sg-fit-card h5 { font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 8px; }
-    .sg-fit-card p { font-size: 13px; color: var(--gray); line-height: 1.65; }
-    .sg-fit-tag { display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; background: var(--denim); color: var(--white); padding: 3px 9px; margin-bottom: 10px; }
+    /* ── FIT GUIDE ── */
+    .sg-fit-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      margin-top: 0;
+    }
+    .sg-fit-card {
+      background: #f4f9fd;
+      padding: 32px 28px 36px;
+    }
+    .sg-fit-tag {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: #5aabcf;
+      font-weight: 700;
+      display: block;
+      margin-bottom: 16px;
+    }
+    .sg-fit-card h4 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 0.04em;
+      margin: 0 0 14px;
+      color: #111;
+    }
+    .sg-fit-card p { font-size: 13px; color: #555; line-height: 1.72; margin: 0; }
 
-    /* Tips */
-    .sg-tips { background: var(--charcoal); color: var(--white); padding: 36px 32px; margin-bottom: 48px; }
-    .sg-tips h4 { font-family: 'Bebas Neue', sans-serif; font-size: 24px; letter-spacing: 0.06em; margin-bottom: 16px; }
-    .sg-tips ul { list-style: none; padding: 0; }
-    .sg-tips ul li { font-size: 13px; color: rgba(255,255,255,0.78); line-height: 1.8; padding-left: 16px; position: relative; }
-    .sg-tips ul li::before { content: "—"; position: absolute; left: 0; color: var(--denim); }
+    /* ── TIPS ── */
+    .sg-tips {
+      background: #111;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 56px;
+      padding: 48px 56px;
+      margin-bottom: 64px;
+      align-items: start;
+    }
+    .sg-tips-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 44px;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: #fff;
+    }
+    .sg-tips-heading span { display: block; color: #5aabcf; }
+    .sg-tips ul { list-style: none; padding: 0; margin: 0; }
+    .sg-tips ul li {
+      font-size: 13px;
+      color: rgba(255,255,255,0.72);
+      line-height: 1.75;
+      padding: 12px 0 12px 22px;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      position: relative;
+    }
+    .sg-tips ul li:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
+    .sg-tips ul li::before { content: "—"; position: absolute; left: 0; color: #5aabcf; }
 
-    /* CTA */
-    .sg-cta { text-align: center; padding: 40px; background: var(--off); }
-    .sg-cta p { font-size: 14px; color: var(--gray); margin-bottom: 20px; }
+    /* ── CTA ── */
+    .sg-cta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 32px;
+      padding: 40px 48px;
+      background: #f4f9fd;
+    }
+    .sg-cta h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.06em;
+      margin: 0 0 6px;
+      color: #111;
+    }
+    .sg-cta p { font-size: 13px; color: #666; margin: 0; }
 
-    /* Infographic */
-    .sg-infographic { display: flex; align-items: center; gap: 56px; margin-bottom: 64px; }
-    .sg-body-svg { width: 200px; height: auto; flex-shrink: 0; }
-    .sg-labels { display: flex; flex-direction: column; gap: 48px; }
-    .sg-label-item h4 { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #111111; margin: 0 0 8px 0; }
-    .sg-label-item p { font-size: 13px; color: #666666; line-height: 1.65; margin: 0; font-weight: 400; max-width: 240px; }
-
-    @media (max-width: 768px) {
-      .size-guide-page { padding: 40px 20px 80px; }
-      .sg-measure { grid-template-columns: 1fr; }
-      .sg-fit-grid { grid-template-columns: 1fr; }
-      .sg-table th, .sg-table td { padding: 10px 10px; font-size: 13px; }
-      .sg-infographic { flex-direction: column; gap: 32px; }
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      .sg-page { padding: 0 24px 80px; }
+      .sg-hero { grid-template-columns: 1fr; gap: 32px; padding: 40px 0 40px; margin-bottom: 48px; }
+      .sg-hero-info { padding-left: 0; border-left: none; border-top: 1px solid var(--gray-light); padding-top: 32px; }
+      .sg-hero-title h1 { font-size: 72px; }
+      .sg-body-panel { grid-template-columns: 1fr; gap: 40px; margin-bottom: 56px; }
       .sg-body-svg { width: 160px; }
+      .sg-figure { align-items: flex-start; }
+      .sg-fit-grid { grid-template-columns: 1fr; }
+      .sg-tips { grid-template-columns: 1fr; gap: 24px; padding: 36px 28px; }
+      .sg-cta { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
+      .sg-measure-row { grid-template-columns: 90px 1fr; gap: 18px; }
     }
   </style>
 </head>
@@ -107,143 +305,155 @@
 
 <!-- ===== BREADCRUMB ===== -->
 <nav class="breadcrumb">
-  <a href="index.html" data-i18n="home">Home</a>
+  <a href="index.html">Home</a>
   <span>/</span>
-  <span data-i18n="size_guide">Size Guide</span>
+  <span>Size Guide</span>
 </nav>
 
-<!-- ===== SIZE GUIDE CONTENT ===== -->
-<div class="size-guide-page">
+<!-- ===== PAGE ===== -->
+<div class="sg-page">
 
-  <h1 data-i18n="size_guide">Size Guide</h1>
-  <p class="sg-intro" data-lang="en">All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
-  <p class="sg-intro" data-lang="fr" style="display:none;">Tous nos jeans sont coupés en taille marocaine. Utilisez les mesures ci-dessous pour trouver votre taille parfaite. En cas d'hésitation entre deux tailles, nous recommandons de prendre la taille supérieure.</p>
+  <!-- HERO -->
+  <div class="sg-hero">
+    <div class="sg-hero-title">
+      <span class="sg-season">StreetStore — SS 2026</span>
+      <h1>Size<br>Guide</h1>
+    </div>
+    <div class="sg-hero-info">
+      <h3>About Our Sizing</h3>
+      <p>All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
+    </div>
+  </div>
 
-  <!-- ===== BODY INFOGRAPHIC ===== -->
-  <div class="sg-infographic">
-    <svg class="sg-body-svg" viewBox="270 15 240 1009" xmlns="http://www.w3.org/2000/svg">
-      <image href="images/figure-body.svg" x="0" y="0" width="1536" height="1024"/>
-    </svg>
+  <!-- BODY + MEASUREMENTS -->
+  <div class="sg-body-panel">
+    <div class="sg-figure">
+      <svg class="sg-body-svg" viewBox="270 15 240 1009" xmlns="http://www.w3.org/2000/svg">
+        <image href="images/figure-body.svg" x="0" y="0" width="1536" height="1024"/>
+      </svg>
+    </div>
 
-    <div class="sg-labels">
-      <div class="sg-label-item">
-        <h4>Waist</h4>
-        <p>Narrowest part of the torso,<br>just above the belly button.</p>
-      </div>
-      <div class="sg-label-item">
-        <h4>Hip</h4>
-        <p>Fullest part of the hips and seat —<br>approx. 20 cm below the waist.</p>
-      </div>
-      <div class="sg-label-item">
-        <h4>Thigh</h4>
-        <p>Upper thigh circumference,<br>just below the hip joint.</p>
+    <div class="sg-measure-panel">
+      <h2>How to Measure</h2>
+      <span class="sg-panel-sub">Use a soft measuring tape</span>
+      <div class="sg-measure-rows">
+
+        <div class="sg-measure-row">
+          <div class="sg-row-label">
+            Waist
+            <span class="sg-range">61 – 89 cm</span>
+          </div>
+          <div class="sg-row-body">
+            <p>The narrowest part of your torso, just above the belly button.</p>
+            <small>Wrap the tape snugly around your natural waist. Breathe normally — don't hold your breath.</small>
+          </div>
+        </div>
+
+        <div class="sg-measure-row">
+          <div class="sg-row-label">
+            Hip
+            <span class="sg-range">86 – 114 cm</span>
+          </div>
+          <div class="sg-row-body">
+            <p>The fullest part of your hips and seat — approx. 20 cm below the waist.</p>
+            <small>Stand feet together. Keep the tape level all the way around.</small>
+          </div>
+        </div>
+
+        <div class="sg-measure-row">
+          <div class="sg-row-label">Thigh</div>
+          <div class="sg-row-body">
+            <p>Upper thigh circumference, just below the hip joint.</p>
+            <small>Measure around the fullest part of the thigh, close to the hip.</small>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- How to Measure -->
-  <div class="sg-measure">
-    <div class="sg-measure-card">
-      <div class="sg-measure-icon">📏</div>
-      <h4 data-lang="en">How to Measure Your Waist</h4>
-      <h4 data-lang="fr" style="display:none;">Comment mesurer votre tour de taille</h4>
-      <p data-lang="en">Wrap a soft measuring tape around the narrowest part of your waist — usually just above your belly button. Keep the tape snug but not tight. Breathe naturally.</p>
-      <p data-lang="fr" style="display:none;">Enroulez un mètre souple autour de la partie la plus étroite de votre taille — généralement juste au-dessus du nombril. Le mètre doit être ajusté sans être trop serré.</p>
-    </div>
-    <div class="sg-measure-card">
-      <div class="sg-measure-icon">📐</div>
-      <h4 data-lang="en">How to Measure Your Hips</h4>
-      <h4 data-lang="fr" style="display:none;">Comment mesurer votre tour de hanches</h4>
-      <p data-lang="en">Stand with feet together and measure around the fullest part of your hips and seat — usually about 20–23 cm below your waist. Make sure the tape is level all around.</p>
-      <p data-lang="fr" style="display:none;">Tenez-vous debout, pieds joints, et mesurez autour de la partie la plus large de vos hanches — généralement 20 à 23 cm sous la taille. Vérifiez que le mètre est bien horizontal.</p>
-    </div>
-  </div>
-
-  <!-- Main Size Table -->
+  <!-- SIZE TABLE -->
   <div class="sg-section">
-    <div class="sg-section-title" data-lang="en">Jeans Size Chart</div>
-    <div class="sg-section-title" data-lang="fr" style="display:none;">Guide des Tailles — Jeans</div>
-    <div class="sg-section-sub" data-lang="en">Measurements in inches &amp; centimetres</div>
-    <div class="sg-section-sub" data-lang="fr" style="display:none;">Mesures en pouces &amp; centimètres</div>
-
+    <div class="sg-section-head">
+      <h2>Jeans Size Chart</h2>
+      <span>Inches &amp; centimetres</span>
+    </div>
     <table class="sg-table">
       <thead>
         <tr>
-          <th data-lang="en">Size</th>
-          <th data-lang="fr" style="display:none;">Taille</th>
-          <th data-lang="en">Waist (in)</th>
-          <th data-lang="fr" style="display:none;">Tour de taille (po)</th>
-          <th data-lang="en">Waist (cm)</th>
-          <th data-lang="fr" style="display:none;">Tour de taille (cm)</th>
-          <th data-lang="en">Hip (in)</th>
-          <th data-lang="fr" style="display:none;">Tour de hanches (po)</th>
-          <th data-lang="en">Hip (cm)</th>
-          <th data-lang="fr" style="display:none;">Tour de hanches (cm)</th>
+          <th>Size</th>
+          <th>Waist (in)</th>
+          <th>Waist (cm)</th>
+          <th>Hip (in)</th>
+          <th>Hip (cm)</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>34</td><td>24–25"</td><td>61–63 cm</td><td>34–35"</td><td>86–89 cm</td></tr>
-        <tr><td>36</td><td>26–27"</td><td>66–68 cm</td><td>36–37"</td><td>91–94 cm</td></tr>
-        <tr><td>38</td><td class="highlight">28–29"</td><td class="highlight">71–73 cm</td><td class="highlight">38–39"</td><td class="highlight">96–99 cm</td></tr>
-        <tr><td>40</td><td>30–31"</td><td>76–78 cm</td><td>40–41"</td><td>101–104 cm</td></tr>
-        <tr><td>42</td><td>32–33"</td><td>81–83 cm</td><td>42–43"</td><td>106–109 cm</td></tr>
-        <tr><td>44</td><td>34–35"</td><td>86–89 cm</td><td>44–45"</td><td>111–114 cm</td></tr>
+        <tr>
+          <td>34</td><td>24 – 25"</td><td class="sg-bold">61 – 63 cm</td><td>34 – 35"</td><td class="sg-bold">86 – 89 cm</td>
+        </tr>
+        <tr>
+          <td>36</td><td>26 – 27"</td><td class="sg-bold">66 – 68 cm</td><td>36 – 37"</td><td class="sg-bold">91 – 94 cm</td>
+        </tr>
+        <tr class="sg-pop">
+          <td>38</td><td>28 – 29"</td><td class="sg-bold">71 – 73 cm</td><td>38 – 39"</td><td class="sg-bold">96 – 99 cm</td>
+        </tr>
+        <tr>
+          <td>40</td><td>30 – 31"</td><td class="sg-bold">76 – 78 cm</td><td>40 – 41"</td><td class="sg-bold">101 – 104 cm</td>
+        </tr>
+        <tr>
+          <td>42</td><td>32 – 33"</td><td class="sg-bold">81 – 83 cm</td><td>42 – 43"</td><td class="sg-bold">106 – 109 cm</td>
+        </tr>
+        <tr>
+          <td>44</td><td>34 – 35"</td><td class="sg-bold">86 – 89 cm</td><td>44 – 45"</td><td class="sg-bold">111 – 114 cm</td>
+        </tr>
       </tbody>
     </table>
   </div>
 
-  <!-- Fit Guide -->
+  <!-- FIT GUIDE -->
   <div class="sg-section">
-    <div class="sg-section-title" data-lang="en">Fit Guide</div>
-    <div class="sg-section-title" data-lang="fr" style="display:none;">Guide des Coupes</div>
-    <div class="sg-section-sub" data-lang="en">How each style fits</div>
-    <div class="sg-section-sub" data-lang="fr" style="display:none;">Comment chaque coupe se porte</div>
+    <div class="sg-section-head">
+      <h2>Fit Guide</h2>
+      <span>How each style fits</span>
+    </div>
     <div class="sg-fit-grid">
       <div class="sg-fit-card">
-        <div class="sg-fit-tag">Wide Leg</div>
-        <h5 data-lang="en">Wide &amp; Relaxed</h5>
-        <h5 data-lang="fr" style="display:none;">Large &amp; Décontracté</h5>
-        <p data-lang="en">Generous through the hip and thigh, with a wide straight leg. True to size — size up for extra flow.</p>
-        <p data-lang="fr" style="display:none;">Ample au niveau des hanches et des cuisses, avec une jambe large et droite. Taille réelle — prenez une taille au-dessus pour plus d'ampleur.</p>
+        <span class="sg-fit-tag">Wide Leg</span>
+        <h4>Wide &amp; Relaxed</h4>
+        <p>Generous through the hip and thigh, with a wide straight leg. True to size — size up for extra flow.</p>
       </div>
       <div class="sg-fit-card">
-        <div class="sg-fit-tag">Balloon</div>
-        <h5 data-lang="en">Relaxed Balloon</h5>
-        <h5 data-lang="fr" style="display:none;">Ballon Décontracté</h5>
-        <p data-lang="en">High-waisted with a roomy balloon silhouette that tapers slightly at the ankle. Size down if in between.</p>
-        <p data-lang="fr" style="display:none;">Taille haute avec une silhouette ballon spacieuse qui se resserre légèrement à la cheville. Prenez une taille en dessous si vous hésitez.</p>
+        <span class="sg-fit-tag">Balloon</span>
+        <h4>Relaxed Balloon</h4>
+        <p>High-waisted with a roomy balloon silhouette that tapers slightly at the ankle. Size down if in between.</p>
       </div>
       <div class="sg-fit-card">
-        <div class="sg-fit-tag">High Waist</div>
-        <h5 data-lang="en">Slim High Rise</h5>
-        <h5 data-lang="fr" style="display:none;">Slim Taille Haute</h5>
-        <p data-lang="en">Fitted through the hip with a high waist. Stretchy fabric allows for comfort. True to size.</p>
-        <p data-lang="fr" style="display:none;">Ajusté au niveau des hanches avec une taille haute. Le tissu extensible assure le confort. Taille réelle.</p>
+        <span class="sg-fit-tag">High Waist</span>
+        <h4>Slim High Rise</h4>
+        <p>Fitted through the hip with a high waist. Stretchy fabric allows for comfort. True to size.</p>
       </div>
     </div>
   </div>
 
-  <!-- Tips -->
+  <!-- TIPS -->
   <div class="sg-tips">
-    <h4 data-lang="en">Sizing Tips</h4>
-    <h4 data-lang="fr" style="display:none;">Conseils de Taille</h4>
+    <div class="sg-tips-heading">Sizing<br><span>Tips</span></div>
     <ul>
-      <li data-lang="en">Always measure yourself — don't rely on clothing from other brands as sizes vary.</li>
-      <li data-lang="fr" style="display:none;">Mesurez-vous toujours — ne vous fiez pas aux vêtements d'autres marques car les tailles varient.</li>
-      <li data-lang="en">Our denim has minimal stretch, so measure carefully.</li>
-      <li data-lang="fr" style="display:none;">Notre denim a peu d'élasticité, mesurez-vous donc avec soin.</li>
-      <li data-lang="en">If your waist and hip measurements fall in different sizes, size up to accommodate the hips.</li>
-      <li data-lang="fr" style="display:none;">Si vos mesures de taille et de hanches correspondent à des tailles différentes, choisissez la plus grande pour les hanches.</li>
-      <li data-lang="en">Still unsure? Contact us on WhatsApp — we'll help you pick the right size.</li>
-      <li data-lang="fr" style="display:none;">Encore incertain(e) ? Contactez-nous sur WhatsApp — nous vous aiderons à choisir la bonne taille.</li>
+      <li>Always measure yourself — don't rely on clothing from other brands as sizes vary.</li>
+      <li>Our denim has minimal stretch, so measure carefully and don't round down.</li>
+      <li>If your waist and hip measurements fall in different sizes, size up to accommodate the hips.</li>
+      <li>Still unsure? Contact us on WhatsApp — we'll help you pick the right size.</li>
     </ul>
   </div>
 
   <!-- CTA -->
   <div class="sg-cta">
-    <p data-lang="en">Need help choosing your size? We're here for you.</p>
-    <p data-lang="fr" style="display:none;">Besoin d'aide pour choisir votre taille ? Nous sommes là pour vous.</p>
-    <a href="contact.html" class="btn-dark" data-i18n="footer_contact">Contact Us</a>
+    <div>
+      <h3>Need Help Choosing Your Size?</h3>
+      <p>Our team is happy to help you find the perfect fit.</p>
+    </div>
+    <a href="contact.html" class="btn-dark">Contact Us</a>
   </div>
 
 </div>
@@ -267,7 +477,7 @@
       <h4 data-i18n="footer_help">Help</h4>
       <ul>
         <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
-        <li><a href="shipping.html" data-i18n="footer_shipping">Shipping &amp; Exchanges</a></li>
+        <li><a href="shipping.html" data-i18n="footer_shipping">Shipping &amp; Returns</a></li>
         <li><a href="faq.html" data-i18n="footer_faq">FAQ</a></li>
       </ul>
     </div>
