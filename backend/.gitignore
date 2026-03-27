@@ -8,3 +8,5 @@ blocked_ips.json
 product_overrides.json
 backups/
 *.log
+
+/generated/prisma

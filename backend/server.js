@@ -1,37 +1,41 @@
 /**
- * StreetStore — Secure Order & Admin API
+ * StreetStore — API Server
+ * Express + Prisma (SQLite) + Socket.io
  */
 
 require('dotenv').config();
 
-const express   = require('express');
-const cors      = require('cors');
-const helmet    = require('helmet');
-const rateLimit = require('express-rate-limit');
-const multer    = require('multer');
-const path      = require('path');
-const fs        = require('fs');
-const bcrypt    = require('bcryptjs');
-const jwt       = require('jsonwebtoken');
-const speakeasy = require('speakeasy');
-const QRCode    = require('qrcode');
+const express      = require('express');
+const cors         = require('cors');
+const helmet       = require('helmet');
+const rateLimit    = require('express-rate-limit');
+const multer       = require('multer');
+const path         = require('path');
+const fs           = require('fs');
+const bcrypt       = require('bcryptjs');
+const jwt          = require('jsonwebtoken');
+const speakeasy    = require('speakeasy');
+const QRCode       = require('qrcode');
+const http         = require('http');
+const { Server }   = require('socket.io');
+const prisma = require('./prisma');
+
 const { createOrder, readOrders, getOrder, updateOrder } = require('./db');
 const cloudinary = require('cloudinary').v2;
 
-/* ── Cloudinary setup (only when CLOUDINARY_URL env var is set) ── */
+/* ── Cloudinary ── */
 const USE_CLOUDINARY = !!process.env.CLOUDINARY_URL;
 if (USE_CLOUDINARY) {
-  // CLOUDINARY_URL format: cloudinary://api_key:api_secret@cloud_name
   cloudinary.config({ secure: true });
-  console.log('☁️  Cloudinary enabled for file uploads');
+  console.log('☁️  Cloudinary enabled');
 }
 
 /* ════════════════════════════════════════
-   AUTH STORE — hashed password + 2FA secret
+   AUTH STORE
 ════════════════════════════════════════ */
-const AUTH_FILE    = path.join(__dirname, 'auth.json');
-const JWT_SECRET   = process.env.JWT_SECRET || 'change-me-in-production';
-const JWT_EXPIRY   = '8h';
+const AUTH_FILE     = path.join(__dirname, 'auth.json');
+const JWT_SECRET    = process.env.JWT_SECRET || 'change-me-in-production';
+const JWT_EXPIRY    = '8h';
 const BCRYPT_ROUNDS = 12;
 
 function readAuth() {
@@ -45,19 +49,30 @@ function writeAuth(data) {
   fs.writeFileSync(AUTH_FILE, JSON.stringify(data, null, 2));
 }
 
-/* On first run: hash API_SECRET and store it */
 (async function bootstrap() {
   const auth = readAuth();
   if (!auth.passwordHash) {
-    const raw = process.env.API_SECRET || 'admin123';
+    const raw  = process.env.API_SECRET || 'admin123';
     const hash = await bcrypt.hash(raw, BCRYPT_ROUNDS);
     writeAuth({ ...auth, passwordHash: hash });
-    console.log('🔐 Password hashed and stored in auth.json');
+    console.log('🔐 Password hashed and stored');
   }
+  // Ensure SiteSettings singleton exists
+  await prisma.siteSettings.upsert({
+    where: { id: 'singleton' },
+    update: {},
+    create: { id: 'singleton' },
+  });
+  // Ensure OlivraisonConfig singleton exists
+  await prisma.olivraisonConfig.upsert({
+    where: { id: 'singleton' },
+    update: {},
+    create: { id: 'singleton' },
+  });
 })();
 
-/* ── Login attempt tracker (in-memory) ── */
-const loginAttempts = new Map(); // ip → { count, lockedUntil }
+/* ── Login throttle ── */
+const loginAttempts = new Map();
 const MAX_ATTEMPTS  = 5;
 const LOCK_MINUTES  = 15;
 
@@ -68,25 +83,18 @@ function checkLoginLock(ip) {
   if (rec.lockedUntil && Date.now() >= rec.lockedUntil) loginAttempts.delete(ip);
   return false;
 }
-
 function recordFailedLogin(ip) {
   const rec = loginAttempts.get(ip) || { count: 0, lockedUntil: null };
   rec.count++;
-  if (rec.count >= MAX_ATTEMPTS) {
-    rec.lockedUntil = Date.now() + LOCK_MINUTES * 60 * 1000;
-    console.warn(`🔒 IP ${ip} locked out for ${LOCK_MINUTES} min after ${MAX_ATTEMPTS} failed logins`);
-  }
+  if (rec.count >= MAX_ATTEMPTS) rec.lockedUntil = Date.now() + LOCK_MINUTES * 60_000;
   loginAttempts.set(ip, rec);
 }
+function resetLoginAttempts(ip) { loginAttempts.delete(ip); }
 
-function resetLoginAttempts(ip) {
-  loginAttempts.delete(ip);
-}
-
-/* ── Blocked IPs store ── */
+/* ── Blocked IPs ── */
 const BLOCKED_IPS_FILE = path.join(__dirname, 'blocked_ips.json');
 function readBlockedIps() {
-  try { return JSON.parse(fs.existsSync(BLOCKED_IPS_FILE) ? fs.readFileSync(BLOCKED_IPS_FILE,'utf8') : '[]'); }
+  try { return JSON.parse(fs.existsSync(BLOCKED_IPS_FILE) ? fs.readFileSync(BLOCKED_IPS_FILE, 'utf8') : '[]'); }
   catch { return []; }
 }
 function writeBlockedIps(list) { fs.writeFileSync(BLOCKED_IPS_FILE, JSON.stringify(list, null, 2)); }
@@ -94,49 +102,38 @@ function writeBlockedIps(list) { fs.writeFileSync(BLOCKED_IPS_FILE, JSON.stringi
 /* ── Backup ── */
 const BACKUP_DIR = path.join(__dirname, 'backups');
 if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
-
 function runBackup() {
   const ordersFile = path.join(__dirname, 'orders.json');
   if (!fs.existsSync(ordersFile)) return;
-  const ts   = new Date().toISOString().slice(0,10);
+  const ts   = new Date().toISOString().slice(0, 10);
   const dest = path.join(BACKUP_DIR, `orders-${ts}.json`);
   fs.copyFileSync(ordersFile, dest);
-  // Keep only last 30 backups
-  const files = fs.readdirSync(BACKUP_DIR).filter(f=>f.startsWith('orders-')).sort();
-  if (files.length > 30) {
-    files.slice(0, files.length - 30).forEach(f => fs.unlinkSync(path.join(BACKUP_DIR, f)));
-  }
-  console.log(`💾 Backup saved: ${dest}`);
+  const files = fs.readdirSync(BACKUP_DIR).filter(f => f.startsWith('orders-')).sort();
+  if (files.length > 30) files.slice(0, files.length - 30).forEach(f => fs.unlinkSync(path.join(BACKUP_DIR, f)));
 }
-
-// Daily backup at startup, then every 24h
 runBackup();
 setInterval(runBackup, 24 * 60 * 60 * 1000);
 
 /* ── Helpers ── */
 function getClientIp(req) { return req.socket?.remoteAddress || 'unknown'; }
-
 function sanitize(str, maxLen = 200) {
   if (typeof str !== 'string') return '';
   return str.replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
 }
-
-function isValidId(id) {
-  return typeof id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(id);
-}
-
+function isValidId(id) { return typeof id === 'string' && /^[A-Za-z0-9_-]{1,64}$/.test(id); }
 function isStrongPassword(p) {
-  // min 8 chars, at least 1 letter + 1 number
   return typeof p === 'string' && p.length >= 8 && /[A-Za-z]/.test(p) && /[0-9]/.test(p);
+}
+function slugify(str) {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
 /* ── File upload ── */
 const UPLOADS_DIR = path.join(__dirname, '../frontend/uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOADS_DIR),
-  filename: (req, file, cb) => {
+  filename:    (req, file, cb) => {
     const ext  = path.extname(file.originalname).toLowerCase();
     const base = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '-').toLowerCase();
     cb(null, `${base}-${Date.now()}${ext}`);
@@ -153,8 +150,25 @@ const upload = multer({
   }
 });
 
-const app  = express();
+/* ════════════════════════════════════════
+   APP + SOCKET.IO
+════════════════════════════════════════ */
+const app        = express();
+const httpServer = http.createServer(app);
+const io         = new Server(httpServer, {
+  cors: { origin: '*', methods: ['GET', 'POST'] }
+});
 const PORT = process.env.PORT || 3000;
+
+io.on('connection', (socket) => {
+  console.log(`🔌 Socket connected: ${socket.id}`);
+  socket.on('disconnect', () => console.log(`🔌 Socket disconnected: ${socket.id}`));
+});
+
+/* Helper: emit storefront sync event */
+function emit(event, data) {
+  io.emit(event, data);
+}
 
 /* ════════════════════════════════════════
    MIDDLEWARE
@@ -163,9 +177,7 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: false,
 }));
-
 app.use(express.json({ limit: '10kb' }));
-
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin || origin === 'null') return callback(null, true);
@@ -177,41 +189,23 @@ app.use(cors({
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
 }));
-
 app.use('/uploads', express.static(UPLOADS_DIR));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 /* ── Rate limiters ── */
-const orderLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 5, standardHeaders: true, legacyHeaders: false,
-  message: { error: 'Too many orders submitted. Please wait 15 minutes.' },
-  keyGenerator: (req) => getClientIp(req),
-});
+const orderLimiter = rateLimit({ windowMs: 15 * 60_000, max: 5,  keyGenerator: req => getClientIp(req), message: { error: 'Too many orders. Wait 15 min.' } });
+const adminLimiter = rateLimit({ windowMs: 60_000,       max: 120, keyGenerator: req => getClientIp(req), message: { error: 'Too many requests.' } });
+const authLimiter  = rateLimit({ windowMs: 15 * 60_000, max: 20,  keyGenerator: req => getClientIp(req), message: { error: 'Too many auth attempts.' } });
 
-const adminLimiter = rateLimit({
-  windowMs: 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false,
-  message: { error: 'Too many requests.' },
-  keyGenerator: (req) => getClientIp(req),
-});
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false,
-  message: { error: 'Too many authentication attempts. Try again later.' },
-  keyGenerator: (req) => getClientIp(req),
-});
-
-/* ── JWT auth middleware ── */
+/* ── JWT middleware ── */
 function requireAuth(req, res, next) {
   const header = req.headers['authorization'] || '';
   const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
-  if (!token) {
-    console.warn(`⚠️  No token from ${getClientIp(req)}`);
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  if (!token) return res.status(401).json({ error: 'Unauthorized' });
   try {
     req.admin = jwt.verify(token, JWT_SECRET);
     next();
-  } catch(e) {
+  } catch {
     return res.status(401).json({ error: 'Token expired or invalid. Please log in again.' });
   }
 }
@@ -219,190 +213,193 @@ function requireAuth(req, res, next) {
 /* ════════════════════════════════════════
    PUBLIC ROUTES
 ════════════════════════════════════════ */
-app.get('/', (req, res) => {
+app.get('/api/status', (req, res) => {
   res.json({ service: 'StreetStore API', status: 'running', timestamp: new Date().toISOString() });
 });
 
-/* ── POST /api/orders ── */
+/* POST /api/orders — place order from storefront */
 app.post('/api/orders', orderLimiter, async (req, res) => {
   const clientIp = getClientIp(req);
-
   if (readBlockedIps().includes(clientIp)) {
-    return res.status(403).json({
-      error: 'blocked',
-      message: 'Your account has been blocked due to multiple undelivered or cancelled orders. If you believe this is a mistake, please contact us on WhatsApp.'
-    });
+    return res.status(403).json({ error: 'blocked', message: 'Your account has been blocked. Contact us on WhatsApp.' });
   }
-
   const product  = sanitize(req.body.product,  100);
-  const customer = sanitize(req.body.customer,  80);
-  const phone    = sanitize(req.body.phone,     20);
-  const city     = sanitize(req.body.city,      60);
-  const address  = sanitize(req.body.address,  200);
+  const customer = sanitize(req.body.customer,   80);
+  const phone    = sanitize(req.body.phone,      20);
+  const city     = sanitize(req.body.city,       60);
+  const address  = sanitize(req.body.address,   200);
   const size     = sanitize(req.body.size,       10);
   const price    = sanitize(String(req.body.price || ''), 20);
   const qty      = Math.min(Math.max(parseInt(req.body.qty) || 1, 1), 99);
-
   if (!product || !customer || !phone || !city) {
-    return res.status(400).json({ error: 'Missing required fields: product, customer, phone, city' });
+    return res.status(400).json({ error: 'Missing required fields' });
   }
-
   const digits = phone.replace(/\D/g, '');
-  if (digits.length < 9 || digits.length > 15) {
-    return res.status(400).json({ error: 'Invalid phone number' });
-  }
-
-  if (!/^[\p{L}\s'\-\.]{2,80}$/u.test(customer)) {
-    return res.status(400).json({ error: 'Invalid customer name' });
-  }
-
+  if (digits.length < 9 || digits.length > 15) return res.status(400).json({ error: 'Invalid phone number' });
+  if (!/^[\p{L}\s'\-\.]{2,80}$/u.test(customer)) return res.status(400).json({ error: 'Invalid customer name' });
   const order = createOrder({ product, size, qty, price, customer, phone, city, address, clientIp });
-  console.log(`🆕 New order: ${order.id} — ${customer} — ${product}`);
+  emit('order:new', { orderId: order.id, customer: order.customer, product: order.product });
+  res.status(201).json({ success: true, orderId: order.id, message: 'Order received.' });
+});
 
-  res.status(201).json({ success: true, orderId: order.id, message: 'Order received successfully.' });
+/* GET /api/products/overrides — legacy compat for products.js */
+app.get('/api/products/overrides', async (req, res) => {
+  try {
+    const products = await prisma.product.findMany({
+      where:   { status: 'ACTIVE' },
+      include: { images: { where: { isMain: true }, take: 1 }, variants: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+    const overrides = {};
+    for (const p of products) {
+      overrides[p.slug] = {
+        name:          p.name,
+        price:         p.price,
+        originalPrice: p.comparePrice || undefined,
+        fit:           p.fit || '',
+        fitFilter:     p.fitFilter || 'wide',
+        badge:         p.badge || '',
+        sizes:         p.variants.map(v => v.size).filter(Boolean).join(','),
+        sizesInStock:  p.variants.filter(v => v.inStock).map(v => v.size).filter(Boolean),
+        color:         '',
+        image:         p.images[0]?.url || null,
+        gallery:       [],
+        video:         null,
+        href:          p.href || `product-${p.slug}.html`,
+        description:   p.description || '',
+        inStock:       p.variants.some(v => v.inStock),
+        status:        p.status,
+      };
+    }
+    res.json(overrides);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({});
+  }
+});
+
+/* GET /api/products — public product list for storefront */
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await prisma.product.findMany({
+      where:   { status: 'ACTIVE' },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } },
+      orderBy: { sortOrder: 'asc' },
+    });
+    res.json(products);
+  } catch (err) {
+    console.error('GET /api/products error:', err);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+/* GET /api/products/:slug — public single product */
+app.get('/api/products/:slug', async (req, res) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where:   { slug: req.params.slug },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } },
+    });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch product' });
+  }
+});
+
+/* GET /api/settings — public site settings */
+app.get('/api/settings', async (req, res) => {
+  try {
+    const settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+    res.json(settings || {});
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+/* GET /api/banners — public banners */
+app.get('/api/banners', async (req, res) => {
+  try {
+    const { position } = req.query;
+    const where = { isActive: true };
+    if (position) where.position = position;
+    const banners = await prisma.banner.findMany({ where, orderBy: { sortOrder: 'asc' } });
+    res.json(banners);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch banners' });
+  }
 });
 
 /* ════════════════════════════════════════
    AUTH ROUTES
 ════════════════════════════════════════ */
-
-/* POST /api/admin/login */
 app.post('/api/admin/login', authLimiter, async (req, res) => {
   const ip = getClientIp(req);
-
-  // Check lockout
-  if (checkLoginLock(ip)) {
-    return res.status(429).json({ error: `Too many failed attempts. Try again in ${LOCK_MINUTES} minutes.` });
-  }
-
+  if (checkLoginLock(ip)) return res.status(429).json({ error: `Too many failed attempts. Try again in ${LOCK_MINUTES} minutes.` });
   const { password, totpCode } = req.body;
   if (!password) return res.status(400).json({ error: 'Password required' });
-
-  const auth = readAuth();
-
-  // Verify password
+  const auth  = readAuth();
   const valid = auth.passwordHash
     ? await bcrypt.compare(password, auth.passwordHash)
-    : password === process.env.API_SECRET; // fallback before first hash
-
+    : password === process.env.API_SECRET;
   if (!valid) {
     recordFailedLogin(ip);
     const rec = loginAttempts.get(ip) || {};
     const remaining = MAX_ATTEMPTS - (rec.count || 0);
-    console.warn(`🔐 Failed login from ${ip} (${rec.count || 1}/${MAX_ATTEMPTS})`);
-    if (remaining <= 0) {
-      return res.status(429).json({ error: `Account locked for ${LOCK_MINUTES} minutes.` });
-    }
-    return res.status(401).json({ error: `Wrong password. ${remaining} attempt${remaining===1?'':'s'} remaining.` });
+    if (remaining <= 0) return res.status(429).json({ error: `Account locked for ${LOCK_MINUTES} minutes.` });
+    return res.status(401).json({ error: `Wrong password. ${remaining} attempt${remaining === 1 ? '' : 's'} remaining.` });
   }
-
-  // 2FA check
   if (auth.twoFactorEnabled) {
-    if (!totpCode) {
-      return res.status(200).json({ require2fa: true });
-    }
-    const verified = speakeasy.totp.verify({
-      secret: auth.twoFactorSecret,
-      encoding: 'base32',
-      token: totpCode,
-      window: 1,
-    });
-    if (!verified) {
-      recordFailedLogin(ip);
-      return res.status(401).json({ error: 'Invalid 2FA code.' });
-    }
+    if (!totpCode) return res.status(200).json({ require2fa: true });
+    const verified = speakeasy.totp.verify({ secret: auth.twoFactorSecret, encoding: 'base32', token: totpCode, window: 1 });
+    if (!verified) { recordFailedLogin(ip); return res.status(401).json({ error: 'Invalid 2FA code.' }); }
   }
-
   resetLoginAttempts(ip);
-
   const token = jwt.sign({ role: 'admin', ip }, JWT_SECRET, { expiresIn: JWT_EXPIRY });
-  console.log(`✅ Admin login from ${ip}`);
   res.json({ token, expiresIn: JWT_EXPIRY });
 });
 
-/* POST /api/admin/change-password */
 app.post('/api/admin/change-password', authLimiter, requireAuth, async (req, res) => {
   const { newPassword } = req.body;
-  if (!isStrongPassword(newPassword)) {
-    return res.status(400).json({ error: 'Password must be at least 8 characters and include a letter and a number.' });
-  }
+  if (!isStrongPassword(newPassword)) return res.status(400).json({ error: 'Password must be 8+ chars with a letter and number.' });
   const hash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
-  const auth = readAuth();
-  writeAuth({ ...auth, passwordHash: hash });
-  console.log(`🔐 Password changed by admin`);
+  writeAuth({ ...readAuth(), passwordHash: hash });
   res.json({ success: true });
 });
 
-/* GET /api/admin/2fa/setup — generate TOTP secret + QR code */
 app.get('/api/admin/2fa/setup', adminLimiter, requireAuth, async (req, res) => {
   const secret = speakeasy.generateSecret({ name: 'StreetStore Admin', length: 20 });
-  const qr = await QRCode.toDataURL(secret.otpauth_url);
-  // Store temp secret (not enabled yet)
-  const auth = readAuth();
-  writeAuth({ ...auth, twoFactorSecret: secret.base32, twoFactorEnabled: false });
+  const qr     = await QRCode.toDataURL(secret.otpauth_url);
+  writeAuth({ ...readAuth(), twoFactorSecret: secret.base32, twoFactorEnabled: false });
   res.json({ qr, secret: secret.base32 });
 });
 
-/* POST /api/admin/2fa/verify — verify code and enable 2FA */
 app.post('/api/admin/2fa/verify', adminLimiter, requireAuth, (req, res) => {
   const { code } = req.body;
   const auth = readAuth();
   if (!auth.twoFactorSecret) return res.status(400).json({ error: 'Run setup first' });
-  const valid = speakeasy.totp.verify({
-    secret: auth.twoFactorSecret,
-    encoding: 'base32',
-    token: String(code),
-    window: 1,
-  });
-  if (!valid) return res.status(400).json({ error: 'Invalid code. Try again.' });
+  const valid = speakeasy.totp.verify({ secret: auth.twoFactorSecret, encoding: 'base32', token: String(code), window: 1 });
+  if (!valid) return res.status(400).json({ error: 'Invalid code.' });
   writeAuth({ ...auth, twoFactorEnabled: true });
-  console.log('🔒 2FA enabled');
   res.json({ success: true });
 });
 
-/* POST /api/admin/2fa/disable */
 app.post('/api/admin/2fa/disable', adminLimiter, requireAuth, (req, res) => {
-  const auth = readAuth();
-  writeAuth({ ...auth, twoFactorSecret: null, twoFactorEnabled: false });
-  console.log('🔓 2FA disabled');
+  writeAuth({ ...readAuth(), twoFactorSecret: null, twoFactorEnabled: false });
   res.json({ success: true });
 });
 
-/* GET /api/admin/2fa/status */
 app.get('/api/admin/2fa/status', adminLimiter, requireAuth, (req, res) => {
-  const auth = readAuth();
-  res.json({ enabled: auth.twoFactorEnabled || false });
-});
-
-/* POST /api/admin/backup — manual backup */
-app.post('/api/admin/backup', adminLimiter, requireAuth, (req, res) => {
-  try {
-    runBackup();
-    const files = fs.readdirSync(BACKUP_DIR).filter(f=>f.startsWith('orders-'));
-    res.json({ success: true, backupCount: files.length });
-  } catch(e) {
-    res.status(500).json({ error: 'Backup failed' });
-  }
-});
-
-/* GET /api/admin/backups — list backups */
-app.get('/api/admin/backups', adminLimiter, requireAuth, (req, res) => {
-  const files = fs.readdirSync(BACKUP_DIR)
-    .filter(f=>f.startsWith('orders-'))
-    .sort()
-    .reverse()
-    .map(f => ({ name: f, size: fs.statSync(path.join(BACKUP_DIR,f)).size, date: f.replace('orders-','').replace('.json','') }));
-  res.json(files);
+  res.json({ enabled: readAuth().twoFactorEnabled || false });
 });
 
 /* ════════════════════════════════════════
-   ADMIN ROUTES
+   ADMIN — ORDERS
 ════════════════════════════════════════ */
-
 app.get('/api/admin/orders', adminLimiter, requireAuth, (req, res) => {
-  const orders = readOrders();
+  const orders   = readOrders();
   const { status } = req.query;
-  const limit  = Math.min(parseInt(req.query.limit) || 100, 500);
+  const limit    = Math.min(parseInt(req.query.limit) || 200, 500);
   const filtered = status ? orders.filter(o => o.status === status) : orders;
   res.json(filtered.slice(0, limit));
 });
@@ -420,13 +417,14 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   const allowed = ['new','pending','confirmed','cancelled','edited','processing','called','reported','done'];
   if (status && !allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
   const updated = updateOrder(req.params.id, {
-    status,
-    size:    sanitize(size || '', 10),
-    qty:     qty ? Math.min(Math.max(parseInt(qty)||1,1),99) : undefined,
-    city:    sanitize(city || '', 60),
-    address: sanitize(address || '', 200),
+    ...(status  && { status }),
+    ...(size    && { size: sanitize(size, 10) }),
+    ...(qty     && { qty: Math.min(Math.max(parseInt(qty) || 1, 1), 99) }),
+    ...(city    && { city: sanitize(city, 60) }),
+    ...(address && { address: sanitize(address, 200) }),
   });
   if (!updated) return res.status(404).json({ error: 'Order not found' });
+  emit('order:statusChanged', { orderId: updated.id, newStatus: updated.status });
   res.json(updated);
 });
 
@@ -438,28 +436,17 @@ app.delete('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
-app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-
-  if (USE_CLOUDINARY) {
-    try {
-      const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: isVideo ? 'video' : 'image',
-        folder: 'streetstore',
-        use_filename: true,
-        unique_filename: true,
-      });
-      // Delete local temp file
-      fs.unlink(req.file.path, () => {});
-      return res.json({ url: result.secure_url, filename: result.public_id });
-    } catch (err) {
-      console.error('Cloudinary upload error:', err.message);
-      // Fall through to local storage if Cloudinary fails
-    }
-  }
-
-  res.json({ url: `uploads/${req.file.filename}`, filename: req.file.filename });
+app.get('/api/admin/stats', adminLimiter, requireAuth, async (req, res) => {
+  const orders = readOrders();
+  const productCount = await prisma.product.count({ where: { status: 'ACTIVE' } });
+  res.json({
+    total:        orders.length,
+    pending:      orders.filter(o => o.status === 'pending').length,
+    confirmed:    orders.filter(o => o.status === 'confirmed').length,
+    cancelled:    orders.filter(o => o.status === 'cancelled').length,
+    processing:   orders.filter(o => o.status === 'processing').length,
+    productCount,
+  });
 });
 
 app.get('/api/admin/suspicious', adminLimiter, requireAuth, (req, res) => {
@@ -470,14 +457,11 @@ app.get('/api/admin/suspicious', adminLimiter, requireAuth, (req, res) => {
     if (!map[key]) map[key] = { name: o.customer, phone: o.phone, clientIp: o.clientIp, failedCount: 0, totalOrders: 0 };
     map[key].totalOrders++;
     if (o.status === 'cancelled' || o.deliveryStatus === 'failed') map[key].failedCount++;
-    if (o.customer && o.customer !== 'Unknown') map[key].name = o.customer;
-    if (o.clientIp) map[key].clientIp = o.clientIp;
   });
   res.json(Object.values(map).filter(c => c.failedCount >= 3));
 });
 
 app.get('/api/admin/blocked-ips', adminLimiter, requireAuth, (req, res) => res.json(readBlockedIps()));
-
 app.post('/api/admin/block-ip', adminLimiter, requireAuth, (req, res) => {
   const ip = sanitize(req.body.ip || '', 45);
   if (!ip || !/^[\d.:a-fA-F]+$/.test(ip)) return res.status(400).json({ error: 'Invalid IP' });
@@ -485,7 +469,6 @@ app.post('/api/admin/block-ip', adminLimiter, requireAuth, (req, res) => {
   if (!list.includes(ip)) { list.push(ip); writeBlockedIps(list); }
   res.json({ success: true, blocked: list });
 });
-
 app.delete('/api/admin/block-ip/:ip', adminLimiter, requireAuth, (req, res) => {
   const ip = decodeURIComponent(req.params.ip);
   if (!/^[\d.:a-fA-F]+$/.test(ip)) return res.status(400).json({ error: 'Invalid IP' });
@@ -493,21 +476,423 @@ app.delete('/api/admin/block-ip/:ip', adminLimiter, requireAuth, (req, res) => {
   res.json({ success: true });
 });
 
-app.get('/api/admin/stats', adminLimiter, requireAuth, (req, res) => {
-  const orders = readOrders();
-  res.json({
-    total:      orders.length,
-    pending:    orders.filter(o => o.status === 'pending').length,
-    confirmed:  orders.filter(o => o.status === 'confirmed').length,
-    cancelled:  orders.filter(o => o.status === 'cancelled').length,
-    edited:     orders.filter(o => o.status === 'edited').length,
-    processing: orders.filter(o => o.status === 'processing').length,
-  });
+app.post('/api/admin/backup', adminLimiter, requireAuth, (req, res) => {
+  try {
+    runBackup();
+    res.json({ success: true, backupCount: fs.readdirSync(BACKUP_DIR).filter(f => f.startsWith('orders-')).length });
+  } catch { res.status(500).json({ error: 'Backup failed' }); }
+});
+
+app.get('/api/admin/backups', adminLimiter, requireAuth, (req, res) => {
+  const files = fs.readdirSync(BACKUP_DIR)
+    .filter(f => f.startsWith('orders-'))
+    .sort().reverse()
+    .map(f => ({ name: f, size: fs.statSync(path.join(BACKUP_DIR, f)).size, date: f.replace('orders-', '').replace('.json', '') }));
+  res.json(files);
 });
 
 /* ════════════════════════════════════════
-   OLIVRAISON — Send confirmed orders
+   ADMIN — PRODUCTS (CRUD)
 ════════════════════════════════════════ */
+
+/* GET /api/admin/products */
+app.get('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { status, q } = req.query;
+    const where = {};
+    if (status) where.status = status;
+    if (q) where.name = { contains: q };
+    const products = await prisma.product.findMany({
+      where,
+      include: { images: { where: { isMain: true }, take: 1 }, variants: true },
+      orderBy: { sortOrder: 'asc' },
+    });
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+/* GET /api/admin/products/:id */
+app.get('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const product = await prisma.product.findUnique({
+      where:   { id: req.params.id },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } },
+    });
+    if (!product) return res.status(404).json({ error: 'Not found' });
+    res.json(product);
+  } catch {
+    res.status(500).json({ error: 'Failed to fetch product' });
+  }
+});
+
+/* POST /api/admin/products */
+app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants } = req.body;
+    if (!name || !price) return res.status(400).json({ error: 'name and price are required' });
+    let slug = slugify(name);
+    // Ensure unique slug
+    const existing = await prisma.product.findUnique({ where: { slug } });
+    if (existing) slug = slug + '-' + Date.now();
+
+    const product = await prisma.product.create({
+      data: {
+        name:         sanitize(name, 200),
+        slug,
+        description:  sanitize(description || '', 5000),
+        price:        parseFloat(price),
+        comparePrice: comparePrice ? parseFloat(comparePrice) : null,
+        badge:        badge || null,
+        fit:          fit || null,
+        fitFilter:    fitFilter || null,
+        category:     category || null,
+        href:         href || null,
+        status:       status || 'ACTIVE',
+        variants: variants ? {
+          create: variants.map(v => ({
+            size:    v.size || null,
+            inStock: v.inStock !== false,
+            stock:   parseInt(v.stock) || 10,
+          }))
+        } : undefined,
+      },
+      include: { images: true, variants: true },
+    });
+
+    emit('product:created', { product });
+    res.status(201).json(product);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create product' });
+  }
+});
+
+/* PATCH /api/admin/products/:id */
+app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder } = req.body;
+    const data = {};
+    if (name         !== undefined) { data.name = sanitize(name, 200); data.slug = slugify(name); }
+    if (description  !== undefined) data.description  = sanitize(description, 5000);
+    if (price        !== undefined) data.price         = parseFloat(price);
+    if (comparePrice !== undefined) data.comparePrice  = comparePrice ? parseFloat(comparePrice) : null;
+    if (badge        !== undefined) data.badge         = badge || null;
+    if (fit          !== undefined) data.fit           = fit || null;
+    if (fitFilter    !== undefined) data.fitFilter     = fitFilter || null;
+    if (category     !== undefined) data.category      = category || null;
+    if (href         !== undefined) data.href          = href || null;
+    if (status       !== undefined) data.status        = status;
+    if (sortOrder    !== undefined) data.sortOrder     = parseInt(sortOrder);
+
+    const product = await prisma.product.update({
+      where:   { id: req.params.id },
+      data,
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true },
+    });
+
+    emit('product:updated', { productId: product.id, product });
+    res.json(product);
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Not found' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update product' });
+  }
+});
+
+/* DELETE /api/admin/products/:id */
+app.delete('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    await prisma.product.delete({ where: { id: req.params.id } });
+    emit('product:deleted', { productId: req.params.id });
+    res.json({ success: true });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Not found' });
+    res.status(500).json({ error: 'Failed to delete product' });
+  }
+});
+
+/* POST /api/admin/products/:id/variants — add/replace variants */
+app.post('/api/admin/products/:id/variants', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { variants } = req.body;
+    if (!Array.isArray(variants)) return res.status(400).json({ error: 'variants must be an array' });
+    // Delete existing variants and replace
+    await prisma.variant.deleteMany({ where: { productId: req.params.id } });
+    await prisma.variant.createMany({
+      data: variants.map((v, i) => ({
+        productId: req.params.id,
+        size:      v.size || null,
+        inStock:   v.inStock !== false,
+        stock:     parseInt(v.stock) || 10,
+        sortOrder: i,
+      }))
+    });
+    const product = await prisma.product.findUnique({
+      where:   { id: req.params.id },
+      include: { images: true, variants: { orderBy: { sortOrder: 'asc' } } },
+    });
+    emit('product:updated', { productId: req.params.id, product });
+    res.json(product);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update variants' });
+  }
+});
+
+/* ── Product images ── */
+
+/* POST /api/admin/upload — upload image/video, return URL */
+app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  if (USE_CLOUDINARY) {
+    try {
+      const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
+      const result  = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: isVideo ? 'video' : 'image',
+        folder: 'streetstore',
+        use_filename: true,
+        unique_filename: true,
+      });
+      fs.unlink(req.file.path, () => {});
+      return res.json({ url: result.secure_url, publicId: result.public_id });
+    } catch (err) {
+      console.error('Cloudinary error:', err.message);
+    }
+  }
+  res.json({ url: `uploads/${req.file.filename}`, publicId: req.file.filename });
+});
+
+/* POST /api/admin/products/:id/images — add image record after upload */
+app.post('/api/admin/products/:id/images', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { url, publicId, alt, isMain } = req.body;
+    if (!url) return res.status(400).json({ error: 'url is required' });
+    // Count existing images to set sortOrder
+    const count = await prisma.image.count({ where: { productId: req.params.id } });
+    if (isMain) {
+      // Remove isMain from all others
+      await prisma.image.updateMany({ where: { productId: req.params.id }, data: { isMain: false } });
+    }
+    const image = await prisma.image.create({
+      data: {
+        productId: req.params.id,
+        url,
+        publicId:  publicId || '',
+        alt:       alt || null,
+        isMain:    isMain || count === 0, // first image is always main
+        sortOrder: count,
+      }
+    });
+    const product = await prisma.product.findUnique({
+      where:   { id: req.params.id },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true },
+    });
+    emit('product:updated', { productId: req.params.id, product });
+    res.status(201).json(image);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to add image' });
+  }
+});
+
+/* DELETE /api/admin/products/:id/images/:imageId */
+app.delete('/api/admin/products/:id/images/:imageId', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    await prisma.image.delete({ where: { id: req.params.imageId } });
+    const product = await prisma.product.findUnique({
+      where:   { id: req.params.id },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true },
+    });
+    emit('product:updated', { productId: req.params.id, product });
+    res.json({ success: true });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Image not found' });
+    res.status(500).json({ error: 'Failed to delete image' });
+  }
+});
+
+/* PATCH /api/admin/products/:id/images/:imageId — set main */
+app.patch('/api/admin/products/:id/images/:imageId', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { isMain, alt } = req.body;
+    if (isMain) {
+      await prisma.image.updateMany({ where: { productId: req.params.id }, data: { isMain: false } });
+    }
+    const image = await prisma.image.update({
+      where: { id: req.params.imageId },
+      data: {
+        ...(isMain !== undefined && { isMain }),
+        ...(alt    !== undefined && { alt }),
+      }
+    });
+    emit('product:updated', { productId: req.params.id });
+    res.json(image);
+  } catch {
+    res.status(500).json({ error: 'Failed to update image' });
+  }
+});
+
+/* POST /api/admin/products/:id/images/reorder */
+app.post('/api/admin/products/:id/images/reorder', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { imageIds } = req.body;
+    if (!Array.isArray(imageIds)) return res.status(400).json({ error: 'imageIds required' });
+    await Promise.all(imageIds.map((id, idx) => prisma.image.update({ where: { id }, data: { sortOrder: idx } })));
+    emit('product:updated', { productId: req.params.id });
+    res.json({ success: true });
+  } catch {
+    res.status(500).json({ error: 'Failed to reorder images' });
+  }
+});
+
+/* ── Bulk product actions ── */
+app.post('/api/admin/products/bulk', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { action, ids } = req.body;
+    if (!Array.isArray(ids) || !ids.length) return res.status(400).json({ error: 'ids required' });
+    if (action === 'delete') {
+      await prisma.product.deleteMany({ where: { id: { in: ids } } });
+    } else if (action === 'publish') {
+      await prisma.product.updateMany({ where: { id: { in: ids } }, data: { status: 'ACTIVE' } });
+    } else if (action === 'archive') {
+      await prisma.product.updateMany({ where: { id: { in: ids } }, data: { status: 'ARCHIVED' } });
+    } else if (action === 'draft') {
+      await prisma.product.updateMany({ where: { id: { in: ids } }, data: { status: 'DRAFT' } });
+    } else {
+      return res.status(400).json({ error: 'Unknown action' });
+    }
+    emit('product:bulkUpdated', { ids, action });
+    res.json({ success: true, count: ids.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Bulk action failed' });
+  }
+});
+
+/* ════════════════════════════════════════
+   ADMIN — BANNERS
+════════════════════════════════════════ */
+app.get('/api/admin/banners', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const banners = await prisma.banner.findMany({ orderBy: { sortOrder: 'asc' } });
+    res.json(banners);
+  } catch { res.status(500).json({ error: 'Failed to fetch banners' }); }
+});
+
+app.post('/api/admin/banners', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { title, subtitle, imageUrl, linkUrl, position, isActive } = req.body;
+    if (!title || !imageUrl) return res.status(400).json({ error: 'title and imageUrl required' });
+    const count  = await prisma.banner.count();
+    const banner = await prisma.banner.create({
+      data: { title, subtitle: subtitle || null, imageUrl, linkUrl: linkUrl || null, position: position || 'hero', isActive: isActive !== false, sortOrder: count }
+    });
+    emit('banner:changed', { bannerId: banner.id });
+    res.status(201).json(banner);
+  } catch { res.status(500).json({ error: 'Failed to create banner' }); }
+});
+
+app.patch('/api/admin/banners/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { title, subtitle, imageUrl, linkUrl, position, isActive, sortOrder } = req.body;
+    const banner = await prisma.banner.update({
+      where: { id: req.params.id },
+      data: {
+        ...(title     !== undefined && { title }),
+        ...(subtitle  !== undefined && { subtitle }),
+        ...(imageUrl  !== undefined && { imageUrl }),
+        ...(linkUrl   !== undefined && { linkUrl }),
+        ...(position  !== undefined && { position }),
+        ...(isActive  !== undefined && { isActive }),
+        ...(sortOrder !== undefined && { sortOrder: parseInt(sortOrder) }),
+      }
+    });
+    emit('banner:changed', { bannerId: banner.id });
+    res.json(banner);
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Not found' });
+    res.status(500).json({ error: 'Failed to update banner' });
+  }
+});
+
+app.delete('/api/admin/banners/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    await prisma.banner.delete({ where: { id: req.params.id } });
+    emit('banner:changed', {});
+    res.json({ success: true });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Not found' });
+    res.status(500).json({ error: 'Failed to delete banner' });
+  }
+});
+
+/* ════════════════════════════════════════
+   ADMIN — SITE SETTINGS
+════════════════════════════════════════ */
+app.get('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+    res.json(settings || {});
+  } catch { res.status(500).json({ error: 'Failed to fetch settings' }); }
+});
+
+app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, announcementBar, announcementActive } = req.body;
+    const data = {};
+    if (storeName          !== undefined) data.storeName          = sanitize(storeName, 100);
+    if (primaryColor       !== undefined) data.primaryColor       = sanitize(primaryColor, 20);
+    if (accentColor        !== undefined) data.accentColor        = sanitize(accentColor, 20);
+    if (currency           !== undefined) data.currency           = sanitize(currency, 10);
+    if (whatsapp           !== undefined) data.whatsapp           = sanitize(whatsapp, 30);
+    if (email              !== undefined) data.email              = sanitize(email, 100);
+    if (logo               !== undefined) data.logo               = logo || null;
+    if (announcementBar    !== undefined) data.announcementBar    = sanitize(announcementBar, 300);
+    if (announcementActive !== undefined) data.announcementActive = Boolean(announcementActive);
+
+    const settings = await prisma.siteSettings.upsert({
+      where:  { id: 'singleton' },
+      update: data,
+      create: { id: 'singleton', ...data },
+    });
+    emit('settings:changed', settings);
+    res.json(settings);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+/* ════════════════════════════════════════
+   OLIVRAISON
+════════════════════════════════════════ */
+app.get('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const config = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+    res.json(config || {});
+  } catch { res.status(500).json({ error: 'Failed to fetch config' }); }
+});
+
+app.patch('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { apiKey, apiSecret, storeId, isActive } = req.body;
+    const config = await prisma.olivraisonConfig.upsert({
+      where:  { id: 'singleton' },
+      update: {
+        ...(apiKey    !== undefined && { apiKey:    sanitize(apiKey, 200) }),
+        ...(apiSecret !== undefined && { apiSecret: sanitize(apiSecret, 200) }),
+        ...(storeId   !== undefined && { storeId:   sanitize(storeId, 100) }),
+        ...(isActive  !== undefined && { isActive:  Boolean(isActive) }),
+      },
+      create: { id: 'singleton', apiKey: apiKey || '', apiSecret: apiSecret || '', storeId: storeId || '', isActive: false },
+    });
+    res.json(config);
+  } catch { res.status(500).json({ error: 'Failed to save config' }); }
+});
+
 app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, res) => {
   const { orderIds, publicKey, privateKey } = req.body;
   if (!Array.isArray(orderIds) || !orderIds.length) return res.status(400).json({ error: 'No order IDs provided' });
@@ -517,16 +902,13 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
   const orders = readOrders();
   const results = [];
 
-  for (const id of orderIds.slice(0, 100)) { // cap at 100 to prevent abuse
+  for (const id of orderIds.slice(0, 100)) {
     const order = orders.find(o => o.id === id);
     if (!order) { results.push({ orderId: id, success: false, error: 'Order not found' }); continue; }
 
     const mutation = `mutation CreateShipment($input: ShipmentInput!) {
-      createShipment(input: $input) {
-        id trackingCode status
-      }
+      createShipment(input: $input) { id trackingCode status }
     }`;
-
     const variables = {
       input: {
         recipientName:    order.customer  || 'Unknown',
@@ -535,29 +917,23 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
         recipientCity:    order.city      || '',
         description:      order.product   || '',
         weight:           1,
-        price:            (parseFloat(order.price) * (order.qty || 1)) || 0,
-        codAmount:        (parseFloat(order.price) * (order.qty || 1)) || 0,
+        price:            parseFloat(order.price) * (order.qty || 1) || 0,
+        codAmount:        parseFloat(order.price) * (order.qty || 1) || 0,
         externalId:       order.id,
       }
     };
 
     try {
       const resp = await fetch(GRAPHQL_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-public-key':  publicKey,
-          'x-private-key': privateKey,
-        },
-        body: JSON.stringify({ query: mutation, variables }),
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'x-public-key': publicKey, 'x-private-key': privateKey },
+        body:    JSON.stringify({ query: mutation, variables }),
       });
       const json = await resp.json();
-
-      if (json.errors && json.errors.length) {
+      if (json.errors?.length) {
         results.push({ orderId: id, customer: order.customer, success: false, error: json.errors[0].message });
       } else {
         const shipment = json.data?.createShipment;
-        // Update order status to 'processing' and store tracking code
         updateOrder(id, { status: 'processing', trackingCode: shipment?.trackingCode || null, olivraisonId: shipment?.id || null });
         results.push({ orderId: id, customer: order.customer, success: true, trackingCode: shipment?.trackingCode || null });
       }
@@ -570,33 +946,8 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
 });
 
 /* ════════════════════════════════════════
-   PRODUCT OVERRIDES
-════════════════════════════════════════ */
-const OVERRIDES_FILE = path.join(__dirname, 'product_overrides.json');
-
-function readOverrides() {
-  try { return JSON.parse(fs.existsSync(OVERRIDES_FILE) ? fs.readFileSync(OVERRIDES_FILE, 'utf8') : '{}'); }
-  catch { return {}; }
-}
-
-/* GET /api/products/overrides — public, used by product pages on all devices */
-app.get('/api/products/overrides', (req, res) => {
-  res.json(readOverrides());
-});
-
-/* PUT /api/admin/products/overrides — admin only, called when admin saves a product */
-app.put('/api/admin/products/overrides', adminLimiter, requireAuth, (req, res) => {
-  const overrides = req.body;
-  if (typeof overrides !== 'object' || Array.isArray(overrides)) {
-    return res.status(400).json({ error: 'Invalid overrides data' });
-  }
-  fs.writeFileSync(OVERRIDES_FILE, JSON.stringify(overrides, null, 2));
-  res.json({ success: true });
-});
-
-/* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */
-app.listen(PORT, () => {
-  console.log(`\n🚀 StreetStore API running on port ${PORT}\n`);
+httpServer.listen(PORT, () => {
+  console.log(`\n🚀 StreetStore API + Socket.io running on port ${PORT}\n`);
 });

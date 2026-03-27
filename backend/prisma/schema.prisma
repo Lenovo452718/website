@@ -1,0 +1,81 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Product {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  description  String    @default("")
+  status       String    @default("ACTIVE")
+  price        Float
+  comparePrice Float?
+  badge        String?
+  fit          String?
+  fitFilter    String?
+  category     String?
+  href         String?
+  images       Image[]
+  variants     Variant[]
+  sortOrder    Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Image {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  publicId  String  @default("")
+  alt       String?
+  sortOrder Int     @default(0)
+  isMain    Boolean @default(false)
+}
+
+model Variant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String?
+  inStock   Boolean @default(true)
+  stock     Int     @default(10)
+  sortOrder Int     @default(0)
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  subtitle  String?
+  imageUrl  String
+  linkUrl   String?
+  position  String   @default("hero")
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model SiteSettings {
+  id                 String  @id @default("singleton")
+  storeName          String  @default("StreetStore")
+  primaryColor       String  @default("#1a1a1a")
+  accentColor        String  @default("#c8a96e")
+  currency           String  @default("MAD")
+  whatsapp           String  @default("")
+  email              String  @default("")
+  logo               String?
+  announcementBar    String?
+  announcementActive Boolean @default(false)
+}
+
+model OlivraisonConfig {
+  id        String  @id @default("singleton")
+  apiKey    String  @default("")
+  apiSecret String  @default("")
+  storeId   String  @default("")
+  isActive  Boolean @default(false)
+}

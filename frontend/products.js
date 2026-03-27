@@ -126,15 +126,73 @@ const PRODUCTS = {
 
 };
 
-/* ── Apply admin overrides (localStorage first, then backend) ── */
-(function applyAdminOverrides() {
-  try {
-    var ov = JSON.parse(localStorage.getItem('ss_products_override') || '{}');
-    Object.keys(ov).forEach(function(id) {
-      if (ov[id] === null) { delete PRODUCTS[id]; }
-      else { PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]); }
+/* ── Fetch live products from backend API and merge ── */
+(function loadLiveProducts() {
+  var API = (window.SS_API_URL || 'https://streetstore-api.onrender.com');
+  fetch(API + '/api/products/overrides')
+    .then(function(r) { return r.json(); })
+    .then(function(overrides) {
+      Object.keys(overrides).forEach(function(slug) {
+        if (overrides[slug] === null) { delete PRODUCTS[slug]; }
+        else { PRODUCTS[slug] = Object.assign({}, PRODUCTS[slug] || {}, overrides[slug]); }
+      });
+      // Notify any listeners that products are loaded
+      if (typeof window.onProductsLoaded === 'function') window.onProductsLoaded();
+      document.dispatchEvent(new CustomEvent('productsLoaded'));
+    })
+    .catch(function() {
+      // Fallback: apply localStorage overrides (offline/dev mode)
+      try {
+        var ov = JSON.parse(localStorage.getItem('ss_products_override') || '{}');
+        Object.keys(ov).forEach(function(id) {
+          if (ov[id] === null) { delete PRODUCTS[id]; }
+          else { PRODUCTS[id] = Object.assign({}, PRODUCTS[id] || {}, ov[id]); }
+        });
+      } catch(e) {}
     });
-  } catch(e) {}
+})();
+
+/* ── Socket.io real-time sync ── */
+(function initSocket() {
+  var API = (window.SS_API_URL || 'https://streetstore-api.onrender.com');
+  var script = document.createElement('script');
+  script.src = API + '/socket.io/socket.io.js';
+  script.onload = function() {
+    try {
+      var socket = io(API, { transports: ['websocket', 'polling'] });
+      socket.on('product:updated', function(data) {
+        // Re-fetch overrides and re-render page
+        fetch(API + '/api/products/overrides')
+          .then(function(r) { return r.json(); })
+          .then(function(overrides) {
+            Object.keys(overrides).forEach(function(slug) {
+              PRODUCTS[slug] = Object.assign({}, PRODUCTS[slug] || {}, overrides[slug]);
+            });
+            document.dispatchEvent(new CustomEvent('productsUpdated', { detail: data }));
+          });
+      });
+      socket.on('product:created', function() {
+        fetch(API + '/api/products/overrides')
+          .then(function(r) { return r.json(); })
+          .then(function(overrides) {
+            Object.keys(overrides).forEach(function(slug) {
+              PRODUCTS[slug] = Object.assign({}, PRODUCTS[slug] || {}, overrides[slug]);
+            });
+            document.dispatchEvent(new CustomEvent('productsUpdated'));
+          });
+      });
+      socket.on('settings:changed', function(settings) {
+        if (settings.primaryColor) {
+          document.documentElement.style.setProperty('--primary', settings.primaryColor);
+        }
+        if (settings.accentColor) {
+          document.documentElement.style.setProperty('--accent', settings.accentColor);
+        }
+        document.dispatchEvent(new CustomEvent('settingsUpdated', { detail: settings }));
+      });
+    } catch(e) {}
+  };
+  document.head.appendChild(script);
 })();
 
 /* ── Fetch overrides from backend so all devices stay in sync ── */
