@@ -17,3 +17,18 @@ services:
         value: https://lenovo452718.github.io
       - key: CLOUDINARY_URL
         sync: false
+
+  - type: web
+    name: streetstore-admin
+    env: node
+    rootDir: admin
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    plan: free
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: NEXT_PUBLIC_API_URL
+        value: https://streetstore-api.onrender.com
+      - key: NEXT_PUBLIC_SOCKET_URL
+        value: https://streetstore-api.onrender.com
