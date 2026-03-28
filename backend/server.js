@@ -335,8 +335,15 @@ app.get('/api/coupons/validate', async (req, res) => {
 });
 
 /* GET /api/products/overrides — legacy compat for products.js */
+let _productsCache = null;
+let _productsCacheTime = 0;
+const PRODUCTS_CACHE_TTL = 60_000; // 60 seconds
+
 app.get('/api/products/overrides', async (req, res) => {
   try {
+    if (_productsCache && Date.now() - _productsCacheTime < PRODUCTS_CACHE_TTL) {
+      return res.json(_productsCache);
+    }
     const products = await prisma.product.findMany({
       where:   { status: 'ACTIVE' },
       include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true },
@@ -363,6 +370,8 @@ app.get('/api/products/overrides', async (req, res) => {
         status:        p.status,
       };
     }
+    _productsCache = overrides;
+    _productsCacheTime = Date.now();
     res.json(overrides);
   } catch (err) {
     console.error(err);
@@ -761,6 +770,7 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
       include: { images: true, variants: true },
     });
 
+    _productsCache = null;
     emit('product:created', { product });
     res.status(201).json(product);
   } catch (err) {
@@ -794,6 +804,7 @@ app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res)
       include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true },
     });
 
+    _productsCache = null;
     emit('product:updated', { productId: product.id, product });
     res.json(product);
   } catch (err) {
@@ -807,6 +818,7 @@ app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res)
 app.delete('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
   try {
     await prisma.product.delete({ where: { id: req.params.id } });
+    _productsCache = null;
     emit('product:deleted', { productId: req.params.id });
     res.json({ success: true });
   } catch (err) {
@@ -959,6 +971,7 @@ app.post('/api/admin/products/bulk', adminLimiter, requireAuth, async (req, res)
     } else {
       return res.status(400).json({ error: 'Unknown action' });
     }
+    _productsCache = null;
     emit('product:bulkUpdated', { ids, action });
     res.json({ success: true, count: ids.length });
   } catch (err) {
@@ -1216,6 +1229,9 @@ function runMigrations() {
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `packDealSub` VARCHAR(255) NOT NULL DEFAULT 'Mix & match any styles'",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `packEnabled` TINYINT(1) NOT NULL DEFAULT 1",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `whatsappBotKey` VARCHAR(100) NOT NULL DEFAULT ''",
+    "CREATE INDEX IF NOT EXISTS idx_product_status ON `Product` (status)",
+    "CREATE INDEX IF NOT EXISTS idx_order_status ON `Order` (status)",
+    "CREATE INDEX IF NOT EXISTS idx_order_created ON `Order` (createdAt)",
   ];
   (async () => {
     for (const sql of migrations) {
