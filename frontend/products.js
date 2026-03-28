@@ -265,7 +265,7 @@ function renderShopGrid() {
     var p = PRODUCTS[id];
     var bg = toBg(p.color);
     var imgHtml = p.image
-      ? '<img class="product-card-img-inner" data-product-img="' + id + '" src="' + p.image + '" alt="' + p.name + '">'
+      ? '<img loading="lazy" class="product-card-img-inner" data-product-img="' + id + '" src="' + p.image + '" alt="' + p.name + '">'
       : '<div class="product-card-img-inner" data-product-img="' + id + '" style="background:' + bg + '"></div>';
     var badgeHtml = p.badge ? '<span class="product-badge ' + p.badge + '">' + (badgeLabel[p.badge] || p.badge) + '</span>' : '';
     var stockHtml = p.inStock === false ? '<span class="product-badge" style="background:#888;color:#fff">Out of Stock</span>' : '';
