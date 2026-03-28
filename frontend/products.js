@@ -205,6 +205,35 @@ function apiProductToLocal(p) {
     });
 })();
 
+/* ── Shared refetch function ── */
+var _lastProductHash = '';
+function refetchProducts() {
+  var API = (window.SS_API_URL || window.STREETSTORE_BACKEND || '');
+  if (!API) return;
+  fetch(API + '/api/products')
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(list) {
+      if (!Array.isArray(list)) return;
+      var hash = list.map(function(p) { return p.id + p.updatedAt + p.price; }).join('|');
+      if (hash === _lastProductHash) return; // nothing changed
+      _lastProductHash = hash;
+      list.forEach(function(p) {
+        if ((p.status || 'active').toUpperCase() === 'ACTIVE') {
+          var local = apiProductToLocal(p);
+          PRODUCTS[p.slug] = local;
+          if (p.href) {
+            var hrefKey = p.href.replace(/^product-/, '').replace(/\.html$/, '');
+            if (hrefKey && hrefKey !== p.slug) PRODUCTS[hrefKey] = local;
+          }
+        }
+      });
+      document.dispatchEvent(new CustomEvent('productsUpdated'));
+      renderShopGrid();
+      renderHomeGrid();
+    })
+    .catch(function() {});
+}
+
 /* ── Socket.io real-time sync ── */
 (function initSocket() {
   var API = (window.SS_API_URL || window.STREETSTORE_BACKEND || '');
@@ -214,25 +243,9 @@ function apiProductToLocal(p) {
   script.onload = function() {
     try {
       var socket = io(API, { transports: ['websocket', 'polling'] });
-      function refetch() {
-        fetch(API + '/api/products')
-          .then(function(r) { return r.ok ? r.json() : null; })
-          .then(function(list) {
-            if (!Array.isArray(list)) return;
-            list.forEach(function(p) {
-              if ((p.status || 'active').toUpperCase() === 'ACTIVE') {
-                PRODUCTS[p.slug] = apiProductToLocal(p);
-              }
-            });
-            document.dispatchEvent(new CustomEvent('productsUpdated'));
-            renderShopGrid();
-            renderHomeGrid();
-          })
-          .catch(function() {});
-      }
-      socket.on('product:updated', refetch);
-      socket.on('product:created', refetch);
-      socket.on('product:deleted', refetch);
+      socket.on('product:updated', refetchProducts);
+      socket.on('product:created', refetchProducts);
+      socket.on('product:deleted', refetchProducts);
       socket.on('settings:changed', function(settings) {
         if (settings.primaryColor) document.documentElement.style.setProperty('--primary', settings.primaryColor);
         if (settings.accentColor) document.documentElement.style.setProperty('--accent', settings.accentColor);
@@ -241,6 +254,13 @@ function apiProductToLocal(p) {
     } catch(e) {}
   };
   document.head.appendChild(script);
+})();
+
+/* ── Polling fallback — re-checks every 30 s if anything changed ── */
+(function startPolling() {
+  var API = (window.SS_API_URL || window.STREETSTORE_BACKEND || '');
+  if (!API) return;
+  setInterval(refetchProducts, 30000);
 })();
 
 /* ── Render home page featured grid ── */
