@@ -196,7 +196,15 @@ app.use(cors({
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
 }));
-app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '7d', etag: true }));
+app.use(express.static(path.join(__dirname, '../frontend'), {
+  maxAge: 0,       // always revalidate — never serve stale JS/HTML
+  etag: true,      // still use ETags so 304 Not Modified saves bandwidth
+  setHeaders: function(res, filePath) {
+    if (/\.(jpg|jpeg|png|webp|gif|svg|mp4|mov|webm|woff2?|ttf)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800'); // 7d for images/fonts/videos only
+    }
+  }
+}));
 
 /* ── Rate limiters ── */
 const orderLimiter = rateLimit({ windowMs: 15 * 60_000, max: 5,   keyGenerator: req => getClientIp(req), message: { error: 'Too many orders. Wait 15 min.' } });
