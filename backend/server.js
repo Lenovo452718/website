@@ -1155,6 +1155,24 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
 /* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */
+/* Run safe DB migrations on startup */
+async function runMigrations() {
+  const migrations = [
+    "ALTER TABLE Product ADD COLUMN IF NOT EXISTS videoUrl VARCHAR(2048) NULL",
+    "ALTER TABLE Product ADD COLUMN IF NOT EXISTS color VARCHAR(100) NULL",
+    "ALTER TABLE SiteSettings ADD COLUMN IF NOT EXISTS packDeal2 DOUBLE NOT NULL DEFAULT 319",
+    "ALTER TABLE SiteSettings ADD COLUMN IF NOT EXISTS packDeal3 DOUBLE NOT NULL DEFAULT 479",
+    "ALTER TABLE SiteSettings ADD COLUMN IF NOT EXISTS packDealBadge VARCHAR(255) NOT NULL DEFAULT 'Save up to 10% off'",
+    "ALTER TABLE SiteSettings ADD COLUMN IF NOT EXISTS packDealSub VARCHAR(255) NOT NULL DEFAULT 'Mix & match any styles'",
+    "ALTER TABLE SiteSettings ADD COLUMN IF NOT EXISTS packEnabled TINYINT(1) NOT NULL DEFAULT 1",
+    "ALTER TABLE SiteSettings ADD COLUMN IF NOT EXISTS whatsappBotKey VARCHAR(100) NOT NULL DEFAULT ''",
+  ];
+  for (const sql of migrations) {
+    try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
+  }
+}
+runMigrations().catch(() => {});
+
 httpServer.listen(PORT, () => {
   console.log(`\nStreetStore API + Socket.io running on port ${PORT}\n`);
 });
