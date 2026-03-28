@@ -699,6 +699,67 @@ app.delete('/api/admin/coupons/:id', adminLimiter, requireAuth, async (req, res)
 });
 
 /* ════════════════════════════════════════
+   ADMIN — DEALS (CRUD)
+════════════════════════════════════════ */
+app.get('/api/admin/deals', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const deals = await prisma.$queryRaw`SELECT * FROM Deal ORDER BY createdAt DESC`;
+    res.json(deals);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch deals' });
+  }
+});
+
+app.post('/api/admin/deals', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { title, productId, discountPrice, isActive } = req.body;
+    if (!title || !discountPrice) return res.status(400).json({ error: 'title and discountPrice required' });
+    const id = 'deal-' + Date.now();
+    await prisma.$executeRaw`INSERT INTO Deal (id, title, productId, discountPrice, isActive) VALUES (${id}, ${sanitize(title, 200)}, ${productId || null}, ${parseFloat(discountPrice)}, ${isActive !== false ? 1 : 0})`;
+    const [deal] = await prisma.$queryRaw`SELECT * FROM Deal WHERE id = ${id}`;
+    res.status(201).json(deal);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create deal' });
+  }
+});
+
+app.patch('/api/admin/deals/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { title, productId, discountPrice, isActive } = req.body;
+    if (title !== undefined) await prisma.$executeRaw`UPDATE Deal SET title = ${sanitize(title, 200)} WHERE id = ${req.params.id}`;
+    if (discountPrice !== undefined) await prisma.$executeRaw`UPDATE Deal SET discountPrice = ${parseFloat(discountPrice)} WHERE id = ${req.params.id}`;
+    if (productId !== undefined) await prisma.$executeRaw`UPDATE Deal SET productId = ${productId || null} WHERE id = ${req.params.id}`;
+    if (isActive !== undefined) await prisma.$executeRaw`UPDATE Deal SET isActive = ${isActive ? 1 : 0} WHERE id = ${req.params.id}`;
+    const [deal] = await prisma.$queryRaw`SELECT * FROM Deal WHERE id = ${req.params.id}`;
+    res.json(deal);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update deal' });
+  }
+});
+
+app.delete('/api/admin/deals/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    await prisma.$executeRaw`DELETE FROM Deal WHERE id = ${req.params.id}`;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete deal' });
+  }
+});
+
+/* Public deals endpoint */
+app.get('/api/deals', async (req, res) => {
+  try {
+    const deals = await prisma.$queryRaw`SELECT * FROM Deal WHERE isActive = 1 ORDER BY createdAt DESC`;
+    res.json(deals);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch deals' });
+  }
+});
+
+/* ════════════════════════════════════════
    ADMIN — PRODUCTS (CRUD)
 ════════════════════════════════════════ */
 
@@ -738,7 +799,7 @@ app.get('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) =
 /* POST /api/admin/products */
 app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants, videoUrl, color } = req.body;
+    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants, videoUrl, color, isFeatured } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'name and price are required' });
     let slug = slugify(name);
     const existing = await prisma.product.findUnique({ where: { slug } });
@@ -759,6 +820,7 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
         videoUrl:     videoUrl || null,
         color:        color || null,
         status:       status || 'ACTIVE',
+        isFeatured:   Boolean(isFeatured),
         variants: variants ? {
           create: variants.map(v => ({
             size:    v.size || null,
@@ -782,7 +844,7 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
 /* PATCH /api/admin/products/:id */
 app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder, videoUrl, color } = req.body;
+    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder, videoUrl, color, isFeatured } = req.body;
     const data = {};
     if (name         !== undefined) { data.name = sanitize(name, 200); data.slug = slugify(name); }
     if (description  !== undefined) data.description  = sanitize(description, 5000);
@@ -797,6 +859,7 @@ app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res)
     if (color        !== undefined) data.color         = color || null;
     if (status       !== undefined) data.status        = status;
     if (sortOrder    !== undefined) data.sortOrder     = parseInt(sortOrder);
+    if (isFeatured   !== undefined) data.isFeatured    = Boolean(isFeatured);
 
     const product = await prisma.product.update({
       where:   { id: req.params.id },
@@ -1229,6 +1292,8 @@ function runMigrations() {
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `packDealSub` VARCHAR(255) NOT NULL DEFAULT 'Mix & match any styles'",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `packEnabled` TINYINT(1) NOT NULL DEFAULT 1",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `whatsappBotKey` VARCHAR(100) NOT NULL DEFAULT ''",
+    "ALTER TABLE `Product` ADD COLUMN IF NOT EXISTS `isFeatured` TINYINT(1) NOT NULL DEFAULT 0",
+    "CREATE TABLE IF NOT EXISTS `Deal` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `title` VARCHAR(255) NOT NULL, `productId` VARCHAR(30) NULL, `discountPrice` DOUBLE NOT NULL, `isActive` TINYINT(1) NOT NULL DEFAULT 1, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "CREATE INDEX IF NOT EXISTS idx_product_status ON `Product` (status)",
     "CREATE INDEX IF NOT EXISTS idx_order_status ON `Order` (status)",
     "CREATE INDEX IF NOT EXISTS idx_order_created ON `Order` (createdAt)",

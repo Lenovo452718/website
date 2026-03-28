@@ -26,6 +26,7 @@ model Product {
   variants     Variant[]
   orderItems   OrderItem[]
   sortOrder    Int         @default(0)
+  isFeatured   Boolean     @default(false)
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
 }
@@ -133,4 +134,13 @@ model OlivraisonConfig {
   apiSecret String  @default("")
   storeId   String  @default("")
   isActive  Boolean @default(false)
+}
+
+model Deal {
+  id            String   @id @default(cuid())
+  title         String
+  productId     String?
+  discountPrice Float
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
 }

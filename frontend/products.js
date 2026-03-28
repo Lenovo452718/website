@@ -154,7 +154,8 @@ function apiProductToLocal(p) {
     description: p.description || '',
     status: p.status || 'active',
     slug: p.slug,
-    id: p.id
+    id: p.id,
+    isFeatured: !!p.isFeatured
   };
 }
 
@@ -254,10 +255,13 @@ function renderHomeGrid() {
   function toBg(c) { if (!c) return '#888'; return c.startsWith('#') ? c : (colorNames[c] || '#888'); }
   var badgeLabel = { sale: 'Sale', trending: 'Trending', new: 'New', bestseller: 'Best Seller' };
   var seenIds = {};
-  var keys = Object.keys(PRODUCTS).filter(function(k) {
+  var allKeys = Object.keys(PRODUCTS).filter(function(k) {
     var p = PRODUCTS[k]; var uid = p.id || p.slug || k;
     if (seenIds[uid]) return false; seenIds[uid] = true; return true;
-  }).slice(0, 6);
+  });
+  // Show only featured products; fall back to first 6 if none are featured
+  var featuredKeys = allKeys.filter(function(k) { return PRODUCTS[k].isFeatured; });
+  var keys = (featuredKeys.length ? featuredKeys : allKeys).slice(0, 6);
   if (!keys.length) {
     grid.innerHTML = '<p style="padding:40px;text-align:center;color:#888">No products available.</p>';
     return;
