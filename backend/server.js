@@ -1,6 +1,6 @@
 /**
  * StreetStore — API Server
- * Express + Prisma (SQLite) + Socket.io
+ * Express + Prisma (MySQL) + Cloudinary + Socket.io
  */
 
 require('dotenv').config();
@@ -18,17 +18,12 @@ const speakeasy    = require('speakeasy');
 const QRCode       = require('qrcode');
 const http         = require('http');
 const { Server }   = require('socket.io');
-const prisma = require('./prisma');
+const prisma       = require('./prisma');
+const cloudinary   = require('cloudinary').v2;
 
-const { createOrder, readOrders, getOrder, updateOrder } = require('./db');
-const cloudinary = require('cloudinary').v2;
-
-/* ── Cloudinary ── */
-const USE_CLOUDINARY = !!process.env.CLOUDINARY_URL;
-if (USE_CLOUDINARY) {
-  cloudinary.config({ secure: true });
-  console.log('☁️  Cloudinary enabled');
-}
+/* ── Cloudinary — always required ── */
+cloudinary.config({ secure: true });
+console.log('Cloudinary enabled');
 
 /* ════════════════════════════════════════
    AUTH STORE
@@ -55,17 +50,17 @@ function writeAuth(data) {
     const raw  = process.env.API_SECRET || 'admin123';
     const hash = await bcrypt.hash(raw, BCRYPT_ROUNDS);
     writeAuth({ ...auth, passwordHash: hash });
-    console.log('🔐 Password hashed and stored');
+    console.log('Password hashed and stored');
   }
   // Ensure SiteSettings singleton exists
   await prisma.siteSettings.upsert({
-    where: { id: 'singleton' },
+    where:  { id: 'singleton' },
     update: {},
     create: { id: 'singleton' },
   });
   // Ensure OlivraisonConfig singleton exists
   await prisma.olivraisonConfig.upsert({
-    where: { id: 'singleton' },
+    where:  { id: 'singleton' },
     update: {},
     create: { id: 'singleton' },
   });
@@ -103,13 +98,7 @@ function writeBlockedIps(list) { fs.writeFileSync(BLOCKED_IPS_FILE, JSON.stringi
 const BACKUP_DIR = path.join(__dirname, 'backups');
 if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
 function runBackup() {
-  const ordersFile = path.join(__dirname, 'orders.json');
-  if (!fs.existsSync(ordersFile)) return;
-  const ts   = new Date().toISOString().slice(0, 10);
-  const dest = path.join(BACKUP_DIR, `orders-${ts}.json`);
-  fs.copyFileSync(ordersFile, dest);
-  const files = fs.readdirSync(BACKUP_DIR).filter(f => f.startsWith('orders-')).sort();
-  if (files.length > 30) files.slice(0, files.length - 30).forEach(f => fs.unlinkSync(path.join(BACKUP_DIR, f)));
+  // No-op: orders are now in MySQL. Kept for backward compat.
 }
 runBackup();
 setInterval(runBackup, 24 * 60 * 60 * 1000);
@@ -128,19 +117,9 @@ function slugify(str) {
   return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 }
 
-/* ── File upload ── */
-const UPLOADS_DIR = path.join(__dirname, '../frontend/uploads');
-if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
-  filename:    (req, file, cb) => {
-    const ext  = path.extname(file.originalname).toLowerCase();
-    const base = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, '-').toLowerCase();
-    cb(null, `${base}-${Date.now()}${ext}`);
-  }
-});
+/* ── File upload — memory storage, always Cloudinary ── */
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedExt  = /\.(jpg|jpeg|png|gif|webp|mp4|mov|webm|avi)$/i;
@@ -148,6 +127,14 @@ const upload = multer({
     if (allowedExt.test(path.extname(file.originalname)) && allowedMime.test(file.mimetype)) cb(null, true);
     else cb(new Error('Only images and videos are allowed'));
   }
+});
+
+/* ── Cloudinary stream upload from memory buffer ── */
+const streamUpload = (buffer, options) => new Promise((resolve, reject) => {
+  const stream = cloudinary.uploader.upload_stream(options, (err, result) => {
+    if (err) reject(err); else resolve(result);
+  });
+  stream.end(buffer);
 });
 
 /* ════════════════════════════════════════
@@ -161,8 +148,8 @@ const io         = new Server(httpServer, {
 const PORT = process.env.PORT || 3000;
 
 io.on('connection', (socket) => {
-  console.log(`🔌 Socket connected: ${socket.id}`);
-  socket.on('disconnect', () => console.log(`🔌 Socket disconnected: ${socket.id}`));
+  console.log(`Socket connected: ${socket.id}`);
+  socket.on('disconnect', () => console.log(`Socket disconnected: ${socket.id}`));
 });
 
 /* Helper: emit storefront sync event */
@@ -181,19 +168,22 @@ app.use(express.json({ limit: '10kb' }));
 app.use(cors({
   origin: function(origin, callback) {
     if (!origin || origin === 'null') return callback(null, true);
-    if (origin.startsWith('http://localhost') ||
-        origin.startsWith('http://127.0.0.1') ||
-        origin.endsWith('.github.io') ||
-        origin === (process.env.WEBSITE_URL || '')) return callback(null, true);
+    if (
+      origin.startsWith('http://localhost') ||
+      origin.startsWith('http://127.0.0.1') ||
+      origin.endsWith('.github.io') ||
+      origin.endsWith('.hostinger.com') ||
+      origin.endsWith('.hostingersite.com') ||
+      origin === (process.env.WEBSITE_URL || '')
+    ) return callback(null, true);
     callback(null, false);
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
 }));
-app.use('/uploads', express.static(UPLOADS_DIR));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
 /* ── Rate limiters ── */
-const orderLimiter = rateLimit({ windowMs: 15 * 60_000, max: 5,  keyGenerator: req => getClientIp(req), message: { error: 'Too many orders. Wait 15 min.' } });
+const orderLimiter = rateLimit({ windowMs: 15 * 60_000, max: 5,   keyGenerator: req => getClientIp(req), message: { error: 'Too many orders. Wait 15 min.' } });
 const adminLimiter = rateLimit({ windowMs: 60_000,       max: 120, keyGenerator: req => getClientIp(req), message: { error: 'Too many requests.' } });
 const authLimiter  = rateLimit({ windowMs: 15 * 60_000, max: 20,  keyGenerator: req => getClientIp(req), message: { error: 'Too many auth attempts.' } });
 
@@ -223,23 +213,82 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
   if (readBlockedIps().includes(clientIp)) {
     return res.status(403).json({ error: 'blocked', message: 'Your account has been blocked. Contact us on WhatsApp.' });
   }
-  const product  = sanitize(req.body.product,  100);
-  const customer = sanitize(req.body.customer,   80);
-  const phone    = sanitize(req.body.phone,      20);
-  const city     = sanitize(req.body.city,       60);
-  const address  = sanitize(req.body.address,   200);
-  const size     = sanitize(req.body.size,       10);
+
+  const product  = sanitize(req.body.product  || '', 100);
+  const customer = sanitize(req.body.customer || '', 80);
+  const phone    = sanitize(req.body.phone    || '', 20);
+  const city     = sanitize(req.body.city     || '', 60);
+  const address  = sanitize(req.body.address  || '', 200);
+  const size     = sanitize(req.body.size     || '', 10);
   const price    = sanitize(String(req.body.price || ''), 20);
   const qty      = Math.min(Math.max(parseInt(req.body.qty) || 1, 1), 99);
-  if (!product || !customer || !phone || !city) {
+
+  if (!customer || !phone || !city) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
   const digits = phone.replace(/\D/g, '');
   if (digits.length < 9 || digits.length > 15) return res.status(400).json({ error: 'Invalid phone number' });
   if (!/^[\p{L}\s'\-\.]{2,80}$/u.test(customer)) return res.status(400).json({ error: 'Invalid customer name' });
-  const order = createOrder({ product, size, qty, price, customer, phone, city, address, clientIp });
-  emit('order:new', { orderId: order.id, customer: order.customer, product: order.product });
-  res.status(201).json({ success: true, orderId: order.id, message: 'Order received.' });
+
+  // Support both old single-product format and new cart format
+  const items = Array.isArray(req.body.items) && req.body.items.length
+    ? req.body.items
+    : [{ name: product, size, qty, price: parseFloat(price) || 0 }];
+
+  const couponCode  = sanitize(req.body.couponCode  || '', 50) || null;
+  const discount    = parseFloat(req.body.discount)  || 0;
+  const total       = parseFloat(req.body.total)     || items.reduce((s, i) => s + (parseFloat(i.price) || 0) * (parseInt(i.qty) || 1), 0);
+
+  try {
+    const order = await prisma.order.create({
+      data: {
+        status:    'pending',
+        customer,
+        phone,
+        city,
+        address,
+        total,
+        couponCode,
+        discount,
+        clientIp,
+        msgSent:   false,
+        items: {
+          create: items.map(i => ({
+            name:  sanitize(String(i.name || ''), 200),
+            size:  i.size ? sanitize(String(i.size), 20) : null,
+            qty:   Math.min(Math.max(parseInt(i.qty) || 1, 1), 99),
+            price: parseFloat(i.price) || 0,
+          }))
+        }
+      },
+      include: { items: true },
+    });
+
+    emit('order:new', { orderId: order.id, customer: order.customer });
+    res.status(201).json({ success: true, orderId: order.id, message: 'Order received.' });
+  } catch (err) {
+    console.error('POST /api/orders error:', err);
+    res.status(500).json({ error: 'Failed to place order' });
+  }
+});
+
+/* GET /api/coupons/validate — public coupon validation */
+app.get('/api/coupons/validate', async (req, res) => {
+  const code  = sanitize(req.query.code || '', 50).toUpperCase();
+  const total = parseFloat(req.query.total) || 0;
+  if (!code) return res.status(400).json({ error: 'No code provided' });
+  try {
+    const coupon = await prisma.coupon.findUnique({ where: { code } });
+    if (!coupon || !coupon.isActive) return res.status(404).json({ error: 'Invalid coupon' });
+    if (coupon.expiresAt && new Date() > coupon.expiresAt) return res.status(400).json({ error: 'Coupon expired' });
+    if (coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) return res.status(400).json({ error: 'Coupon usage limit reached' });
+    if (total < coupon.minOrder) return res.status(400).json({ error: `Minimum order is ${coupon.minOrder} MAD` });
+    const discount = coupon.type === 'percent' ? (total * coupon.value / 100) : coupon.value;
+    res.json({ valid: true, discount: Math.min(discount, total), type: coupon.type, value: coupon.value });
+  } catch (err) {
+    console.error('GET /api/coupons/validate error:', err);
+    res.status(500).json({ error: 'Failed to validate coupon' });
+  }
 });
 
 /* GET /api/products/overrides — legacy compat for products.js */
@@ -394,71 +443,109 @@ app.get('/api/admin/2fa/status', adminLimiter, requireAuth, (req, res) => {
 });
 
 /* ════════════════════════════════════════
-   ADMIN — ORDERS
+   ADMIN — ORDERS (MySQL via Prisma)
 ════════════════════════════════════════ */
-app.get('/api/admin/orders', adminLimiter, requireAuth, (req, res) => {
-  const orders   = readOrders();
-  const { status } = req.query;
-  const limit    = Math.min(parseInt(req.query.limit) || 200, 500);
-  const filtered = status ? orders.filter(o => o.status === status) : orders;
-  res.json(filtered.slice(0, limit));
+app.get('/api/admin/orders', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const limit = Math.min(parseInt(req.query.limit) || 200, 500);
+    const where = {};
+    if (status) where.status = status;
+    const orders = await prisma.order.findMany({
+      where,
+      include: { items: true },
+      orderBy: { createdAt: 'desc' },
+      take:    limit,
+    });
+    res.json(orders);
+  } catch (err) {
+    console.error('GET /api/admin/orders error:', err);
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
 });
 
-app.get('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
+app.get('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
-  const order = getOrder(req.params.id);
-  if (!order) return res.status(404).json({ error: 'Order not found' });
-  res.json(order);
+  try {
+    const order = await prisma.order.findUnique({
+      where:   { id: req.params.id },
+      include: { items: true },
+    });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch order' });
+  }
 });
 
-app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
+app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
-  const { status, size, qty, city, address } = req.body;
+  const { status, city, address, notes, msgSent } = req.body;
   const allowed = ['new','pending','confirmed','cancelled','edited','processing','called','reported','done'];
   if (status && !allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
-  const updated = updateOrder(req.params.id, {
-    ...(status  && { status }),
-    ...(size    && { size: sanitize(size, 10) }),
-    ...(qty     && { qty: Math.min(Math.max(parseInt(qty) || 1, 1), 99) }),
-    ...(city    && { city: sanitize(city, 60) }),
-    ...(address && { address: sanitize(address, 200) }),
-  });
-  if (!updated) return res.status(404).json({ error: 'Order not found' });
-  emit('order:statusChanged', { orderId: updated.id, newStatus: updated.status });
-  res.json(updated);
+  const data = {};
+  if (status   !== undefined) data.status  = status;
+  if (city     !== undefined) data.city    = sanitize(city, 60);
+  if (address  !== undefined) data.address = sanitize(address, 200);
+  if (notes    !== undefined) data.notes   = sanitize(notes, 1000);
+  if (msgSent  !== undefined) data.msgSent = Boolean(msgSent);
+  try {
+    const order = await prisma.order.update({
+      where:   { id: req.params.id },
+      data,
+      include: { items: true },
+    });
+    emit('order:statusChanged', { orderId: order.id, newStatus: order.status });
+    res.json(order);
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Order not found' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update order' });
+  }
 });
 
-app.delete('/api/admin/orders/:id', adminLimiter, requireAuth, (req, res) => {
+app.delete('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
-  const orders = readOrders();
-  if (!orders.find(o => o.id === req.params.id)) return res.status(404).json({ error: 'Order not found' });
-  fs.writeFileSync(path.join(__dirname, 'orders.json'), JSON.stringify(orders.filter(o => o.id !== req.params.id), null, 2));
-  res.json({ success: true });
+  try {
+    await prisma.order.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Order not found' });
+    res.status(500).json({ error: 'Failed to delete order' });
+  }
 });
 
 app.get('/api/admin/stats', adminLimiter, requireAuth, async (req, res) => {
-  const orders = readOrders();
-  const productCount = await prisma.product.count({ where: { status: 'ACTIVE' } });
-  res.json({
-    total:        orders.length,
-    pending:      orders.filter(o => o.status === 'pending').length,
-    confirmed:    orders.filter(o => o.status === 'confirmed').length,
-    cancelled:    orders.filter(o => o.status === 'cancelled').length,
-    processing:   orders.filter(o => o.status === 'processing').length,
-    productCount,
-  });
+  try {
+    const [total, pending, confirmed, cancelled, processing, productCount] = await Promise.all([
+      prisma.order.count(),
+      prisma.order.count({ where: { status: 'pending' } }),
+      prisma.order.count({ where: { status: 'confirmed' } }),
+      prisma.order.count({ where: { status: 'cancelled' } }),
+      prisma.order.count({ where: { status: 'processing' } }),
+      prisma.product.count({ where: { status: 'ACTIVE' } }),
+    ]);
+    res.json({ total, pending, confirmed, cancelled, processing, productCount });
+  } catch (err) {
+    console.error('GET /api/admin/stats error:', err);
+    res.status(500).json({ error: 'Failed to fetch stats' });
+  }
 });
 
-app.get('/api/admin/suspicious', adminLimiter, requireAuth, (req, res) => {
-  const orders = readOrders();
-  const map = {};
-  orders.forEach(o => {
-    const key = o.phone || o.clientIp || 'unknown';
-    if (!map[key]) map[key] = { name: o.customer, phone: o.phone, clientIp: o.clientIp, failedCount: 0, totalOrders: 0 };
-    map[key].totalOrders++;
-    if (o.status === 'cancelled' || o.deliveryStatus === 'failed') map[key].failedCount++;
-  });
-  res.json(Object.values(map).filter(c => c.failedCount >= 3));
+app.get('/api/admin/suspicious', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const orders = await prisma.order.findMany({ include: { items: true } });
+    const map = {};
+    orders.forEach(o => {
+      const key = o.phone || o.clientIp || 'unknown';
+      if (!map[key]) map[key] = { name: o.customer, phone: o.phone, clientIp: o.clientIp, failedCount: 0, totalOrders: 0 };
+      map[key].totalOrders++;
+      if (o.status === 'cancelled') map[key].failedCount++;
+    });
+    res.json(Object.values(map).filter(c => c.failedCount >= 3));
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch suspicious orders' });
+  }
 });
 
 app.get('/api/admin/blocked-ips', adminLimiter, requireAuth, (req, res) => res.json(readBlockedIps()));
@@ -489,6 +576,72 @@ app.get('/api/admin/backups', adminLimiter, requireAuth, (req, res) => {
     .sort().reverse()
     .map(f => ({ name: f, size: fs.statSync(path.join(BACKUP_DIR, f)).size, date: f.replace('orders-', '').replace('.json', '') }));
   res.json(files);
+});
+
+/* ════════════════════════════════════════
+   ADMIN — COUPONS (CRUD)
+════════════════════════════════════════ */
+app.get('/api/admin/coupons', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const coupons = await prisma.coupon.findMany({ orderBy: { createdAt: 'desc' } });
+    res.json(coupons);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch coupons' });
+  }
+});
+
+app.post('/api/admin/coupons', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { code, type, value, minOrder, maxUses, expiresAt, isActive } = req.body;
+    if (!code || value === undefined) return res.status(400).json({ error: 'code and value are required' });
+    const coupon = await prisma.coupon.create({
+      data: {
+        code:      sanitize(code, 50).toUpperCase(),
+        type:      type || 'percent',
+        value:     parseFloat(value),
+        minOrder:  parseFloat(minOrder) || 0,
+        maxUses:   parseInt(maxUses) || 0,
+        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        isActive:  isActive !== false,
+      }
+    });
+    res.status(201).json(coupon);
+  } catch (err) {
+    if (err.code === 'P2002') return res.status(400).json({ error: 'Coupon code already exists' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create coupon' });
+  }
+});
+
+app.patch('/api/admin/coupons/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { code, type, value, minOrder, maxUses, expiresAt, isActive } = req.body;
+    const data = {};
+    if (code      !== undefined) data.code      = sanitize(code, 50).toUpperCase();
+    if (type      !== undefined) data.type      = type;
+    if (value     !== undefined) data.value     = parseFloat(value);
+    if (minOrder  !== undefined) data.minOrder  = parseFloat(minOrder) || 0;
+    if (maxUses   !== undefined) data.maxUses   = parseInt(maxUses) || 0;
+    if (expiresAt !== undefined) data.expiresAt = expiresAt ? new Date(expiresAt) : null;
+    if (isActive  !== undefined) data.isActive  = Boolean(isActive);
+    const coupon = await prisma.coupon.update({ where: { id: req.params.id }, data });
+    res.json(coupon);
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Coupon not found' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update coupon' });
+  }
+});
+
+app.delete('/api/admin/coupons/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    await prisma.coupon.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Coupon not found' });
+    res.status(500).json({ error: 'Failed to delete coupon' });
+  }
 });
 
 /* ════════════════════════════════════════
@@ -534,7 +687,6 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
     const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'name and price are required' });
     let slug = slugify(name);
-    // Ensure unique slug
     const existing = await prisma.product.findUnique({ where: { slug } });
     if (existing) slug = slug + '-' + Date.now();
 
@@ -619,7 +771,6 @@ app.post('/api/admin/products/:id/variants', adminLimiter, requireAuth, async (r
   try {
     const { variants } = req.body;
     if (!Array.isArray(variants)) return res.status(400).json({ error: 'variants must be an array' });
-    // Delete existing variants and replace
     await prisma.variant.deleteMany({ where: { productId: req.params.id } });
     await prisma.variant.createMany({
       data: variants.map((v, i) => ({
@@ -644,25 +795,22 @@ app.post('/api/admin/products/:id/variants', adminLimiter, requireAuth, async (r
 
 /* ── Product images ── */
 
-/* POST /api/admin/upload — upload image/video, return URL */
+/* POST /api/admin/upload — upload image/video to Cloudinary, return URL */
 app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  if (USE_CLOUDINARY) {
-    try {
-      const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
-      const result  = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: isVideo ? 'video' : 'image',
-        folder: 'streetstore',
-        use_filename: true,
-        unique_filename: true,
-      });
-      fs.unlink(req.file.path, () => {});
-      return res.json({ url: result.secure_url, publicId: result.public_id });
-    } catch (err) {
-      console.error('Cloudinary error:', err.message);
-    }
+  try {
+    const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
+    const result  = await streamUpload(req.file.buffer, {
+      resource_type:   isVideo ? 'video' : 'image',
+      folder:          'streetstore',
+      use_filename:    true,
+      unique_filename: true,
+    });
+    return res.json({ url: result.secure_url, publicId: result.public_id });
+  } catch (err) {
+    console.error('Cloudinary upload error:', err.message);
+    res.status(500).json({ error: 'Upload failed' });
   }
-  res.json({ url: `uploads/${req.file.filename}`, publicId: req.file.filename });
 });
 
 /* POST /api/admin/products/:id/images — add image record after upload */
@@ -670,10 +818,8 @@ app.post('/api/admin/products/:id/images', adminLimiter, requireAuth, async (req
   try {
     const { url, publicId, alt, isMain } = req.body;
     if (!url) return res.status(400).json({ error: 'url is required' });
-    // Count existing images to set sortOrder
     const count = await prisma.image.count({ where: { productId: req.params.id } });
     if (isMain) {
-      // Remove isMain from all others
       await prisma.image.updateMany({ where: { productId: req.params.id }, data: { isMain: false } });
     }
     const image = await prisma.image.create({
@@ -682,7 +828,7 @@ app.post('/api/admin/products/:id/images', adminLimiter, requireAuth, async (req
         url,
         publicId:  publicId || '',
         alt:       alt || null,
-        isMain:    isMain || count === 0, // first image is always main
+        isMain:    isMain || count === 0,
         sortOrder: count,
       }
     });
@@ -784,11 +930,20 @@ app.get('/api/admin/banners', adminLimiter, requireAuth, async (req, res) => {
 
 app.post('/api/admin/banners', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { title, subtitle, imageUrl, linkUrl, position, isActive } = req.body;
+    const { title, subtitle, imageUrl, publicId, linkUrl, position, isActive } = req.body;
     if (!title || !imageUrl) return res.status(400).json({ error: 'title and imageUrl required' });
     const count  = await prisma.banner.count();
     const banner = await prisma.banner.create({
-      data: { title, subtitle: subtitle || null, imageUrl, linkUrl: linkUrl || null, position: position || 'hero', isActive: isActive !== false, sortOrder: count }
+      data: {
+        title,
+        subtitle:  subtitle || null,
+        imageUrl,
+        publicId:  publicId || '',
+        linkUrl:   linkUrl || null,
+        position:  position || 'hero',
+        isActive:  isActive !== false,
+        sortOrder: count
+      }
     });
     emit('banner:changed', { bannerId: banner.id });
     res.status(201).json(banner);
@@ -797,13 +952,14 @@ app.post('/api/admin/banners', adminLimiter, requireAuth, async (req, res) => {
 
 app.patch('/api/admin/banners/:id', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { title, subtitle, imageUrl, linkUrl, position, isActive, sortOrder } = req.body;
+    const { title, subtitle, imageUrl, publicId, linkUrl, position, isActive, sortOrder } = req.body;
     const banner = await prisma.banner.update({
       where: { id: req.params.id },
       data: {
         ...(title     !== undefined && { title }),
         ...(subtitle  !== undefined && { subtitle }),
         ...(imageUrl  !== undefined && { imageUrl }),
+        ...(publicId  !== undefined && { publicId }),
         ...(linkUrl   !== undefined && { linkUrl }),
         ...(position  !== undefined && { position }),
         ...(isActive  !== undefined && { isActive }),
@@ -841,7 +997,7 @@ app.get('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
 
 app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, announcementBar, announcementActive } = req.body;
+    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, logoPublicId, announcementBar, announcementActive } = req.body;
     const data = {};
     if (storeName          !== undefined) data.storeName          = sanitize(storeName, 100);
     if (primaryColor       !== undefined) data.primaryColor       = sanitize(primaryColor, 20);
@@ -850,6 +1006,7 @@ app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => 
     if (whatsapp           !== undefined) data.whatsapp           = sanitize(whatsapp, 30);
     if (email              !== undefined) data.email              = sanitize(email, 100);
     if (logo               !== undefined) data.logo               = logo || null;
+    if (logoPublicId       !== undefined) data.logoPublicId       = logoPublicId || null;
     if (announcementBar    !== undefined) data.announcementBar    = sanitize(announcementBar, 300);
     if (announcementActive !== undefined) data.announcementActive = Boolean(announcementActive);
 
@@ -899,13 +1056,19 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
   if (!publicKey || !privateKey) return res.status(400).json({ error: 'Olivraison credentials required' });
 
   const GRAPHQL_URL = 'https://api.olivraison.com/graphql';
-  const orders = readOrders();
   const results = [];
 
   for (const id of orderIds.slice(0, 100)) {
-    const order = orders.find(o => o.id === id);
+    let order;
+    try {
+      order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
+    } catch (e) {
+      results.push({ orderId: id, success: false, error: 'DB error' });
+      continue;
+    }
     if (!order) { results.push({ orderId: id, success: false, error: 'Order not found' }); continue; }
 
+    const firstItem = order.items[0] || {};
     const mutation = `mutation CreateShipment($input: ShipmentInput!) {
       createShipment(input: $input) { id trackingCode status }
     }`;
@@ -915,10 +1078,10 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
         recipientPhone:   order.phone     || '',
         recipientAddress: order.address   || '',
         recipientCity:    order.city      || '',
-        description:      order.product   || '',
+        description:      firstItem.name  || '',
         weight:           1,
-        price:            parseFloat(order.price) * (order.qty || 1) || 0,
-        codAmount:        parseFloat(order.price) * (order.qty || 1) || 0,
+        price:            order.total     || 0,
+        codAmount:        order.total     || 0,
         externalId:       order.id,
       }
     };
@@ -934,7 +1097,10 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
         results.push({ orderId: id, customer: order.customer, success: false, error: json.errors[0].message });
       } else {
         const shipment = json.data?.createShipment;
-        updateOrder(id, { status: 'processing', trackingCode: shipment?.trackingCode || null, olivraisonId: shipment?.id || null });
+        await prisma.order.update({
+          where: { id },
+          data:  { status: 'processing', notes: `trackingCode:${shipment?.trackingCode || ''}` },
+        });
         results.push({ orderId: id, customer: order.customer, success: true, trackingCode: shipment?.trackingCode || null });
       }
     } catch (err) {
@@ -949,5 +1115,5 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
    START
 ════════════════════════════════════════ */
 httpServer.listen(PORT, () => {
-  console.log(`\n🚀 StreetStore API + Socket.io running on port ${PORT}\n`);
+  console.log(`\nStreetStore API + Socket.io running on port ${PORT}\n`);
 });
