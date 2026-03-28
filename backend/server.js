@@ -267,6 +267,33 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
     });
 
     emit('order:new', { orderId: order.id, customer: order.customer });
+
+    // WhatsApp admin notification via CallMeBot (non-blocking)
+    (async () => {
+      try {
+        const settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+        if (settings && settings.whatsapp && settings.whatsappBotKey) {
+          const itemsSummary = order.items.map(i => `${i.name} x${i.qty}`).join(', ');
+          const msg = encodeURIComponent(
+            `🛍️ New Order #${order.id.slice(-6)}
+` +
+            `Customer: ${order.customer}
+` +
+            `Phone: ${order.phone}
+` +
+            `City: ${order.city}
+` +
+            `Items: ${itemsSummary}
+` +
+            `Total: ${order.total} MAD`
+          );
+          const waPhone = settings.whatsapp.replace(/[^0-9]/g, '');
+          const url = `https://api.callmebot.com/whatsapp.php?phone=${waPhone}&text=${msg}&apikey=${settings.whatsappBotKey}`;
+          await fetch(url).catch(() => {});
+        }
+      } catch (_) {}
+    })();
+
     res.status(201).json({ success: true, orderId: order.id, message: 'Order received.' });
   } catch (err) {
     console.error('POST /api/orders error:', err);
@@ -358,11 +385,13 @@ app.get('/api/products/:slug', async (req, res) => {
   }
 });
 
-/* GET /api/settings — public site settings */
+/* GET /api/settings — public site settings (excludes sensitive fields) */
 app.get('/api/settings', async (req, res) => {
   try {
     const settings = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
-    res.json(settings || {});
+    if (!settings) return res.json({});
+    const { whatsappBotKey: _k, logoPublicId: _l, ...pub } = settings;
+    res.json(pub);
   } catch {
     res.status(500).json({ error: 'Failed to fetch settings' });
   }
@@ -1003,7 +1032,7 @@ app.get('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
 
 app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, logoPublicId, announcementBar, announcementActive, packDeal2, packDeal3, packDealBadge, packDealSub, packEnabled } = req.body;
+    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, logoPublicId, announcementBar, announcementActive, packDeal2, packDeal3, packDealBadge, packDealSub, packEnabled, whatsappBotKey } = req.body;
     const data = {};
     if (storeName          !== undefined) data.storeName          = sanitize(storeName, 100);
     if (primaryColor       !== undefined) data.primaryColor       = sanitize(primaryColor, 20);
@@ -1019,7 +1048,8 @@ app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => 
     if (packDeal3     !== undefined) data.packDeal3     = parseFloat(packDeal3) || 479;
     if (packDealBadge !== undefined) data.packDealBadge = sanitize(packDealBadge, 100);
     if (packDealSub   !== undefined) data.packDealSub   = sanitize(packDealSub, 100);
-    if (packEnabled   !== undefined) data.packEnabled   = Boolean(packEnabled);
+    if (packEnabled     !== undefined) data.packEnabled     = Boolean(packEnabled);
+    if (whatsappBotKey  !== undefined) data.whatsappBotKey = sanitize(whatsappBotKey, 100);
 
     const settings = await prisma.siteSettings.upsert({
       where:  { id: 'singleton' },

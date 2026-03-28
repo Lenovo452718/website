@@ -1125,13 +1125,48 @@ function initSearch() {
 function initPlaceOrder() {
   const placeOrderBtn = document.querySelector('.place-order-btn');
   if (!placeOrderBtn) return;
-  placeOrderBtn.addEventListener('click', e => {
+  placeOrderBtn.addEventListener('click', async e => {
     e.preventDefault();
-    // Save last order for thank-you page
+
+    const firstName = (document.getElementById('info-first')||{}).value||'';
+    const lastName  = (document.getElementById('info-last')||{}).value||'';
+    const phone     = (document.getElementById('info-phone')||{}).value||'';
+    const city      = (document.getElementById('info-city')||{}).value||'';
+    const address   = (document.getElementById('info-address')||{}).value||'';
+    const customer  = (firstName + ' ' + lastName).trim() || 'Unknown';
+
+    if (!phone || !city) { alert('Please fill in phone and city.'); return; }
+
     const cart = getCart();
-    const couponCode = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? _appliedCoupon.code : null;
+    if (!cart.length) { alert('Your cart is empty.'); return; }
+
+    const coupon = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? _appliedCoupon : null;
+    const totalText = (document.getElementById('checkoutTotal')||{}).textContent||'';
+    const total = parseFloat(totalText) || cart.reduce((s,i) => s + (i.price||0)*(i.qty||1), 0);
+
+    const orderData = {
+      customer, phone, city, address,
+      coupon: coupon ? coupon.code : null,
+      total,
+      items: cart.map(i => ({ product: i.name, size: i.size||'', qty: i.qty||1, price: i.price||0 }))
+    };
+
+    placeOrderBtn.disabled = true;
+    placeOrderBtn.textContent = 'Placing order...';
+
+    const API = typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : '';
+    if (API) {
+      try {
+        await fetch(API + '/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+      } catch (_) {}
+    }
+
     localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
-    if (couponCode) localStorage.setItem('streetstore_last_coupon', couponCode);
+    if (coupon) localStorage.setItem('streetstore_last_coupon', coupon.code);
     saveCart([]);
     updateCartBadge();
     window.location.href = 'thankyou.html';

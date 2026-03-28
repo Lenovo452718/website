@@ -124,6 +124,7 @@ model SiteSettings {
   packDealBadge      String  @default("Save up to 10% off")
   packDealSub        String  @default("Mix & match any styles")
   packEnabled        Boolean @default(true)
+  whatsappBotKey     String  @default("")
 }
 
 model OlivraisonConfig {
