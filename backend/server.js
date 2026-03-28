@@ -1152,6 +1152,42 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
   res.json({ results });
 });
 
+/* POST /api/admin/migrate-images — one-time: upload local images to Cloudinary */
+app.post('/api/admin/migrate-images', adminLimiter, requireAuth, async (req, res) => {
+  const results = { uploaded: 0, skipped: 0, errors: [] };
+  try {
+    const images = await prisma.image.findMany({ include: { product: true } });
+    const frontendDir = path.join(__dirname, '../frontend');
+
+    for (const img of images) {
+      // Skip already Cloudinary URLs
+      if (img.url && img.url.includes('cloudinary.com')) { results.skipped++; continue; }
+      // Resolve local file path
+      const localPath = img.url ? path.join(frontendDir, img.url.replace(/^//,'')) : null;
+      if (!localPath || !fs.existsSync(localPath)) { results.errors.push({ id: img.id, url: img.url, reason: 'file not found' }); continue; }
+
+      try {
+        const fileBuffer = fs.readFileSync(localPath);
+        const folder = 'streetstore/products/' + (img.product?.slug || 'misc');
+        const result = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            { folder, resource_type: 'image', use_filename: true, unique_filename: true },
+            (err, r) => err ? reject(err) : resolve(r)
+          );
+          stream.end(fileBuffer);
+        });
+        await prisma.image.update({ where: { id: img.id }, data: { url: result.secure_url, publicId: result.public_id } });
+        results.uploaded++;
+      } catch (err) {
+        results.errors.push({ id: img.id, url: img.url, reason: err.message });
+      }
+    }
+    res.json({ success: true, ...results });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */

@@ -714,6 +714,15 @@ textarea.field-input{resize:vertical;min-height:80px}
           </details>
         </div>
       </div>
+      <!-- Migrate Images to Cloudinary -->
+      <div class="panel" style="margin-top:20px">
+        <div class="panel-header"><h2>Migrate Local Images to Cloudinary</h2></div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--gray);margin-bottom:12px">Upload all product images that are still stored locally to Cloudinary. Run this once after deployment to make sure images survive future redeployments.</p>
+          <button class="btn btn-primary" onclick="migrateImages()" id="migrateImagesBtn">Start Migration</button>
+          <div id="migrateImagesResult" style="margin-top:12px;font-size:13px"></div>
+        </div>
+      </div>
       <div class="media-grid" id="mediaGrid"></div>
     </section>
 
@@ -2726,6 +2735,27 @@ function clearActivityLog() {
   localStorage.removeItem(ACTIVITY_KEY);
   loadActivityLog();
   showToast('Activity log cleared');
+}
+
+async function migrateImages() {
+  const btn = document.getElementById('migrateImagesBtn');
+  const result = document.getElementById('migrateImagesResult');
+  btn.disabled = true;
+  btn.textContent = 'Migrating...';
+  result.textContent = 'Uploading images to Cloudinary, please wait...';
+  try {
+    const res = await authFetch('/api/admin/migrate-images', { method: 'POST' });
+    const data = await res.json();
+    if (res.ok) {
+      result.innerHTML = '<span style="color:green">✅ Done! Uploaded: ' + data.uploaded + ', Skipped (already on CDN): ' + data.skipped + (data.errors.length ? ', Errors: ' + data.errors.length : '') + '</span>';
+    } else {
+      result.innerHTML = '<span style="color:red">❌ Error: ' + (data.error||'Unknown error') + '</span>';
+    }
+  } catch(e) {
+    result.innerHTML = '<span style="color:red">❌ Network error</span>';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Start Migration';
 }
 
 async function clearAllOrders() {
