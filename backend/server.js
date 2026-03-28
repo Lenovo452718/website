@@ -1163,7 +1163,7 @@ app.post('/api/admin/migrate-images', adminLimiter, requireAuth, async (req, res
       // Skip already Cloudinary URLs
       if (img.url && img.url.includes('cloudinary.com')) { results.skipped++; continue; }
       // Resolve local file path
-      const localPath = img.url ? path.join(frontendDir, img.url.replace(/^//,'')) : null;
+      const localPath = img.url ? path.join(frontendDir, img.url.startsWith('/') ? img.url.slice(1) : img.url) : null;
       if (!localPath || !fs.existsSync(localPath)) { results.errors.push({ id: img.id, url: img.url, reason: 'file not found' }); continue; }
 
       try {
