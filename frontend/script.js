@@ -1128,48 +1128,65 @@ function initPlaceOrder() {
   placeOrderBtn.addEventListener('click', async e => {
     e.preventDefault();
 
-    const firstName = (document.getElementById('info-first')||{}).value||'';
-    const lastName  = (document.getElementById('info-last')||{}).value||'';
-    const phone     = (document.getElementById('info-phone')||{}).value||'';
-    const city      = (document.getElementById('info-city')||{}).value||'';
-    const address   = (document.getElementById('info-address')||{}).value||'';
-    const customer  = (firstName + ' ' + lastName).trim() || 'Unknown';
+    // Gather form fields
+    const firstName = (document.getElementById('info-first')?.value || '').trim();
+    const lastName  = (document.getElementById('info-last')?.value  || '').trim();
+    const customer  = (firstName + ' ' + lastName).trim() || firstName || lastName;
+    const phone     = (document.getElementById('info-phone')?.value   || '').trim();
+    const city      = (document.getElementById('info-city')?.value    || '').trim();
+    const address   = (document.getElementById('info-address')?.value || '').trim();
 
-    if (!phone || !city) { alert('Please fill in phone and city.'); return; }
+    if (!customer) { alert('Please enter your name.'); return; }
+    if (!phone || phone.replace(/\D/g,'').length < 9) { alert('Please enter a valid phone number.'); return; }
+    if (!city) { alert('Please enter your city.'); return; }
 
     const cart = getCart();
     if (!cart.length) { alert('Your cart is empty.'); return; }
 
-    const coupon = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? _appliedCoupon : null;
-    const totalText = (document.getElementById('checkoutTotal')||{}).textContent||'';
-    const total = parseFloat(totalText) || cart.reduce((s,i) => s + (i.price||0)*(i.qty||1), 0);
+    const packDiscount   = getPackDiscount(cart);
+    const couponDiscount = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? Math.round(_appliedCoupon.discount) : 0;
+    const subtotal       = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const total          = Math.max(0, subtotal - packDiscount - couponDiscount);
+    const couponCode     = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? _appliedCoupon.code : null;
 
-    const orderData = {
-      customer, phone, city, address,
-      coupon: coupon ? coupon.code : null,
-      total,
-      items: cart.map(i => ({ product: i.name, size: i.size||'', qty: i.qty||1, price: i.price||0 }))
-    };
+    const items = cart.map(i => ({ name: i.name, size: i.size || null, qty: i.qty, price: i.price }));
 
     placeOrderBtn.disabled = true;
     placeOrderBtn.textContent = 'Placing order...';
 
-    const API = typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : '';
-    if (API) {
-      try {
-        await fetch(API + '/api/orders', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(orderData)
-        });
-      } catch (_) {}
-    }
+    const BACKEND_URL = typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : 'http://localhost:3000';
 
-    localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
-    if (coupon) localStorage.setItem('streetstore_last_coupon', coupon.code);
-    saveCart([]);
-    updateCartBadge();
-    window.location.href = 'thankyou.html';
+    try {
+      const resp = await fetch(BACKEND_URL + '/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer, phone, city, address, items, total, discount: packDiscount + couponDiscount, couponCode }),
+      });
+
+      if (resp.status === 403) {
+        const data = await resp.json().catch(() => ({}));
+        alert(data.message || 'Your access has been blocked.');
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.textContent = 'Place Order →';
+        return;
+      }
+
+      if (resp.ok) {
+        localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
+        if (couponCode) localStorage.setItem('streetstore_last_coupon', couponCode);
+        saveCart([]);
+        updateCartBadge();
+        window.location.href = 'thankyou.html';
+        return;
+      }
+
+      throw new Error('Server error');
+    } catch (err) {
+      console.error('Order error:', err);
+      placeOrderBtn.disabled = false;
+      placeOrderBtn.textContent = 'Place Order →';
+      alert('Could not place order. Please try again.');
+    }
   });
 }
 

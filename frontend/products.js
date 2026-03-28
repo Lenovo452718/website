@@ -492,10 +492,13 @@ function syncProductPageUI(productKey) {
     var videoSrc = document.getElementById('productVideoSrc');
     var vid = document.getElementById('productVideo');
     var videoWrap = document.getElementById('galleryVideoWrap');
+    var imagesWrap = document.getElementById('galleryImagesWrap');
     if (videoSrc && vid) {
       videoSrc.src = p.video;
       vid.load();
-      if (videoWrap) videoWrap.style.display = '';
+      /* Reset visibility — video wrap may have been hidden by placeholder error */
+      if (videoWrap) { videoWrap.style.display = ''; videoWrap.style.opacity = '1'; videoWrap.style.transition = ''; }
+      if (imagesWrap) imagesWrap.classList.remove('reveal-images');
       var pp = vid.play(); if (pp && pp.catch) pp.catch(function() {});
     }
   }

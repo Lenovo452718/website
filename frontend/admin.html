@@ -1971,8 +1971,8 @@ function pmRenderImages(images, productId) {
       <img src="${escHtml(img.url)}" style="width:90px;height:90px;object-fit:cover;border-radius:6px;border:2px solid ${isMain?'var(--navy)':'var(--gray-light)'};display:block">
       ${isMain ? `<span style="position:absolute;top:3px;left:3px;background:var(--navy);color:white;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px">MAIN</span>` : ''}
       <div style="display:flex;gap:2px;margin-top:4px;justify-content:center">
-        ${!isMain ? `<button class="btn btn-outline btn-sm" style="padding:3px 6px;font-size:9px" onclick="setMainProductImage(${productId},${img.id})">Main</button>` : ''}
-        <button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:9px" onclick="removeProductImage(${productId},${img.id})">Del</button>
+        ${!isMain ? `<button class="btn btn-outline btn-sm" style="padding:3px 6px;font-size:9px" onclick="setMainProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">Main</button>` : ''}
+        <button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:9px" onclick="removeProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">Del</button>
       </div>
     </div>`;
   }).join('');
@@ -1987,8 +1987,8 @@ function pmRenderVariants(variants, productId) {
       <span class="status-badge ${v.inStock?'status-done':'status-cancelled'}" style="font-size:10px">${v.inStock?'In Stock':'Out of Stock'}</span>
       ${v.stock != null ? `<span style="font-size:12px;color:var(--gray)">Qty: ${v.stock}</span>` : ''}
       <div style="margin-left:auto;display:flex;gap:4px">
-        <button class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px" onclick="pmToggleVariantStock(${productId},${v.id},${!v.inStock})">${v.inStock?'Mark Out':'Mark In'}</button>
-        <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:10px" onclick="removeVariant(${productId},${v.id})">Remove</button>
+        <button class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px" onclick="pmToggleVariantStock('${escHtml(String(productId))}','${escHtml(String(v.id))}',${!v.inStock})">${v.inStock?'Mark Out':'Mark In'}</button>
+        <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:10px" onclick="removeVariant('${escHtml(String(productId))}','${escHtml(String(v.id))}')">Remove</button>
       </div>
     </div>`).join('');
 }
@@ -2017,7 +2017,7 @@ function pmAddVariantRow() {
   if (!size) { showToast('Enter a size first', 'error'); return; }
   const editId = document.getElementById('pmEditId').value;
   if (editId) {
-    addVariant(parseInt(editId), size, inStock, stock);
+    addVariant(editId, size, inStock, stock);
   } else {
     _pmQueuedVariants.push({ size, inStock, stock });
     /* Show preview row */
@@ -2037,7 +2037,7 @@ function pmHandleImageFiles(input) {
   const files = Array.from(input.files);
   if (!files.length) return;
   if (editId) {
-    files.forEach(f => uploadAndAddImage(f, parseInt(editId)));
+    files.forEach(f => uploadAndAddImage(f, editId));
   } else {
     _pmQueuedImages.push(...files);
     showToast(files.length + ' image(s) queued — will upload after saving');
@@ -2193,7 +2193,7 @@ async function uploadAndAddImage(file, productId, makeMain) {
     if (!addRes.ok) throw new Error('Add image failed');
     /* Refresh images in modal if still open for this product */
     const editId = document.getElementById('pmEditId').value;
-    if (editId && parseInt(editId) === productId) {
+    if (editId && editId === productId) {
       const pRes = await authFetch('/api/admin/products/' + productId);
       if (pRes.ok) { const p = await pRes.json(); pmRenderImages(p.images || [], productId); }
     }
@@ -2232,14 +2232,20 @@ async function setMainProductImage(productId, imageId) {
 /* ── Variant helpers ── */
 async function addVariant(productId, size, inStock, stock) {
   try {
+    /* Backend replaces all variants — fetch existing first then append new one */
+    const pRes = await authFetch('/api/admin/products/' + productId);
+    if (!pRes.ok) throw new Error('Failed to fetch product');
+    const p = await pRes.json();
+    const existing = (p.variants || []).map((v, i) => ({ size: v.size, inStock: v.inStock, stock: v.stock, sortOrder: v.sortOrder || i }));
+    const newVariant = { size, inStock, stock: stock || null, sortOrder: existing.length };
     const res = await authFetch(`/api/admin/products/${productId}/variants`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ size, inStock, stock: stock || null })
+      body: JSON.stringify({ variants: [...existing, newVariant] })
     });
     if (!res.ok) throw new Error();
-    const pRes = await authFetch('/api/admin/products/' + productId);
-    if (pRes.ok) { const p = await pRes.json(); pmRenderVariants(p.variants || [], productId); }
+    const p2Res = await authFetch('/api/admin/products/' + productId);
+    if (p2Res.ok) { const p2 = await p2Res.json(); pmRenderVariants(p2.variants || [], productId); }
     showToast('Size added');
   } catch(e) { showToast('Failed to add size', 'error'); }
 }
