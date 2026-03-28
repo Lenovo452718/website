@@ -174,7 +174,14 @@ function apiProductToLocal(p) {
       var newProducts = {};
       list.forEach(function(p) {
         if ((p.status || 'active').toUpperCase() === 'ACTIVE') {
-          newProducts[p.slug] = apiProductToLocal(p);
+          var local = apiProductToLocal(p);
+          newProducts[p.slug] = local;
+          // Also index by the href-derived key so product pages with old slugs still work
+          // e.g. href="product-patte-elephant.html" → key "patte-elephant"
+          if (p.href) {
+            var hrefKey = p.href.replace(/^product-/, '').replace(/\.html$/, '');
+            if (hrefKey && hrefKey !== p.slug) newProducts[hrefKey] = local;
+          }
         }
       });
       // Merge: keep local fallback keys that aren't in API, override with API data

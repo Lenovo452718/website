@@ -2112,7 +2112,7 @@ async function saveProductModal() {
   if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
 
   try {
-    let productId = editId ? parseInt(editId) : null;
+    let productId = editId || null;
 
     if (editId) {
       /* Update existing product */
