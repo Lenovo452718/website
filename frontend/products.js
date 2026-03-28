@@ -227,7 +227,7 @@ function renderHomeGrid() {
     black: '#1a1a1a', white: '#f0ede8', gray: '#888888',
     brown: '#6b4e30', red: '#8b2020', green: '#1e4a2e'
   };
-  function toBg(c) { if (!c) return '#888'; return c.startsWith('#') ? c : (colorNames[c] || '#888'); }
+  function toBg(c) { if (!c) return '#888'; var f = c.split(',')[0].trim(); return f.startsWith('#') ? f : (colorNames[f] || '#888'); }
   var badgeLabel = { sale: 'Sale', trending: 'Trending', new: 'New', bestseller: 'Best Seller' };
   var seenIds = {};
   var allKeys = Object.keys(PRODUCTS).filter(function(k) {
@@ -276,7 +276,7 @@ function renderShopGrid() {
     black: '#1a1a1a', white: '#f0ede8', gray: '#888888',
     brown: '#6b4e30', red: '#8b2020', green: '#1e4a2e'
   };
-  function toBg(c) { if (!c) return '#888'; return c.startsWith('#') ? c : (colorNames[c] || '#888'); }
+  function toBg(c) { if (!c) return '#888'; var f = c.split(',')[0].trim(); return f.startsWith('#') ? f : (colorNames[f] || '#888'); }
   var badgeLabel = { sale: 'Sale', trending: 'Trending', new: 'New', bestseller: 'Best Seller' };
 
   var seenShopIds = {};
@@ -519,7 +519,7 @@ function renderCompleteTheLook() {
   if (!section) return;
   var currentSlug = document.body.dataset.product || '';
   var colorNames = { navy:'#0f1f3d', blue:'#1e3a5f', caramel:'#8b6347', black:'#1a1a1a', white:'#f0ede8', gray:'#888888', brown:'#6b4e30', red:'#8b2020', green:'#1e4a2e' };
-  function toBg(c) { if (!c) return '#888'; return c.startsWith('#') ? c : (colorNames[c] || '#888'); }
+  function toBg(c) { if (!c) return '#888'; var f = c.split(',')[0].trim(); return f.startsWith('#') ? f : (colorNames[f] || '#888'); }
 
   // Deduplicate and exclude current product
   var seen = {}; var currentId = (PRODUCTS[currentSlug] && PRODUCTS[currentSlug].id) || currentSlug;

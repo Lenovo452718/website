@@ -333,13 +333,25 @@ select.pm-input{cursor:pointer}
 .pm-add-size-row .pm-input{flex:1;min-width:100px}
 .pm-add-size-row .pm-input-sm{max-width:90px}
 /* Color card */
-.pm-color-swatches{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
-.pm-swatch{width:28px;height:28px;border-radius:7px;cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent}
-.pm-swatch:hover{transform:scale(1.15);box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.pm-swatch.active{border-color:var(--charcoal);transform:scale(1.1)}
-.pm-swatch-custom{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);font-size:13px}
-.pm-color-preview-row{display:flex;gap:12px;align-items:center}
-.pm-color-preview{width:44px;height:44px;border-radius:10px;border:2px solid #e0e3e8;flex-shrink:0;transition:background .15s}
+.pm-color-swatches{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px}
+.pm-swatch{width:28px;height:28px;border-radius:7px;cursor:pointer;transition:transform .15s,box-shadow .15s;border:2px solid transparent;position:relative;flex-shrink:0}
+.pm-swatch:hover{transform:scale(1.15);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.pm-swatch.selected{border-color:var(--charcoal)!important;transform:scale(1.1);box-shadow:0 0 0 3px rgba(15,31,61,.18)}
+.pm-swatch.selected::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)}
+.pm-swatch-custom{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);font-size:13px;overflow:hidden}
+/* Selected color chips */
+.pm-color-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px;min-height:0}
+.pm-color-chip{display:flex;align-items:center;gap:5px;padding:4px 8px 4px 5px;border-radius:20px;background:#fff;border:1.5px solid #e0e3e8;font-size:11px;font-weight:600;color:var(--charcoal)}
+.pm-color-chip-dot{width:14px;height:14px;border-radius:50%;border:1px solid rgba(0,0,0,.12);flex-shrink:0}
+.pm-color-chip-del{background:none;border:none;cursor:pointer;font-size:14px;line-height:1;color:#b0b8c4;padding:0;margin-left:1px}
+.pm-color-chip-del:hover{color:#e02424}
+.pm-color-chip-first::after{content:'BG';font-size:9px;font-weight:700;letter-spacing:.04em;padding:1px 4px;border-radius:9px;background:#eef2ff;color:#4b5cf6;margin-left:2px}
+/* Custom hex row */
+.pm-color-hex-row{display:flex;gap:8px;align-items:center;margin-top:4px}
+.pm-color-hex-row .pm-input{font-family:monospace;max-width:110px}
+.pm-color-hex-row .pm-color-picker-swatch{width:34px;height:34px;border-radius:8px;border:2px solid #e0e3e8;cursor:pointer;flex-shrink:0;overflow:hidden;padding:0}
+.pm-color-hex-row .pm-color-picker-swatch input{opacity:0;width:100%;height:100%;cursor:pointer;border:none;padding:0}
+.pm-color-empty{font-size:12px;color:#aab;font-style:italic;padding:6px 0}
 /* Featured toggle card */
 .pm-featured-card{display:flex;align-items:center;gap:16px;padding:16px 18px;background:#f8f9fb;border:2px solid #e0e3e8;border-radius:13px;margin-top:14px;cursor:pointer;transition:background .2s,border-color .2s;user-select:none}
 .pm-featured-card.active{background:linear-gradient(135deg,#fffbea 0%,#fff3c4 100%);border-color:#f0c040}
@@ -1111,32 +1123,35 @@ select.pm-input{cursor:pointer}
           <span class="pm-card-label">Appearance</span>
         </div>
         <div class="pm-card-body">
-          <label class="pm-label">Card Background Color</label>
-          <div class="pm-color-swatches">
-            <div class="pm-swatch" onclick="setProductColor('#0f1f3d')" style="background:#0f1f3d" title="Navy"></div>
-            <div class="pm-swatch" onclick="setProductColor('#1e3a5f')" style="background:#1e3a5f" title="Dark Blue"></div>
-            <div class="pm-swatch" onclick="setProductColor('#2980b9')" style="background:#2980b9" title="Blue"></div>
-            <div class="pm-swatch" onclick="setProductColor('#1a1a1a')" style="background:#1a1a1a" title="Black"></div>
-            <div class="pm-swatch" onclick="setProductColor('#333333')" style="background:#333333" title="Charcoal"></div>
-            <div class="pm-swatch" onclick="setProductColor('#8b6347')" style="background:#8b6347" title="Caramel"></div>
-            <div class="pm-swatch" onclick="setProductColor('#6b4e30')" style="background:#6b4e30" title="Brown"></div>
-            <div class="pm-swatch" onclick="setProductColor('#c0392b')" style="background:#c0392b" title="Red"></div>
-            <div class="pm-swatch" onclick="setProductColor('#e67e22')" style="background:#e67e22" title="Orange"></div>
-            <div class="pm-swatch" onclick="setProductColor('#e0c97a')" style="background:#e0c97a" title="Gold"></div>
-            <div class="pm-swatch" onclick="setProductColor('#f5f0e8')" style="background:#f5f0e8;border-color:#d0ccc5" title="Cream"></div>
-            <div class="pm-swatch" onclick="setProductColor('#ffffff')" style="background:#fff;border-color:#d0ccc5" title="White"></div>
-            <div class="pm-swatch" onclick="setProductColor('#dcdfe5')" style="background:#dcdfe5;border-color:#bbbfc8" title="Light Gray"></div>
-            <div class="pm-swatch" onclick="setProductColor('#888888')" style="background:#888" title="Gray"></div>
-            <div class="pm-swatch" onclick="setProductColor('#1e4a2e')" style="background:#1e4a2e" title="Dark Green"></div>
-            <div class="pm-swatch" onclick="setProductColor('#8b0000')" style="background:#8b0000" title="Burgundy"></div>
-            <label class="pm-swatch pm-swatch-custom" title="Custom color">
-              🎨<input type="color" id="pmColorPicker" style="position:absolute;opacity:0;width:1px;height:1px" onchange="setProductColor(this.value)">
-            </label>
+          <label class="pm-label" style="margin-bottom:10px">Product Colors <span style="font-size:10px;color:#aaa;font-weight:500">(click to add · first = card background)</span></label>
+          <div class="pm-color-swatches" id="pmColorSwatches">
+            <div class="pm-swatch" data-hex="#0f1f3d" onclick="pmToggleColor('#0f1f3d')" style="background:#0f1f3d" title="Navy"></div>
+            <div class="pm-swatch" data-hex="#1e3a5f" onclick="pmToggleColor('#1e3a5f')" style="background:#1e3a5f" title="Dark Blue"></div>
+            <div class="pm-swatch" data-hex="#2980b9" onclick="pmToggleColor('#2980b9')" style="background:#2980b9" title="Blue"></div>
+            <div class="pm-swatch" data-hex="#1a1a1a" onclick="pmToggleColor('#1a1a1a')" style="background:#1a1a1a" title="Black"></div>
+            <div class="pm-swatch" data-hex="#333333" onclick="pmToggleColor('#333333')" style="background:#333333" title="Charcoal"></div>
+            <div class="pm-swatch" data-hex="#8b6347" onclick="pmToggleColor('#8b6347')" style="background:#8b6347" title="Caramel"></div>
+            <div class="pm-swatch" data-hex="#6b4e30" onclick="pmToggleColor('#6b4e30')" style="background:#6b4e30" title="Brown"></div>
+            <div class="pm-swatch" data-hex="#c0392b" onclick="pmToggleColor('#c0392b')" style="background:#c0392b" title="Red"></div>
+            <div class="pm-swatch" data-hex="#e67e22" onclick="pmToggleColor('#e67e22')" style="background:#e67e22" title="Orange"></div>
+            <div class="pm-swatch" data-hex="#e0c97a" onclick="pmToggleColor('#e0c97a')" style="background:#e0c97a" title="Gold"></div>
+            <div class="pm-swatch" data-hex="#f5f0e8" onclick="pmToggleColor('#f5f0e8')" style="background:#f5f0e8;border-color:#d0ccc5" title="Cream"></div>
+            <div class="pm-swatch" data-hex="#ffffff" onclick="pmToggleColor('#ffffff')" style="background:#fff;border-color:#d0ccc5" title="White"></div>
+            <div class="pm-swatch" data-hex="#dcdfe5" onclick="pmToggleColor('#dcdfe5')" style="background:#dcdfe5;border-color:#bbbfc8" title="Light Gray"></div>
+            <div class="pm-swatch" data-hex="#888888" onclick="pmToggleColor('#888888')" style="background:#888" title="Gray"></div>
+            <div class="pm-swatch" data-hex="#1e4a2e" onclick="pmToggleColor('#1e4a2e')" style="background:#1e4a2e" title="Dark Green"></div>
+            <div class="pm-swatch" data-hex="#8b0000" onclick="pmToggleColor('#8b0000')" style="background:#8b0000" title="Burgundy"></div>
           </div>
-          <div class="pm-color-preview-row">
-            <div class="pm-color-preview" id="pmColorSwatch" style="background:#0f1f3d"></div>
-            <input type="text" class="pm-input" id="pmColor" value="#0f1f3d" maxlength="7" placeholder="#000000" style="font-family:monospace;max-width:120px" oninput="syncProductColorText()">
-            <span style="font-size:12px;color:#999">Any hex value</span>
+          <!-- Selected chips -->
+          <div class="pm-color-chips" id="pmColorChips"><span class="pm-color-empty">No colors selected</span></div>
+          <!-- Custom hex / color picker -->
+          <div class="pm-color-hex-row">
+            <button class="pm-color-picker-swatch" title="Pick custom color" onclick="document.getElementById('pmColorPickerInput').click()" style="background:#e0e3e8">
+              <input type="color" id="pmColorPickerInput" style="opacity:0;width:100%;height:100%;cursor:pointer;border:none;padding:0" onchange="pmAddCustomColor(this.value)">
+            </button>
+            <input type="text" class="pm-input" id="pmColorHexInput" maxlength="7" placeholder="#a1b2c3" oninput="pmSyncPickerFromText()" style="font-family:monospace;max-width:110px">
+            <button class="btn btn-outline btn-sm" onclick="pmAddCustomColor(document.getElementById('pmColorHexInput').value)">Add</button>
+            <input type="hidden" id="pmColor">
           </div>
 
           <div class="pm-grid-2" style="margin-top:16px">
@@ -2113,7 +2128,8 @@ async function openProductModal(id) {
   document.getElementById('pmNewInStock').value = 'true';
   document.getElementById('pmImagesNote').style.display = 'none';
   document.getElementById('pmVideoUploadProgress').style.display = 'none';
-  setProductColor('#0f1f3d');
+  _pmSelectedColors = [];
+  pmRenderColorChips();
   document.getElementById('pmFeatured').checked = false;
   pmUpdateFeaturedCard(false);
 
@@ -2132,7 +2148,13 @@ async function openProductModal(id) {
       document.getElementById('pmVideo').value = p.videoUrl || '';
       document.getElementById('pmFit').value = p.fit || '';
       document.getElementById('pmFitFilter').value = p.fitFilter || 'wide';
-      if (p.color) setProductColor(toHex(p.color));
+      if (p.color) {
+        _pmSelectedColors = p.color.split(',').map(c => toHex(c.trim())).filter(Boolean);
+        pmRenderColorChips();
+      } else {
+        _pmSelectedColors = [];
+        pmRenderColorChips();
+      }
       document.getElementById('pmFeatured').checked = !!p.isFeatured;
       pmUpdateFeaturedCard(!!p.isFeatured);
       /* Render existing images */
@@ -3067,20 +3089,64 @@ function toHex(c) {
   if (c.startsWith('#')) return c;
   return COLOR_NAMES[c] || '#888888';
 }
-function setProductColor(hex) {
-  document.getElementById('pmColor').value = hex;
-  document.getElementById('pmColorSwatch').style.background = hex;
-  document.getElementById('pmColorPicker').value = hex;
-  document.querySelectorAll('.pm-swatch').forEach(s => {
-    s.classList.toggle('active', s.getAttribute('onclick')==="setProductColor('"+hex+"')");
-  });
+/* ── Multi-color selection ─────────────────────────────── */
+var _pmSelectedColors = [];
+
+function pmNormHex(h) {
+  h = h.trim().toLowerCase();
+  if (!h.startsWith('#')) h = '#' + h;
+  return /^#[0-9a-f]{6}$/.test(h) ? h : null;
 }
-function syncProductColorText() {
-  const hex = document.getElementById('pmColor').value.trim();
-  if (/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-    document.getElementById('pmColorSwatch').style.background = hex;
-    document.getElementById('pmColorPicker').value = hex;
+function pmColorName(hex) {
+  const names = {'#0f1f3d':'Navy','#1e3a5f':'Dark Blue','#2980b9':'Blue','#1a1a1a':'Black','#333333':'Charcoal','#8b6347':'Caramel','#6b4e30':'Brown','#c0392b':'Red','#e67e22':'Orange','#e0c97a':'Gold','#f5f0e8':'Cream','#ffffff':'White','#dcdfe5':'Lt Gray','#888888':'Gray','#1e4a2e':'Green','#8b0000':'Burgundy'};
+  return names[hex] || hex.toUpperCase();
+}
+function pmRenderColorChips() {
+  const chips = document.getElementById('pmColorChips');
+  if (!_pmSelectedColors.length) {
+    chips.innerHTML = '<span class="pm-color-empty">No colors selected</span>';
+  } else {
+    chips.innerHTML = _pmSelectedColors.map((hex, i) =>
+      `<span class="pm-color-chip${i===0?' pm-color-chip-first':''}">
+        <span class="pm-color-chip-dot" style="background:${hex}"></span>
+        ${pmColorName(hex)}
+        <button class="pm-color-chip-del" title="Remove" onclick="pmRemoveColor('${hex}')">×</button>
+      </span>`
+    ).join('');
   }
+  /* sync swatches selected state */
+  document.querySelectorAll('#pmColorSwatches .pm-swatch').forEach(s => {
+    s.classList.toggle('selected', _pmSelectedColors.includes(s.dataset.hex));
+  });
+  /* sync hidden field */
+  document.getElementById('pmColor').value = _pmSelectedColors.join(',');
+}
+function pmToggleColor(hex) {
+  hex = hex.toLowerCase();
+  const idx = _pmSelectedColors.indexOf(hex);
+  if (idx === -1) _pmSelectedColors.push(hex);
+  else _pmSelectedColors.splice(idx, 1);
+  pmRenderColorChips();
+}
+function pmRemoveColor(hex) {
+  _pmSelectedColors = _pmSelectedColors.filter(c => c !== hex);
+  pmRenderColorChips();
+}
+function pmAddCustomColor(hex) {
+  const norm = pmNormHex(hex);
+  if (!norm) { showToast('Enter a valid hex color (e.g. #ff0000)', 'error'); return; }
+  if (!_pmSelectedColors.includes(norm)) _pmSelectedColors.push(norm);
+  document.getElementById('pmColorHexInput').value = '';
+  pmRenderColorChips();
+}
+function pmSyncPickerFromText() {
+  const hex = pmNormHex(document.getElementById('pmColorHexInput').value);
+  if (hex) document.getElementById('pmColorPickerInput').value = hex;
+}
+/* legacy alias — still called in modal reset */
+function setProductColor(hex) {
+  _pmSelectedColors = hex ? [hex.toLowerCase()] : [];
+  pmRenderColorChips();
 }
 
 /* ═══════════════════════════════════════════
