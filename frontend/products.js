@@ -141,7 +141,7 @@ function apiProductToLocal(p) {
     originalPrice: p.comparePrice || null,
     fit: p.fit || '',
     fitFilter: p.fitFilter || 'wide',
-    href: p.href || ('product-' + p.slug + '.html'),
+    href: p.href || ('product.html?slug=' + p.slug),
     badge: p.badge || '',
     color: p.color || '',
     sizes: sizes,
@@ -253,7 +253,11 @@ function renderHomeGrid() {
   };
   function toBg(c) { if (!c) return '#888'; return c.startsWith('#') ? c : (colorNames[c] || '#888'); }
   var badgeLabel = { sale: 'Sale', trending: 'Trending', new: 'New', bestseller: 'Best Seller' };
-  var keys = Object.keys(PRODUCTS).slice(0, 6);
+  var seenIds = {};
+  var keys = Object.keys(PRODUCTS).filter(function(k) {
+    var p = PRODUCTS[k]; var uid = p.id || p.slug || k;
+    if (seenIds[uid]) return false; seenIds[uid] = true; return true;
+  }).slice(0, 6);
   if (!keys.length) {
     grid.innerHTML = '<p style="padding:40px;text-align:center;color:#888">No products available.</p>';
     return;
@@ -296,7 +300,11 @@ function renderShopGrid() {
   function toBg(c) { if (!c) return '#888'; return c.startsWith('#') ? c : (colorNames[c] || '#888'); }
   var badgeLabel = { sale: 'Sale', trending: 'Trending', new: 'New', bestseller: 'Best Seller' };
 
-  var html = Object.keys(PRODUCTS).map(function(id) {
+  var seenShopIds = {};
+  var html = Object.keys(PRODUCTS).filter(function(k) {
+    var p = PRODUCTS[k]; var uid = p.id || p.slug || k;
+    if (seenShopIds[uid]) return false; seenShopIds[uid] = true; return true;
+  }).map(function(id) {
     var p = PRODUCTS[id];
     var bg = toBg(p.color);
     var imgHtml = p.image
