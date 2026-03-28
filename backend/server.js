@@ -19,6 +19,7 @@ const QRCode       = require('qrcode');
 const http         = require('http');
 const { Server }   = require('socket.io');
 const prisma       = require('./prisma');
+const compression  = require('compression');
 const cloudinary   = require('cloudinary').v2;
 
 /* ── Cloudinary — always required ── */
@@ -160,6 +161,7 @@ function emit(event, data) {
 /* ════════════════════════════════════════
    MIDDLEWARE
 ════════════════════════════════════════ */
+app.use(compression());
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: false,
@@ -180,7 +182,7 @@ app.use(cors({
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
 }));
-app.use(express.static(path.join(__dirname, '../frontend')));
+app.use(express.static(path.join(__dirname, '../frontend'), { maxAge: '7d', etag: true }));
 
 /* ── Rate limiters ── */
 const orderLimiter = rateLimit({ windowMs: 15 * 60_000, max: 5,   keyGenerator: req => getClientIp(req), message: { error: 'Too many orders. Wait 15 min.' } });
