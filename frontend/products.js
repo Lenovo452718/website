@@ -5,13 +5,13 @@
 
 var PRODUCTS = {
 
-  'patte-elephant': {
+  'patte-elephant-jean': {
     name: "Patte d'éléphant Jean",
     price: 179,
     originalPrice: 249,
     fit: "Wide Flare Leg",
     fitFilter: "wide",
-    href: "product-patte-elephant.html",
+    href: "product.html?slug=patte-elephant-jean",
     badge: "sale",
     color: "navy",
     sizes: "34,36,38,40,42",
@@ -32,7 +32,7 @@ var PRODUCTS = {
     originalPrice: 249,
     fit: "High Waist",
     fitFilter: "skinny",
-    href: "product-high-rise-dark-blue.html",
+    href: "product.html?slug=high-rise-dark-blue",
     badge: "sale",
     color: "navy",
     sizes: "34,36,38,40,42,44",
@@ -54,7 +54,7 @@ var PRODUCTS = {
     originalPrice: 299,
     fit: "Wide Leg",
     fitFilter: "wide",
-    href: "product-brown-wide-leg.html",
+    href: "product.html?slug=brown-wide-leg",
     badge: "sale",
     color: "caramel",
     sizes: "36,38,40,42",
@@ -76,7 +76,7 @@ var PRODUCTS = {
     originalPrice: 250,
     fit: "Oversized Baggy",
     fitFilter: "wide",
-    href: "product-baggy-wide-leg.html",
+    href: "product.html?slug=baggy-wide-leg",
     badge: "sale",
     color: "black",
     sizes: "34,36,38,40",
@@ -89,38 +89,6 @@ var PRODUCTS = {
       "images/products/baggy-wide-leg/4.jpg",
       "images/products/baggy-wide-leg/5.jpg",
     ],
-    video: null
-  },
-
-  'jean-skirts': {
-    name: "Jean Skirts",
-    price: 179,
-    originalPrice: 299,
-    fit: "Denim Mini Skirt",
-    fitFilter: "straight",
-    href: "product-jean-skirts.html",
-    badge: "sale",
-    color: "blue",
-    sizes: "34,36,38,40,42",
-    inStock: true,
-    image: null,
-    gallery: [],
-    video: null
-  },
-
-  'denim-set': {
-    name: "Denim Jacket & Wide-Leg Pants Set",
-    price: 299,
-    originalPrice: 350,
-    fit: "Full Denim Set",
-    fitFilter: "straight",
-    href: "product-denim-set.html",
-    badge: "trending",
-    color: "navy",
-    sizes: "36,38,40,42",
-    inStock: true,
-    image: null,
-    gallery: [],
     video: null
   }
 
@@ -171,23 +139,13 @@ function apiProductToLocal(p) {
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(list) {
       if (!Array.isArray(list) || !list.length) return;
-      // Replace PRODUCTS with fresh API data
-      var newProducts = {};
+      // Clear hardcoded-only fallback products so API is the single source of truth
+      Object.keys(PRODUCTS).forEach(function(k) { if (!PRODUCTS[k].id) delete PRODUCTS[k]; });
+      // Load all active API products
       list.forEach(function(p) {
         if ((p.status || 'active').toUpperCase() === 'ACTIVE') {
-          var local = apiProductToLocal(p);
-          newProducts[p.slug] = local;
-          // Also index by the href-derived key so product pages with old slugs still work
-          // e.g. href="product-patte-elephant.html" → key "patte-elephant"
-          if (p.href) {
-            var hrefKey = p.href.replace(/^product-/, '').replace(/\.html$/, '');
-            if (hrefKey && hrefKey !== p.slug) newProducts[hrefKey] = local;
-          }
+          PRODUCTS[p.slug] = apiProductToLocal(p);
         }
-      });
-      // Merge: keep local fallback keys that aren't in API, override with API data
-      Object.keys(newProducts).forEach(function(slug) {
-        PRODUCTS[slug] = newProducts[slug];
       });
       // Remove products deleted from DB (only remove if they exist in API response)
       // (keep local fallbacks if API returns partial data)
@@ -217,14 +175,11 @@ function refetchProducts() {
       var hash = list.map(function(p) { return p.id + p.updatedAt + p.price; }).join('|');
       if (hash === _lastProductHash) return; // nothing changed
       _lastProductHash = hash;
+      // Clear hardcoded-only products and replace with fresh API data
+      Object.keys(PRODUCTS).forEach(function(k) { if (!PRODUCTS[k].id) delete PRODUCTS[k]; });
       list.forEach(function(p) {
         if ((p.status || 'active').toUpperCase() === 'ACTIVE') {
-          var local = apiProductToLocal(p);
-          PRODUCTS[p.slug] = local;
-          if (p.href) {
-            var hrefKey = p.href.replace(/^product-/, '').replace(/\.html$/, '');
-            if (hrefKey && hrefKey !== p.slug) PRODUCTS[hrefKey] = local;
-          }
+          PRODUCTS[p.slug] = apiProductToLocal(p);
         }
       });
       document.dispatchEvent(new CustomEvent('productsUpdated'));

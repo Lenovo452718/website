@@ -1020,8 +1020,7 @@ textarea.field-input{resize:vertical;min-height:80px}
         <div class="field-group"><label class="field-label">Fit / Style</label><input class="field-input" id="pmFit" placeholder="Wide Flare Leg"></div>
         <div class="field-group"><label class="field-label">Fit Filter</label><select class="field-input" id="pmFitFilter"><option value="wide">Wide</option><option value="skinny">Skinny / High Waist</option><option value="straight">Straight</option><option value="flare">Flare</option></select></div>
       </div>
-      <div class="field-group"><label class="field-label">Product Page Link (href)</label><input class="field-input" id="pmHref" placeholder="product-xxx.html"></div>
-      <div class="field-group" style="margin-top:8px">
+<div class="field-group" style="margin-top:8px">
         <div class="toggle-wrap">
           <label class="toggle">
             <input type="checkbox" id="pmFeatured">
@@ -1971,7 +1970,6 @@ async function openProductModal(id) {
   document.getElementById('pmVideo').value = '';
   document.getElementById('pmFit').value = '';
   document.getElementById('pmFitFilter').value = 'wide';
-  document.getElementById('pmHref').value = '';
   document.getElementById('pmImagesGrid').innerHTML = '';
   document.getElementById('pmVariantsList').innerHTML = '';
   document.getElementById('pmNewSize').value = '';
@@ -1997,7 +1995,6 @@ async function openProductModal(id) {
       document.getElementById('pmVideo').value = p.videoUrl || '';
       document.getElementById('pmFit').value = p.fit || '';
       document.getElementById('pmFitFilter').value = p.fitFilter || 'wide';
-      document.getElementById('pmHref').value = p.href || '';
       if (p.color) setProductColor(toHex(p.color));
       document.getElementById('pmFeatured').checked = !!p.isFeatured;
       /* Render existing images */
@@ -2164,7 +2161,6 @@ async function saveProductModal() {
     videoUrl:     document.getElementById('pmVideo').value.trim() || null,
     fit:          document.getElementById('pmFit').value.trim() || null,
     fitFilter:    document.getElementById('pmFitFilter').value || null,
-    href:         document.getElementById('pmHref').value.trim() || null,
     color:        document.getElementById('pmColor').value || null,
     isFeatured:   document.getElementById('pmFeatured').checked,
   };

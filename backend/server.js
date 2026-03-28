@@ -1302,6 +1302,7 @@ function runMigrations() {
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `whatsappBotKey` VARCHAR(100) NOT NULL DEFAULT ''",
     "ALTER TABLE `Product` ADD COLUMN IF NOT EXISTS `isFeatured` TINYINT(1) NOT NULL DEFAULT 0",
     "CREATE TABLE IF NOT EXISTS `Deal` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `title` VARCHAR(255) NOT NULL, `productId` VARCHAR(30) NULL, `discountPrice` DOUBLE NOT NULL, `isActive` TINYINT(1) NOT NULL DEFAULT 1, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
+    "UPDATE `Product` SET href = NULL WHERE href IS NOT NULL",
     "CREATE INDEX IF NOT EXISTS idx_product_status ON `Product` (status)",
     "CREATE INDEX IF NOT EXISTS idx_order_status ON `Order` (status)",
     "CREATE INDEX IF NOT EXISTS idx_order_created ON `Order` (createdAt)",
