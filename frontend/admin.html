@@ -181,13 +181,16 @@ textarea.field-input{resize:vertical;min-height:80px}
 .search-input:focus{border-color:var(--navy)}
 .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--gray);pointer-events:none}
 
-/* PRODUCTS GRID */
+/* PRODUCTS GRID (legacy, kept for compatibility) */
 .product-edit-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
 .product-edit-card{border:1.5px solid var(--gray-light);border-radius:8px;overflow:hidden;background:var(--white)}
 .product-edit-card-head{background:var(--off);padding:14px 16px;border-bottom:1px solid var(--gray-light)}
 .product-edit-card-name{font-size:13px;font-weight:700;margin-bottom:3px}
 .product-edit-card-id{font-size:10px;color:var(--gray);letter-spacing:.06em;text-transform:uppercase}
 .product-edit-card-body{padding:14px 16px}
+
+/* PRODUCT IMAGES MODAL UPLOAD ZONE */
+#pmImagesGrid:empty::after{content:'No images yet';font-size:12px;color:var(--gray);font-style:italic}
 
 /* CUSTOMERS */
 .customer-avatar{width:36px;height:36px;border-radius:50%;background:var(--navy);color:var(--gold);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
@@ -547,9 +550,41 @@ textarea.field-input{resize:vertical;min-height:80px}
 
     <!-- ── PRODUCTS ── -->
     <section class="admin-section" id="secProducts">
-      <div class="page-header"><h1>Products</h1><p>Add, edit, or remove products. Changes apply to the shop immediately.</p></div>
-      <div style="margin-bottom:20px"><button class="btn btn-primary" onclick="openProductModal(null)">+ Add Product</button></div>
-      <div class="product-edit-grid" id="productsGrid"></div>
+      <div class="page-header">
+        <h1>Products</h1>
+        <p>Add, edit, or remove products. Changes apply to the shop immediately.</p>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0">
+          <div class="search-wrap" style="margin-bottom:0;flex:1;min-width:200px;max-width:360px">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" id="productSearch" placeholder="Search products..." oninput="filterProductsTable()">
+          </div>
+          <select class="status-select" id="productStatusFilter" onchange="filterProductsTable()" style="min-width:130px">
+            <option value="all">All Status</option>
+            <option value="active">Active</option>
+            <option value="hidden">Hidden</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="openProductModal(null)">+ Add Product</button>
+      </div>
+      <div class="panel">
+        <div id="productsListWrap" class="table-wrap">
+          <table class="admin-table" id="productsTable">
+            <thead><tr>
+              <th style="width:54px"></th>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Stock</th>
+              <th>Badge</th>
+              <th style="text-align:right">Actions</th>
+            </tr></thead>
+            <tbody id="productsTableBody"><tr class="empty-row"><td colspan="7">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
     </section>
 
     <!-- ── CUSTOMERS ── -->
@@ -821,12 +856,12 @@ textarea.field-input{resize:vertical;min-height:80px}
 
 <!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="productModal">
-  <div class="modal-box" style="max-width:640px">
+  <div class="modal-box" style="max-width:700px">
     <div class="modal-head">
       <h2 class="modal-title" id="pmTitle">Add Product</h2>
       <button class="modal-close" onclick="closeProductModal()">×</button>
     </div>
-    <div class="modal-body">
+    <div class="modal-body" style="max-height:80vh;overflow-y:auto">
     <input type="hidden" id="pmEditId">
 
     <!-- § BASIC INFO -->
@@ -836,37 +871,51 @@ textarea.field-input{resize:vertical;min-height:80px}
         Basic Info
       </div>
       <div class="field-row">
-        <div class="field-group"><label class="field-label">Product ID</label><input class="field-input" id="pmId" placeholder="my-product"></div>
-        <div class="field-group"><label class="field-label">Product Name</label><input class="field-input" id="pmName" placeholder="My Product"></div>
+        <div class="field-group"><label class="field-label">Product Name <span style="color:var(--red)">*</span></label><input class="field-input" id="pmName" placeholder="My Product"></div>
+        <div class="field-group"><label class="field-label">Status</label><select class="field-input" id="pmStatus"><option value="active">Active</option><option value="hidden">Hidden</option><option value="archived">Archived</option></select></div>
       </div>
-      <div class="field-group"><label class="field-label">Description</label><textarea class="field-input" id="pmDesc" placeholder="Short product description..."></textarea></div>
+      <div class="field-row">
+        <div class="field-group"><label class="field-label">Price (MAD) <span style="color:var(--red)">*</span></label><input class="field-input" id="pmPrice" type="number" placeholder="179"></div>
+        <div class="field-group"><label class="field-label">Compare Price (MAD)</label><input class="field-input" id="pmOriginal" type="number" placeholder="249"></div>
+      </div>
+      <div class="field-row">
+        <div class="field-group"><label class="field-label">Badge</label><select class="field-input" id="pmBadge"><option value="">None</option><option value="sale">Sale</option><option value="new">New</option><option value="trending">Trending</option><option value="bestseller">Best Seller</option></select></div>
+        <div class="field-group"><label class="field-label">Category</label><input class="field-input" id="pmCategory" placeholder="jeans, tops..."></div>
+      </div>
+      <div class="field-group"><label class="field-label">Description</label><textarea class="field-input" id="pmDesc" placeholder="Short product description..." style="min-height:72px"></textarea></div>
     </div>
 
-    <!-- § PRICING -->
-    <div class="modal-section">
+    <!-- § IMAGES -->
+    <div class="modal-section" id="pmImagesSection">
       <div class="modal-section-title">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        Pricing
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        Images
       </div>
-      <div class="field-row">
-        <div class="field-group"><label class="field-label">Sale Price (MAD)</label><input class="field-input" id="pmPrice" type="number" placeholder="179"></div>
-        <div class="field-group"><label class="field-label">Original Price (MAD)</label><input class="field-input" id="pmOriginal" type="number" placeholder="249"></div>
-      </div>
+      <div id="pmImagesGrid" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:12px;min-height:10px"></div>
+      <label class="btn btn-outline" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Image
+        <input type="file" accept="image/*" multiple style="display:none" onchange="pmHandleImageFiles(this)">
+      </label>
+      <p id="pmImagesNote" style="font-size:11px;color:var(--gray);margin-top:8px;display:none">Images will be uploaded after the product is saved.</p>
     </div>
 
-    <!-- § CATALOG -->
+    <!-- § VIDEO -->
     <div class="modal-section">
       <div class="modal-section-title">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        Catalog
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+        Video
       </div>
-      <div class="field-row">
-        <div class="field-group"><label class="field-label">Fit / Style</label><input class="field-input" id="pmFit" placeholder="Wide Flare Leg"></div>
-        <div class="field-group"><label class="field-label">Fit Filter</label><select class="field-input" id="pmFitFilter"><option value="wide">Wide</option><option value="skinny">Skinny / High Waist</option><option value="straight">Straight</option><option value="flare">Flare</option></select></div>
-      </div>
-      <div class="field-row">
-        <div class="field-group"><label class="field-label">Badge</label><select class="field-input" id="pmBadge"><option value="sale">Sale</option><option value="trending">Trending</option><option value="new-badge">New</option><option value="bestseller">Best Seller</option><option value="">None</option></select></div>
-        <div class="field-group"><label class="field-label">Product Page Link</label><input class="field-input" id="pmHref" placeholder="product-xxx.html"></div>
+      <div class="field-group">
+        <label class="field-label">Video URL (paste or upload)</label>
+        <div style="display:flex;gap:8px;align-items:stretch">
+          <input class="field-input" id="pmVideo" placeholder="https://res.cloudinary.com/..." style="flex:1">
+          <label class="btn btn-outline" style="cursor:pointer;white-space:nowrap;flex-shrink:0">
+            Upload
+            <input type="file" accept="video/*" style="display:none" onchange="pmUploadVideo(this)">
+          </label>
+        </div>
+        <div id="pmVideoUploadProgress" style="display:none;margin-top:6px;font-size:12px;color:var(--gray)">Uploading video...</div>
       </div>
     </div>
 
@@ -876,32 +925,20 @@ textarea.field-input{resize:vertical;min-height:80px}
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3h-8l-2 4h12z"/></svg>
         Sizes &amp; Stock
       </div>
-      <div class="field-row" style="align-items:flex-start">
-        <div class="field-group">
-          <label class="field-label">All Sizes (comma separated)</label>
-          <input class="field-input" id="pmSizes" placeholder="34,36,38,40,42" oninput="updateSizeChips()">
-        </div>
-        <div class="field-group">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-            <label class="field-label" style="margin-bottom:0">Sizes In Stock</label>
-            <span style="font-size:10px;color:var(--gray)">click to toggle</span>
-          </div>
-          <div class="size-chips-wrap" id="pmSizeChips">
-            <span class="size-chips-empty">Enter sizes above</span>
-          </div>
-        </div>
-      </div>
-      <div class="toggle-wrap" style="margin-top:4px">
-        <label class="toggle"><input type="checkbox" id="pmStock" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-        <span class="toggle-label">Product is in stock</span>
+      <div id="pmVariantsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <input class="field-input" id="pmNewSize" placeholder="Size (e.g. 38)" style="max-width:130px">
+        <select class="field-input" id="pmNewInStock" style="max-width:130px"><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
+        <input class="field-input" id="pmNewStock" type="number" placeholder="Qty" style="max-width:90px">
+        <button class="btn btn-outline btn-sm" onclick="pmAddVariantRow()">+ Add Size</button>
       </div>
     </div>
 
-    <!-- § VISUALS -->
+    <!-- § DISPLAY SETTINGS -->
     <div class="modal-section">
       <div class="modal-section-title">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-        Visuals
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Display Settings
       </div>
 
       <!-- COLOR PICKER -->
@@ -924,7 +961,7 @@ textarea.field-input{resize:vertical;min-height:80px}
           <div class="color-swatch" onclick="setProductColor('#1e4a2e')" style="background:#1e4a2e" title="Dark Green"></div>
           <div class="color-swatch" onclick="setProductColor('#8b0000')" style="background:#8b0000" title="Burgundy"></div>
           <label class="color-swatch" style="background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px" title="Custom — opens color picker">
-            🎨<input type="color" id="pmColorPicker" style="position:absolute;opacity:0;width:1px;height:1px" onchange="setProductColor(this.value)">
+            &#127912;<input type="color" id="pmColorPicker" style="position:absolute;opacity:0;width:1px;height:1px" onchange="setProductColor(this.value)">
           </label>
         </div>
         <div style="display:flex;gap:10px;align-items:center">
@@ -934,34 +971,15 @@ textarea.field-input{resize:vertical;min-height:80px}
         </div>
       </div>
 
-      <!-- IMAGE UPLOAD -->
-      <div class="field-group">
-        <label class="field-label">Product Image</label>
-        <div style="display:flex;gap:8px;align-items:stretch">
-          <input class="field-input" id="pmImage" placeholder="images/products/xxx/1.jpg" style="flex:1">
-          <label class="btn btn-outline" style="cursor:pointer;white-space:nowrap;flex-shrink:0">
-            Upload
-            <input type="file" accept="image/*" style="display:none" onchange="uploadFileToField(this,'pmImage')">
-          </label>
-        </div>
-        <div id="pmImagePreview" style="margin-top:8px;display:none"><img style="max-height:80px;border-radius:6px;border:1px solid var(--gray-light)"></div>
+      <div class="field-row">
+        <div class="field-group"><label class="field-label">Fit / Style</label><input class="field-input" id="pmFit" placeholder="Wide Flare Leg"></div>
+        <div class="field-group"><label class="field-label">Fit Filter</label><select class="field-input" id="pmFitFilter"><option value="wide">Wide</option><option value="skinny">Skinny / High Waist</option><option value="straight">Straight</option><option value="flare">Flare</option></select></div>
       </div>
-
-      <!-- VIDEO UPLOAD -->
-      <div class="field-group">
-        <label class="field-label">Product Video</label>
-        <div style="display:flex;gap:8px;align-items:stretch">
-          <input class="field-input" id="pmVideo" placeholder="videos/placeholder.mp4" style="flex:1">
-          <label class="btn btn-outline" style="cursor:pointer;white-space:nowrap;flex-shrink:0">
-            Upload
-            <input type="file" accept="video/*" style="display:none" onchange="uploadFileToField(this,'pmVideo')">
-          </label>
-        </div>
-      </div>
+      <div class="field-group"><label class="field-label">Product Page Link (href)</label><input class="field-input" id="pmHref" placeholder="product-xxx.html"></div>
     </div>
 
     <div style="display:flex;gap:10px;padding-top:4px">
-      <button class="btn btn-primary" onclick="saveProductModal()">Save Product</button>
+      <button class="btn btn-primary" id="pmSaveBtn" onclick="saveProductModal()">Save Product</button>
       <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
     </div>
     </div><!-- /modal-body -->
@@ -1795,144 +1813,447 @@ function exportOrders() {
 /* ═══════════════════════════════════════════
    PRODUCTS
 ═══════════════════════════════════════════ */
-function loadProductsGrid() {
-  const products = getActiveProducts();
-  const html = Object.entries(products).map(([id,p])=>{
-    const bg = toHex(p.color||'#888');
-    const imgEl = p.image ? `<img src="${p.image}" style="width:52px;height:52px;object-fit:cover;border-radius:4px;flex-shrink:0" onerror="this.style.background='${bg}';this.src=''">` : `<div style="width:52px;height:52px;border-radius:4px;flex-shrink:0;background:${bg}"></div>`;
-    const inS = p.inStock!==false;
-    return `<div class="product-edit-card">
-      <div class="product-edit-card-head" style="display:flex;align-items:center;gap:10px">
-        ${imgEl}
-        <div style="flex:1;min-width:0">
-          <div class="product-edit-card-name">${p.name}</div>
-          <div class="product-edit-card-id">${p.price} MAD · <span style="color:${inS?'#1e7e34':'#c0392b'}">${inS?'In Stock':'Out of Stock'}</span></div>
-        </div>
-        <button class="btn-icon danger" onclick="deleteProduct('${id}')" title="Remove"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
-      </div>
-      <div style="padding:12px 14px"><button class="btn btn-primary" style="width:100%;justify-content:center" onclick="openProductModal('${id}')">Edit Product</button></div>
-    </div>`;
-  }).join('');
-  document.getElementById('productsGrid').innerHTML = html || '<p style="color:var(--gray);padding:20px">No products. Click "+ Add Product".</p>';
+
+/* In-memory cache of products fetched from API */
+let _productsCache = [];
+
+/* Queued images for new products (before we have an id) */
+let _pmQueuedImages = []; // array of File objects
+/* Queued variants for new products */
+let _pmQueuedVariants = []; // array of {size, inStock, stock}
+
+async function loadProductsGrid() {
+  const tbody = document.getElementById('productsTableBody');
+  if (tbody) tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Loading...</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/products');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _productsCache = await res.json();
+    renderProductsTable(_productsCache);
+  } catch(e) {
+    if (tbody) tbody.innerHTML = '<tr class="empty-row"><td colspan="7">Failed to load products. Is the server running?</td></tr>';
+    showToast('Could not load products', 'error');
+  }
 }
 
-/* ── Size chip helpers ── */
-function updateSizeChips(sizesInStock) {
-  const wrap = document.getElementById('pmSizeChips');
-  if (!wrap) return;
-  const sizes = (document.getElementById('pmSizes').value || '')
-    .split(',').map(s => s.trim()).filter(Boolean);
-  if (!sizes.length) {
-    wrap.innerHTML = '<span class="size-chips-empty">Enter sizes above</span>';
+function renderProductsTable(products) {
+  const tbody = document.getElementById('productsTableBody');
+  if (!tbody) return;
+  if (!products.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="7">No products yet. Click "+ Add Product" to create one.</td></tr>';
     return;
   }
-  // Preserve current toggle state unless sizesInStock array is given
-  const current = sizesInStock !== undefined ? sizesInStock
-    : Array.from(wrap.querySelectorAll('.size-chip:not(.out)')).map(c => c.dataset.size);
-  wrap.innerHTML = '';
-  sizes.forEach(s => {
-    const inStock = sizesInStock === undefined
-      ? (current.includes(s) || (current.length === 0))  // all in stock by default
-      : current.includes(s);
-    const chip = document.createElement('span');
-    chip.className = 'size-chip' + (inStock ? '' : ' out');
-    chip.dataset.size = s;
-    chip.textContent  = s;
-    chip.title = inStock ? 'Click to mark out of stock' : 'Click to mark in stock';
-    chip.addEventListener('click', () => {
-      chip.classList.toggle('out');
-      chip.title = chip.classList.contains('out') ? 'Click to mark in stock' : 'Click to mark out of stock';
-    });
-    wrap.appendChild(chip);
-  });
+  tbody.innerHTML = products.map(p => {
+    const mainImg = (p.images || []).find(i => i.isMain) || (p.images || [])[0];
+    const thumbSrc = mainImg ? mainImg.url : '';
+    const thumbEl = thumbSrc
+      ? `<img src="${escHtml(thumbSrc)}" style="width:42px;height:42px;object-fit:cover;border-radius:5px;display:block" onerror="this.parentElement.innerHTML='<div style=width:42px;height:42px;border-radius:5px;background:var(--off)></div>'">`
+      : `<div style="width:42px;height:42px;border-radius:5px;background:var(--off);border:1px solid var(--gray-light)"></div>`;
+    const status = (p.status || 'active').toLowerCase();
+    const statusColor = status === 'active' ? 'status-done' : status === 'hidden' ? 'status-edited' : 'status-cancelled';
+    const statusLabel = status.charAt(0).toUpperCase() + status.slice(1);
+    const variants = p.variants || [];
+    const inStockCount = variants.filter(v => v.inStock).length;
+    const stockLabel = variants.length === 0
+      ? '<span style="color:var(--gray);font-size:11px">—</span>'
+      : inStockCount === variants.length
+        ? `<span style="color:var(--green);font-size:11px;font-weight:700">${inStockCount}/${variants.length} in stock</span>`
+        : inStockCount === 0
+          ? `<span style="color:var(--red);font-size:11px;font-weight:700">Out of stock</span>`
+          : `<span style="color:var(--orange);font-size:11px;font-weight:700">${inStockCount}/${variants.length} in stock</span>`;
+    const badgeEl = p.badge
+      ? `<span class="status-badge status-new" style="background:#f0f4ff;color:#1a3a8f">${escHtml(p.badge)}</span>`
+      : '<span style="color:var(--gray);font-size:11px">—</span>';
+    const compareEl = p.comparePrice
+      ? `<span style="font-size:11px;color:var(--gray);text-decoration:line-through;margin-left:4px">${p.comparePrice}</span>`
+      : '';
+    return `<tr>
+      <td style="padding:10px 14px">${thumbEl}</td>
+      <td><span style="font-weight:700;font-size:13px">${escHtml(p.name)}</span>${p.slug ? `<div style="font-size:10px;color:var(--gray);margin-top:2px">${escHtml(p.slug)}</div>` : ''}</td>
+      <td style="white-space:nowrap"><span style="font-weight:700">${p.price} MAD</span>${compareEl}</td>
+      <td><span class="status-badge ${statusColor}">${statusLabel}</span></td>
+      <td>${stockLabel}</td>
+      <td>${badgeEl}</td>
+      <td style="text-align:right">
+        <div style="display:flex;gap:6px;justify-content:flex-end">
+          <button class="btn btn-outline btn-sm" onclick="openProductModal(${p.id})">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${p.id})">Delete</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
 }
 
-function openProductModal(id) {
-  const p = id ? (getActiveProducts()[id]||{}) : {};
+function filterProductsTable() {
+  const q = (document.getElementById('productSearch')?.value || '').toLowerCase();
+  const statusFilter = document.getElementById('productStatusFilter')?.value || 'all';
+  let filtered = _productsCache;
+  if (q) filtered = filtered.filter(p =>
+    (p.name||'').toLowerCase().includes(q) ||
+    (p.slug||'').toLowerCase().includes(q) ||
+    (p.badge||'').toLowerCase().includes(q)
+  );
+  if (statusFilter !== 'all') filtered = filtered.filter(p => (p.status||'active').toLowerCase() === statusFilter);
+  renderProductsTable(filtered);
+}
+
+async function openProductModal(id) {
+  /* Reset queued data */
+  _pmQueuedImages = [];
+  _pmQueuedVariants = [];
+
   document.getElementById('pmTitle').textContent = id ? 'Edit Product' : 'Add Product';
-  document.getElementById('pmEditId').value  = id||'';
-  document.getElementById('pmId').value      = id||'';
-  document.getElementById('pmId').readOnly   = !!id;
-  document.getElementById('pmId').style.opacity = id?'0.5':'1';
-  document.getElementById('pmName').value    = p.name||'';
-  document.getElementById('pmPrice').value   = p.price||'';
-  document.getElementById('pmOriginal').value= p.originalPrice||'';
-  document.getElementById('pmFit').value     = p.fit||'';
-  document.getElementById('pmBadge').value   = p.badge||'';
-  document.getElementById('pmSizes').value   = p.sizes||'';
-  document.getElementById('pmFitFilter').value= p.fitFilter||'wide';
-  document.getElementById('pmHref').value    = p.href||'';
-  document.getElementById('pmImage').value   = p.image||'';
-  document.getElementById('pmVideo').value   = p.video||'';
-  document.getElementById('pmDesc').value    = p.description||'';
-  const hexColor = toHex(p.color||'#0f1f3d');
-  setProductColor(hexColor);
-  document.getElementById('pmStock').checked = p.inStock!==false;
-  // Populate size chips — pass sizesInStock array if it exists, else treat all as in stock
-  const inStockArr = Array.isArray(p.sizesInStock) ? p.sizesInStock
-    : (p.sizes ? p.sizes.split(',').map(s=>s.trim()).filter(Boolean) : []);
-  updateSizeChips(inStockArr);
+  document.getElementById('pmEditId').value = id || '';
+  document.getElementById('pmName').value = '';
+  document.getElementById('pmPrice').value = '';
+  document.getElementById('pmOriginal').value = '';
+  document.getElementById('pmBadge').value = '';
+  document.getElementById('pmStatus').value = 'active';
+  document.getElementById('pmCategory').value = '';
+  document.getElementById('pmDesc').value = '';
+  document.getElementById('pmVideo').value = '';
+  document.getElementById('pmFit').value = '';
+  document.getElementById('pmFitFilter').value = 'wide';
+  document.getElementById('pmHref').value = '';
+  document.getElementById('pmImagesGrid').innerHTML = '';
+  document.getElementById('pmVariantsList').innerHTML = '';
+  document.getElementById('pmNewSize').value = '';
+  document.getElementById('pmNewStock').value = '';
+  document.getElementById('pmNewInStock').value = 'true';
+  document.getElementById('pmImagesNote').style.display = 'none';
+  document.getElementById('pmVideoUploadProgress').style.display = 'none';
+  setProductColor('#0f1f3d');
+
+  if (id) {
+    try {
+      const res = await authFetch('/api/admin/products/' + id);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const p = await res.json();
+      document.getElementById('pmName').value = p.name || '';
+      document.getElementById('pmPrice').value = p.price || '';
+      document.getElementById('pmOriginal').value = p.comparePrice || '';
+      document.getElementById('pmBadge').value = p.badge || '';
+      document.getElementById('pmStatus').value = (p.status || 'active').toLowerCase();
+      document.getElementById('pmCategory').value = p.category || '';
+      document.getElementById('pmDesc').value = p.description || '';
+      document.getElementById('pmVideo').value = p.videoUrl || '';
+      document.getElementById('pmFit').value = p.fit || '';
+      document.getElementById('pmFitFilter').value = p.fitFilter || 'wide';
+      document.getElementById('pmHref').value = p.href || '';
+      if (p.color) setProductColor(toHex(p.color));
+      /* Render existing images */
+      pmRenderImages(p.images || [], id);
+      /* Render existing variants */
+      pmRenderVariants(p.variants || [], id);
+    } catch(e) {
+      showToast('Failed to load product', 'error');
+      return;
+    }
+  } else {
+    /* New product: show note that images are queued */
+    document.getElementById('pmImagesNote').style.display = 'block';
+  }
+
   document.getElementById('productModal').classList.add('open');
-  document.body.style.overflow='hidden';
+  document.body.style.overflow = 'hidden';
 }
 
 function closeProductModal() {
   document.getElementById('productModal').classList.remove('open');
-  document.body.style.overflow='';
+  document.body.style.overflow = '';
 }
 
-function saveProductModal() {
+function pmRenderImages(images, productId) {
+  const grid = document.getElementById('pmImagesGrid');
+  if (!images.length) { grid.innerHTML = ''; return; }
+  grid.innerHTML = images.map(img => {
+    const isMain = img.isMain;
+    return `<div style="position:relative;width:90px" id="pmImg-${img.id}">
+      <img src="${escHtml(img.url)}" style="width:90px;height:90px;object-fit:cover;border-radius:6px;border:2px solid ${isMain?'var(--navy)':'var(--gray-light)'};display:block">
+      ${isMain ? `<span style="position:absolute;top:3px;left:3px;background:var(--navy);color:white;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px">MAIN</span>` : ''}
+      <div style="display:flex;gap:2px;margin-top:4px;justify-content:center">
+        ${!isMain ? `<button class="btn btn-outline btn-sm" style="padding:3px 6px;font-size:9px" onclick="setMainProductImage(${productId},${img.id})">Main</button>` : ''}
+        <button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:9px" onclick="removeProductImage(${productId},${img.id})">Del</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function pmRenderVariants(variants, productId) {
+  const list = document.getElementById('pmVariantsList');
+  if (!variants.length) { list.innerHTML = ''; return; }
+  list.innerHTML = variants.map(v => `
+    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--off);border-radius:6px;border:1px solid var(--gray-light)" id="pmVar-${v.id}">
+      <span style="font-weight:700;font-size:13px;min-width:40px">${escHtml(String(v.size))}</span>
+      <span class="status-badge ${v.inStock?'status-done':'status-cancelled'}" style="font-size:10px">${v.inStock?'In Stock':'Out of Stock'}</span>
+      ${v.stock != null ? `<span style="font-size:12px;color:var(--gray)">Qty: ${v.stock}</span>` : ''}
+      <div style="margin-left:auto;display:flex;gap:4px">
+        <button class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px" onclick="pmToggleVariantStock(${productId},${v.id},${!v.inStock})">${v.inStock?'Mark Out':'Mark In'}</button>
+        <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:10px" onclick="removeVariant(${productId},${v.id})">Remove</button>
+      </div>
+    </div>`).join('');
+}
+
+/* Variant row toggle in modal (existing product) */
+async function pmToggleVariantStock(productId, variantId, inStock) {
+  try {
+    const res = await authFetch(`/api/admin/products/${productId}/variants/${variantId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inStock })
+    });
+    if (!res.ok) throw new Error();
+    const updated = await res.json();
+    /* Refresh variants for this product */
+    const pRes = await authFetch('/api/admin/products/' + productId);
+    if (pRes.ok) { const p = await pRes.json(); pmRenderVariants(p.variants || [], productId); }
+    showToast('Stock updated');
+  } catch(e) { showToast('Failed to update stock', 'error'); }
+}
+
+function pmAddVariantRow() {
+  const size    = document.getElementById('pmNewSize').value.trim();
+  const inStock = document.getElementById('pmNewInStock').value === 'true';
+  const stock   = parseInt(document.getElementById('pmNewStock').value) || null;
+  if (!size) { showToast('Enter a size first', 'error'); return; }
   const editId = document.getElementById('pmEditId').value;
-  const rawId  = document.getElementById('pmId').value.trim();
-  const id     = editId || rawId.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-  if (!id) { showToast('Product ID required','error'); return; }
-  const name = document.getElementById('pmName').value.trim();
-  if (!name) { showToast('Product name required','error'); return; }
-  const price = parseFloat(document.getElementById('pmPrice').value);
-  if (!price) { showToast('Price required','error'); return; }
-  const existing = getActiveProducts()[id] || {};
-  // Collect sizes in stock from chips
-  const allSizes  = (document.getElementById('pmSizes').value||'').split(',').map(s=>s.trim()).filter(Boolean);
-  const inStockChips = Array.from(document.querySelectorAll('#pmSizeChips .size-chip:not(.out)')).map(c=>c.dataset.size);
-  // null means "all in stock" (no restriction), otherwise store the array
-  const sizesInStock = (inStockChips.length === allSizes.length || allSizes.length === 0)
-    ? null : inStockChips;
-
-  const data = {
-    name, price,
-    originalPrice: parseFloat(document.getElementById('pmOriginal').value)||price,
-    fit:          document.getElementById('pmFit').value.trim(),
-    fitFilter:    document.getElementById('pmFitFilter').value,
-    badge:        document.getElementById('pmBadge').value,
-    sizes:        document.getElementById('pmSizes').value.trim(),
-    sizesInStock,
-    color:        document.getElementById('pmColor').value,
-    image:        document.getElementById('pmImage').value.trim()||null,
-    video:        document.getElementById('pmVideo').value.trim()||null,
-    href:         document.getElementById('pmHref').value.trim()||('product.html?id='+id),
-    description:  document.getElementById('pmDesc').value.trim(),
-    inStock:      document.getElementById('pmStock').checked,
-    gallery:      existing.gallery || [],
-  };
-  const ov = getProductOverrides();
-  if (!editId && (PRODUCT_DEFAULTS[id]||(ov[id]&&ov[id]!==null))) { showToast('ID already exists','error'); return; }
-  ov[id] = editId ? {...(PRODUCT_DEFAULTS[id]||{}),...data} : data;
-  saveProductOverrides(ov);
-  closeProductModal();
-  loadProductsGrid();
-  logActivity('Product saved', name);
-  showToast(name+' saved');
+  if (editId) {
+    addVariant(parseInt(editId), size, inStock, stock);
+  } else {
+    _pmQueuedVariants.push({ size, inStock, stock });
+    /* Show preview row */
+    const list = document.getElementById('pmVariantsList');
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--off);border-radius:6px;border:1px solid var(--gray-light)';
+    row.innerHTML = `<span style="font-weight:700;font-size:13px;min-width:40px">${escHtml(size)}</span><span class="status-badge ${inStock?'status-done':'status-cancelled'}" style="font-size:10px">${inStock?'In Stock':'Out of Stock'}</span>${stock!=null?`<span style="font-size:12px;color:var(--gray)">Qty: ${stock}</span>`:''}`;
+    list.appendChild(row);
+    showToast('Size queued — will be saved with product');
+  }
+  document.getElementById('pmNewSize').value = '';
+  document.getElementById('pmNewStock').value = '';
 }
 
-function deleteProduct(id) {
-  const p = getActiveProducts()[id];
-  if (!confirm(`Remove "${p?p.name:id}" from the shop?`)) return;
-  const ov = getProductOverrides();
-  ov[id] = null;
-  saveProductOverrides(ov);
-  loadProductsGrid();
-  logActivity('Product removed', id);
-  showToast('Product removed','error');
+function pmHandleImageFiles(input) {
+  const editId = document.getElementById('pmEditId').value;
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  if (editId) {
+    files.forEach(f => uploadAndAddImage(f, parseInt(editId)));
+  } else {
+    _pmQueuedImages.push(...files);
+    showToast(files.length + ' image(s) queued — will upload after saving');
+    /* Preview queued images */
+    const grid = document.getElementById('pmImagesGrid');
+    files.forEach(f => {
+      const div = document.createElement('div');
+      div.style.cssText = 'position:relative;width:90px;opacity:0.6';
+      const img = document.createElement('img');
+      img.style.cssText = 'width:90px;height:90px;object-fit:cover;border-radius:6px;border:2px dashed var(--gray-light);display:block';
+      img.src = URL.createObjectURL(f);
+      div.appendChild(img);
+      const lbl = document.createElement('div');
+      lbl.style.cssText = 'font-size:9px;color:var(--gray);text-align:center;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+      lbl.textContent = 'Pending';
+      div.appendChild(lbl);
+      grid.appendChild(div);
+    });
+  }
+  input.value = '';
+}
+
+async function pmUploadVideo(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const prog = document.getElementById('pmVideoUploadProgress');
+  prog.style.display = 'block';
+  prog.textContent = 'Uploading video...';
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const res = await authFetch('/api/admin/upload', { method: 'POST', body: formData });
+    const data = await res.json();
+    if (data.url) {
+      document.getElementById('pmVideo').value = data.url;
+      prog.textContent = 'Video uploaded!';
+      showToast('Video uploaded');
+    } else {
+      prog.style.display = 'none';
+      showToast(data.error || 'Video upload failed', 'error');
+    }
+  } catch(e) {
+    prog.style.display = 'none';
+    showToast('Video upload failed', 'error');
+  }
+  input.value = '';
+}
+
+async function saveProductModal() {
+  const editId = document.getElementById('pmEditId').value;
+  const name = document.getElementById('pmName').value.trim();
+  if (!name) { showToast('Product name required', 'error'); return; }
+  const price = parseFloat(document.getElementById('pmPrice').value);
+  if (!price) { showToast('Price required', 'error'); return; }
+
+  const payload = {
+    name,
+    price,
+    comparePrice: parseFloat(document.getElementById('pmOriginal').value) || null,
+    badge:        document.getElementById('pmBadge').value || null,
+    status:       document.getElementById('pmStatus').value,
+    category:     document.getElementById('pmCategory').value.trim() || null,
+    description:  document.getElementById('pmDesc').value.trim() || null,
+    videoUrl:     document.getElementById('pmVideo').value.trim() || null,
+    fit:          document.getElementById('pmFit').value.trim() || null,
+    fitFilter:    document.getElementById('pmFitFilter').value || null,
+    href:         document.getElementById('pmHref').value.trim() || null,
+    color:        document.getElementById('pmColor').value || null,
+  };
+
+  const btn = document.getElementById('pmSaveBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving...'; }
+
+  try {
+    let productId = editId ? parseInt(editId) : null;
+
+    if (editId) {
+      /* Update existing product */
+      const res = await authFetch('/api/admin/products/' + editId, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Save failed');
+      }
+      showToast(name + ' updated');
+    } else {
+      /* Create new product */
+      const res = await authFetch('/api/admin/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Create failed');
+      }
+      const created = await res.json();
+      productId = created.id;
+
+      /* Upload queued images */
+      for (let i = 0; i < _pmQueuedImages.length; i++) {
+        await uploadAndAddImage(_pmQueuedImages[i], productId, i === 0);
+      }
+      /* Create queued variants */
+      for (const v of _pmQueuedVariants) {
+        await addVariant(productId, v.size, v.inStock, v.stock);
+      }
+      showToast(name + ' created');
+    }
+
+    logActivity('Product saved', name);
+    closeProductModal();
+    loadProductsGrid();
+  } catch(e) {
+    showToast(e.message || 'Save failed', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Save Product'; }
+  }
+}
+
+async function deleteProduct(id) {
+  const product = _productsCache.find(p => p.id === id);
+  const name = product ? product.name : 'this product';
+  if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+  try {
+    const res = await authFetch('/api/admin/products/' + id, { method: 'DELETE' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    logActivity('Product deleted', name);
+    showToast(name + ' deleted', 'error');
+    loadProductsGrid();
+  } catch(e) {
+    showToast('Delete failed', 'error');
+  }
+}
+
+/* ── Image helpers ── */
+async function uploadAndAddImage(file, productId, makeMain) {
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const upRes = await authFetch('/api/admin/upload', { method: 'POST', body: formData });
+    if (!upRes.ok) throw new Error('Upload failed');
+    const upData = await upRes.json();
+    if (!upData.url) throw new Error(upData.error || 'No URL returned');
+    const addRes = await authFetch('/api/admin/products/' + productId + '/images', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: upData.url, publicId: upData.publicId || null, alt: file.name, isMain: !!makeMain })
+    });
+    if (!addRes.ok) throw new Error('Add image failed');
+    /* Refresh images in modal if still open for this product */
+    const editId = document.getElementById('pmEditId').value;
+    if (editId && parseInt(editId) === productId) {
+      const pRes = await authFetch('/api/admin/products/' + productId);
+      if (pRes.ok) { const p = await pRes.json(); pmRenderImages(p.images || [], productId); }
+    }
+  } catch(e) {
+    showToast('Image upload failed: ' + e.message, 'error');
+  }
+}
+
+async function removeProductImage(productId, imageId) {
+  if (!confirm('Remove this image?')) return;
+  try {
+    const res = await authFetch(`/api/admin/products/${productId}/images/${imageId}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    const el = document.getElementById('pmImg-' + imageId);
+    if (el) el.remove();
+    showToast('Image removed');
+    loadProductsGrid();
+  } catch(e) { showToast('Failed to remove image', 'error'); }
+}
+
+async function setMainProductImage(productId, imageId) {
+  try {
+    const res = await authFetch(`/api/admin/products/${productId}/images/${imageId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ isMain: true })
+    });
+    if (!res.ok) throw new Error();
+    const pRes = await authFetch('/api/admin/products/' + productId);
+    if (pRes.ok) { const p = await pRes.json(); pmRenderImages(p.images || [], productId); }
+    showToast('Main image set');
+    loadProductsGrid();
+  } catch(e) { showToast('Failed to set main image', 'error'); }
+}
+
+/* ── Variant helpers ── */
+async function addVariant(productId, size, inStock, stock) {
+  try {
+    const res = await authFetch(`/api/admin/products/${productId}/variants`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ size, inStock, stock: stock || null })
+    });
+    if (!res.ok) throw new Error();
+    const pRes = await authFetch('/api/admin/products/' + productId);
+    if (pRes.ok) { const p = await pRes.json(); pmRenderVariants(p.variants || [], productId); }
+    showToast('Size added');
+  } catch(e) { showToast('Failed to add size', 'error'); }
+}
+
+async function removeVariant(productId, variantId) {
+  if (!confirm('Remove this size?')) return;
+  try {
+    const res = await authFetch(`/api/admin/products/${productId}/variants/${variantId}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error();
+    const el = document.getElementById('pmVar-' + variantId);
+    if (el) el.remove();
+    showToast('Size removed');
+  } catch(e) { showToast('Failed to remove size', 'error'); }
 }
 
 /* ═══════════════════════════════════════════
