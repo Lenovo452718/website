@@ -600,16 +600,9 @@ function renderCompleteTheLook() {
     );
   }).join('');
 
-  // Replace existing hardcoded cards with dynamic ones
-  var existingGrid = section.querySelector('.product-grid-3, .complete-look-grid');
+  // Replace existing hardcoded cards — try all known class names
+  var existingGrid = section.querySelector('.product-grid-3-related, .product-grid-3, .complete-look-grid');
   if (existingGrid) {
     existingGrid.innerHTML = cardsHtml;
-  } else {
-    // Find the inner div and append a grid
-    var inner = section.querySelector('.complete-look-inner');
-    if (inner) {
-      var grid = inner.querySelector('.product-grid-3');
-      if (grid) { grid.innerHTML = cardsHtml; }
-    }
   }
 }
