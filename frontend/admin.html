@@ -319,6 +319,16 @@ select.pm-input{cursor:pointer}
 .pm-video-upload:hover{border-color:var(--charcoal)}
 /* Sizes card */
 .pm-variants-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.pm-variant-row{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--off);border-radius:8px;border:1.5px solid #e8eaed}
+.pm-variant-size{font-weight:700;font-size:13px;min-width:36px}
+.pm-variant-badge{font-size:10px!important;flex-shrink:0}
+.pm-variant-qty{font-size:12px;color:var(--gray)}
+.pm-variant-actions{margin-left:auto;display:flex;gap:5px;flex-shrink:0}
+.pm-variant-btn{border:none;cursor:pointer;border-radius:5px;font-size:11px;font-weight:600;padding:4px 10px;line-height:1}
+.pm-variant-toggle{background:#e8f0fe;color:#1a56db}
+.pm-variant-toggle:hover{background:#c3d4f9}
+.pm-variant-del{background:#fde8e8;color:#e02424;font-size:14px;padding:4px 9px}
+.pm-variant-del:hover{background:#f9c0c0}
 .pm-add-size-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:14px;background:var(--off);border-radius:10px;border:1.5px solid #e8eaed}
 .pm-add-size-row .pm-input{flex:1;min-width:100px}
 .pm-add-size-row .pm-input-sm{max-width:90px}
@@ -379,6 +389,22 @@ select.pm-input{cursor:pointer}
   .media-grid{grid-template-columns:1fr 1fr}
   .filter-tabs{gap:3px}
   .filter-tab{padding:5px 10px;font-size:11px}
+}
+/* Product modal responsive */
+@media(max-width:700px){
+  #productModal{padding:0}
+  #productModal .modal-box{width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;margin:0}
+  .pm-grid-2,.pm-grid-3{grid-template-columns:1fr}
+  .pm-add-size-row{flex-direction:column;align-items:stretch}
+  .pm-add-size-row .pm-input,.pm-add-size-row .pm-input-sm,.pm-add-size-row button{width:100%;max-width:100%}
+  .pm-footer{flex-direction:column;gap:8px}
+  .pm-footer button{width:100%}
+  .pm-card-head{padding:10px 14px}
+  .pm-card-body{padding:14px}
+  .pm-color-swatches{gap:6px}
+  .pm-swatch{width:26px;height:26px}
+  .pm-variant-row{flex-wrap:wrap;gap:6px}
+  .pm-variant-actions{margin-left:0;width:100%;justify-content:flex-end}
 }
 </style>
 </head>
@@ -2124,13 +2150,10 @@ function pmRenderImages(images, productId) {
   if (!images.length) { grid.innerHTML = ''; return; }
   grid.innerHTML = images.map(img => {
     const isMain = img.isMain;
-    return `<div style="position:relative;width:90px" id="pmImg-${img.id}">
-      <img src="${escHtml(img.url)}" style="width:90px;height:90px;object-fit:cover;border-radius:6px;border:2px solid ${isMain?'var(--navy)':'var(--gray-light)'};display:block">
-      ${isMain ? `<span style="position:absolute;top:3px;left:3px;background:var(--navy);color:white;font-size:9px;font-weight:700;padding:2px 5px;border-radius:3px">MAIN</span>` : ''}
-      <div style="display:flex;gap:2px;margin-top:4px;justify-content:center">
-        ${!isMain ? `<button class="btn btn-outline btn-sm" style="padding:3px 6px;font-size:9px" onclick="setMainProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">Main</button>` : ''}
-        <button class="btn btn-danger btn-sm" style="padding:3px 6px;font-size:9px" onclick="removeProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">Del</button>
-      </div>
+    return `<div class="pm-img-thumb${isMain?' pm-img-main':''}" id="pmImg-${img.id}" style="border-color:${isMain?'var(--navy)':'#e0e3e8'}">
+      <img src="${escHtml(img.url)}" alt="">
+      ${isMain ? `<span class="pm-img-main-badge">MAIN</span>` : `<button class="pm-img-set-main" title="Set as main" onclick="setMainProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">★</button>`}
+      <button class="pm-img-del" title="Delete" onclick="removeProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">×</button>
     </div>`;
   }).join('');
 }
@@ -2139,13 +2162,13 @@ function pmRenderVariants(variants, productId) {
   const list = document.getElementById('pmVariantsList');
   if (!variants.length) { list.innerHTML = ''; return; }
   list.innerHTML = variants.map(v => `
-    <div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--off);border-radius:6px;border:1px solid var(--gray-light)" id="pmVar-${v.id}">
-      <span style="font-weight:700;font-size:13px;min-width:40px">${escHtml(String(v.size))}</span>
-      <span class="status-badge ${v.inStock?'status-done':'status-cancelled'}" style="font-size:10px">${v.inStock?'In Stock':'Out of Stock'}</span>
-      ${v.stock != null ? `<span style="font-size:12px;color:var(--gray)">Qty: ${v.stock}</span>` : ''}
-      <div style="margin-left:auto;display:flex;gap:4px">
-        <button class="btn btn-outline btn-sm" style="padding:3px 8px;font-size:10px" onclick="pmToggleVariantStock('${escHtml(String(productId))}','${escHtml(String(v.id))}',${!v.inStock})">${v.inStock?'Mark Out':'Mark In'}</button>
-        <button class="btn btn-danger btn-sm" style="padding:3px 8px;font-size:10px" onclick="removeVariant('${escHtml(String(productId))}','${escHtml(String(v.id))}')">Remove</button>
+    <div class="pm-variant-row" id="pmVar-${v.id}">
+      <span class="pm-variant-size">${escHtml(String(v.size))}</span>
+      <span class="status-badge ${v.inStock?'status-done':'status-cancelled'} pm-variant-badge">${v.inStock?'In Stock':'Out'}</span>
+      ${v.stock != null ? `<span class="pm-variant-qty">×${v.stock}</span>` : ''}
+      <div class="pm-variant-actions">
+        <button class="pm-variant-btn pm-variant-toggle" onclick="pmToggleVariantStock('${escHtml(String(productId))}','${escHtml(String(v.id))}',${!v.inStock})">${v.inStock?'Out':'In'}</button>
+        <button class="pm-variant-btn pm-variant-del" onclick="removeVariant('${escHtml(String(productId))}','${escHtml(String(v.id))}')">×</button>
       </div>
     </div>`).join('');
 }
@@ -2180,8 +2203,8 @@ function pmAddVariantRow() {
     /* Show preview row */
     const list = document.getElementById('pmVariantsList');
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--off);border-radius:6px;border:1px solid var(--gray-light)';
-    row.innerHTML = `<span style="font-weight:700;font-size:13px;min-width:40px">${escHtml(size)}</span><span class="status-badge ${inStock?'status-done':'status-cancelled'}" style="font-size:10px">${inStock?'In Stock':'Out of Stock'}</span>${stock!=null?`<span style="font-size:12px;color:var(--gray)">Qty: ${stock}</span>`:''}`;
+    row.className = 'pm-variant-row';
+    row.innerHTML = `<span class="pm-variant-size">${escHtml(size)}</span><span class="status-badge ${inStock?'status-done':'status-cancelled'} pm-variant-badge">${inStock?'In Stock':'Out'}</span>${stock!=null?`<span class="pm-variant-qty">×${stock}</span>`:''}`;
     list.appendChild(row);
     showToast('Size queued — will be saved with product');
   }
@@ -2202,13 +2225,14 @@ function pmHandleImageFiles(input) {
     const grid = document.getElementById('pmImagesGrid');
     files.forEach(f => {
       const div = document.createElement('div');
-      div.style.cssText = 'position:relative;width:90px;opacity:0.6';
+      div.className = 'pm-img-thumb pm-img-pending';
       const img = document.createElement('img');
-      img.style.cssText = 'width:90px;height:90px;object-fit:cover;border-radius:6px;border:2px dashed var(--gray-light);display:block';
       img.src = URL.createObjectURL(f);
+      img.alt = '';
       div.appendChild(img);
-      const lbl = document.createElement('div');
-      lbl.style.cssText = 'font-size:9px;color:var(--gray);text-align:center;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+      const lbl = document.createElement('span');
+      lbl.className = 'pm-img-main-badge';
+      lbl.style.cssText = 'background:#aaa';
       lbl.textContent = 'Pending';
       div.appendChild(lbl);
       grid.appendChild(div);
