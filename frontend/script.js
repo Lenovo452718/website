@@ -19,18 +19,29 @@ function fetchPackSettings() {
 fetchPackSettings();
 
 /* ── Announcement Bar ── */
-(function() {
+(async function() {
   if (sessionStorage.getItem('barDismissed')) return;
 
-  let adminSettings = {};
-  try { adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}'); } catch (e) {}
-  if (adminSettings.announcementEnabled === false) return;
-
-  const messages = adminSettings.announcementMessages || [
+  const DEFAULT_MESSAGES = [
     '✦ Free shipping on all orders',
     '✦ COD available across Morocco',
     '✦ Delivered in 2–5 days',
   ];
+
+  let messages = DEFAULT_MESSAGES;
+
+  try {
+    const apiBase = window.SS_API_URL || 'http://localhost:3000';
+    const res = await fetch(apiBase + '/api/settings');
+    if (res.ok) {
+      const s = await res.json();
+      if (s.announcementActive === false) return;
+      if (s.announcementBar) {
+        messages = s.announcementBar.split(' · ').map(m => m.trim()).filter(Boolean);
+        if (!messages.length) messages = DEFAULT_MESSAGES;
+      }
+    }
+  } catch (e) {}
 
   const bar = document.createElement('div');
   bar.className = 'announcement-bar';

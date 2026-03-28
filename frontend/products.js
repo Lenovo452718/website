@@ -139,6 +139,10 @@ const PRODUCTS = {
       // Notify any listeners that products are loaded
       if (typeof window.onProductsLoaded === 'function') window.onProductsLoaded();
       document.dispatchEvent(new CustomEvent('productsLoaded'));
+      // Re-render shop grid with fresh data from backend
+      if (typeof renderShopGrid === 'function') renderShopGrid();
+      // Re-initialize product images in case any data-product-img elements exist
+      if (typeof initProductImages === 'function') initProductImages();
     })
     .catch(function() {
       // Fallback: apply localStorage overrides (offline/dev mode)

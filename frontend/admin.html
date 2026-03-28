@@ -2352,8 +2352,21 @@ function closeCustomerModal() {
 /* ═══════════════════════════════════════════
    DISCOUNT CODES
 ═══════════════════════════════════════════ */
-function loadDiscountsTable() {
-  const codes = getDiscounts();
+let _couponsCache = [];
+
+async function loadDiscountsTable() {
+  const tbl = document.getElementById('discountsTable');
+  tbl.innerHTML = '<tr class="empty-row"><td colspan="8">Loading...</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/coupons');
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    _couponsCache = await res.json();
+  } catch(e) {
+    showToast('Failed to load coupons', 'error');
+    tbl.innerHTML = '<tr class="empty-row"><td colspan="8">Failed to load.</td></tr>';
+    return;
+  }
+  const codes = _couponsCache;
   const hdr = `<thead><tr><th>Code</th><th>Type</th><th>Value</th><th>Min Order</th><th>Uses</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>`;
   const rows = codes.map(d=>{
     const exp = d.expiresAt ? new Date(d.expiresAt).toLocaleDateString('en-GB') : 'Never';
@@ -2361,19 +2374,19 @@ function loadDiscountsTable() {
     const uses = d.maxUses>0 ? `${d.usedCount||0}/${d.maxUses}` : `${d.usedCount||0}/∞`;
     return `<tr>
       <td><code style="background:var(--off);padding:3px 8px;border-radius:3px;font-size:13px;font-weight:700;letter-spacing:.06em">${d.code}</code></td>
-      <td><span class="disc-badge ${d.type==='percentage'?'disc-pct':'disc-fixed'}">${d.type==='percentage'?'%':'MAD'}</span></td>
-      <td style="font-weight:700">${d.value}${d.type==='percentage'?'%':' MAD'}</td>
+      <td><span class="disc-badge ${d.type==='percent'?'disc-pct':'disc-fixed'}">${d.type==='percent'?'%':'MAD'}</span></td>
+      <td style="font-weight:700">${d.value}${d.type==='percent'?'%':' MAD'}</td>
       <td>${d.minOrder>0?d.minOrder+' MAD':'—'}</td>
       <td>${uses}</td>
       <td style="font-size:12px">${exp}</td>
-      <td><span class="status-badge ${d.active&&!expired?'status-done':'status-cancelled'}">${d.active&&!expired?'Active':'Inactive'}</span></td>
+      <td><span class="status-badge ${d.isActive&&!expired?'status-done':'status-cancelled'}">${d.isActive&&!expired?'Active':'Inactive'}</span></td>
       <td><div style="display:flex;gap:4px">
         <button class="btn-icon" onclick="openDiscountModal('${d.id}')" title="Edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
         <button class="btn-icon danger" onclick="deleteDiscount('${d.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
-  document.getElementById('discountsTable').innerHTML = codes.length ? hdr+'<tbody>'+rows+'</tbody>' : '<tr class="empty-row"><td colspan="8">No discount codes yet.</td></tr>';
+  tbl.innerHTML = codes.length ? hdr+'<tbody>'+rows+'</tbody>' : '<tr class="empty-row"><td colspan="8">No discount codes yet.</td></tr>';
 }
 
 function generateCode() {
@@ -2383,16 +2396,16 @@ function generateCode() {
 }
 
 function openDiscountModal(id) {
-  const d = id ? (getDiscounts().find(x=>x.id===id)||{}) : {};
+  const d = id ? (_couponsCache.find(x=>x.id==id)||{}) : {};
   document.getElementById('dmTitle').textContent = id ? 'Edit Discount Code' : 'Create Discount Code';
   document.getElementById('dmEditId').value  = id||'';
   document.getElementById('dmCode').value    = d.code||'';
-  document.getElementById('dmType').value    = d.type||'percentage';
+  document.getElementById('dmType').value    = d.type||'percent';
   document.getElementById('dmValue').value   = d.value||'';
   document.getElementById('dmMin').value     = d.minOrder||'';
   document.getElementById('dmMax').value     = d.maxUses||'';
   document.getElementById('dmExpiry').value  = d.expiresAt ? d.expiresAt.slice(0,10) : '';
-  document.getElementById('dmActive').checked= d.active!==false;
+  document.getElementById('dmActive').checked= d.isActive!==false;
   document.getElementById('discountModal').classList.add('open');
   document.body.style.overflow='hidden';
 }
@@ -2402,37 +2415,47 @@ function closeDiscountModal() {
   document.body.style.overflow='';
 }
 
-function saveDiscountModal() {
+async function saveDiscountModal() {
   const code = document.getElementById('dmCode').value.trim().toUpperCase();
   if (!code) { showToast('Code is required','error'); return; }
   const val = parseFloat(document.getElementById('dmValue').value);
   if (!val) { showToast('Value is required','error'); return; }
   const editId = document.getElementById('dmEditId').value;
-  const codes  = getDiscounts();
-  const entry  = {
-    id:   editId || ('disc-'+Date.now()),
-    code, type:     document.getElementById('dmType').value,
-    value: val,
+  const body = {
+    code,
+    type:     document.getElementById('dmType').value,
+    value:    val,
     minOrder: parseFloat(document.getElementById('dmMin').value)||0,
     maxUses:  parseInt(document.getElementById('dmMax').value)||0,
-    usedCount: editId ? (codes.find(x=>x.id===editId)||{}).usedCount||0 : 0,
     expiresAt: document.getElementById('dmExpiry').value || null,
-    active:    document.getElementById('dmActive').checked,
-    createdAt: editId ? (codes.find(x=>x.id===editId)||{}).createdAt||new Date().toISOString() : new Date().toISOString(),
+    isActive:  document.getElementById('dmActive').checked,
   };
-  if (editId) { const idx=codes.findIndex(x=>x.id===editId); if(idx>-1) codes[idx]=entry; }
-  else { if(codes.find(x=>x.code===code)){showToast('Code already exists','error');return;} codes.unshift(entry); }
-  saveDiscounts(codes);
+  try {
+    const res = await authFetch(
+      editId ? `/api/admin/coupons/${editId}` : '/api/admin/coupons',
+      { method: editId ? 'PATCH' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }
+    );
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+  } catch(e) {
+    showToast('Failed to save coupon', 'error');
+    return;
+  }
   closeDiscountModal();
-  loadDiscountsTable();
+  await loadDiscountsTable();
   logActivity('Discount code saved', code);
   showToast('Code saved');
 }
 
-function deleteDiscount(id) {
+async function deleteDiscount(id) {
   if (!confirm('Delete this discount code?')) return;
-  saveDiscounts(getDiscounts().filter(x=>x.id!==id));
-  loadDiscountsTable();
+  try {
+    const res = await authFetch(`/api/admin/coupons/${id}`, { method: 'DELETE' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+  } catch(e) {
+    showToast('Failed to delete coupon', 'error');
+    return;
+  }
+  await loadDiscountsTable();
   logActivity('Discount code deleted', id);
   showToast('Code deleted','error');
 }
