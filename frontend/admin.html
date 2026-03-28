@@ -340,10 +340,21 @@ select.pm-input{cursor:pointer}
 .pm-swatch-custom{display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f);font-size:13px}
 .pm-color-preview-row{display:flex;gap:12px;align-items:center}
 .pm-color-preview{width:44px;height:44px;border-radius:10px;border:2px solid #e0e3e8;flex-shrink:0;transition:background .15s}
-.pm-featured-card{display:flex;align-items:center;gap:14px;padding:14px 16px;background:linear-gradient(135deg,#fffbea,#fff8d6);border:1.5px solid #f5e68a;border-radius:11px;margin-top:14px}
-.pm-featured-icon{font-size:22px;flex-shrink:0}
-.pm-featured-text strong{display:block;font-size:13px;font-weight:700;color:var(--charcoal)}
-.pm-featured-text span{font-size:11px;color:#888}
+/* Featured toggle card */
+.pm-featured-card{display:flex;align-items:center;gap:16px;padding:16px 18px;background:#f8f9fb;border:2px solid #e0e3e8;border-radius:13px;margin-top:14px;cursor:pointer;transition:background .2s,border-color .2s;user-select:none}
+.pm-featured-card.active{background:linear-gradient(135deg,#fffbea 0%,#fff3c4 100%);border-color:#f0c040}
+.pm-featured-card:hover{border-color:#c5cad4}
+.pm-featured-card.active:hover{border-color:#dba800}
+.pm-featured-icon-wrap{width:44px;height:44px;border-radius:11px;background:#e8eaed;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .2s}
+.pm-featured-card.active .pm-featured-icon-wrap{background:#fde68a}
+.pm-featured-icon-wrap svg{transition:opacity .2s}
+.pm-featured-info{flex:1}
+.pm-featured-info strong{display:block;font-size:13px;font-weight:700;color:#9ca3af;transition:color .2s}
+.pm-featured-card.active .pm-featured-info strong{color:var(--charcoal)}
+.pm-featured-info span{font-size:11px;color:#b0b8c4;line-height:1.4;display:block;margin-top:2px;transition:color .2s}
+.pm-featured-card.active .pm-featured-info span{color:#92691a}
+.pm-featured-status{font-size:10px;font-weight:700;letter-spacing:.06em;padding:4px 9px;border-radius:20px;flex-shrink:0;background:#e8eaed;color:#9ca3af;transition:background .2s,color .2s}
+.pm-featured-card.active .pm-featured-status{background:#fef3c7;color:#92691a}
 /* Footer */
 .pm-footer{position:sticky;bottom:0;background:#fff;border-top:1px solid #e8eaed;padding:16px 28px;display:flex;gap:10px;align-items:center;margin:0 -28px;border-radius:0 0 20px 20px}
 
@@ -1140,17 +1151,16 @@ select.pm-input{cursor:pointer}
             <div></div>
           </div>
 
-          <div class="pm-featured-card">
-            <div class="pm-featured-icon">⭐</div>
-            <div class="pm-featured-text" style="flex:1">
-              <strong>Show on Homepage</strong>
-              <span>Featured products appear in the collection section</span>
+          <div class="pm-featured-card" id="pmFeaturedCard" onclick="pmToggleFeaturedCard()">
+            <div class="pm-featured-icon-wrap">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="pmFeaturedIcon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
-            <label class="toggle">
-              <input type="checkbox" id="pmFeatured">
-              <div class="toggle-track"></div>
-              <div class="toggle-thumb"></div>
-            </label>
+            <div class="pm-featured-info">
+              <strong id="pmFeaturedLabel">Not on Homepage</strong>
+              <span id="pmFeaturedDesc">Enable to show this product in the homepage collection section</span>
+            </div>
+            <span class="pm-featured-status" id="pmFeaturedStatus">OFF</span>
+            <input type="checkbox" id="pmFeatured" style="display:none">
           </div>
         </div>
       </div>
@@ -2105,6 +2115,7 @@ async function openProductModal(id) {
   document.getElementById('pmVideoUploadProgress').style.display = 'none';
   setProductColor('#0f1f3d');
   document.getElementById('pmFeatured').checked = false;
+  pmUpdateFeaturedCard(false);
 
   if (id) {
     try {
@@ -2123,6 +2134,7 @@ async function openProductModal(id) {
       document.getElementById('pmFitFilter').value = p.fitFilter || 'wide';
       if (p.color) setProductColor(toHex(p.color));
       document.getElementById('pmFeatured').checked = !!p.isFeatured;
+      pmUpdateFeaturedCard(!!p.isFeatured);
       /* Render existing images */
       pmRenderImages(p.images || [], id);
       /* Render existing variants */
@@ -2138,6 +2150,24 @@ async function openProductModal(id) {
 
   document.getElementById('productModal').classList.add('open');
   document.body.style.overflow = 'hidden';
+}
+
+function pmUpdateFeaturedCard(on) {
+  const card   = document.getElementById('pmFeaturedCard');
+  const icon   = document.getElementById('pmFeaturedIcon');
+  const label  = document.getElementById('pmFeaturedLabel');
+  const desc   = document.getElementById('pmFeaturedDesc');
+  const status = document.getElementById('pmFeaturedStatus');
+  card.classList.toggle('active', on);
+  icon.setAttribute('stroke', on ? '#92691a' : '#9ca3af');
+  label.textContent  = on ? 'Shown on Homepage' : 'Not on Homepage';
+  desc.textContent   = on ? 'This product appears in the homepage collection section' : 'Enable to show this product in the homepage collection section';
+  status.textContent = on ? 'ON' : 'OFF';
+}
+function pmToggleFeaturedCard() {
+  const cb = document.getElementById('pmFeatured');
+  cb.checked = !cb.checked;
+  pmUpdateFeaturedCard(cb.checked);
 }
 
 function closeProductModal() {
