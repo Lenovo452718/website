@@ -298,7 +298,7 @@ app.get('/api/products/overrides', async (req, res) => {
   try {
     const products = await prisma.product.findMany({
       where:   { status: 'ACTIVE' },
-      include: { images: { where: { isMain: true }, take: 1 }, variants: true },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: true },
       orderBy: { sortOrder: 'asc' },
     });
     const overrides = {};
@@ -312,10 +312,10 @@ app.get('/api/products/overrides', async (req, res) => {
         badge:         p.badge || '',
         sizes:         p.variants.map(v => v.size).filter(Boolean).join(','),
         sizesInStock:  p.variants.filter(v => v.inStock).map(v => v.size).filter(Boolean),
-        color:         '',
-        image:         p.images[0]?.url || null,
-        gallery:       [],
-        video:         null,
+        color:         p.color || '',
+        image:         p.images.find(i => i.isMain)?.url || p.images[0]?.url || null,
+        gallery:       p.images.map(i => i.url),
+        video:         p.videoUrl || null,
         href:          p.href || `product-${p.slug}.html`,
         description:   p.description || '',
         inStock:       p.variants.some(v => v.inStock),
@@ -686,7 +686,7 @@ app.get('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) =
 /* POST /api/admin/products */
 app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants } = req.body;
+    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants, videoUrl, color } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'name and price are required' });
     let slug = slugify(name);
     const existing = await prisma.product.findUnique({ where: { slug } });
@@ -704,6 +704,8 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
         fitFilter:    fitFilter || null,
         category:     category || null,
         href:         href || null,
+        videoUrl:     videoUrl || null,
+        color:        color || null,
         status:       status || 'ACTIVE',
         variants: variants ? {
           create: variants.map(v => ({
@@ -727,7 +729,7 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
 /* PATCH /api/admin/products/:id */
 app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder } = req.body;
+    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder, videoUrl, color } = req.body;
     const data = {};
     if (name         !== undefined) { data.name = sanitize(name, 200); data.slug = slugify(name); }
     if (description  !== undefined) data.description  = sanitize(description, 5000);
@@ -738,6 +740,8 @@ app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res)
     if (fitFilter    !== undefined) data.fitFilter     = fitFilter || null;
     if (category     !== undefined) data.category      = category || null;
     if (href         !== undefined) data.href          = href || null;
+    if (videoUrl     !== undefined) data.videoUrl      = videoUrl || null;
+    if (color        !== undefined) data.color         = color || null;
     if (status       !== undefined) data.status        = status;
     if (sortOrder    !== undefined) data.sortOrder     = parseInt(sortOrder);
 

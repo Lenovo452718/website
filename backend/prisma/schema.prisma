@@ -20,6 +20,8 @@ model Product {
   fitFilter    String?
   category     String?
   href         String?
+  videoUrl     String?
+  color        String?
   images       Image[]
   variants     Variant[]
   orderItems   OrderItem[]
