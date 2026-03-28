@@ -2440,7 +2440,7 @@ function deleteDiscount(id) {
 /* ═══════════════════════════════════════════
    CONTENT
 ═══════════════════════════════════════════ */
-function loadContentForms() {
+async function loadContentForms() {
   const s = getSettings();
   const msgs = s.announcementMessages||['✦ Free shipping on all orders','✦ COD available across Morocco','✦ Delivered in 2–5 days'];
   document.getElementById('annMsg1').value    = msgs[0]||'';
@@ -2448,14 +2448,6 @@ function loadContentForms() {
   document.getElementById('annMsg3').value    = msgs[2]||'';
   document.getElementById('annEnabled').checked = s.announcementEnabled!==false;
   document.getElementById('annPreview').textContent = msgs[0]||'✦ Free shipping on all orders';
-  document.getElementById('pd2price').value  = s.packDeal2||'319';
-  document.getElementById('pd3price').value  = s.packDeal3||'479';
-  document.getElementById('pdBadge').value   = s.packDealBadge||'Save up to 10% off';
-  document.getElementById('pdSub').value     = s.packDealSub||'Mix & match any styles — discount applied automatically in cart';
-  document.getElementById('pvP2').textContent= (s.packDeal2||'319')+' MAD';
-  document.getElementById('pvP3').textContent= (s.packDeal3||'479')+' MAD';
-  document.getElementById('pvBadge').textContent = s.packDealBadge||'Save up to 10% off';
-  document.getElementById('pvSub').textContent   = s.packDealSub||'Mix & match any styles — discount applied automatically in cart';
   document.getElementById('bannerHeadline').value = s.bannerHeadline||'';
   document.getElementById('bannerSub').value      = s.bannerSub||'';
   document.getElementById('bannerCta').value      = s.bannerCta||'';
@@ -2463,6 +2455,39 @@ function loadContentForms() {
   // Live preview listeners
   ['annMsg1','annMsg2','annMsg3'].forEach(id=>{ document.getElementById(id).oninput=()=>{ document.getElementById('annPreview').textContent=document.getElementById('annMsg1').value||'✦ Free shipping'; }; });
   ['pd2price','pd3price','pdBadge','pdSub'].forEach(id=>{ document.getElementById(id).oninput=updatePackPreview; });
+  // Load pack deal settings from API
+  try {
+    const res = await authFetch('/api/admin/settings');
+    if (res.ok) {
+      const api = await res.json();
+      document.getElementById('pd2price').value  = api.packDeal2||'319';
+      document.getElementById('pd3price').value  = api.packDeal3||'479';
+      document.getElementById('pdBadge').value   = api.packDealBadge||'Save up to 10% off';
+      document.getElementById('pdSub').value     = api.packDealSub||'Mix & match any styles — discount applied automatically in cart';
+      document.getElementById('pvP2').textContent= (api.packDeal2||'319')+' MAD';
+      document.getElementById('pvP3').textContent= (api.packDeal3||'479')+' MAD';
+      document.getElementById('pvBadge').textContent = api.packDealBadge||'Save up to 10% off';
+      document.getElementById('pvSub').textContent   = api.packDealSub||'Mix & match any styles — discount applied automatically in cart';
+    } else {
+      document.getElementById('pd2price').value  = s.packDeal2||'319';
+      document.getElementById('pd3price').value  = s.packDeal3||'479';
+      document.getElementById('pdBadge').value   = s.packDealBadge||'Save up to 10% off';
+      document.getElementById('pdSub').value     = s.packDealSub||'Mix & match any styles — discount applied automatically in cart';
+      document.getElementById('pvP2').textContent= (s.packDeal2||'319')+' MAD';
+      document.getElementById('pvP3').textContent= (s.packDeal3||'479')+' MAD';
+      document.getElementById('pvBadge').textContent = s.packDealBadge||'Save up to 10% off';
+      document.getElementById('pvSub').textContent   = s.packDealSub||'Mix & match any styles — discount applied automatically in cart';
+    }
+  } catch(e) {
+    document.getElementById('pd2price').value  = s.packDeal2||'319';
+    document.getElementById('pd3price').value  = s.packDeal3||'479';
+    document.getElementById('pdBadge').value   = s.packDealBadge||'Save up to 10% off';
+    document.getElementById('pdSub').value     = s.packDealSub||'Mix & match any styles — discount applied automatically in cart';
+    document.getElementById('pvP2').textContent= (s.packDeal2||'319')+' MAD';
+    document.getElementById('pvP3').textContent= (s.packDeal3||'479')+' MAD';
+    document.getElementById('pvBadge').textContent = s.packDealBadge||'Save up to 10% off';
+    document.getElementById('pvSub').textContent   = s.packDealSub||'Mix & match any styles — discount applied automatically in cart';
+  }
 }
 
 function updatePackPreview() {
@@ -2472,16 +2497,42 @@ function updatePackPreview() {
   document.getElementById('pvSub').textContent   = document.getElementById('pdSub').value||'Mix & match any styles';
 }
 
-function saveAnnouncement() {
-  saveSettingsObj({ announcementMessages:[document.getElementById('annMsg1').value,document.getElementById('annMsg2').value,document.getElementById('annMsg3').value], announcementEnabled:document.getElementById('annEnabled').checked });
-  logActivity('Announcement saved');
-  showToast('Announcement saved');
+async function saveAnnouncement() {
+  const msgs = [
+    document.getElementById('annMsg1').value,
+    document.getElementById('annMsg2').value,
+    document.getElementById('annMsg3').value
+  ];
+  const announcementActive = document.getElementById('annEnabled').checked;
+  const body = {
+    announcementBar: msgs.filter(Boolean).join(' · '),
+    announcementActive
+  };
+  try {
+    const res = await authFetch('/api/admin/settings', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) {
+      saveSettingsObj({ announcementMessages: msgs, announcementEnabled: announcementActive });
+      logActivity('Announcement saved');
+      showToast('Announcement saved');
+    } else {
+      showToast('Failed to save announcement','error');
+    }
+  } catch(e) { showToast('Error saving announcement','error'); }
 }
 
-function savePackDeal() {
-  saveSettingsObj({ packDeal2:document.getElementById('pd2price').value, packDeal3:document.getElementById('pd3price').value, packDealBadge:document.getElementById('pdBadge').value, packDealSub:document.getElementById('pdSub').value });
-  logActivity('Pack deal saved');
-  showToast('Pack deal saved');
+async function savePackDeal() {
+  const body = {
+    packDeal2: parseFloat(document.getElementById('pd2price').value) || 319,
+    packDeal3: parseFloat(document.getElementById('pd3price').value) || 479,
+    packDealBadge: document.getElementById('pdBadge').value,
+    packDealSub: document.getElementById('pdSub').value,
+    packEnabled: true
+  };
+  try {
+    const res = await authFetch('/api/admin/settings', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) { showToast('Pack deal saved'); logActivity('Pack deal saved'); }
+    else showToast('Failed to save','error');
+  } catch(e) { showToast('Error saving pack deal','error'); }
 }
 
 function saveBanner() {

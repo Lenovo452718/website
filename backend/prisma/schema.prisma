@@ -119,6 +119,11 @@ model SiteSettings {
   logoPublicId       String?
   announcementBar    String?
   announcementActive Boolean @default(false)
+  packDeal2          Float   @default(319)
+  packDeal3          Float   @default(479)
+  packDealBadge      String  @default("Save up to 10% off")
+  packDealSub        String  @default("Mix & match any styles")
+  packEnabled        Boolean @default(true)
 }
 
 model OlivraisonConfig {

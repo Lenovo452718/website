@@ -1003,7 +1003,7 @@ app.get('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
 
 app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, logoPublicId, announcementBar, announcementActive } = req.body;
+    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, logoPublicId, announcementBar, announcementActive, packDeal2, packDeal3, packDealBadge, packDealSub, packEnabled } = req.body;
     const data = {};
     if (storeName          !== undefined) data.storeName          = sanitize(storeName, 100);
     if (primaryColor       !== undefined) data.primaryColor       = sanitize(primaryColor, 20);
@@ -1015,6 +1015,11 @@ app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => 
     if (logoPublicId       !== undefined) data.logoPublicId       = logoPublicId || null;
     if (announcementBar    !== undefined) data.announcementBar    = sanitize(announcementBar, 300);
     if (announcementActive !== undefined) data.announcementActive = Boolean(announcementActive);
+    if (packDeal2     !== undefined) data.packDeal2     = parseFloat(packDeal2) || 319;
+    if (packDeal3     !== undefined) data.packDeal3     = parseFloat(packDeal3) || 479;
+    if (packDealBadge !== undefined) data.packDealBadge = sanitize(packDealBadge, 100);
+    if (packDealSub   !== undefined) data.packDealSub   = sanitize(packDealSub, 100);
+    if (packEnabled   !== undefined) data.packEnabled   = Boolean(packEnabled);
 
     const settings = await prisma.siteSettings.upsert({
       where:  { id: 'singleton' },

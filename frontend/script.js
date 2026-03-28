@@ -2,6 +2,22 @@
    STREETSTORE — Complete JavaScript
    ============================================================ */
 
+/* ── Pack Deal Settings ── */
+let _packSettings = { packDeal2: 319, packDeal3: 479, packEnabled: true };
+
+function fetchPackSettings() {
+  var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
+  fetch(API + '/api/settings')
+    .then(function(r) { return r.json(); })
+    .then(function(s) {
+      if (s.packDeal2) _packSettings.packDeal2 = s.packDeal2;
+      if (s.packDeal3) _packSettings.packDeal3 = s.packDeal3;
+      if (s.packEnabled !== undefined) _packSettings.packEnabled = s.packEnabled;
+    })
+    .catch(function() {});
+}
+fetchPackSettings();
+
 /* ── Announcement Bar ── */
 (function() {
   if (sessionStorage.getItem('barDismissed')) return;
@@ -210,11 +226,15 @@ function renderCartItems() {
 }
 
 function getPackDiscount(cart) {
+  if (!_packSettings.packEnabled) return 0;
   const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   if (totalQty < 2) return 0;
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  // Same discount % as "2 for 319 MAD" on base price 2×179=358: ratio = 39/358
-  return Math.round(subtotal * 39 / 358);
+  // Calculate target price based on qty
+  const target = totalQty >= 3 ? _packSettings.packDeal3 : _packSettings.packDeal2;
+  // If subtotal is already less than or equal to target, no discount
+  if (subtotal <= target) return 0;
+  return Math.round(subtotal - target);
 }
 
 function getProductColor(name) {
@@ -1098,7 +1118,9 @@ function initPlaceOrder() {
     e.preventDefault();
     // Save last order for thank-you page
     const cart = getCart();
+    const couponCode = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? _appliedCoupon.code : null;
     localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
+    if (couponCode) localStorage.setItem('streetstore_last_coupon', couponCode);
     saveCart([]);
     updateCartBadge();
     window.location.href = 'thankyou.html';
