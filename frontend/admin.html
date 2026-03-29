@@ -420,17 +420,32 @@ select.pm-input{cursor:pointer}
 @media(max-width:700px){
   #productModal{padding:0}
   #productModal .modal-box{width:100%;max-width:100%;height:100%;max-height:100%;border-radius:0;margin:0}
+  #productModal .modal-body{max-height:calc(100vh - 64px)!important}
+  #productModal .modal-head{padding:14px 16px}
+  #productModal .pm-subtitle{display:none}
   .pm-grid-2,.pm-grid-3{grid-template-columns:1fr}
   .pm-add-size-row{flex-direction:column;align-items:stretch}
   .pm-add-size-row .pm-input,.pm-add-size-row .pm-input-sm,.pm-add-size-row button{width:100%;max-width:100%}
-  .pm-footer{flex-direction:column;gap:8px}
+  .pm-footer{flex-direction:column;gap:8px;padding:12px 16px}
   .pm-footer button{width:100%}
   .pm-card-head{padding:10px 14px}
-  .pm-card-body{padding:14px}
-  .pm-color-swatches{gap:6px}
-  .pm-swatch{width:26px;height:26px}
+  .pm-card-body{padding:12px 14px}
+  .pm-color-swatches{gap:5px}
+  .pm-swatch{width:30px;height:30px;border-radius:8px}
+  .pm-color-hex-row{flex-wrap:wrap}
+  .pm-color-hex-row .pm-input{flex:1;min-width:100px}
+  .pm-color-hex-row button{flex-shrink:0}
+  .pm-featured-card{padding:12px 14px;gap:10px}
+  .pm-featured-info strong{font-size:12px}
+  .pm-featured-info span{font-size:10px}
   .pm-variant-row{flex-wrap:wrap;gap:6px}
   .pm-variant-actions{margin-left:0;width:100%;justify-content:flex-end}
+  .pm-images-grid{grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px}
+}
+/* Touch devices — always show image action buttons (no hover) */
+@media(hover:none){
+  .pm-img-thumb .pm-img-del{opacity:1;background:rgba(220,50,50,.75)}
+  .pm-img-thumb .pm-img-set-main{opacity:1}
 }
 </style>
 </head>
@@ -1023,7 +1038,7 @@ select.pm-input{cursor:pointer}
     </div>
 
     <!-- Scrollable body -->
-    <div class="modal-body" style="max-height:78vh;overflow-y:auto;padding-bottom:0">
+    <div class="modal-body" style="max-height:78vh;overflow-y:auto;overflow-x:hidden;padding-bottom:0;-webkit-overflow-scrolling:touch">
     <input type="hidden" id="pmEditId">
     <div class="pm-cards">
 
