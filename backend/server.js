@@ -939,6 +939,7 @@ app.post('/api/admin/products/:id/variants', adminLimiter, requireAuth, async (r
 
 /* POST /api/admin/upload — upload image/video to Cloudinary, return URL */
 app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), async (req, res) => {
+  console.log('Upload request received, file:', req.file ? req.file.originalname : 'none');
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   try {
     const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);

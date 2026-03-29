@@ -2285,6 +2285,7 @@ function pmAddVariantRow() {
 function pmHandleImageFiles(input) {
   const editId = document.getElementById('pmEditId').value;
   const files = Array.from(input.files);
+  input.value = ''; // reset so same file can be re-selected
   if (!files.length) return;
   if (editId) {
     files.forEach(f => uploadAndAddImage(f, editId));
