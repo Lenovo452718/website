@@ -589,15 +589,17 @@ app.delete('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) 
 
 app.get('/api/admin/stats', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const [total, pending, confirmed, cancelled, processing, productCount] = await Promise.all([
+    const [total, pending, confirmed, cancelled, processing, productCount, revenueAgg] = await Promise.all([
       prisma.order.count(),
       prisma.order.count({ where: { status: 'pending' } }),
       prisma.order.count({ where: { status: 'confirmed' } }),
       prisma.order.count({ where: { status: 'cancelled' } }),
       prisma.order.count({ where: { status: 'processing' } }),
       prisma.product.count({ where: { status: 'ACTIVE' } }),
+      prisma.order.aggregate({ _sum: { total: true }, where: { status: { in: ['confirmed', 'delivered', 'done'] } } }),
     ]);
-    res.json({ total, pending, confirmed, cancelled, processing, productCount });
+    const revenue = revenueAgg._sum.total || 0;
+    res.json({ total, pending, confirmed, cancelled, processing, productCount, revenue });
   } catch (err) {
     console.error('GET /api/admin/stats error:', err);
     res.status(500).json({ error: 'Failed to fetch stats' });

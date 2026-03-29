@@ -1236,7 +1236,7 @@ select.pm-input{cursor:pointer}
 <div class="modal-overlay" id="discountModal">
   <div class="modal-box" style="max-width:500px">
     <div class="modal-head">
-      <h2 class="modal-title" id="dmTitle">Create Discount Code</h2>
+      <h2 class="modal-title" id="discountModalTitle">Create Discount Code</h2>
       <button class="modal-close" onclick="closeDiscountModal()">×</button>
     </div>
     <div class="modal-body">
@@ -1249,7 +1249,7 @@ select.pm-input{cursor:pointer}
           <button class="btn btn-outline btn-sm" onclick="generateCode()" style="white-space:nowrap;flex-shrink:0">Generate</button>
         </div>
       </div>
-      <div class="field-group"><label class="field-label">Type</label><select class="field-input" id="dmType"><option value="percentage">Percentage (%)</option><option value="fixed">Fixed (MAD)</option></select></div>
+      <div class="field-group"><label class="field-label">Type</label><select class="field-input" id="dmType"><option value="percent">Percentage (%)</option><option value="fixed">Fixed (MAD)</option></select></div>
     </div>
     <div class="field-row">
       <div class="field-group"><label class="field-label">Value</label><input class="field-input" id="dmValue" type="number" placeholder="20"></div>
@@ -1644,17 +1644,38 @@ function loadDashboard() {
   const done          = orders.filter(o=>['done','delivered','confirmed'].includes(o.status));
   const cancelled     = orders.filter(o=>o.status==='cancelled');
   const revenue       = done.reduce((s,o)=>s+parseFloat((o.price||'0').replace(/[^0-9.]/g,'')),0);
-  const products      = Object.keys(getActiveProducts()).length;
+
+  /* Fetch live stats from API to get accurate product count and revenue */
+  authFetch('/api/admin/stats').then(r=>r.ok?r.json():null).then(apiStats=>{
+    const products = apiStats ? apiStats.productCount : Object.keys(getActiveProducts()).length;
+    const liveRevenue = apiStats && apiStats.revenue ? apiStats.revenue : revenue;
+    const stats = [
+      {label:'Total Orders',  value:orders.length,          sub:'All time',          cls:''},
+      {label:'Orders Today',  value:todayOrders.length,     sub:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'}), cls:''},
+      {label:'Total Revenue', value:Math.round(liveRevenue).toLocaleString()+' MAD', sub:'Completed orders',  cls:'accent'},
+      {label:'Pending',       value:pending.length,         sub:'Awaiting action',   cls:pending.length>0?'red-card':''},
+      {label:'Processing',    value:processing.length,      sub:'Being prepared',    cls:''},
+      {label:'Delivered',     value:done.length,            sub:'Fulfilled',         cls:'green'},
+      {label:'Cancelled',     value:cancelled.length,       sub:'Lost orders',       cls:cancelled.length>0?'red-card':''},
+      {label:'Products',      value:products,               sub:'In catalog',        cls:''},
+    ];
+    document.getElementById('dashStats').innerHTML = stats.map(s=>`
+      <div class="stat-card ${s.cls}">
+        <div class="stat-card-label">${s.label}</div>
+        <div class="stat-card-value">${s.value}</div>
+        <div class="stat-card-sub">${s.sub}</div>
+      </div>`).join('');
+  }).catch(()=>{});
 
   const stats = [
     {label:'Total Orders',  value:orders.length,          sub:'All time',          cls:''},
     {label:'Orders Today',  value:todayOrders.length,     sub:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'}), cls:''},
-    {label:'Total Revenue', value:revenue.toLocaleString()+' MAD', sub:'Completed orders',  cls:'accent'},
+    {label:'Total Revenue', value:Math.round(revenue).toLocaleString()+' MAD', sub:'Completed orders',  cls:'accent'},
     {label:'Pending',       value:pending.length,         sub:'Awaiting action',   cls:pending.length>0?'red-card':''},
     {label:'Processing',    value:processing.length,      sub:'Being prepared',    cls:''},
     {label:'Delivered',     value:done.length,            sub:'Fulfilled',         cls:'green'},
     {label:'Cancelled',     value:cancelled.length,       sub:'Lost orders',       cls:cancelled.length>0?'red-card':''},
-    {label:'Products',      value:products,               sub:'In catalog',        cls:''},
+    {label:'Products',      value:Object.keys(getActiveProducts()).length, sub:'In catalog', cls:''},
   ];
 
   document.getElementById('dashStats').innerHTML = stats.map(s=>`
@@ -2677,7 +2698,7 @@ function generateCode() {
 
 function openDiscountModal(id) {
   const d = id ? (_couponsCache.find(x=>x.id==id)||{}) : {};
-  document.getElementById('dmTitle').textContent = id ? 'Edit Discount Code' : 'Create Discount Code';
+  document.getElementById('discountModalTitle').textContent = id ? 'Edit Discount Code' : 'Create Discount Code';
   document.getElementById('dmEditId').value  = id||'';
   document.getElementById('dmCode').value    = d.code||'';
   document.getElementById('dmType').value    = d.type||'percent';
@@ -2921,10 +2942,14 @@ async function savePackDeal() {
   } catch(e) { showToast('Error saving pack deal','error'); }
 }
 
-function saveBanner() {
-  saveSettingsObj({ bannerHeadline:document.getElementById('bannerHeadline').value, bannerSub:document.getElementById('bannerSub').value, bannerCta:document.getElementById('bannerCta').value, bannerCtaLink:document.getElementById('bannerCtaLink').value });
-  logActivity('Banner saved');
-  showToast('Banner saved');
+async function saveBanner() {
+  const body = { bannerHeadline:document.getElementById('bannerHeadline').value, bannerSub:document.getElementById('bannerSub').value, bannerCta:document.getElementById('bannerCta').value, bannerCtaLink:document.getElementById('bannerCtaLink').value };
+  saveSettingsObj(body);
+  try {
+    const res = await authFetch('/api/admin/settings', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) { logActivity('Banner saved'); showToast('Banner saved'); }
+    else showToast('Failed to save banner','error');
+  } catch(e) { showToast('Error saving banner','error'); }
 }
 
 /* ═══════════════════════════════════════════
@@ -3195,14 +3220,8 @@ async function uploadFileToField(input, fieldId) {
     });
     const data = await res.json();
     if (data.url) {
-      const fullUrl = `${BACKEND_URL}/${data.url}`;
+      const fullUrl = data.url;
       document.getElementById(fieldId).value = fullUrl;
-      // Show image preview if it's an image field
-      if (fieldId === 'pmImage') {
-        const wrap = document.getElementById('pmImagePreview');
-        wrap.style.display = 'block';
-        wrap.querySelector('img').src = fullUrl;
-      }
       showToast('Upload complete!');
     } else {
       showToast(data.error || 'Upload failed', 'error');
@@ -3253,7 +3272,7 @@ async function uploadMediaFile(file) {
       const items = getMedia();
       items.unshift({
         id: 'm-'+Date.now()+Math.random(),
-        url: `${BACKEND_URL}/${data.url}`,
+        url: data.url,
         name: file.name,
         type: file.type.startsWith('video') ? 'video' : 'image',
         addedAt: new Date().toISOString()
