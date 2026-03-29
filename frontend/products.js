@@ -447,6 +447,13 @@ function syncProductPageUI(productKey) {
   if (!key || !PRODUCTS[key]) return;
   var p = PRODUCTS[key];
 
+  /* Name & breadcrumb */
+  var nameEl = document.querySelector('.product-name');
+  if (nameEl && p.name) nameEl.textContent = p.name.toUpperCase();
+  var crumb = document.querySelector('.breadcrumb .current');
+  if (crumb && p.name) crumb.textContent = p.name;
+  if (p.name) document.title = p.name + ' — StreetStore';
+
   var priceEl = document.querySelector('.product-price-display');
   if (priceEl && p.price) {
     var orig = p.comparePrice || p.originalPrice;
@@ -493,19 +500,22 @@ function syncProductPageUI(productKey) {
     if (typeof initGallerySlider === 'function') initGallerySlider();
   }
 
+  var videoWrap2 = document.getElementById('galleryVideoWrap');
+  var imagesWrap2 = document.getElementById('galleryImagesWrap');
   if (p.video) {
     var videoSrc = document.getElementById('productVideoSrc');
     var vid = document.getElementById('productVideo');
-    var videoWrap = document.getElementById('galleryVideoWrap');
-    var imagesWrap = document.getElementById('galleryImagesWrap');
     if (videoSrc && vid) {
       videoSrc.src = p.video;
       vid.load();
-      /* Reset visibility — video wrap may have been hidden by placeholder error */
-      if (videoWrap) { videoWrap.style.display = ''; videoWrap.style.opacity = '1'; videoWrap.style.transition = ''; }
-      if (imagesWrap) imagesWrap.classList.remove('reveal-images');
+      if (videoWrap2) { videoWrap2.style.display = ''; videoWrap2.style.opacity = '1'; videoWrap2.style.transition = ''; }
+      if (imagesWrap2) imagesWrap2.classList.remove('reveal-images');
       var pp = vid.play(); if (pp && pp.catch) pp.catch(function() {});
     }
+  } else {
+    /* No video — hide video wrap and show images immediately */
+    if (videoWrap2) videoWrap2.style.display = 'none';
+    if (imagesWrap2) imagesWrap2.classList.add('reveal-images');
   }
 }
 
