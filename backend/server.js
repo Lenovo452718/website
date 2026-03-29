@@ -228,7 +228,16 @@ function requireAuth(req, res, next) {
    PUBLIC ROUTES
 ════════════════════════════════════════ */
 app.get('/api/status', (req, res) => {
-  res.json({ service: 'StreetStore API', status: 'running', timestamp: new Date().toISOString() });
+  res.json({
+    service: 'StreetStore API',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    cloudinary: {
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME ? 'SET' : 'MISSING',
+      api_key:    process.env.CLOUDINARY_API_KEY    ? 'SET' : 'MISSING',
+      api_secret: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'MISSING',
+    }
+  });
 });
 
 /* POST /api/orders — place order from storefront */
