@@ -937,15 +937,10 @@ app.post('/api/admin/products/:id/variants', adminLimiter, requireAuth, async (r
 /* ── Product images ── */
 
 /* POST /api/admin/upload — upload image/video to Cloudinary, return URL */
-app.post('/api/admin/upload', adminLimiter, requireAuth, (req, res, next) => {
-  upload.single('file')(req, res, (err) => {
-    if (err) return res.status(400).json({ error: err.message || 'File rejected' });
-    next();
-  });
-}, async (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file received — make sure the field name is "file"' });
+app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   try {
-    const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname) || req.file.mimetype.startsWith('video/');
+    const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
     const result  = await streamUpload(req.file.buffer, {
       resource_type:   isVideo ? 'video' : 'image',
       folder:          'streetstore',
@@ -955,7 +950,7 @@ app.post('/api/admin/upload', adminLimiter, requireAuth, (req, res, next) => {
     return res.json({ url: result.secure_url, publicId: result.public_id });
   } catch (err) {
     console.error('Cloudinary upload error:', err.message);
-    res.status(500).json({ error: 'Upload failed: ' + (err.message || err) });
+    res.status(500).json({ error: 'Upload failed' });
   }
 });
 
