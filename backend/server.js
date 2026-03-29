@@ -119,7 +119,7 @@ runBackup();
 setInterval(runBackup, 24 * 60 * 60 * 1000);
 
 /* ── Helpers ── */
-function getClientIp(req) { return req.socket?.remoteAddress || 'unknown'; }
+function getClientIp(req) { return req.ip || req.socket?.remoteAddress || 'unknown'; }
 function sanitize(str, maxLen = 200) {
   if (typeof str !== 'string') return '';
   return str.replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
@@ -156,6 +156,7 @@ const streamUpload = (buffer, options) => new Promise((resolve, reject) => {
    APP + SOCKET.IO
 ════════════════════════════════════════ */
 const app        = express();
+app.set('trust proxy', 1); // trust CDN/proxy — use X-Forwarded-For for real client IPs
 const httpServer = http.createServer(app);
 const io         = new Server(httpServer, {
   cors: { origin: '*', methods: ['GET', 'POST'] }
