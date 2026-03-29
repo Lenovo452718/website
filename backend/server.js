@@ -190,6 +190,11 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: false,
 }));
+/* Prevent CDN from caching API responses */
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
+  next();
+});
 app.use(express.json({ limit: '10kb' }));
 app.use(cors({
   origin: function(origin, callback) {
@@ -839,7 +844,7 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
         href:         href || null,
         videoUrl:     videoUrl || null,
         color:        color || null,
-        status:       status || 'ACTIVE',
+        status:       (status || 'ACTIVE').toUpperCase(),
         isFeatured:   Boolean(isFeatured),
         variants: variants ? {
           create: variants.map(v => ({
@@ -877,7 +882,7 @@ app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res)
     if (href         !== undefined) data.href          = href || null;
     if (videoUrl     !== undefined) data.videoUrl      = videoUrl || null;
     if (color        !== undefined) data.color         = color || null;
-    if (status       !== undefined) data.status        = status;
+    if (status       !== undefined) data.status        = status.toUpperCase();
     if (sortOrder    !== undefined) data.sortOrder     = parseInt(sortOrder);
     if (isFeatured   !== undefined) data.isFeatured    = Boolean(isFeatured);
 
