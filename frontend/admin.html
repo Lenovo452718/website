@@ -2392,9 +2392,14 @@ async function saveProductModal() {
       productId = created.id;
 
       /* Upload queued images */
-      for (let i = 0; i < _pmQueuedImages.length; i++) {
-        await uploadAndAddImage(_pmQueuedImages[i], productId, i === 0);
+      const total = _pmQueuedImages.length;
+      let failed = 0;
+      for (let i = 0; i < total; i++) {
+        if (btn) btn.textContent = `Uploading ${i + 1}/${total}…`;
+        const ok = await uploadAndAddImage(_pmQueuedImages[i], productId, i === 0);
+        if (!ok) failed++;
       }
+      if (failed > 0) showToast(`${failed} image(s) failed to upload`, 'error');
       /* Create queued variants */
       for (const v of _pmQueuedVariants) {
         await addVariant(productId, v.size, v.inStock, v.stock);
@@ -2446,7 +2451,10 @@ async function uploadAndAddImage(file, productId, makeMain) {
   formData.append('file', file);
   try {
     const upRes = await authFetch('/api/admin/upload', { method: 'POST', body: formData });
-    if (!upRes.ok) throw new Error('Upload failed');
+    if (!upRes.ok) {
+      const err = await upRes.json().catch(() => ({}));
+      throw new Error(err.error || 'Upload failed');
+    }
     const upData = await upRes.json();
     if (!upData.url) throw new Error(upData.error || 'No URL returned');
     const addRes = await authFetch('/api/admin/products/' + productId + '/images', {
@@ -2454,15 +2462,17 @@ async function uploadAndAddImage(file, productId, makeMain) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: upData.url, publicId: upData.publicId || null, alt: file.name, isMain: !!makeMain })
     });
-    if (!addRes.ok) throw new Error('Add image failed');
+    if (!addRes.ok) throw new Error('Failed to save image');
     /* Refresh images in modal if still open for this product */
     const editId = document.getElementById('pmEditId').value;
     if (editId && editId === productId) {
       const pRes = await authFetch('/api/admin/products/' + productId);
       if (pRes.ok) { const p = await pRes.json(); pmRenderImages(p.images || [], productId); }
     }
+    return true;
   } catch(e) {
     showToast('Image upload failed: ' + e.message, 'error');
+    return false;
   }
 }
 
