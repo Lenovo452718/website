@@ -274,11 +274,20 @@ function getPackDiscount(cart) {
   const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   if (totalQty < 2) return 0;
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  // Calculate target price based on qty
-  const target = totalQty >= 3 ? _packSettings.packDeal3 : _packSettings.packDeal2;
-  // If subtotal is already less than or equal to target, no discount
-  if (subtotal <= target) return 0;
-  return Math.round(subtotal - target);
+
+  if (totalQty === 2) {
+    // Flat deal price for exactly 2 items
+    if (subtotal <= _packSettings.packDeal2) return 0;
+    return Math.round(subtotal - _packSettings.packDeal2);
+  }
+
+  // 3+ items: derive % discount from the 3-item deal, apply to full subtotal
+  // e.g. avg price 179, 3×179=537, packDeal3=479 → 10.8% off → same % applied to 4,5,6... items
+  const avgPrice = subtotal / totalQty;
+  const refPrice3 = avgPrice * 3;
+  if (refPrice3 <= _packSettings.packDeal3) return 0;
+  const discountPct = (refPrice3 - _packSettings.packDeal3) / refPrice3;
+  return Math.round(subtotal * discountPct);
 }
 
 function getProductColor(name) {
