@@ -171,34 +171,25 @@
       gap: 0;
     }
     .about-split-img {
-      background: linear-gradient(170deg, #0d0d0d 0%, #0d0d0d 55%, #e8e8e8 100%);
+      background: #000;
       min-height: 640px;
       position: relative;
       overflow: hidden;
       display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 52px 0 80px;
+      align-items: center;
+      justify-content: center;
     }
     .about-brand-top {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(100px, 15vw, 190px);
+      font-size: clamp(52px, 7.5vw, 108px);
       color: #fff;
-      letter-spacing: 0.02em;
-      line-height: 0.85;
-      padding-left: 28px;
-      position: relative;
-      z-index: 2;
-    }
-    .about-brand-bottom {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(36px, 5vw, 64px);
-      color: #fff;
-      letter-spacing: 0.18em;
+      letter-spacing: 0.06em;
       line-height: 1;
-      padding-left: 32px;
+      white-space: nowrap;
       position: relative;
       z-index: 2;
+      padding: 0 24px;
+      text-align: center;
     }
     .about-split-img-badge {
       position: absolute;
@@ -594,8 +585,7 @@
         min-height: 260px;
         order: 0;
       }
-      .about-brand-top { font-size: clamp(80px, 18vw, 140px); }
-      .about-brand-bottom { font-size: clamp(28px, 6vw, 48px); }
+      .about-brand-top { font-size: clamp(36px, 8vw, 72px); }
       .about-split-img-badge { bottom: 20px; left: 20px; font-size: 8px; padding: 7px 12px; }
       .about-split-text { padding: 44px 20px; }
       .about-split-text h2 { font-size: clamp(34px, 9vw, 52px); margin-bottom: 20px; }
@@ -773,8 +763,7 @@
 <!-- ===== SPLIT STORY ===== -->
 <div class="about-split">
   <div class="about-split-img">
-    <div class="about-brand-top">STREET</div>
-    <div class="about-brand-bottom">STORE</div>
+    <div class="about-brand-top">STREETSTORE</div>
     <span class="about-split-img-badge">
       <span data-lang="en">Premium · Morocco</span>
       <span data-lang="fr">Premium · Maroc</span>
