@@ -244,12 +244,12 @@ function renderCartItems() {
           <p class="cart-item-name">${escapeHtml(item.name)}</p>
           <p class="cart-item-price">${item.price} MAD &middot; ${escapeHtml(item.size)}</p>
           <div class="cart-item-qty">
-            <button onclick="updateQty(${JSON.stringify(item.id)}, -1)">−</button>
+            <button onclick='updateQty(${JSON.stringify(item.id)}, -1)'>−</button>
             <span>${item.qty}</span>
-            <button onclick="updateQty(${JSON.stringify(item.id)}, 1)">+</button>
+            <button onclick='updateQty(${JSON.stringify(item.id)}, 1)'>+</button>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="removeFromCart(${JSON.stringify(item.id)})">✕</button>
+        <button class="cart-item-remove" onclick='removeFromCart(${JSON.stringify(item.id)})'>✕</button>
       </div>
     `).join('');
   }
@@ -836,14 +836,14 @@ function initCheckout() {
               <p class="summary-item-name">${escapeHtml(item.name)}</p>
               <p class="summary-item-variant">Size: ${escapeHtml(item.size)}</p>
               <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-                <button onclick="updateQty(${JSON.stringify(item.id)},-1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
+                <button onclick='updateQty(${JSON.stringify(item.id)},-1)' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
                 <span style="font-size:13px;min-width:16px;text-align:center;">${item.qty}</span>
-                <button onclick="updateQty(${JSON.stringify(item.id)},1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
+                <button onclick='updateQty(${JSON.stringify(item.id)},1)' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
               </div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
               <span class="summary-item-price">${item.price * item.qty} MAD</span>
-              <button onclick="removeFromCartCheckout(${JSON.stringify(item.id)})" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
+              <button onclick='removeFromCartCheckout(${JSON.stringify(item.id)})' style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
             </div>
           </div>
         `).join('');
