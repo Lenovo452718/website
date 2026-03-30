@@ -171,7 +171,7 @@
       gap: 0;
     }
     .about-split-img {
-      background: #111;
+      background: #0d0d0d;
       min-height: 640px;
       position: relative;
       overflow: hidden;
@@ -179,19 +179,54 @@
       align-items: center;
       justify-content: center;
     }
-    /* big STREETSTORE text */
-    .about-split-img::after {
-      content: 'STREETSTORE';
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(52px, 7vw, 96px);
-      color: #fff;
-      letter-spacing: 0.06em;
-      line-height: 1;
+    /* subtle noise grain */
+    .about-split-img::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: 0.35;
+      pointer-events: none;
+    }
+    .about-brand-visual {
       position: relative;
-      z-index: 1;
-      user-select: none;
+      z-index: 2;
       text-align: center;
-      padding: 0 32px;
+      padding: 0 28px;
+      user-select: none;
+    }
+    .about-brand-line1 {
+      display: block;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(72px, 10vw, 148px);
+      color: #fff;
+      letter-spacing: 0.08em;
+      line-height: 0.88;
+    }
+    .about-brand-divider {
+      display: block;
+      width: 48px;
+      height: 1px;
+      background: rgba(255,255,255,0.35);
+      margin: 18px auto;
+    }
+    .about-brand-line2 {
+      display: block;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(72px, 10vw, 148px);
+      color: transparent;
+      -webkit-text-stroke: 1.5px rgba(255,255,255,0.85);
+      letter-spacing: 0.08em;
+      line-height: 0.88;
+    }
+    .about-brand-year {
+      display: block;
+      font-size: 10px;
+      letter-spacing: 0.3em;
+      color: rgba(255,255,255,0.3);
+      text-transform: uppercase;
+      margin-top: 28px;
     }
     .about-split-img-badge {
       position: absolute;
@@ -587,7 +622,7 @@
         min-height: 260px;
         order: 0;
       }
-      .about-split-img::after { font-size: 110px; }
+      .about-brand-line1, .about-brand-line2 { font-size: clamp(56px, 14vw, 110px); }
       .about-split-img-badge { bottom: 20px; left: 20px; font-size: 8px; padding: 7px 12px; }
       .about-split-text { padding: 44px 20px; }
       .about-split-text h2 { font-size: clamp(34px, 9vw, 52px); margin-bottom: 20px; }
@@ -765,6 +800,12 @@
 <!-- ===== SPLIT STORY ===== -->
 <div class="about-split">
   <div class="about-split-img">
+    <div class="about-brand-visual">
+      <span class="about-brand-line1">STREET</span>
+      <span class="about-brand-divider"></span>
+      <span class="about-brand-line2">STORE</span>
+      <span class="about-brand-year">Est. 2024 · Morocco</span>
+    </div>
     <span class="about-split-img-badge">
       <span data-lang="en">Premium · Morocco</span>
       <span data-lang="fr">Premium · Maroc</span>
