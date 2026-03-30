@@ -1195,7 +1195,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .product-grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 2px;
   padding-left: 36px;
 }
@@ -2231,7 +2231,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .instagram-grid { grid-template-columns: repeat(3, 1fr); padding: 0 24px; }
   .footer-grid { grid-template-columns: 1fr 1fr; padding: 0 24px; }
   .shop-layout { grid-template-columns: 240px 1fr; padding: 32px 24px; }
-  .product-grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .product-grid-3 { grid-template-columns: repeat(3, 1fr); }
   .product-layout { padding: 0 24px 80px; }
   .lookbook-grid { padding: 48px 24px 80px; }
   .about-split { padding: 80px 24px; }
