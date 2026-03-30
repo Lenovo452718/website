@@ -176,57 +176,84 @@
       position: relative;
       overflow: hidden;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 48px 0 100px;
     }
-    /* subtle noise grain */
+    /* dot grid */
     .about-split-img::before {
       content: '';
       position: absolute;
       inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      background-size: 200px 200px;
-      opacity: 0.35;
+      background-image: radial-gradient(circle, rgba(255,255,255,0.07) 1px, transparent 1px);
+      background-size: 28px 28px;
       pointer-events: none;
+      z-index: 0;
     }
-    .about-brand-visual {
+    /* diagonal accent slash */
+    .about-split-img::after {
+      content: '';
+      position: absolute;
+      top: -10%; left: -10%;
+      width: 60%; height: 130%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.025) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .about-brand-top {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(88px, 13vw, 172px);
+      color: #fff;
+      letter-spacing: 0.02em;
+      line-height: 0.85;
+      padding-left: 28px;
       position: relative;
       z-index: 2;
-      text-align: center;
+    }
+    .about-brand-center {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      position: relative;
+      z-index: 2;
       padding: 0 28px;
-      user-select: none;
     }
-    .about-brand-line1 {
-      display: block;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(72px, 10vw, 148px);
-      color: #fff;
-      letter-spacing: 0.08em;
-      line-height: 0.88;
-    }
-    .about-brand-divider {
-      display: block;
-      width: 48px;
+    .about-brand-rule {
+      flex: 1;
       height: 1px;
-      background: rgba(255,255,255,0.35);
-      margin: 18px auto;
+      background: rgba(255,255,255,0.15);
     }
-    .about-brand-line2 {
-      display: block;
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(72px, 10vw, 148px);
-      color: transparent;
-      -webkit-text-stroke: 1.5px rgba(255,255,255,0.85);
-      letter-spacing: 0.08em;
-      line-height: 0.88;
-    }
-    .about-brand-year {
-      display: block;
-      font-size: 10px;
-      letter-spacing: 0.3em;
-      color: rgba(255,255,255,0.3);
+    .about-brand-tag {
+      font-size: 9px;
+      letter-spacing: 0.35em;
+      color: rgba(255,255,255,0.35);
       text-transform: uppercase;
-      margin-top: 28px;
+      padding: 0 16px;
+      white-space: nowrap;
+    }
+    .about-brand-bottom {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(88px, 13vw, 172px);
+      color: transparent;
+      -webkit-text-stroke: 2px rgba(255,255,255,0.55);
+      letter-spacing: 0.02em;
+      line-height: 0.85;
+      text-align: right;
+      padding-right: 28px;
+      position: relative;
+      z-index: 2;
+    }
+    .about-brand-side {
+      position: absolute;
+      left: -22px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+      font-size: 8px;
+      letter-spacing: 0.45em;
+      color: rgba(255,255,255,0.18);
+      text-transform: uppercase;
+      white-space: nowrap;
+      z-index: 2;
     }
     .about-split-img-badge {
       position: absolute;
@@ -622,7 +649,7 @@
         min-height: 260px;
         order: 0;
       }
-      .about-brand-line1, .about-brand-line2 { font-size: clamp(56px, 14vw, 110px); }
+      .about-brand-top, .about-brand-bottom { font-size: clamp(64px, 16vw, 120px); }
       .about-split-img-badge { bottom: 20px; left: 20px; font-size: 8px; padding: 7px 12px; }
       .about-split-text { padding: 44px 20px; }
       .about-split-text h2 { font-size: clamp(34px, 9vw, 52px); margin-bottom: 20px; }
@@ -800,12 +827,14 @@
 <!-- ===== SPLIT STORY ===== -->
 <div class="about-split">
   <div class="about-split-img">
-    <div class="about-brand-visual">
-      <span class="about-brand-line1">STREET</span>
-      <span class="about-brand-divider"></span>
-      <span class="about-brand-line2">STORE</span>
-      <span class="about-brand-year">Est. 2024 · Morocco</span>
+    <span class="about-brand-side">Premium Denim · Morocco · Est. 2024</span>
+    <div class="about-brand-top">STREET</div>
+    <div class="about-brand-center">
+      <span class="about-brand-rule"></span>
+      <span class="about-brand-tag">Est. 2024</span>
+      <span class="about-brand-rule"></span>
     </div>
+    <div class="about-brand-bottom">STORE</div>
     <span class="about-split-img-badge">
       <span data-lang="en">Premium · Morocco</span>
       <span data-lang="fr">Premium · Maroc</span>
