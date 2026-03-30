@@ -171,7 +171,7 @@
       gap: 0;
     }
     .about-split-img {
-      background: linear-gradient(160deg, #0a1628 0%, #1a3060 60%, #0f1f3d 100%);
+      background: #111;
       min-height: 640px;
       position: relative;
       overflow: hidden;
@@ -179,28 +179,19 @@
       align-items: center;
       justify-content: center;
     }
-    /* diagonal stripe overlay */
-    .about-split-img::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        -45deg, transparent, transparent 20px,
-        rgba(255,255,255,0.022) 20px,
-        rgba(255,255,255,0.022) 21px
-      );
-    }
-    /* big monogram */
+    /* big STREETSTORE text */
     .about-split-img::after {
-      content: 'SS';
+      content: 'STREETSTORE';
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(120px, 18vw, 220px);
-      color: rgba(255,255,255,0.06);
-      letter-spacing: -0.04em;
+      font-size: clamp(52px, 7vw, 96px);
+      color: #fff;
+      letter-spacing: 0.06em;
       line-height: 1;
       position: relative;
       z-index: 1;
       user-select: none;
+      text-align: center;
+      padding: 0 32px;
     }
     .about-split-img-badge {
       position: absolute;
