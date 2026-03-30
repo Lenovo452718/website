@@ -3,16 +3,29 @@
    ============================================================ */
 
 /* ── Pack Deal Settings ── */
-let _packSettings = { packDeal2: 319, packDeal3: 479, packEnabled: true };
+let _packSettings = {
+  packDeal2: 319,
+  packDeal3: 479,
+  packEnabled: true,
+  packDealBadge: 'Save up to 10% off',
+  packDealSub: 'Mix & match any styles — discount applied automatically in cart',
+};
 
 function fetchPackSettings() {
   var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
   fetch(API + '/api/settings')
     .then(function(r) { return r.json(); })
     .then(function(s) {
-      if (s.packDeal2) _packSettings.packDeal2 = s.packDeal2;
-      if (s.packDeal3) _packSettings.packDeal3 = s.packDeal3;
+      if (s.packDeal2)    _packSettings.packDeal2    = s.packDeal2;
+      if (s.packDeal3)    _packSettings.packDeal3    = s.packDeal3;
       if (s.packEnabled !== undefined) _packSettings.packEnabled = s.packEnabled;
+      if (s.packDealBadge) _packSettings.packDealBadge = s.packDealBadge;
+      if (s.packDealSub)   _packSettings.packDealSub   = s.packDealSub;
+      // Update cart deal offer text if already rendered
+      var titleEl = document.getElementById('cartDealTitle');
+      var subEl   = document.getElementById('cartDealSub');
+      if (titleEl) titleEl.textContent = _packSettings.packDealBadge;
+      if (subEl)   subEl.textContent   = _packSettings.packDealSub;
     })
     .catch(function() {});
 }
@@ -314,8 +327,8 @@ function injectCartDrawer() {
       <div class="cart-deal-offer" id="cartDealOffer" style="display:none;">
         <div class="cart-deal-icon">🎁</div>
         <div class="cart-deal-text">
-          <p class="cart-deal-title">Add 1 more &amp; save 39 MAD!</p>
-          <p class="cart-deal-sub">Buy 2 &amp; get a pack discount automatically.</p>
+          <p class="cart-deal-title" id="cartDealTitle">${_packSettings.packDealBadge}</p>
+          <p class="cart-deal-sub" id="cartDealSub">${_packSettings.packDealSub}</p>
         </div>
         <a href="shop.html" style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--charcoal);white-space:nowrap;text-decoration:none;border-bottom:1px solid var(--charcoal);">Add →</a>
       </div>
@@ -858,8 +871,17 @@ function updateCheckoutTotals(shippingCost) {
     discountEl.textContent = '−' + discount + ' MAD';
   }
 
-  // Upsell banner: show when exactly 1 total item in cart
-  if (upsellBanner) upsellBanner.style.display = (totalQty === 1 && subtotal > 0) ? '' : 'none';
+  // Upsell banner: show when exactly 1 total item in cart, with dynamic saving amount
+  if (upsellBanner) {
+    upsellBanner.style.display = (totalQty === 1 && subtotal > 0) ? '' : 'none';
+    if (totalQty === 1 && cart.length > 0) {
+      const potentialSaving = Math.max(0, Math.round(cart[0].price * 2 - _packSettings.packDeal2));
+      const tagEl  = document.getElementById('checkoutUpsellTag');
+      const descEl = document.getElementById('checkoutUpsellDesc');
+      if (tagEl  && potentialSaving > 0) tagEl.textContent  = '−' + potentialSaving + ' MAD';
+      if (descEl && potentialSaving > 0) descEl.textContent = 'Add a 2nd jean and save ' + potentialSaving + ' MAD on your order.';
+    }
+  }
 
   // Deal badge: show when discount is applied
   if (dealBadge) dealBadge.style.display = discount > 0 ? '' : 'none';
