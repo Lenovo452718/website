@@ -26,6 +26,26 @@ function fetchPackSettings() {
       var subEl   = document.getElementById('cartDealSub');
       if (titleEl) titleEl.textContent = _packSettings.packDealBadge;
       if (subEl)   subEl.textContent   = _packSettings.packDealSub;
+      // Update product page pack deal block
+      var mainEl = document.querySelector('.pack-deal-main');
+      if (mainEl) {
+        var spans = mainEl.querySelectorAll('span');
+        if (spans[0]) spans[0].textContent = _packSettings.packDeal2 + ' MAD';
+        if (spans[1]) spans[1].textContent = _packSettings.packDeal3 + ' MAD';
+      }
+      document.querySelectorAll('.pack-deal-sub').forEach(function(el) {
+        el.textContent = _packSettings.packDealSub;
+      });
+      document.querySelectorAll('.pack-deal-badge').forEach(function(el) {
+        el.textContent = _packSettings.packDealBadge;
+      });
+      // Update "complete look" deal line
+      document.querySelectorAll('.complete-look-deal span[data-lang="en"]').forEach(function(el) {
+        el.textContent = 'Buy 2 & save \u2014 ' + _packSettings.packDeal2 + ' MAD for 2 items';
+      });
+      document.querySelectorAll('.complete-look-deal span[data-lang="fr"]').forEach(function(el) {
+        el.textContent = 'Achetez 2 & \u00e9conomisez \u2014 ' + _packSettings.packDeal2 + ' MAD pour 2 articles';
+      });
     })
     .catch(function() {});
 }
