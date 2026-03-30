@@ -956,6 +956,9 @@ function initContactForm() {
 function initScrollReveal() {
   if (!('IntersectionObserver' in window)) {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    window.reObserveReveal = function() {
+      document.querySelectorAll('.reveal:not(.visible)').forEach(el => el.classList.add('visible'));
+    };
     return;
   }
   const observer = new IntersectionObserver(entries => {
@@ -968,6 +971,14 @@ function initScrollReveal() {
   }, { threshold: 0.12 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Expose so dynamically-rendered grids can register new .reveal elements
+  window.reObserveReveal = function() {
+    document.querySelectorAll('.reveal:not(.observed-reveal)').forEach(el => {
+      el.classList.add('observed-reveal');
+      observer.observe(el);
+    });
+  };
 }
 
 /* ============================================================
