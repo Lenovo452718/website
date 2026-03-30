@@ -480,6 +480,13 @@ function syncProductPageUI(productKey) {
       sizeSelector.querySelectorAll('.size-btn').forEach(function(btn) {
         if (inStock && !inStock.includes(btn.textContent.trim())) { btn.classList.add('sold-out'); btn.disabled = true; }
       });
+      // Auto-select first available size
+      var firstAvailable = sizeSelector.querySelector('.size-btn:not(.sold-out)');
+      if (firstAvailable) {
+        firstAvailable.classList.add('active');
+        var selectedSizeEl = document.getElementById('selectedSize');
+        if (selectedSizeEl) selectedSizeEl.textContent = firstAvailable.textContent.trim();
+      }
       if (typeof initSizeSelector === 'function') initSizeSelector();
     }
   }

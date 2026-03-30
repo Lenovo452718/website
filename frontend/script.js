@@ -633,6 +633,11 @@ function initGallery() {
 function initSizeSelector() {
   const btns = document.querySelectorAll('.size-btn:not(.sold-out)');
   const selectedSizeEl = document.getElementById('selectedSize');
+  // Auto-select first size if none is active yet
+  if (btns.length && !document.querySelector('.size-btn.active')) {
+    btns[0].classList.add('active');
+    if (selectedSizeEl) selectedSizeEl.textContent = btns[0].textContent.trim();
+  }
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
@@ -714,7 +719,9 @@ function initQuickAdd() {
       const imgEl = card.querySelector('[data-product-img]');
       const productId = imgEl ? imgEl.dataset.productImg : null;
       const imageUrl = (productId && typeof PRODUCTS !== 'undefined' && PRODUCTS[productId]) ? PRODUCTS[productId].image : null;
-      addToCart(name, price, '', 'M', imageUrl);
+      const productData = (productId && typeof PRODUCTS !== 'undefined') ? PRODUCTS[productId] : null;
+      const firstSize = productData && productData.sizes ? productData.sizes.split(',')[0].trim() : '';
+      addToCart(name, price, '', firstSize, imageUrl);
     });
   });
 }
