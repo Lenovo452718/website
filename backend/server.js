@@ -184,6 +184,8 @@ app.use(cors({
     if (origin.startsWith('http://localhost') ||
         origin.startsWith('http://127.0.0.1') ||
         origin.endsWith('.github.io') ||
+        origin === 'https://streetstore.ma' ||
+        origin === 'https://www.streetstore.ma' ||
         origin === (process.env.WEBSITE_URL || '')) return callback(null, true);
     callback(null, false);
   },
@@ -246,12 +248,16 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
 app.get('/api/products/overrides', async (req, res) => {
   try {
     const products = await prisma.product.findMany({
-      where:   { status: 'ACTIVE' },
-      include: { images: { where: { isMain: true }, take: 1 }, variants: true },
+      include: { images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } },
       orderBy: { sortOrder: 'asc' },
     });
     const overrides = {};
     for (const p of products) {
+      if (p.status !== 'ACTIVE') {
+        // Signal the storefront to hide this product
+        overrides[p.slug] = null;
+        continue;
+      }
       overrides[p.slug] = {
         name:          p.name,
         price:         p.price,
@@ -262,12 +268,12 @@ app.get('/api/products/overrides', async (req, res) => {
         sizes:         p.variants.map(v => v.size).filter(Boolean).join(','),
         sizesInStock:  p.variants.filter(v => v.inStock).map(v => v.size).filter(Boolean),
         color:         '',
-        image:         p.images[0]?.url || null,
-        gallery:       [],
+        image:         (p.images.find(i => i.isMain) || p.images[0])?.url || null,
+        gallery:       p.images.map(i => i.url),
         video:         null,
         href:          p.href || `product-${p.slug}.html`,
         description:   p.description || '',
-        inStock:       p.variants.some(v => v.inStock),
+        inStock:       p.variants.length === 0 || p.variants.some(v => v.inStock),
         status:        p.status,
       };
     }
