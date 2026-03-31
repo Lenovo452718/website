@@ -224,6 +224,21 @@ const orderLimiter = rateLimit({ windowMs: 15 * 60_000, max: 5,   keyGenerator: 
 const adminLimiter = rateLimit({ windowMs: 60_000,       max: 120, keyGenerator: req => getClientIp(req), message: { error: 'Too many requests.' } });
 const authLimiter  = rateLimit({ windowMs: 15 * 60_000, max: 20,  keyGenerator: req => getClientIp(req), message: { error: 'Too many auth attempts.' } });
 
+/* ── Customer JWT middleware ── */
+function requireCustomerAuth(req, res, next) {
+  const header = req.headers['authorization'] || '';
+  const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
+  if (!token) return res.status(401).json({ error: 'Not authenticated' });
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded.customerId) return res.status(401).json({ error: 'Invalid token' });
+    req.customerId = decoded.customerId;
+    next();
+  } catch {
+    return res.status(401).json({ error: 'Session expired. Please sign in again.' });
+  }
+}
+
 /* ── JWT middleware ── */
 function requireAuth(req, res, next) {
   const header = req.headers['authorization'] || '';
@@ -1307,6 +1322,89 @@ app.post('/api/admin/migrate-images', adminLimiter, requireAuth, async (req, res
 });
 
 /* ════════════════════════════════════════
+   PUBLIC CONFIG
+════════════════════════════════════════ */
+app.get('/api/config/public', (req, res) => {
+  res.json({ googleClientId: process.env.GOOGLE_CLIENT_ID || '' });
+});
+
+/* ════════════════════════════════════════
+   CUSTOMER AUTH (Google Sign-In)
+════════════════════════════════════════ */
+
+/* POST /api/auth/google */
+app.post('/api/auth/google', authLimiter, async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) return res.status(400).json({ error: 'No credential provided' });
+  try {
+    const info = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(credential)}`).then(r => r.json());
+    if (info.error) return res.status(401).json({ error: 'Invalid Google token' });
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    if (clientId && info.aud !== clientId) return res.status(401).json({ error: 'Token audience mismatch' });
+    const { email, name, picture, sub: googleId } = info;
+    if (!email) return res.status(400).json({ error: 'No email in token' });
+
+    let [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, createdAt FROM Customer WHERE email = ${email} LIMIT 1`;
+    if (!customer) {
+      const id = 'cust-' + Date.now();
+      await prisma.$executeRaw`INSERT INTO Customer (id, email, name, avatar, googleId) VALUES (${id}, ${email}, ${name || ''}, ${picture || null}, ${googleId || null})`;
+      [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, createdAt FROM Customer WHERE id = ${id} LIMIT 1`;
+    } else if (!customer.googleId) {
+      await prisma.$executeRaw`UPDATE Customer SET googleId = ${googleId}, avatar = ${picture || null} WHERE id = ${customer.id}`;
+      customer.googleId = googleId;
+      customer.avatar   = picture;
+    }
+
+    const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
+    res.json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt } });
+  } catch (err) {
+    console.error('Google auth error:', err.message);
+    res.status(500).json({ error: 'Authentication failed' });
+  }
+});
+
+/* GET /api/customer/me */
+app.get('/api/customer/me', requireCustomerAuth, async (req, res) => {
+  try {
+    const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, createdAt FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
+    if (!customer) return res.status(404).json({ error: 'Account not found' });
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch profile' });
+  }
+});
+
+/* PATCH /api/customer/profile */
+app.patch('/api/customer/profile', requireCustomerAuth, async (req, res) => {
+  try {
+    const { phone, name } = req.body;
+    if (phone !== undefined) await prisma.$executeRaw`UPDATE Customer SET phone = ${sanitize(phone, 20) || null} WHERE id = ${req.customerId}`;
+    if (name  !== undefined) await prisma.$executeRaw`UPDATE Customer SET name  = ${sanitize(name, 100)}      WHERE id = ${req.customerId}`;
+    const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, createdAt FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
+    res.json(customer);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update profile' });
+  }
+});
+
+/* GET /api/customer/orders */
+app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
+  try {
+    const [customer] = await prisma.$queryRaw`SELECT phone FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
+    if (!customer || !customer.phone) return res.json([]);
+    const orders = await prisma.order.findMany({
+      where:   { phone: customer.phone },
+      include: { items: true },
+      orderBy: { createdAt: 'desc' },
+      take:    50,
+    });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
+/* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */
 /* Run safe DB migrations on startup — fully non-blocking */
@@ -1326,6 +1424,8 @@ function runMigrations() {
     "CREATE INDEX IF NOT EXISTS idx_product_status ON `Product` (status)",
     "CREATE INDEX IF NOT EXISTS idx_order_status ON `Order` (status)",
     "CREATE INDEX IF NOT EXISTS idx_order_created ON `Order` (createdAt)",
+    "CREATE TABLE IF NOT EXISTS `Customer` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `email` VARCHAR(255) NOT NULL, `name` VARCHAR(255) NOT NULL DEFAULT '', `avatar` VARCHAR(500) NULL, `googleId` VARCHAR(255) NULL, `phone` VARCHAR(30) NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
+    "CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_email ON `Customer` (email)",
   ];
   (async () => {
     for (const sql of migrations) {

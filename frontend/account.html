@@ -238,11 +238,11 @@
   <div class="account-hero-bg"></div>
   <div class="account-hero-grid"></div>
   <div class="account-hero-inner">
-    <div class="account-hero-avatar">S</div>
+    <div class="account-hero-avatar" id="heroAvatar">?</div>
     <div class="account-hero-text">
-      <p class="account-hero-tag" data-i18n="nav_account">Account</p>
-      <h1 class="account-hero-name">Sarah M.</h1>
-      <p class="account-hero-since" data-i18n="member_since">Member since 2024</p>
+      <p class="account-hero-tag">Account</p>
+      <h1 class="account-hero-name" id="heroName">My Account</h1>
+      <p class="account-hero-since" id="heroSince">Member</p>
     </div>
   </div>
 </section>
@@ -279,112 +279,57 @@
   <!-- CONTENT -->
   <div class="account-content">
 
+    <!-- PHONE LINK BANNER -->
+    <div id="phoneLinkBanner" style="display:none; background:#fff8e8; border:1px solid #e0c97a; padding:20px 24px; margin-bottom:32px;">
+      <p style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:4px;">Link your phone number to see your orders</p>
+      <p style="font-size:13px;color:#888;margin-bottom:14px;">Enter the phone number you used when placing your orders.</p>
+      <form id="phoneLinkForm" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input type="tel" id="linkPhoneInput" placeholder="e.g. 0612345678" required
+          style="flex:1;min-width:180px;padding:11px 14px;border:1.5px solid #ddd;font-size:14px;font-family:inherit;outline:none;border-radius:4px;">
+        <button type="submit" id="linkPhoneBtn"
+          style="padding:11px 22px;background:#1a1a1a;color:#fff;border:none;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-family:inherit;">
+          Link & View Orders
+        </button>
+      </form>
+      <p id="phoneLinkError" style="display:none;color:#c0392b;font-size:13px;margin-top:8px;"></p>
+    </div>
+
     <!-- ORDERS -->
     <div id="orders">
-      <p class="account-section-title" data-i18n="my_orders">My Orders</p>
+      <p class="account-section-title">My Orders</p>
       <table class="orders-table">
         <thead>
           <tr>
-            <th data-i18n="order_num">Order #</th>
-            <th data-i18n="date_col">Date</th>
-            <th data-i18n="items_col">Items</th>
-            <th data-i18n="total_col">Total</th>
-            <th data-i18n="status_col">Status</th>
-            <th data-i18n="action_col">Action</th>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>City</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td><strong>SS-2026-0847</strong></td>
-            <td>
-              <span data-lang="en">Mar 10, 2026</span>
-              <span data-lang="fr">10 mars 2026</span>
-            </td>
-            <td>2</td>
-            <td><strong>319 MAD</strong></td>
-            <td><span class="order-status processing" data-i18n="status_processing">Processing</span></td>
-            <td><a href="#" class="order-action" data-i18n="track">Track</a></td>
-          </tr>
-          <tr>
-            <td><strong>SS-2026-0621</strong></td>
-            <td>
-              <span data-lang="en">Feb 14, 2026</span>
-              <span data-lang="fr">14 fév. 2026</span>
-            </td>
-            <td>1</td>
-            <td><strong>179 MAD</strong></td>
-            <td><span class="order-status shipped" data-i18n="status_shipped">Shipped</span></td>
-            <td><a href="#" class="order-action" data-i18n="track">Track</a></td>
-          </tr>
-          <tr>
-            <td><strong>SS-2025-1103</strong></td>
-            <td>
-              <span data-lang="en">Dec 5, 2025</span>
-              <span data-lang="fr">5 déc. 2025</span>
-            </td>
-            <td>3</td>
-            <td><strong>479 MAD</strong></td>
-            <td><span class="order-status delivered" data-i18n="status_delivered">Delivered</span></td>
-            <td><a href="#" class="order-action" data-i18n="reorder">Reorder</a></td>
-          </tr>
+        <tbody id="ordersBody">
+          <tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">Loading orders...</td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- WISHLIST -->
-    <div id="wishlist">
-      <p class="account-section-title" data-i18n="wishlist">Wishlist</p>
-      <div class="wishlist-grid">
-
-        <div class="product-card">
-          <div class="product-card-img">
-            <div class="product-card-img-inner" style="background-image:url('images/products/patte-elephant/1.jpg'); background-size:cover; background-position:center;"></div>
-            <button class="wishlist-btn" style="opacity:1; background:var(--charcoal); color:var(--white);">♥</button>
-            <button class="product-card-quick" data-i18n="quick_add" data-name="Patte d'éléphant Jean" data-price="179">Quick Add</button>
-          </div>
-          <div class="product-card-info">
-            <p class="product-card-name"><a href="product-patte-elephant.html">Patte d'éléphant Jean</a></p>
-            <p class="product-card-fit">
-              <span data-lang="en">Flare Fit</span>
-              <span data-lang="fr">Coupe évasée</span>
-            </p>
-            <p class="product-card-price">179 MAD</p>
-          </div>
+    <!-- PROFILE -->
+    <div id="profile" style="margin-top:48px;">
+      <p class="account-section-title">Profile</p>
+      <div style="background:#fff;border:1px solid var(--gray-light);padding:24px;max-width:480px;">
+        <div style="margin-bottom:16px;">
+          <label style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;display:block;margin-bottom:6px;">Name</label>
+          <p id="profileName" style="font-size:15px;color:#1a1a1a;"></p>
         </div>
-
-        <div class="product-card">
-          <div class="product-card-img">
-            <div class="product-card-img-inner" style="background-image:url('images/products/baggy-wide-leg/1.jpg'); background-size:cover; background-position:center;"></div>
-            <button class="wishlist-btn" style="opacity:1; background:var(--charcoal); color:var(--white);">♥</button>
-            <button class="product-card-quick" data-i18n="quick_add" data-name="Baggy Wide Leg" data-price="179">Quick Add</button>
-          </div>
-          <div class="product-card-info">
-            <p class="product-card-name"><a href="product-baggy-wide-leg.html">Baggy Wide Leg</a></p>
-            <p class="product-card-fit">
-              <span data-lang="en">Wide Leg Fit</span>
-              <span data-lang="fr">Jambe large</span>
-            </p>
-            <p class="product-card-price">179 MAD</p>
-          </div>
+        <div style="margin-bottom:16px;">
+          <label style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;display:block;margin-bottom:6px;">Email</label>
+          <p id="profileEmail" style="font-size:15px;color:#1a1a1a;"></p>
         </div>
-
-        <div class="product-card">
-          <div class="product-card-img">
-            <div class="product-card-img-inner" style="background-image:url('images/products/high-rise-dark-blue/1.jpg'); background-size:cover; background-position:center;"></div>
-            <span class="product-badge new-badge" data-i18n="new_in">New In</span>
-            <button class="wishlist-btn" style="opacity:1; background:var(--charcoal); color:var(--white);">♥</button>
-            <button class="product-card-quick" data-i18n="quick_add" data-name="High Rise Dark Blue" data-price="179">Quick Add</button>
-          </div>
-          <div class="product-card-info">
-            <p class="product-card-name"><a href="product-high-rise-dark-blue.html">High Rise Dark Blue</a></p>
-            <p class="product-card-fit">
-              <span data-lang="en">High Rise Fit</span>
-              <span data-lang="fr">Taille haute</span>
-            </p>
-            <p class="product-card-price">179 MAD</p>
-          </div>
+        <div>
+          <label style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;display:block;margin-bottom:6px;">Phone</label>
+          <p id="profilePhone" style="font-size:15px;color:#1a1a1a;"></p>
         </div>
-
       </div>
     </div>
 
@@ -433,10 +378,143 @@
 
 <a href="https://wa.me/212771152186" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
 <script src="config.js"></script>
-<script src="products.js"></script>
 <script src="lang.js"></script>
 <script src="i18n.js"></script>
 <script src="script.js"></script>
 <script src="mobile.js"></script>
+<script>
+(function() {
+  const BACKEND = window.STREETSTORE_BACKEND || 'https://streetstore.ma';
+  const TOKEN_KEY    = 'ss_customer_token';
+  const CUSTOMER_KEY = 'ss_customer';
+
+  // ── Auth check ──
+  const token = localStorage.getItem(TOKEN_KEY);
+  let customer = null;
+  try { customer = JSON.parse(localStorage.getItem(CUSTOMER_KEY) || 'null'); } catch(e) {}
+  if (!token || !customer) { window.location.href = 'signup.html'; return; }
+
+  // ── Populate hero ──
+  function populateHero(c) {
+    const avatar = document.getElementById('heroAvatar');
+    const name   = document.getElementById('heroName');
+    const since  = document.getElementById('heroSince');
+    if (c.avatar) {
+      avatar.innerHTML = '<img src="' + c.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" referrerpolicy="no-referrer">';
+    } else {
+      avatar.textContent = c.name ? c.name[0].toUpperCase() : '?';
+    }
+    if (name)  name.textContent  = c.name  || 'My Account';
+    if (since) since.textContent = 'Member since ' + new Date(c.createdAt || Date.now()).getFullYear();
+  }
+
+  // ── Populate profile section ──
+  function populateProfile(c) {
+    const pName  = document.getElementById('profileName');
+    const pEmail = document.getElementById('profileEmail');
+    const pPhone = document.getElementById('profilePhone');
+    if (pName)  pName.textContent  = c.name  || '—';
+    if (pEmail) pEmail.textContent = c.email || '—';
+    if (pPhone) pPhone.textContent = c.phone || 'Not linked yet';
+  }
+
+  // ── Load orders from API ──
+  async function loadOrders() {
+    const tbody = document.getElementById('ordersBody');
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#888;">Loading...</td></tr>';
+    try {
+      const res = await fetch(BACKEND + '/api/customer/orders', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (res.status === 401) { logout(); return; }
+      const orders = await res.json();
+      if (!orders.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">No orders found for your phone number.</td></tr>';
+        return;
+      }
+      const statusColor = { pending:'#e67e22', confirmed:'#2980b9', processing:'#8e44ad', done:'#27ae60', delivered:'#27ae60', cancelled:'#c0392b', called:'#16a085', reported:'#c0392b' };
+      tbody.innerHTML = orders.map(function(o) {
+        const date  = new Date(o.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+        const color = statusColor[o.status] || '#888';
+        const items = o.items || [];
+        const qty   = items.reduce(function(s, i) { return s + (i.qty || 1); }, 0);
+        return '<tr>' +
+          '<td><strong>#' + o.id.slice(-6).toUpperCase() + '</strong></td>' +
+          '<td>' + date + '</td>' +
+          '<td>' + qty + ' item' + (qty !== 1 ? 's' : '') + '</td>' +
+          '<td><strong>' + (o.total || 0) + ' MAD</strong></td>' +
+          '<td><span class="order-status" style="background:' + color + '18;color:' + color + '">' + o.status + '</span></td>' +
+          '<td style="font-size:12px;color:#888;">' + (o.city || '') + '</td>' +
+        '</tr>';
+      }).join('');
+    } catch(e) {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#c0392b;">Failed to load orders.</td></tr>';
+    }
+  }
+
+  // ── Phone linking ──
+  async function handlePhoneLink(e) {
+    e.preventDefault();
+    const phone  = document.getElementById('linkPhoneInput').value.trim();
+    const btn    = document.getElementById('linkPhoneBtn');
+    const errEl  = document.getElementById('phoneLinkError');
+    if (!phone) return;
+    btn.disabled = true;
+    btn.textContent = 'Linking...';
+    errEl.style.display = 'none';
+    try {
+      const res = await fetch(BACKEND + '/api/customer/profile', {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body:    JSON.stringify({ phone }),
+      });
+      if (res.status === 401) { logout(); return; }
+      const data = await res.json();
+      if (data.id) {
+        customer = data;
+        localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customer));
+        document.getElementById('phoneLinkBanner').style.display = 'none';
+        populateProfile(customer);
+        loadOrders();
+      } else {
+        errEl.textContent = data.error || 'Failed to link phone.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Link & View Orders';
+      }
+    } catch(e) {
+      errEl.textContent = 'Connection error. Try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Link & View Orders';
+    }
+  }
+
+  // ── Logout ──
+  function logout() {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(CUSTOMER_KEY);
+    window.location.href = 'index.html';
+  }
+
+  // ── Init ──
+  document.addEventListener('DOMContentLoaded', function() {
+    populateHero(customer);
+    populateProfile(customer);
+
+    if (!customer.phone) {
+      document.getElementById('phoneLinkBanner').style.display = 'block';
+    } else {
+      loadOrders();
+    }
+
+    document.getElementById('phoneLinkForm').addEventListener('submit', handlePhoneLink);
+    document.querySelector('.account-nav .logout').addEventListener('click', function(e) {
+      e.preventDefault();
+      logout();
+    });
+  });
+})();
+</script>
 </body>
 </html>
