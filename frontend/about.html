@@ -171,7 +171,7 @@
       gap: 0;
     }
     .about-split-img {
-      background: linear-gradient(160deg, #0a1628 0%, #1a3060 60%, #0f1f3d 100%);
+      background: #000;
       min-height: 640px;
       position: relative;
       overflow: hidden;
@@ -179,28 +179,17 @@
       align-items: center;
       justify-content: center;
     }
-    /* diagonal stripe overlay */
-    .about-split-img::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: repeating-linear-gradient(
-        -45deg, transparent, transparent 20px,
-        rgba(255,255,255,0.022) 20px,
-        rgba(255,255,255,0.022) 21px
-      );
-    }
-    /* big monogram */
-    .about-split-img::after {
-      content: 'SS';
+    .about-brand-top {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(120px, 18vw, 220px);
-      color: rgba(255,255,255,0.06);
-      letter-spacing: -0.04em;
-      line-height: 1;
+      font-size: clamp(40px, 4.5vw, 62px);
+      color: #fff;
+      letter-spacing: 0.04em;
+      line-height: 0.95;
+      white-space: nowrap;
       position: relative;
-      z-index: 1;
-      user-select: none;
+      z-index: 2;
+      padding: 0 24px;
+      text-align: center;
     }
     .about-split-img-badge {
       position: absolute;
@@ -596,7 +585,7 @@
         min-height: 260px;
         order: 0;
       }
-      .about-split-img::after { font-size: 110px; }
+      .about-brand-top { font-size: clamp(32px, 7vw, 52px); }
       .about-split-img-badge { bottom: 20px; left: 20px; font-size: 8px; padding: 7px 12px; }
       .about-split-text { padding: 44px 20px; }
       .about-split-text h2 { font-size: clamp(34px, 9vw, 52px); margin-bottom: 20px; }
@@ -774,6 +763,7 @@
 <!-- ===== SPLIT STORY ===== -->
 <div class="about-split">
   <div class="about-split-img">
+    <div class="about-brand-top">STREETSTORE</div>
     <span class="about-split-img-badge">
       <span data-lang="en">Premium · Morocco</span>
       <span data-lang="fr">Premium · Maroc</span>

@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1a1a1a">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -53,6 +55,9 @@
       .checkout-form-col, .checkout-summary-col { padding: 20px 16px; }
     }
   </style>
+<style>
+  .shipping-option { min-height: 56px; padding: 14px 16px; }
+</style>
 </head>
 <body>
 
@@ -188,10 +193,10 @@
 
     <!-- UPSELL BANNER — shown when cart has only 1 item -->
     <div class="checkout-upsell" id="checkoutUpsellBanner" style="display:none;">
-      <div class="upsell-tag">−39 MAD</div>
+      <div class="upsell-tag" id="checkoutUpsellTag">−39 MAD</div>
       <div class="upsell-body">
         <strong data-i18n="upsell_title">Take advantage of the duo deal!</strong>
-        <p data-i18n="upsell_desc">Add a 2nd jean and save 39 MAD on your order.</p>
+        <p id="checkoutUpsellDesc" data-i18n="upsell_desc">Add a 2nd jean and save 39 MAD on your order.</p>
       </div>
       <a href="shop.html" class="upsell-link" data-i18n="upsell_cta">Add →</a>
     </div>
@@ -212,19 +217,98 @@
     <div style="margin-top: 8px;">
       <p style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;" data-i18n="promo_code">Promo Code</p>
       <div class="promo-form">
-        <input type="text" placeholder="Enter code" data-i18n-ph="promo_ph" />
-        <button type="button" data-i18n="apply">Apply</button>
+        <input type="text" id="promoCodeInput" placeholder="Enter code" data-i18n-ph="promo_ph" />
+        <button type="button" id="applyPromoBtn" onclick="applyPromoCode()" data-i18n="apply">Apply</button>
       </div>
+      <div id="promoMsg" style="font-size:12px;margin-top:6px;display:none"></div>
     </div>
   </div>
 
 </div>
 
 <script src="config.js"></script>
-<script src="products.js"></script>
-<script src="lang.js"></script>
-<script src="i18n.js"></script>
-<script src="script.js"></script>
-<script src="mobile.js"></script>
+<script src="products.js" defer></script>
+<script src="lang.js" defer></script>
+<script src="i18n.js" defer></script>
+<script src="script.js" defer></script>
+<script src="mobile.js" defer></script>
+<script>
+let _appliedCoupon = null;
+
+function applyPromoCode() {
+  const code = (document.getElementById('promoCodeInput').value || '').trim().toUpperCase();
+  const msgEl = document.getElementById('promoMsg');
+  if (!code) { msgEl.style.display='block'; msgEl.style.color='#c0392b'; msgEl.textContent='Enter a code first.'; return; }
+
+  const cart = getCart();
+  const subtotal = cart.reduce((sum,i) => sum + i.price * i.qty, 0);
+  const API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
+
+  document.getElementById('applyPromoBtn').disabled = true;
+  msgEl.style.display='block'; msgEl.style.color='#888'; msgEl.textContent='Checking...';
+
+  fetch(API + '/api/coupons/validate?code=' + encodeURIComponent(code) + '&total=' + subtotal)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('applyPromoBtn').disabled = false;
+      if (data.valid) {
+        _appliedCoupon = { code, discount: data.discount, type: data.type, value: data.value };
+        msgEl.style.color = '#1e7e34';
+        msgEl.textContent = '✓ Code applied! You save ' + Math.round(data.discount) + ' MAD';
+        renderCheckoutTotals();
+      } else {
+        _appliedCoupon = null;
+        msgEl.style.color = '#c0392b';
+        msgEl.textContent = data.error || 'Invalid code';
+        renderCheckoutTotals();
+      }
+    })
+    .catch(() => {
+      document.getElementById('applyPromoBtn').disabled = false;
+      msgEl.style.color = '#c0392b'; msgEl.textContent = 'Could not verify code.';
+    });
+}
+
+function renderCheckoutTotals() {
+  const cart = getCart();
+  const subtotal = cart.reduce((sum,i) => sum + i.price * i.qty, 0);
+  const packDiscount = getPackDiscount(cart);
+  const couponDiscount = _appliedCoupon ? Math.round(_appliedCoupon.discount) : 0;
+  const total = Math.max(0, subtotal - packDiscount - couponDiscount);
+
+  const subEl = document.getElementById('checkoutSubtotal');
+  const discEl = document.getElementById('checkoutDiscount');
+  const discRowEl = document.getElementById('checkoutDiscountRow');
+  const totalEl = document.getElementById('checkoutTotal');
+  const dealBadge = document.getElementById('checkoutDealBadge');
+  const dealSaving = document.getElementById('checkoutDealSaving');
+
+  if (subEl) subEl.textContent = subtotal + ' MAD';
+  if (totalEl) totalEl.textContent = total + ' MAD';
+
+  if (packDiscount > 0) {
+    if (discRowEl) discRowEl.style.display = '';
+    if (discEl) discEl.textContent = '−' + packDiscount + ' MAD';
+    if (dealBadge) dealBadge.style.display = '';
+    if (dealSaving) dealSaving.textContent = packDiscount + ' MAD';
+  }
+
+  // Show coupon discount row if applied
+  if (couponDiscount > 0) {
+    // Add/update a coupon discount row
+    let couponRow = document.getElementById('checkoutCouponRow');
+    if (!couponRow && discRowEl) {
+      couponRow = document.createElement('div');
+      couponRow.id = 'checkoutCouponRow';
+      couponRow.className = 'summary-row discount-row';
+      couponRow.innerHTML = '<span>Coupon (' + _appliedCoupon.code + ')</span><span id="checkoutCouponDiscount">−' + couponDiscount + ' MAD</span>';
+      discRowEl.parentNode.insertBefore(couponRow, discRowEl.nextSibling);
+    } else if (couponRow) {
+      couponRow.style.display = '';
+      couponRow.innerHTML = '<span>Coupon (' + _appliedCoupon.code + ')</span><span>−' + couponDiscount + ' MAD</span>';
+    }
+  }
+}
+</script>
 </body>
 </html>

@@ -1,8 +1,11 @@
 {
-  "dependencies": {
-    "bcryptjs": "^3.0.3",
-    "jsonwebtoken": "^9.0.3",
-    "qrcode": "^1.5.4",
-    "speakeasy": "^2.0.0"
-  }
+  "name": "streetstore",
+  "version": "2.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'No build step'",
+    "postinstall": "cd backend && npm install"
+  },
+  "dependencies": {}
 }

@@ -1,19 +1,19 @@
 {
-  "name": "streetstore-bot",
-  "version": "1.0.0",
-  "description": "StreetStore WhatsApp order bot",
+  "name": "streetstore-api",
+  "version": "2.0.0",
+  "description": "StreetStore API — MySQL + Cloudinary",
   "main": "server.js",
   "scripts": {
     "postinstall": "prisma generate",
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "migrate": "prisma db push"
   },
   "dependencies": {
-    "@prisma/adapter-better-sqlite3": "^7.5.0",
-    "@prisma/client": "^7.5.0",
+    "@prisma/client": "^5.22.0",
     "bcryptjs": "^3.0.3",
-    "better-sqlite3": "^12.8.0",
     "cloudinary": "^2.9.0",
+    "compression": "^1.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
@@ -21,7 +21,8 @@
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
-    "prisma": "^7.5.0",
+    "mysql2": "^3.11.3",
+    "prisma": "^5.22.0",
     "qrcode": "^1.5.4",
     "socket.io": "^4.8.3",
     "speakeasy": "^2.0.0"

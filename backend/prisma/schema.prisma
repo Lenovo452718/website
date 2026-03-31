@@ -1,17 +1,19 @@
 generator client {
-  provider = "prisma-client-js"
+  provider   = "prisma-client-js"
+  engineType = "binary"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model Product {
-  id           String    @id @default(cuid())
+  id           String      @id @default(cuid())
   name         String
-  slug         String    @unique
-  description  String    @default("")
-  status       String    @default("ACTIVE")
+  slug         String      @unique
+  description  String      @default("") @db.Text
+  status       String      @default("ACTIVE")
   price        Float
   comparePrice Float?
   badge        String?
@@ -19,11 +21,15 @@ model Product {
   fitFilter    String?
   category     String?
   href         String?
+  videoUrl     String?
+  color        String?
   images       Image[]
   variants     Variant[]
-  sortOrder    Int       @default(0)
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  orderItems   OrderItem[]
+  sortOrder    Int         @default(0)
+  isFeatured   Boolean     @default(false)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 }
 
 model Image {
@@ -52,11 +58,55 @@ model Banner {
   title     String
   subtitle  String?
   imageUrl  String
+  publicId  String   @default("")
   linkUrl   String?
   position  String   @default("hero")
   isActive  Boolean  @default(true)
   sortOrder Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  status     String      @default("pending")
+  customer   String
+  phone      String
+  city       String
+  address    String      @default("") @db.Text
+  total      Float       @default(0)
+  couponCode String?
+  discount   Float       @default(0)
+  items      OrderItem[]
+  clientIp   String      @default("")
+  msgSent    Boolean     @default(false)
+  notes      String?     @db.Text
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  name      String
+  size      String?
+  qty       Int      @default(1)
+  price     Float
+}
+
+model Coupon {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  type      String    @default("percent")
+  value     Float
+  minOrder  Float     @default(0)
+  maxUses   Int       @default(0)
+  usedCount Int       @default(0)
+  expiresAt DateTime?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
 }
 
 model SiteSettings {
@@ -68,8 +118,15 @@ model SiteSettings {
   whatsapp           String  @default("")
   email              String  @default("")
   logo               String?
+  logoPublicId       String?
   announcementBar    String?
   announcementActive Boolean @default(false)
+  packDeal2          Float   @default(319)
+  packDeal3          Float   @default(479)
+  packDealBadge      String  @default("Save up to 10% off")
+  packDealSub        String  @default("Mix & match any styles")
+  packEnabled        Boolean @default(true)
+  whatsappBotKey     String  @default("")
 }
 
 model OlivraisonConfig {
@@ -78,4 +135,13 @@ model OlivraisonConfig {
   apiSecret String  @default("")
   storeId   String  @default("")
   isActive  Boolean @default(false)
+}
+
+model Deal {
+  id            String   @id @default(cuid())
+  title         String
+  productId     String?
+  discountPrice Float
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
 }

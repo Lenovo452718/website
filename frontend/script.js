@@ -2,19 +2,79 @@
    STREETSTORE — Complete JavaScript
    ============================================================ */
 
+/* ── Pack Deal Settings ── */
+let _packSettings = {
+  packDeal2: 319,
+  packDeal3: 479,
+  packEnabled: true,
+  packDealBadge: 'Save up to 10% off',
+  packDealSub: 'Mix & match any styles — discount applied automatically in cart',
+};
+
+function fetchPackSettings() {
+  var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
+  fetch(API + '/api/settings')
+    .then(function(r) { return r.json(); })
+    .then(function(s) {
+      if (s.packDeal2)    _packSettings.packDeal2    = s.packDeal2;
+      if (s.packDeal3)    _packSettings.packDeal3    = s.packDeal3;
+      if (s.packEnabled !== undefined) _packSettings.packEnabled = s.packEnabled;
+      if (s.packDealBadge) _packSettings.packDealBadge = s.packDealBadge;
+      if (s.packDealSub)   _packSettings.packDealSub   = s.packDealSub;
+      // Update cart deal offer text if already rendered
+      var titleEl = document.getElementById('cartDealTitle');
+      var subEl   = document.getElementById('cartDealSub');
+      if (titleEl) titleEl.textContent = _packSettings.packDealBadge;
+      if (subEl)   subEl.textContent   = _packSettings.packDealSub;
+      // Update product page pack deal block
+      var mainEl = document.querySelector('.pack-deal-main');
+      if (mainEl) {
+        var spans = mainEl.querySelectorAll('span');
+        if (spans[0]) spans[0].textContent = _packSettings.packDeal2 + ' MAD';
+        if (spans[1]) spans[1].textContent = _packSettings.packDeal3 + ' MAD';
+      }
+      document.querySelectorAll('.pack-deal-sub').forEach(function(el) {
+        el.textContent = _packSettings.packDealSub;
+      });
+      document.querySelectorAll('.pack-deal-badge').forEach(function(el) {
+        el.textContent = _packSettings.packDealBadge;
+      });
+      // Update "complete look" deal line
+      document.querySelectorAll('.complete-look-deal span[data-lang="en"]').forEach(function(el) {
+        el.textContent = 'Buy 2 & save \u2014 ' + _packSettings.packDeal2 + ' MAD for 2 items';
+      });
+      document.querySelectorAll('.complete-look-deal span[data-lang="fr"]').forEach(function(el) {
+        el.textContent = 'Achetez 2 & \u00e9conomisez \u2014 ' + _packSettings.packDeal2 + ' MAD pour 2 articles';
+      });
+    })
+    .catch(function() {});
+}
+fetchPackSettings();
+
 /* ── Announcement Bar ── */
-(function() {
+(async function() {
   if (sessionStorage.getItem('barDismissed')) return;
 
-  let adminSettings = {};
-  try { adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}'); } catch (e) {}
-  if (adminSettings.announcementEnabled === false) return;
-
-  const messages = adminSettings.announcementMessages || [
+  const DEFAULT_MESSAGES = [
     '✦ Free shipping on all orders',
     '✦ COD available across Morocco',
     '✦ Delivered in 2–5 days',
   ];
+
+  let messages = DEFAULT_MESSAGES;
+
+  try {
+    const apiBase = window.SS_API_URL || 'http://localhost:3000';
+    const res = await fetch(apiBase + '/api/settings');
+    if (res.ok) {
+      const s = await res.json();
+      if (s.announcementActive === false) return;
+      if (s.announcementBar) {
+        messages = s.announcementBar.split(' · ').map(m => m.trim()).filter(Boolean);
+        if (!messages.length) messages = DEFAULT_MESSAGES;
+      }
+    }
+  } catch (e) {}
 
   const bar = document.createElement('div');
   bar.className = 'announcement-bar';
@@ -184,12 +244,12 @@ function renderCartItems() {
           <p class="cart-item-name">${escapeHtml(item.name)}</p>
           <p class="cart-item-price">${item.price} MAD &middot; ${escapeHtml(item.size)}</p>
           <div class="cart-item-qty">
-            <button onclick="updateQty(${JSON.stringify(item.id)}, -1)">−</button>
+            <button onclick='updateQty(${JSON.stringify(item.id)}, -1)'>−</button>
             <span>${item.qty}</span>
-            <button onclick="updateQty(${JSON.stringify(item.id)}, 1)">+</button>
+            <button onclick='updateQty(${JSON.stringify(item.id)}, 1)'>+</button>
           </div>
         </div>
-        <button class="cart-item-remove" onclick="removeFromCart(${JSON.stringify(item.id)})">✕</button>
+        <button class="cart-item-remove" onclick='removeFromCart(${JSON.stringify(item.id)})'>✕</button>
       </div>
     `).join('');
   }
@@ -210,11 +270,24 @@ function renderCartItems() {
 }
 
 function getPackDiscount(cart) {
+  if (!_packSettings.packEnabled) return 0;
   const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   if (totalQty < 2) return 0;
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
-  // Same discount % as "2 for 319 MAD" on base price 2×179=358: ratio = 39/358
-  return Math.round(subtotal * 39 / 358);
+
+  if (totalQty === 2) {
+    // Flat deal price for exactly 2 items
+    if (subtotal <= _packSettings.packDeal2) return 0;
+    return Math.round(subtotal - _packSettings.packDeal2);
+  }
+
+  // 3+ items: derive % discount from the 3-item deal, apply to full subtotal
+  // e.g. avg price 179, 3×179=537, packDeal3=479 → 10.8% off → same % applied to 4,5,6... items
+  const avgPrice = subtotal / totalQty;
+  const refPrice3 = avgPrice * 3;
+  if (refPrice3 <= _packSettings.packDeal3) return 0;
+  const discountPct = (refPrice3 - _packSettings.packDeal3) / refPrice3;
+  return Math.round(subtotal * discountPct);
 }
 
 function getProductColor(name) {
@@ -283,8 +356,8 @@ function injectCartDrawer() {
       <div class="cart-deal-offer" id="cartDealOffer" style="display:none;">
         <div class="cart-deal-icon">🎁</div>
         <div class="cart-deal-text">
-          <p class="cart-deal-title">Add 1 more &amp; save 39 MAD!</p>
-          <p class="cart-deal-sub">Buy 2 &amp; get a pack discount automatically.</p>
+          <p class="cart-deal-title" id="cartDealTitle">${_packSettings.packDealBadge}</p>
+          <p class="cart-deal-sub" id="cartDealSub">${_packSettings.packDealSub}</p>
         </div>
         <a href="shop.html" style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--charcoal);white-space:nowrap;text-decoration:none;border-bottom:1px solid var(--charcoal);">Add →</a>
       </div>
@@ -560,6 +633,11 @@ function initGallery() {
 function initSizeSelector() {
   const btns = document.querySelectorAll('.size-btn:not(.sold-out)');
   const selectedSizeEl = document.getElementById('selectedSize');
+  // Auto-select first size if none is active yet
+  if (btns.length && !document.querySelector('.size-btn.active')) {
+    btns[0].classList.add('active');
+    if (selectedSizeEl) selectedSizeEl.textContent = btns[0].textContent.trim();
+  }
   btns.forEach(btn => {
     btn.addEventListener('click', () => {
       btns.forEach(b => b.classList.remove('active'));
@@ -641,7 +719,9 @@ function initQuickAdd() {
       const imgEl = card.querySelector('[data-product-img]');
       const productId = imgEl ? imgEl.dataset.productImg : null;
       const imageUrl = (productId && typeof PRODUCTS !== 'undefined' && PRODUCTS[productId]) ? PRODUCTS[productId].image : null;
-      addToCart(name, price, '', 'M', imageUrl);
+      const productData = (productId && typeof PRODUCTS !== 'undefined') ? PRODUCTS[productId] : null;
+      const firstSize = productData && productData.sizes ? productData.sizes.split(',')[0].trim() : '';
+      addToCart(name, price, '', firstSize, imageUrl);
     });
   });
 }
@@ -772,14 +852,14 @@ function initCheckout() {
               <p class="summary-item-name">${escapeHtml(item.name)}</p>
               <p class="summary-item-variant">Size: ${escapeHtml(item.size)}</p>
               <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-                <button onclick="updateQty(${JSON.stringify(item.id)},-1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
+                <button onclick='updateQty(${JSON.stringify(item.id)},-1)' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
                 <span style="font-size:13px;min-width:16px;text-align:center;">${item.qty}</span>
-                <button onclick="updateQty(${JSON.stringify(item.id)},1)" style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
+                <button onclick='updateQty(${JSON.stringify(item.id)},1)' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
               </div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
               <span class="summary-item-price">${item.price * item.qty} MAD</span>
-              <button onclick="removeFromCartCheckout(${JSON.stringify(item.id)})" style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
+              <button onclick='removeFromCartCheckout(${JSON.stringify(item.id)})' style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
             </div>
           </div>
         `).join('');
@@ -827,8 +907,17 @@ function updateCheckoutTotals(shippingCost) {
     discountEl.textContent = '−' + discount + ' MAD';
   }
 
-  // Upsell banner: show when exactly 1 total item in cart
-  if (upsellBanner) upsellBanner.style.display = (totalQty === 1 && subtotal > 0) ? '' : 'none';
+  // Upsell banner: show when exactly 1 total item in cart, with dynamic saving amount
+  if (upsellBanner) {
+    upsellBanner.style.display = (totalQty === 1 && subtotal > 0) ? '' : 'none';
+    if (totalQty === 1 && cart.length > 0) {
+      const potentialSaving = Math.max(0, Math.round(cart[0].price * 2 - _packSettings.packDeal2));
+      const tagEl  = document.getElementById('checkoutUpsellTag');
+      const descEl = document.getElementById('checkoutUpsellDesc');
+      if (tagEl  && potentialSaving > 0) tagEl.textContent  = '−' + potentialSaving + ' MAD';
+      if (descEl && potentialSaving > 0) descEl.textContent = 'Add a 2nd jean and save ' + potentialSaving + ' MAD on your order.';
+    }
+  }
 
   // Deal badge: show when discount is applied
   if (dealBadge) dealBadge.style.display = discount > 0 ? '' : 'none';
@@ -867,6 +956,9 @@ function initContactForm() {
 function initScrollReveal() {
   if (!('IntersectionObserver' in window)) {
     document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+    window.reObserveReveal = function() {
+      document.querySelectorAll('.reveal:not(.visible)').forEach(el => el.classList.add('visible'));
+    };
     return;
   }
   const observer = new IntersectionObserver(entries => {
@@ -879,6 +971,14 @@ function initScrollReveal() {
   }, { threshold: 0.12 });
 
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // Expose so dynamically-rendered grids can register new .reveal elements
+  window.reObserveReveal = function() {
+    document.querySelectorAll('.reveal:not(.observed-reveal)').forEach(el => {
+      el.classList.add('observed-reveal');
+      observer.observe(el);
+    });
+  };
 }
 
 /* ============================================================
@@ -1094,14 +1194,68 @@ function initSearch() {
 function initPlaceOrder() {
   const placeOrderBtn = document.querySelector('.place-order-btn');
   if (!placeOrderBtn) return;
-  placeOrderBtn.addEventListener('click', e => {
+  placeOrderBtn.addEventListener('click', async e => {
     e.preventDefault();
-    // Save last order for thank-you page
+
+    // Gather form fields
+    const firstName = (document.getElementById('info-first')?.value || '').trim();
+    const lastName  = (document.getElementById('info-last')?.value  || '').trim();
+    const customer  = (firstName + ' ' + lastName).trim() || firstName || lastName;
+    const phone     = (document.getElementById('info-phone')?.value   || '').trim();
+    const city      = (document.getElementById('info-city')?.value    || '').trim();
+    const address   = (document.getElementById('info-address')?.value || '').trim();
+
+    if (!customer) { alert('Please enter your name.'); return; }
+    if (!phone || phone.replace(/\D/g,'').length < 9) { alert('Please enter a valid phone number.'); return; }
+    if (!city) { alert('Please enter your city.'); return; }
+
     const cart = getCart();
-    localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
-    saveCart([]);
-    updateCartBadge();
-    window.location.href = 'thankyou.html';
+    if (!cart.length) { alert('Your cart is empty.'); return; }
+
+    const packDiscount   = getPackDiscount(cart);
+    const couponDiscount = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? Math.round(_appliedCoupon.discount) : 0;
+    const subtotal       = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const total          = Math.max(0, subtotal - packDiscount - couponDiscount);
+    const couponCode     = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? _appliedCoupon.code : null;
+
+    const items = cart.map(i => ({ name: i.name, size: i.size || null, qty: i.qty, price: i.price }));
+
+    placeOrderBtn.disabled = true;
+    placeOrderBtn.textContent = 'Placing order...';
+
+    const BACKEND_URL = typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : 'http://localhost:3000';
+
+    try {
+      const resp = await fetch(BACKEND_URL + '/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ customer, phone, city, address, items, total, discount: packDiscount + couponDiscount, couponCode }),
+      });
+
+      if (resp.status === 403) {
+        const data = await resp.json().catch(() => ({}));
+        alert(data.message || 'Your access has been blocked.');
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.textContent = 'Place Order →';
+        return;
+      }
+
+      if (resp.ok) {
+        localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
+        if (couponCode) localStorage.setItem('streetstore_last_coupon', couponCode);
+        saveCart([]);
+        updateCartBadge();
+        window.location.href = 'thankyou.html';
+        return;
+      }
+
+      throw new Error('Server error');
+    } catch (err) {
+      console.error('Order error:', err);
+      placeOrderBtn.disabled = false;
+      placeOrderBtn.textContent = 'Place Order →';
+      alert('Could not place order. Please try again.');
+    }
   });
 }
 
