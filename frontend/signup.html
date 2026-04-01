@@ -296,21 +296,52 @@
   <!-- RIGHT -->
   <div class="auth-right">
     <div class="auth-form-wrap">
-      <h2 class="auth-form-title">Welcome</h2>
-      <p class="auth-form-sub">Sign in or create your account in one click.</p>
 
-      <!-- Google Sign-In button rendered here -->
-      <div id="googleBtn" style="display:flex;justify-content:center;min-height:44px;margin-bottom:8px;"></div>
-      <p id="googleError" style="display:none;color:#c0392b;font-size:13px;text-align:center;margin-top:8px;"></p>
+      <!-- Google Sign-In -->
+      <div id="googleBtn" style="display:flex;justify-content:center;min-height:44px;margin-bottom:4px;"></div>
+      <p id="googleError" style="display:none;color:#c0392b;font-size:13px;text-align:center;margin-bottom:8px;"></p>
 
       <div class="auth-divider">or</div>
 
-      <a href="https://wa.me/212771152186" class="auth-wa-btn" target="_blank">
-        <svg class="auth-wa-icon" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-        Contact on WhatsApp
-      </a>
+      <!-- Tabs: Sign In / Register -->
+      <div style="display:flex;gap:0;margin-bottom:24px;border:1.5px solid var(--gray-light);border-radius:4px;overflow:hidden;">
+        <button id="tabSignin"   onclick="showTab('signin')"   style="flex:1;padding:10px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;font-family:inherit;background:#1a1a1a;color:#fff;">Sign In</button>
+        <button id="tabRegister" onclick="showTab('register')" style="flex:1;padding:10px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;border:none;cursor:pointer;font-family:inherit;background:#fff;color:#888;">Register</button>
+      </div>
 
-      <p class="auth-terms">
+      <!-- Sign In Form -->
+      <form id="signinForm" onsubmit="handleSignin(event)">
+        <div class="auth-field">
+          <label for="signinEmail">Email Address</label>
+          <input type="email" id="signinEmail" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label for="signinPassword">Password</label>
+          <input type="password" id="signinPassword" placeholder="Your password" required>
+        </div>
+        <p id="signinError" style="display:none;color:#c0392b;font-size:13px;margin-bottom:12px;"></p>
+        <button type="submit" class="auth-submit" id="signinBtn">Sign In</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="registerForm" onsubmit="handleRegister(event)" style="display:none;">
+        <div class="auth-field">
+          <label for="regName">Full Name</label>
+          <input type="text" id="regName" placeholder="Your name" autocomplete="name" required>
+        </div>
+        <div class="auth-field">
+          <label for="regEmail">Email Address</label>
+          <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email" required>
+        </div>
+        <div class="auth-field">
+          <label for="regPassword">Password</label>
+          <input type="password" id="regPassword" placeholder="At least 8 characters with a number" minlength="8" required>
+        </div>
+        <p id="registerError" style="display:none;color:#c0392b;font-size:13px;margin-bottom:12px;"></p>
+        <button type="submit" class="auth-submit" id="registerBtn">Create Account</button>
+      </form>
+
+      <p class="auth-terms" style="margin-top:20px;">
         By signing in you agree to our
         <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
       </p>
@@ -327,72 +358,79 @@
 <script>
 const BACKEND = window.STREETSTORE_BACKEND || 'https://streetstore.ma';
 
-// Already logged in → go to account
-if (localStorage.getItem('ss_customer_token')) {
+if (localStorage.getItem('ss_customer_token')) window.location.href = 'account.html';
+
+/* ── Tab switching ── */
+function showTab(tab) {
+  const isSignin = tab === 'signin';
+  document.getElementById('signinForm').style.display   = isSignin ? '' : 'none';
+  document.getElementById('registerForm').style.display = isSignin ? 'none' : '';
+  document.getElementById('tabSignin').style.background   = isSignin ? '#1a1a1a' : '#fff';
+  document.getElementById('tabSignin').style.color        = isSignin ? '#fff' : '#888';
+  document.getElementById('tabRegister').style.background = isSignin ? '#fff' : '#1a1a1a';
+  document.getElementById('tabRegister').style.color      = isSignin ? '#888' : '#fff';
+}
+
+/* ── Save auth result and redirect ── */
+function saveAndRedirect(data) {
+  localStorage.setItem('ss_customer_token', data.token);
+  localStorage.setItem('ss_customer', JSON.stringify(data.customer));
   window.location.href = 'account.html';
 }
 
-// Init Google Sign-In once GSI library is ready
-function initGoogleSignIn(clientId) {
-  google.accounts.id.initialize({
-    client_id: clientId,
-    callback: handleGoogleSignIn,
-    ux_mode: 'popup',
-  });
-  google.accounts.id.renderButton(
-    document.getElementById('googleBtn'),
-    { theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', width: 320 }
-  );
-}
-
-// Load Google Client ID from backend then init
+/* ── Google Sign-In ── */
 (async function() {
   try {
     const config = await fetch(BACKEND + '/api/config/public').then(r => r.json());
-    if (!config.googleClientId) {
-      document.getElementById('googleBtn').innerHTML = '<p style="color:#888;font-size:13px;text-align:center;">Google Sign-In not configured yet.</p>';
-      return;
-    }
-    // Wait for GSI script to be ready
+    if (!config.googleClientId) { document.getElementById('googleBtn').style.display = 'none'; return; }
     const wait = () => new Promise(r => setTimeout(r, 100));
     let tries = 0;
     while (typeof google === 'undefined' && tries++ < 30) await wait();
-    if (typeof google !== 'undefined') initGoogleSignIn(config.googleClientId);
-  } catch(e) {
-    document.getElementById('googleBtn').innerHTML = '<p style="color:#888;font-size:13px;text-align:center;">Sign-in temporarily unavailable.</p>';
-  }
+    if (typeof google === 'undefined') { document.getElementById('googleBtn').style.display = 'none'; return; }
+    google.accounts.id.initialize({ client_id: config.googleClientId, callback: handleGoogleSignIn, ux_mode: 'popup' });
+    google.accounts.id.renderButton(document.getElementById('googleBtn'), { theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', width: 320 });
+  } catch(e) { document.getElementById('googleBtn').style.display = 'none'; }
 })();
 
 async function handleGoogleSignIn(response) {
   const errEl = document.getElementById('googleError');
   errEl.style.display = 'none';
-  const btn = document.getElementById('googleBtn');
-  btn.style.opacity = '0.6';
-  btn.style.pointerEvents = 'none';
-
   try {
-    const res = await fetch(BACKEND + '/api/auth/google', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ credential: response.credential }),
-    });
+    const res  = await fetch(BACKEND + '/api/auth/google', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ credential: response.credential }) });
     const data = await res.json();
-    if (data.token) {
-      localStorage.setItem('ss_customer_token', data.token);
-      localStorage.setItem('ss_customer', JSON.stringify(data.customer));
-      window.location.href = 'account.html';
-    } else {
-      errEl.textContent = data.error || 'Sign in failed. Please try again.';
-      errEl.style.display = 'block';
-      btn.style.opacity = '1';
-      btn.style.pointerEvents = '';
-    }
-  } catch(e) {
-    errEl.textContent = 'Could not connect. Please try again.';
-    errEl.style.display = 'block';
-    btn.style.opacity = '1';
-    btn.style.pointerEvents = '';
-  }
+    if (data.token) { saveAndRedirect(data); }
+    else { errEl.textContent = data.error || 'Google sign-in failed.'; errEl.style.display = 'block'; }
+  } catch(e) { errEl.textContent = 'Connection error. Try again.'; errEl.style.display = 'block'; }
+}
+
+/* ── Email Sign-In ── */
+async function handleSignin(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('signinError');
+  const btn   = document.getElementById('signinBtn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Signing in...';
+  try {
+    const res  = await fetch(BACKEND + '/api/auth/login', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email: document.getElementById('signinEmail').value.trim(), password: document.getElementById('signinPassword').value }) });
+    const data = await res.json();
+    if (data.token) { saveAndRedirect(data); }
+    else { errEl.textContent = data.error || 'Sign in failed.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Sign In'; }
+  } catch(e) { errEl.textContent = 'Connection error. Try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Sign In'; }
+}
+
+/* ── Email Register ── */
+async function handleRegister(e) {
+  e.preventDefault();
+  const errEl = document.getElementById('registerError');
+  const btn   = document.getElementById('registerBtn');
+  errEl.style.display = 'none';
+  btn.disabled = true; btn.textContent = 'Creating account...';
+  try {
+    const res  = await fetch(BACKEND + '/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: document.getElementById('regName').value.trim(), email: document.getElementById('regEmail').value.trim(), password: document.getElementById('regPassword').value }) });
+    const data = await res.json();
+    if (data.token) { saveAndRedirect(data); }
+    else { errEl.textContent = data.error || 'Registration failed.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; }
+  } catch(e) { errEl.textContent = 'Connection error. Try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; }
 }
 </script>
 </body>

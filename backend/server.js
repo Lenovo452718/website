@@ -1363,6 +1363,45 @@ app.post('/api/auth/google', authLimiter, async (req, res) => {
   }
 });
 
+/* POST /api/auth/register */
+app.post('/api/auth/register', authLimiter, async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password are required' });
+  if (!isStrongPassword(password)) return res.status(400).json({ error: 'Password must be at least 8 characters with a letter and a number' });
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address' });
+  try {
+    const [existing] = await prisma.$queryRaw`SELECT id FROM Customer WHERE email = ${email.toLowerCase()} LIMIT 1`;
+    if (existing) return res.status(409).json({ error: 'An account with this email already exists' });
+    const id   = 'cust-' + Date.now();
+    const hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    await prisma.$executeRaw`INSERT INTO Customer (id, email, name, passwordHash) VALUES (${id}, ${email.toLowerCase()}, ${sanitize(name, 100)}, ${hash})`;
+    const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, createdAt FROM Customer WHERE id = ${id} LIMIT 1`;
+    const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
+    res.status(201).json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt } });
+  } catch (err) {
+    console.error('Register error:', err.message);
+    res.status(500).json({ error: 'Registration failed' });
+  }
+});
+
+/* POST /api/auth/login */
+app.post('/api/auth/login', authLimiter, async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
+  try {
+    const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, passwordHash, createdAt FROM Customer WHERE email = ${email.toLowerCase()} LIMIT 1`;
+    if (!customer) return res.status(401).json({ error: 'No account found with this email' });
+    if (!customer.passwordHash) return res.status(401).json({ error: 'This account uses Google Sign-In. Please sign in with Google.' });
+    const valid = await bcrypt.compare(password, customer.passwordHash);
+    if (!valid) return res.status(401).json({ error: 'Incorrect password' });
+    const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
+    res.json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt } });
+  } catch (err) {
+    console.error('Login error:', err.message);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
 /* GET /api/customer/me */
 app.get('/api/customer/me', requireCustomerAuth, async (req, res) => {
   try {
@@ -1426,6 +1465,7 @@ function runMigrations() {
     "CREATE INDEX IF NOT EXISTS idx_order_created ON `Order` (createdAt)",
     "CREATE TABLE IF NOT EXISTS `Customer` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `email` VARCHAR(255) NOT NULL, `name` VARCHAR(255) NOT NULL DEFAULT '', `avatar` VARCHAR(500) NULL, `googleId` VARCHAR(255) NULL, `phone` VARCHAR(30) NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_email ON `Customer` (email)",
+    "ALTER TABLE `Customer` ADD COLUMN IF NOT EXISTS `passwordHash` VARCHAR(255) NULL",
   ];
   (async () => {
     for (const sql of migrations) {
