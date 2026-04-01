@@ -1287,20 +1287,36 @@ app.post('/api/delivery/webhook', async (req, res) => {
   const newStatus = OLIVRAISON_STATUS_MAP[(status || '').toLowerCase()];
   if (!newStatus) return; // unknown status — ignore
 
+  // Capture delivery person phone — Olivraison may send it under different field names
+  const deliveryPhone =
+    req.body.courierPhone   ||
+    req.body.driverPhone    ||
+    req.body.agentPhone     ||
+    req.body.deliveryPhone  ||
+    req.body.courier?.phone ||
+    null;
+
   try {
-    // Find order by trackingCode column
     const [row] = await prisma.$queryRawUnsafe(
       'SELECT id FROM `Order` WHERE `trackingCode` = ? LIMIT 1', code
     );
     if (!row) return;
 
-    await prisma.order.update({
-      where: { id: row.id },
-      data:  { status: newStatus },
-    });
+    // Build update — only set deliveryPhone if we actually received one
+    if (deliveryPhone) {
+      await prisma.$executeRawUnsafe(
+        'UPDATE `Order` SET `status` = ?, `deliveryPhone` = ? WHERE `id` = ?',
+        newStatus, deliveryPhone, row.id
+      );
+    } else {
+      await prisma.$executeRawUnsafe(
+        'UPDATE `Order` SET `status` = ? WHERE `id` = ?',
+        newStatus, row.id
+      );
+    }
 
-    emit('order:statusChanged', { orderId: row.id, newStatus, trackingCode: code });
-    console.log(`[Webhook] Order ${row.id} → ${newStatus} (tracking: ${code})`);
+    emit('order:statusChanged', { orderId: row.id, newStatus, trackingCode: code, deliveryPhone });
+    console.log(`[Webhook] Order ${row.id} → ${newStatus} | courier: ${deliveryPhone || 'unknown'}`);
   } catch (err) {
     console.error('[Webhook] Error processing delivery update:', err.message);
   }
@@ -1542,7 +1558,7 @@ app.get('/api/orders/track', async (req, res) => {
   try {
     // Use raw query so trackingCode column works even before Prisma client regen
     const [row] = await prisma.$queryRawUnsafe(
-      'SELECT id, status, city, total, createdAt, trackingCode FROM `Order` WHERE id = ? LIMIT 1', id
+      'SELECT id, status, city, total, createdAt, trackingCode, deliveryPhone FROM `Order` WHERE id = ? LIMIT 1', id
     );
     if (!row) return res.status(404).json({ error: 'Order not found' });
     const items = await prisma.orderItem.findMany({
@@ -1595,8 +1611,9 @@ function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `Customer` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `email` VARCHAR(255) NOT NULL, `name` VARCHAR(255) NOT NULL DEFAULT '', `avatar` VARCHAR(500) NULL, `googleId` VARCHAR(255) NULL, `phone` VARCHAR(30) NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_email ON `Customer` (email)",
     "ALTER TABLE `Customer` ADD COLUMN IF NOT EXISTS `passwordHash` VARCHAR(255) NULL",
-    // Auto-tracking: dedicated column (replaces storing it inside notes)
+    // Auto-tracking: dedicated columns
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `trackingCode` VARCHAR(255) NULL",
+    "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `deliveryPhone` VARCHAR(30) NULL",
   ];
   (async () => {
     for (const sql of migrations) {

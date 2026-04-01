@@ -1797,6 +1797,16 @@ window.ACC = {
                 '<div style="font-size:11px;color:#888;margin-top:4px;">Delivered by Olivraison</div>' +
               '</div>'
             : '') +
+          (o.deliveryPhone && ['processing','done'].includes((o.status||'').toLowerCase())
+            ? '<div style="margin-top:12px;padding:14px 16px;background:#fff8ed;border:1.5px solid #f5c96a;border-radius:10px;display:flex;align-items:center;gap:14px;">' +
+                '<div style="font-size:26px;">🛵</div>' +
+                '<div>' +
+                  '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b07d1a;margin-bottom:4px;">Delivery Agent</div>' +
+                  '<a href="tel:' + o.deliveryPhone + '" style="font-size:18px;font-weight:800;color:#111;text-decoration:none;letter-spacing:0.03em;">' + o.deliveryPhone + '</a>' +
+                  '<div style="font-size:11px;color:#888;margin-top:2px;">Tap to call your delivery agent</div>' +
+                '</div>' +
+              '</div>'
+            : '') +
         '</div>';
       })
       .catch(function() {
