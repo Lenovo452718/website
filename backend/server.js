@@ -10,9 +10,14 @@
   const file = path.join(__dirname, 'node_modules/.prisma/client/index.js');
   try {
     let src = fs.readFileSync(file, 'utf8');
-    if (src.includes('"binary"') || src.includes("'binary'")) {
-      src = src.replace(/"binary"/g, '"library"').replace(/'binary'/g, "'library'");
-      fs.writeFileSync(file, src);
+    let patched = src
+      // Switch runtime module import
+      .replace(/runtime\/binary/g, 'runtime/library')
+      // Switch engineType in config object
+      .replace(/"engineType"\s*:\s*"binary"/g, '"engineType":"library"')
+      .replace(/'engineType'\s*:\s*'binary'/g, "'engineType':'library'");
+    if (patched !== src) {
+      fs.writeFileSync(file, patched);
       console.log('[startup] Prisma client patched → library engine');
     }
   } catch (e) {
