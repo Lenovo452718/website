@@ -1678,13 +1678,26 @@ app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
   try {
     const [customer] = await prisma.$queryRaw`SELECT phone FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
     if (!customer || !customer.phone) return res.json([]);
-    const orders = await prisma.order.findMany({
-      where:   { phone: customer.phone },
-      include: { items: true },
-      orderBy: { createdAt: 'desc' },
-      take:    50,
+    const orders = await prisma.$queryRawUnsafe(
+      `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,
+              trackingCode, deliveryPhone
+       FROM \`Order\` WHERE phone = ? ORDER BY createdAt DESC LIMIT 50`,
+      customer.phone
+    );
+    const orderIds = orders.map(o => o.id);
+    let items = [];
+    if (orderIds.length) {
+      items = await prisma.orderItem.findMany({
+        where:  { orderId: { in: orderIds } },
+        select: { orderId: true, name: true, size: true, qty: true, price: true },
+      });
+    }
+    const itemsByOrder = {};
+    items.forEach(it => {
+      if (!itemsByOrder[it.orderId]) itemsByOrder[it.orderId] = [];
+      itemsByOrder[it.orderId].push(it);
     });
-    res.json(orders);
+    res.json(orders.map(o => ({ ...o, items: itemsByOrder[o.id] || [] })));
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });
   }

@@ -1411,17 +1411,7 @@
     <!-- ══════════ SECTION: TRACK ORDER ══════════ -->
     <section class="acc-section" id="sec-track">
       <div class="acc-section-header">
-        <span class="acc-section-title">Track Order</span>
-      </div>
-      <div class="acc-track-search-box">
-        <p>Enter your order ID to see the current status and delivery progress. You can find the order ID in your confirmation message.</p>
-        <div class="acc-track-input-row">
-          <input type="text" id="trackInput" placeholder="e.g. clx4a2b3c0000..." maxlength="40" onkeydown="if(event.key==='Enter')ACC.trackOrder()" />
-          <button onclick="ACC.trackOrder()">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;vertical-align:middle"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            Track
-          </button>
-        </div>
+        <span class="acc-section-title">Track Orders</span>
       </div>
       <div id="trackResult"></div>
     </section>
@@ -1738,85 +1728,81 @@ window.ACC = {
     } else if (section === 'settings') {
       ACC.renderSettings();
     } else if (section === 'track') {
-      document.getElementById('trackResult').innerHTML = '';
-      setTimeout(function() { document.getElementById('trackInput').focus(); }, 100);
+      ACC.renderTrack();
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   },
 
-  /* ─── trackOrder ─── */
-  trackOrder: function() {
-    var id = (document.getElementById('trackInput').value || '').trim();
+  /* ─── renderTrack ─── */
+  renderTrack: function() {
     var resultEl = document.getElementById('trackResult');
-    if (!id) {
-      resultEl.innerHTML = '<div class="acc-track-error">Please enter an order ID.</div>';
+    var orders = ACC.state.orders;
+
+    // Still loading
+    if (orders === null) {
+      resultEl.innerHTML = '<div class="acc-skeleton acc-skeleton-card"></div><div class="acc-skeleton acc-skeleton-card" style="margin-top:16px;"></div>';
       return;
     }
-    resultEl.innerHTML = '<div class="acc-skeleton acc-skeleton-card"></div>';
-    fetch(BACKEND + '/api/orders/track?id=' + encodeURIComponent(id))
-      .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
-      .then(function(r) {
-        if (!r.ok) {
-          resultEl.innerHTML = '<div class="acc-track-error">' + (r.data.error || 'Order not found. Please check your order ID and try again.') + '</div>';
-          return;
-        }
-        var o = r.data;
-        var step = trackStep(o.status);
-        var isCancelled = step === -1;
-        var stepsLabels = ['Ordered', 'Processing', 'Shipped', 'Delivered'];
-        var stepsHtml = stepsLabels.map(function(label, i) {
-          var stepNum = i + 1;
-          var cls = step > stepNum ? 'done' : (step === stepNum ? 'current' : '');
-          var icon = step > stepNum ? '✓' : stepNum;
-          return '<div class="acc-track-step ' + cls + '">' +
-            '<div class="acc-track-dot">' + icon + '</div>' +
-            '<div class="acc-track-step-label">' + label + '</div>' +
-            '</div>';
-        }).join('');
-        var trackHtml = isCancelled
-          ? '<div class="acc-cancelled-banner">❌ Order Cancelled</div>'
-          : '<div class="acc-tracking"><div class="acc-tracking-label">Delivery Progress</div><div class="acc-track-steps">' + stepsHtml + '</div></div>';
-        var itemsHtml = (o.items || []).map(function(it) {
-          return '<div class="acc-track-item-row">' +
-            '<span class="acc-track-item-name">' + escHtml(it.name) + (it.size ? ' <span class="acc-track-item-detail">(' + escHtml(it.size) + ')</span>' : '') + '</span>' +
-            '<span class="acc-track-item-detail">x' + Number(it.qty) + ' &mdash; ' + (Number(it.price) * Number(it.qty)).toFixed(0) + ' MAD</span>' +
-            '</div>';
-        }).join('');
-        resultEl.innerHTML = '<div class="acc-track-result">' +
-          '<div class="acc-track-result-header">' +
-            '<div>' +
-              '<div class="acc-track-order-id">Order <span>#' + escHtml(o.id.slice(-8).toUpperCase()) + '</span></div>' +
-              '<div class="acc-track-date">' + fmtDate(o.createdAt) + '</div>' +
-            '</div>' +
-            statusBadge(o.status) +
+
+    if (!orders.length) {
+      resultEl.innerHTML = '<div class="acc-empty"><div class="acc-empty-icon">📦</div><div class="acc-empty-title">No orders yet</div><div class="acc-empty-sub">Once you place an order you can track it here.</div><a href="shop.html" class="acc-empty-link">Start Shopping</a></div>';
+      return;
+    }
+
+    resultEl.innerHTML = orders.map(function(o) {
+      var step = trackStep(o.status);
+      var isCancelled = step === -1;
+      var stepsLabels = ['Ordered', 'Processing', 'Shipped', 'Delivered'];
+      var stepsHtml = stepsLabels.map(function(label, i) {
+        var stepNum = i + 1;
+        var cls = step > stepNum ? 'done' : (step === stepNum ? 'current' : '');
+        var icon = step > stepNum ? '✓' : stepNum;
+        return '<div class="acc-track-step ' + cls + '">' +
+          '<div class="acc-track-dot">' + icon + '</div>' +
+          '<div class="acc-track-step-label">' + label + '</div>' +
+          '</div>';
+      }).join('');
+      var trackHtml = isCancelled
+        ? '<div class="acc-cancelled-banner">❌ Order Cancelled</div>'
+        : '<div class="acc-tracking"><div class="acc-tracking-label">Delivery Progress</div><div class="acc-track-steps">' + stepsHtml + '</div></div>';
+      var itemsHtml = (o.items || []).map(function(it) {
+        return '<div class="acc-track-item-row">' +
+          '<span class="acc-track-item-name">' + escHtml(it.name) + (it.size ? ' <span class="acc-track-item-detail">(' + escHtml(it.size) + ')</span>' : '') + '</span>' +
+          '<span class="acc-track-item-detail">x' + Number(it.qty) + ' &mdash; ' + (Number(it.price) * Number(it.qty)).toFixed(0) + ' MAD</span>' +
+          '</div>';
+      }).join('');
+      return '<div class="acc-track-result">' +
+        '<div class="acc-track-result-header">' +
+          '<div>' +
+            '<div class="acc-track-order-id">Order <span>#' + escHtml((o.id||'').slice(-8).toUpperCase()) + '</span></div>' +
+            '<div class="acc-track-date">' + fmtDate(o.createdAt) + '</div>' +
           '</div>' +
-          trackHtml +
-          '<div class="acc-track-items-list">' + itemsHtml + '</div>' +
-          '<div class="acc-track-total"><span>Total</span><span>' + Number(o.total || 0).toFixed(0) + ' MAD</span></div>' +
-          (o.city ? '<div style="font-size:12px;color:#888;margin-top:10px;">📍 ' + escHtml(o.city) + '</div>' : '') +
-          (o.trackingCode
-            ? '<div style="margin-top:16px;padding:14px 16px;background:var(--acc-denim-pale);border-radius:10px;">' +
-                '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--acc-denim);margin-bottom:6px;">Tracking Number</div>' +
-                '<div style="font-size:15px;font-weight:800;font-family:monospace;color:#111;letter-spacing:0.05em;">' + o.trackingCode + '</div>' +
-                '<div style="font-size:11px;color:#888;margin-top:4px;">Delivered by Olivraison</div>' +
-              '</div>'
-            : '') +
-          (o.deliveryPhone && ['processing','done'].includes((o.status||'').toLowerCase())
-            ? '<div style="margin-top:12px;padding:14px 16px;background:#fff8ed;border:1.5px solid #f5c96a;border-radius:10px;display:flex;align-items:center;gap:14px;">' +
-                '<div style="font-size:26px;">🛵</div>' +
-                '<div>' +
-                  '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b07d1a;margin-bottom:4px;">Delivery Agent</div>' +
-                  '<a href="tel:' + o.deliveryPhone + '" style="font-size:18px;font-weight:800;color:#111;text-decoration:none;letter-spacing:0.03em;">' + o.deliveryPhone + '</a>' +
-                  '<div style="font-size:11px;color:#888;margin-top:2px;">Tap to call your delivery agent</div>' +
-                '</div>' +
-              '</div>'
-            : '') +
-        '</div>';
-      })
-      .catch(function() {
-        resultEl.innerHTML = '<div class="acc-track-error">Unable to reach the server. Please try again later.</div>';
-      });
+          statusBadge(o.status) +
+        '</div>' +
+        trackHtml +
+        '<div class="acc-track-items-list">' + itemsHtml + '</div>' +
+        '<div class="acc-track-total"><span>Total</span><span>' + Number(o.total || 0).toFixed(0) + ' MAD</span></div>' +
+        (o.city ? '<div style="font-size:12px;color:#888;margin-top:10px;">📍 ' + escHtml(o.city) + '</div>' : '') +
+        (o.trackingCode
+          ? '<div style="margin-top:16px;padding:14px 16px;background:var(--acc-denim-pale);border-radius:10px;">' +
+              '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--acc-denim);margin-bottom:6px;">Tracking Number</div>' +
+              '<div style="font-size:15px;font-weight:800;font-family:monospace;color:#111;letter-spacing:0.05em;">' + escHtml(o.trackingCode) + '</div>' +
+              '<div style="font-size:11px;color:#888;margin-top:4px;">Delivered by Olivraison</div>' +
+            '</div>'
+          : '') +
+        (o.deliveryPhone && ['processing','done'].includes((o.status||'').toLowerCase())
+          ? '<div style="margin-top:12px;padding:14px 16px;background:#fff8ed;border:1.5px solid #f5c96a;border-radius:10px;display:flex;align-items:center;gap:14px;">' +
+              '<div style="font-size:26px;">🛵</div>' +
+              '<div>' +
+                '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b07d1a;margin-bottom:4px;">Delivery Agent</div>' +
+                '<a href="tel:' + escHtml(o.deliveryPhone) + '" style="font-size:18px;font-weight:800;color:#111;text-decoration:none;letter-spacing:0.03em;">' + escHtml(o.deliveryPhone) + '</a>' +
+                '<div style="font-size:11px;color:#888;margin-top:2px;">Tap to call your delivery agent</div>' +
+              '</div>' +
+            '</div>'
+          : '') +
+      '</div>';
+    }).join('');
   },
 
   /* ─── init ─── */
@@ -1861,12 +1847,14 @@ window.ACC = {
         ACC.state.orders = Array.isArray(orders) ? orders : [];
         ACC.renderDashboard();
         if (ACC.state.section === 'orders') ACC.renderOrders();
+        if (ACC.state.section === 'track') ACC.renderTrack();
       })
       .catch(function(err) {
         if (err.message === 'Unauthorized') return;
         ACC.state.orders = [];
         ACC.renderDashboard();
         if (ACC.state.section === 'orders') ACC.renderOrders();
+        if (ACC.state.section === 'track') ACC.renderTrack();
       });
   },
 
