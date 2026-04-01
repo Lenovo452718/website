@@ -387,7 +387,7 @@ function saveAndRedirect(data) {
     let tries = 0;
     while (typeof google === 'undefined' && tries++ < 30) await wait();
     if (typeof google === 'undefined') { document.getElementById('googleBtn').style.display = 'none'; return; }
-    google.accounts.id.initialize({ client_id: config.googleClientId, callback: handleGoogleSignIn, ux_mode: 'popup' });
+    google.accounts.id.initialize({ client_id: config.googleClientId, callback: handleGoogleSignIn });
     google.accounts.id.renderButton(document.getElementById('googleBtn'), { theme: 'outline', size: 'large', text: 'continue_with', shape: 'rectangular', width: 320 });
   } catch(e) { document.getElementById('googleBtn').style.display = 'none'; }
 })();
