@@ -3,21 +3,39 @@
  * Express + Prisma (MySQL) + Cloudinary + Socket.io
  */
 
-/* ── Patch generated Prisma client to use library engine (no subprocess) ── */
+/* ── Ensure Prisma uses library engine (no subprocess) ── */
 (function patchPrismaEngine() {
   const fs   = require('fs');
   const path = require('path');
-  const file = path.join(__dirname, 'node_modules/.prisma/client/index.js');
+  const clientDir = path.join(__dirname, 'node_modules/.prisma/client');
+
+  // 1. Copy .so.node engine file if missing
+  const soFile = 'libquery_engine-debian-openssl-1.1.x.so.node';
+  const dest = path.join(clientDir, soFile);
+  if (!fs.existsSync(dest)) {
+    const sources = [
+      path.join(__dirname, 'node_modules/@prisma/engines', soFile),
+      path.join(__dirname, 'node_modules/prisma', soFile),
+    ];
+    for (const src of sources) {
+      if (fs.existsSync(src)) {
+        fs.copyFileSync(src, dest);
+        console.log('[startup] Copied engine file to .prisma/client');
+        break;
+      }
+    }
+  }
+
+  // 2. Patch index.js to use library runtime instead of binary
+  const indexFile = path.join(clientDir, 'index.js');
   try {
-    let src = fs.readFileSync(file, 'utf8');
+    let src = fs.readFileSync(indexFile, 'utf8');
     let patched = src
-      // Switch runtime module import
       .replace(/runtime\/binary/g, 'runtime/library')
-      // Switch engineType in config object
       .replace(/"engineType"\s*:\s*"binary"/g, '"engineType":"library"')
       .replace(/'engineType'\s*:\s*'binary'/g, "'engineType':'library'");
     if (patched !== src) {
-      fs.writeFileSync(file, patched);
+      fs.writeFileSync(indexFile, patched);
       console.log('[startup] Prisma client patched → library engine');
     }
   } catch (e) {
