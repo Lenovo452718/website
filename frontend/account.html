@@ -9,190 +9,1059 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
   <style>
-
-    /* ─── HERO ─────────────────────────────────────────────── */
-    .account-hero {
-      position: relative;
-      background: #060d1a;
-      overflow: hidden;
-      padding: 90px 40px 70px;
-    }
-    .account-hero-bg {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 55% 80% at 5% 50%, rgba(26,48,96,0.75) 0%, transparent 65%),
-        radial-gradient(ellipse 45% 50% at 95% 20%, rgba(196,149,106,0.1) 0%, transparent 55%);
-    }
-    .account-hero-grid {
-      position: absolute; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 60px 60px;
-    }
-    .account-hero-inner {
-      position: relative; z-index: 1;
-      max-width: 1100px; margin: 0 auto;
-      display: flex; align-items: center; gap: 28px;
-    }
-    .account-hero-avatar {
-      width: 72px; height: 72px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, #1a3060 0%, #0f1f3d 100%);
-      border: 2px solid rgba(224,201,122,0.3);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px; font-weight: 700; color: #e0c97a;
-      flex-shrink: 0;
-    }
-    .account-hero-text {}
-    .account-hero-tag {
-      font-size: 10px; font-weight: 700;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: #e0c97a; margin-bottom: 6px;
-    }
-    .account-hero-name {
-      font-size: clamp(28px, 4vw, 42px);
-      font-weight: 900; letter-spacing: -0.02em;
-      color: #fff; line-height: 1.05; margin-bottom: 4px;
-    }
-    .account-hero-since {
-      font-size: 13px; color: rgba(255,255,255,0.4);
+    /* ── Account-page CSS variables (extend, don't override) ── */
+    :root {
+      --acc-denim: #2D4F6C;
+      --acc-denim-light: #4a7fa5;
+      --acc-denim-pale: #e8f0f7;
+      --acc-bg: #f7f7f5;
+      --acc-sidebar-w: 260px;
+      --acc-radius: 14px;
+      --acc-shadow: 0 2px 16px rgba(45,79,108,0.09);
+      --acc-transition: 0.22s ease;
     }
 
-    /* ─── LAYOUT ────────────────────────────────────────────── */
-    .account-layout {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 48px 40px 80px;
-      display: grid;
-      grid-template-columns: 220px 1fr;
-      gap: 40px;
-      align-items: start;
+    body { background: var(--acc-bg); }
+
+    /* ── Page wrapper ── */
+    .acc-page {
+      display: flex;
+      min-height: 100vh;
+      padding-top: 72px; /* header height */
     }
 
-    /* ─── SIDEBAR ───────────────────────────────────────────── */
-    .account-sidebar {
+    /* ══════════════════════════════════════════
+       SIDEBAR
+    ══════════════════════════════════════════ */
+    .acc-sidebar {
+      width: var(--acc-sidebar-w);
       background: #fff;
-      border: 1px solid var(--gray-light);
-      padding: 8px 0;
-      position: sticky;
-      top: 90px;
+      border-right: 1px solid var(--acc-denim-pale);
+      position: fixed;
+      top: 72px;
+      left: 0;
+      height: calc(100vh - 72px);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      box-shadow: 2px 0 12px rgba(45,79,108,0.06);
     }
-    .account-nav a {
+
+    .acc-sidebar-profile {
+      padding: 28px 20px 20px;
+      border-bottom: 1px solid var(--acc-denim-pale);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+
+    .acc-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--acc-denim);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 700;
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 3px solid var(--acc-denim-pale);
+    }
+    .acc-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+    .acc-sidebar-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      line-height: 1.3;
+    }
+    .acc-sidebar-email {
+      font-size: 11px;
+      color: #888;
+      word-break: break-all;
+    }
+
+    .acc-nav {
+      flex: 1;
+      padding: 12px 0;
+    }
+    .acc-nav-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 13px 20px;
+      padding: 12px 20px;
       font-size: 13px;
       font-weight: 600;
-      color: var(--gray);
-      text-decoration: none;
-      letter-spacing: 0.04em;
-      transition: color 0.2s, background 0.2s, border-left-color 0.2s;
+      color: #555;
+      cursor: pointer;
       border-left: 3px solid transparent;
+      transition: all var(--acc-transition);
+      user-select: none;
     }
-    .account-nav a:hover { color: var(--charcoal); background: var(--off); }
-    .account-nav a.active {
-      color: var(--charcoal);
-      background: var(--off);
-      border-left-color: var(--charcoal);
+    .acc-nav-item:hover {
+      background: var(--acc-denim-pale);
+      color: var(--acc-denim);
     }
-    .account-nav a.logout { color: #c0392b; margin-top: 8px; border-top: 1px solid var(--gray-light); }
-    .account-nav a.logout:hover { background: #fff5f5; }
+    .acc-nav-item.active {
+      background: var(--acc-denim-pale);
+      color: var(--acc-denim);
+      border-left-color: var(--acc-denim);
+    }
+    .acc-nav-item svg { flex-shrink: 0; opacity: 0.8; }
+    .acc-nav-item.active svg { opacity: 1; }
 
-    /* ─── CONTENT ───────────────────────────────────────────── */
-    .account-content {}
-    .account-section-title {
+    .acc-nav-logout {
+      padding: 16px 20px;
+      border-top: 1px solid var(--acc-denim-pale);
+    }
+    .acc-nav-logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #e74c3c;
+      cursor: pointer;
+      padding: 10px 0;
+      background: none;
+      border: none;
+      width: 100%;
+      transition: opacity var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .acc-nav-logout-btn:hover { opacity: 0.75; }
+
+    /* ══════════════════════════════════════════
+       MAIN CONTENT
+    ══════════════════════════════════════════ */
+    .acc-main {
+      margin-left: var(--acc-sidebar-w);
+      flex: 1;
+      padding: 36px 40px 80px;
+      min-width: 0;
+    }
+
+    /* ── Sections ── */
+    .acc-section {
+      display: none;
+      animation: accFadeIn 0.25s ease forwards;
+    }
+    .acc-section.active { display: block; }
+    @keyframes accFadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .acc-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .acc-section-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: -0.01em;
+    }
+    .acc-section-badge {
+      background: var(--acc-denim);
+      color: #fff;
       font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--gray);
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--gray-light);
+      padding: 3px 10px;
+      border-radius: 20px;
+      margin-left: 8px;
     }
 
-    /* ─── ORDERS TABLE ──────────────────────────────────────── */
-    .orders-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-      margin-bottom: 48px;
+    /* ══════════════════════════════════════════
+       MOBILE TOP TAB BAR
+    ══════════════════════════════════════════ */
+    .acc-mobile-tabs {
+      display: none;
+      position: fixed;
+      top: 60px;
+      left: 0; right: 0;
+      background: #fff;
+      border-bottom: 1px solid var(--acc-denim-pale);
+      z-index: 200;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
-    .orders-table th {
-      text-align: left;
+    .acc-mobile-tabs::-webkit-scrollbar { display: none; }
+    .acc-mobile-tabs-inner {
+      display: flex;
+      min-width: max-content;
+    }
+    .acc-mobile-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 10px 16px;
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: var(--gray);
-      padding: 0 16px 12px;
-      border-bottom: 1px solid var(--gray-light);
+      color: #888;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      white-space: nowrap;
     }
-    .orders-table td {
-      padding: 16px;
-      border-bottom: 1px solid var(--gray-light);
-      color: var(--charcoal);
-      vertical-align: middle;
+    .acc-mobile-tab.active {
+      color: var(--acc-denim);
+      border-bottom-color: var(--acc-denim);
     }
-    .orders-table tr:last-child td { border-bottom: none; }
-    .orders-table tr:hover td { background: var(--off); }
 
-    .order-status {
+    /* ══════════════════════════════════════════
+       MOBILE BOTTOM NAV
+    ══════════════════════════════════════════ */
+    .acc-mobile-bar {
+      display: none;
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid var(--acc-denim-pale);
+      z-index: 300;
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .acc-mobile-bar-inner {
+      display: flex;
+      align-items: stretch;
+    }
+    .acc-mobile-bar-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      padding: 10px 4px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #999;
+      text-decoration: none;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .acc-mobile-bar-item.active { color: var(--acc-denim); }
+    .acc-mobile-bar-item svg { flex-shrink: 0; }
+
+    /* ══════════════════════════════════════════
+       STAT CARDS
+    ══════════════════════════════════════════ */
+    .acc-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .acc-stat-card {
+      background: #fff;
+      border-radius: var(--acc-radius);
+      padding: 22px 20px;
+      box-shadow: var(--acc-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: transform var(--acc-transition), box-shadow var(--acc-transition);
+      cursor: default;
+    }
+    .acc-stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 24px rgba(45,79,108,0.14);
+    }
+    .acc-stat-icon {
+      width: 40px; height: 40px;
+      background: var(--acc-denim-pale);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--acc-denim);
+    }
+    .acc-stat-num {
+      font-size: 32px;
+      font-weight: 800;
+      color: #111;
+      line-height: 1;
+    }
+    .acc-stat-label {
+      font-size: 12px;
+      color: #888;
+      font-weight: 500;
+    }
+
+    /* ══════════════════════════════════════════
+       RECENT ORDERS MINI CARDS
+    ══════════════════════════════════════════ */
+    .acc-card-section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .acc-mini-order-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--acc-shadow);
+      margin-bottom: 10px;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .acc-mini-order-id { font-size: 13px; font-weight: 700; color: #111; }
+    .acc-mini-order-date { font-size: 11px; color: #999; }
+    .acc-mini-order-total { font-size: 13px; font-weight: 700; color: var(--acc-denim); }
+
+    /* ── Status badge ── */
+    .acc-status {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
+      gap: 5px;
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.07em;
       text-transform: uppercase;
-      padding: 4px 10px;
+      padding: 3px 10px;
       border-radius: 20px;
     }
-    .order-status::before {
+    .acc-status::before {
       content: '';
-      width: 6px; height: 6px;
+      width: 5px; height: 5px;
       border-radius: 50%;
       background: currentColor;
-      opacity: 0.7;
     }
-    .order-status.processing { background: rgba(230,126,34,0.1); color: #e67e22; }
-    .order-status.shipped    { background: rgba(52,152,219,0.1); color: #2980b9; }
-    .order-status.delivered  { background: rgba(39,174,96,0.1);  color: #27ae60; }
+    .acc-status-pending    { background: rgba(243,156,18,0.12);  color: #f39c12; }
+    .acc-status-confirmed  { background: rgba(41,128,185,0.12);  color: #2980b9; }
+    .acc-status-processing { background: rgba(142,68,173,0.12);  color: #8e44ad; }
+    .acc-status-done       { background: rgba(39,174,96,0.12);   color: #27ae60; }
+    .acc-status-delivered  { background: rgba(39,174,96,0.12);   color: #27ae60; }
+    .acc-status-cancelled  { background: rgba(231,76,60,0.12);   color: #e74c3c; }
+    .acc-status-called     { background: rgba(22,160,133,0.12);  color: #16a085; }
+    .acc-status-new        { background: rgba(243,156,18,0.12);  color: #f39c12; }
 
-    .order-action {
+    /* ══════════════════════════════════════════
+       RECENTLY VIEWED
+    ══════════════════════════════════════════ */
+    .acc-rv-scroll {
+      display: flex;
+      gap: 14px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+      scrollbar-color: var(--acc-denim-pale) transparent;
+    }
+    .acc-rv-card {
+      flex-shrink: 0;
+      width: 140px;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--acc-shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: transform var(--acc-transition);
+    }
+    .acc-rv-card:hover { transform: translateY(-3px); }
+    .acc-rv-img {
+      width: 100%; height: 110px;
+      object-fit: cover;
+      background: var(--acc-denim-pale);
+    }
+    .acc-rv-img-placeholder {
+      width: 100%; height: 110px;
+      background: var(--acc-denim-pale);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--acc-denim); font-size: 28px;
+    }
+    .acc-rv-info { padding: 10px; }
+    .acc-rv-name { font-size: 11px; font-weight: 600; color: #111; line-height: 1.3; margin-bottom: 4px; }
+    .acc-rv-price { font-size: 11px; color: var(--acc-denim); font-weight: 700; }
+
+    /* ══════════════════════════════════════════
+       ORDER CARDS (full section)
+    ══════════════════════════════════════════ */
+    .acc-order-card {
+      background: #fff;
+      border-radius: var(--acc-radius);
+      box-shadow: var(--acc-shadow);
+      margin-bottom: 16px;
+      overflow: hidden;
+      border: 1px solid var(--acc-denim-pale);
+    }
+    .acc-order-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--acc-denim-pale);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .acc-order-num { font-size: 15px; font-weight: 800; color: #111; }
+    .acc-order-date-str { font-size: 12px; color: #999; }
+    .acc-order-card-items { padding: 14px 20px; border-bottom: 1px solid var(--acc-denim-pale); }
+    .acc-order-item-row {
+      font-size: 13px; color: #444;
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 4px;
+    }
+    .acc-order-item-row:last-child { margin-bottom: 0; }
+    .acc-order-item-size {
+      font-size: 10px; font-weight: 700;
+      background: var(--acc-denim-pale); color: var(--acc-denim);
+      padding: 1px 7px; border-radius: 6px;
+    }
+    .acc-order-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .acc-order-total { font-size: 15px; font-weight: 800; color: #111; }
+    .acc-order-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+
+    .acc-btn-outline {
+      padding: 8px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1.5px solid var(--acc-denim);
+      color: var(--acc-denim);
+      background: transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .acc-btn-outline:hover { background: var(--acc-denim); color: #fff; }
+
+    .acc-btn-filled {
+      padding: 8px 16px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1.5px solid var(--acc-denim);
+      color: #fff;
+      background: var(--acc-denim);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .acc-btn-filled:hover { background: var(--acc-denim-light); border-color: var(--acc-denim-light); }
+
+    /* ── Order detail expanded ── */
+    .acc-order-detail {
+      display: none;
+      padding: 0 20px 20px;
+      border-top: 1px solid var(--acc-denim-pale);
+      animation: accFadeIn 0.2s ease;
+    }
+    .acc-order-detail.open { display: block; }
+
+    /* ── Tracking progress ── */
+    .acc-tracking {
+      margin: 18px 0 8px;
+    }
+    .acc-tracking-label {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; color: #888; margin-bottom: 14px;
+    }
+    .acc-track-steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+    }
+    .acc-track-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+    .acc-track-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e0e0e0;
+      z-index: 0;
+    }
+    .acc-track-step.done:not(:last-child)::after { background: var(--acc-denim); }
+    .acc-track-dot {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: #e0e0e0;
+      border: 2px solid #e0e0e0;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--charcoal);
-      text-decoration: none;
-      padding: 6px 14px;
-      border: 1.5px solid var(--charcoal);
-      transition: background 0.2s, color 0.2s;
+      z-index: 1;
+      transition: all 0.3s;
     }
-    .order-action:hover { background: var(--charcoal); color: #fff; }
+    .acc-track-step.done .acc-track-dot {
+      background: var(--acc-denim);
+      border-color: var(--acc-denim);
+    }
+    .acc-track-step.current .acc-track-dot {
+      background: #fff;
+      border-color: var(--acc-denim);
+      color: var(--acc-denim);
+      box-shadow: 0 0 0 4px var(--acc-denim-pale);
+    }
+    .acc-track-step-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #aaa;
+      margin-top: 6px;
+      text-align: center;
+    }
+    .acc-track-step.done .acc-track-step-label,
+    .acc-track-step.current .acc-track-step-label { color: var(--acc-denim); }
 
-    /* ─── WISHLIST ──────────────────────────────────────────── */
-    .wishlist-preview { margin-top: 8px; }
-    .wishlist-grid {
+    .acc-cancelled-banner {
+      background: rgba(231,76,60,0.08);
+      border: 1px solid rgba(231,76,60,0.25);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: #e74c3c;
+      font-size: 13px;
+      font-weight: 700;
+      margin: 14px 0;
+      text-align: center;
+    }
+
+    /* ══════════════════════════════════════════
+       EMPTY STATES
+    ══════════════════════════════════════════ */
+    .acc-empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: #aaa;
+    }
+    .acc-empty-icon { font-size: 48px; margin-bottom: 16px; }
+    .acc-empty-title { font-size: 16px; font-weight: 700; color: #555; margin-bottom: 8px; }
+    .acc-empty-sub { font-size: 13px; color: #aaa; margin-bottom: 24px; }
+    .acc-empty-link {
+      display: inline-block;
+      padding: 10px 24px;
+      background: var(--acc-denim);
+      color: #fff;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: background var(--acc-transition);
+    }
+    .acc-empty-link:hover { background: var(--acc-denim-light); }
+
+    /* ══════════════════════════════════════════
+       WISHLIST
+    ══════════════════════════════════════════ */
+    .acc-wishlist-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
+    .acc-wish-card {
+      background: #fff;
+      border-radius: var(--acc-radius);
+      overflow: hidden;
+      box-shadow: var(--acc-shadow);
+      border: 1px solid var(--acc-denim-pale);
+      transition: transform var(--acc-transition);
+    }
+    .acc-wish-card:hover { transform: translateY(-3px); }
+    .acc-wish-img {
+      width: 100%; height: 200px;
+      object-fit: cover;
+      background: var(--acc-denim-pale);
+    }
+    .acc-wish-img-placeholder {
+      width: 100%; height: 200px;
+      background: var(--acc-denim-pale);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--acc-denim); font-size: 40px;
+    }
+    .acc-wish-info { padding: 14px 16px; }
+    .acc-wish-name { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 4px; }
+    .acc-wish-price { font-size: 13px; color: var(--acc-denim); font-weight: 700; margin-bottom: 12px; }
+    .acc-wish-btns { display: flex; gap: 8px; }
 
-    /* ─── RESPONSIVE ────────────────────────────────────────── */
-    @media (max-width: 860px) {
-      .account-layout { grid-template-columns: 1fr; padding: 32px 20px 60px; }
-      .account-sidebar { position: static; }
-      .account-hero { padding: 60px 20px 50px; }
-      .wishlist-grid { grid-template-columns: repeat(2, 1fr); }
-      .orders-table { display: block; overflow-x: auto; }
+    /* ══════════════════════════════════════════
+       ADDRESSES
+    ══════════════════════════════════════════ */
+    .acc-addr-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
     }
+    .acc-addr-card {
+      background: #fff;
+      border-radius: var(--acc-radius);
+      padding: 18px 20px;
+      box-shadow: var(--acc-shadow);
+      border: 1.5px solid var(--acc-denim-pale);
+      position: relative;
+    }
+    .acc-addr-card.default-addr { border-color: var(--acc-denim); }
+    .acc-addr-default-badge {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: var(--acc-denim);
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .acc-addr-name { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 6px; }
+    .acc-addr-detail { font-size: 12px; color: #666; line-height: 1.6; margin-bottom: 10px; }
+    .acc-addr-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .acc-addr-btn {
+      font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+      padding: 6px 12px; border-radius: 6px; cursor: pointer;
+      border: 1.5px solid; transition: all var(--acc-transition);
+      font-family: 'Inter', sans-serif; background: transparent;
+    }
+    .acc-addr-btn-edit { color: var(--acc-denim); border-color: var(--acc-denim); }
+    .acc-addr-btn-edit:hover { background: var(--acc-denim); color: #fff; }
+    .acc-addr-btn-del { color: #e74c3c; border-color: #e74c3c; }
+    .acc-addr-btn-del:hover { background: #e74c3c; color: #fff; }
+    .acc-addr-btn-default { color: #27ae60; border-color: #27ae60; }
+    .acc-addr-btn-default:hover { background: #27ae60; color: #fff; }
+
+    .acc-add-addr-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--acc-denim);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+      margin-bottom: 20px;
+    }
+    .acc-add-addr-btn:hover { background: var(--acc-denim-light); }
+
+    /* Address form */
+    .acc-addr-form-wrap {
+      background: #fff;
+      border-radius: var(--acc-radius);
+      padding: 24px;
+      box-shadow: var(--acc-shadow);
+      border: 1px solid var(--acc-denim-pale);
+      display: none;
+      margin-bottom: 20px;
+    }
+    .acc-addr-form-wrap.open { display: block; animation: accFadeIn 0.2s ease; }
+
+    /* ══════════════════════════════════════════
+       FORM FIELDS (shared)
+    ══════════════════════════════════════════ */
+    .acc-field { margin-bottom: 16px; }
+    .acc-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #555;
+      margin-bottom: 7px;
+    }
+    .acc-field input,
+    .acc-field select {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1.5px solid #dde8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #111;
+      background: #fff;
+      outline: none;
+      transition: border-color var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .acc-field input:focus,
+    .acc-field select:focus { border-color: var(--acc-denim); }
+    .acc-field input[readonly] { background: #f5f8fb; color: #888; cursor: default; }
+    .acc-field input[disabled] { background: #f5f8fb; color: #bbb; cursor: default; }
+    .acc-fields-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .acc-save-btn {
+      padding: 11px 28px;
+      background: var(--acc-denim);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .acc-save-btn:hover { background: var(--acc-denim-light); }
+    .acc-save-btn:disabled { background: #aaa; cursor: not-allowed; }
+
+    /* ══════════════════════════════════════════
+       SETTINGS TABS
+    ══════════════════════════════════════════ */
+    .acc-settings-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--acc-denim-pale);
+      margin-bottom: 28px;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .acc-settings-tabs::-webkit-scrollbar { display: none; }
+    .acc-settings-tab {
+      padding: 10px 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      color: #888;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .acc-settings-tab:hover { color: var(--acc-denim); }
+    .acc-settings-tab.active { color: var(--acc-denim); border-bottom-color: var(--acc-denim); }
+    .acc-settings-panel { display: none; animation: accFadeIn 0.2s ease; }
+    .acc-settings-panel.active { display: block; }
+
+    /* Avatar edit */
+    .acc-avatar-edit-wrap {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .acc-avatar-large {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--acc-denim);
+      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px; font-weight: 700;
+      overflow: hidden;
+      position: relative;
+      flex-shrink: 0;
+      border: 3px solid var(--acc-denim-pale);
+    }
+    .acc-avatar-large img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+    .acc-avatar-overlay {
+      position: absolute; inset: 0;
+      background: rgba(0,0,0,0.45);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+    .acc-avatar-large:hover .acc-avatar-overlay { opacity: 1; }
+    .acc-avatar-overlay span { font-size: 9px; font-weight: 700; color: #fff; text-align: center; letter-spacing: 0.04em; }
+
+    /* Google account info */
+    .acc-google-note {
+      background: var(--acc-denim-pale);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-size: 13px;
+      color: var(--acc-denim);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    /* Toggle switches */
+    .acc-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--acc-denim-pale);
+    }
+    .acc-toggle-row:last-child { border-bottom: none; }
+    .acc-toggle-label { font-size: 14px; font-weight: 600; color: #111; }
+    .acc-toggle-sub { font-size: 12px; color: #aaa; margin-top: 2px; }
+    .acc-toggle {
+      position: relative;
+      width: 44px; height: 24px;
+      flex-shrink: 0;
+    }
+    .acc-toggle input { opacity: 0; width: 0; height: 0; }
+    .acc-toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background: #ddd;
+      border-radius: 24px;
+      transition: 0.3s;
+    }
+    .acc-toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 18px; width: 18px;
+      left: 3px; bottom: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.3s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+    }
+    .acc-toggle input:checked + .acc-toggle-slider { background: var(--acc-denim); }
+    .acc-toggle input:checked + .acc-toggle-slider::before { transform: translateX(20px); }
+
+    /* Size recommendation card */
+    .acc-size-rec {
+      margin-top: 20px;
+      background: var(--acc-denim);
+      color: #fff;
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: accFadeIn 0.3s ease;
+    }
+    .acc-size-rec-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.8; }
+    .acc-size-rec-size { font-size: 40px; font-weight: 900; line-height: 1; }
+    .acc-size-rec-sub { font-size: 12px; opacity: 0.75; margin-top: 4px; }
+
+    /* ══════════════════════════════════════════
+       LOADING SKELETONS
+    ══════════════════════════════════════════ */
+    .acc-skeleton {
+      background: linear-gradient(90deg, #e8f0f7 25%, #f0f5fa 50%, #e8f0f7 75%);
+      background-size: 200% 100%;
+      animation: accShimmer 1.4s infinite;
+      border-radius: 8px;
+    }
+    @keyframes accShimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .acc-skeleton-card {
+      height: 110px;
+      border-radius: var(--acc-radius);
+      margin-bottom: 14px;
+    }
+
+    /* ══════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════ */
+    .acc-toast-wrap {
+      position: fixed;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      pointer-events: none;
+    }
+    .acc-toast {
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+      animation: accToastIn 0.3s ease;
+      pointer-events: auto;
+      white-space: nowrap;
+    }
+    .acc-toast-success { background: #27ae60; }
+    .acc-toast-error   { background: #e74c3c; }
+    .acc-toast-info    { background: var(--acc-denim); }
+    @keyframes accToastIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes accToastOut {
+      from { opacity: 1; transform: translateY(0); }
+      to   { opacity: 0; transform: translateY(10px); }
+    }
+
+    /* ══════════════════════════════════════════
+       SUPPORT BUTTON
+    ══════════════════════════════════════════ */
+    .acc-support-btn {
+      position: fixed;
+      bottom: 80px;
+      right: 24px;
+      width: 44px; height: 44px;
+      background: var(--acc-denim);
+      color: #fff;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(45,79,108,0.3);
+      z-index: 500;
+      border: none;
+      transition: background var(--acc-transition), transform var(--acc-transition);
+    }
+    .acc-support-btn:hover { background: var(--acc-denim-light); transform: scale(1.07); }
+
+    .acc-support-popup {
+      position: fixed;
+      bottom: 134px;
+      right: 20px;
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      padding: 20px 22px;
+      width: 260px;
+      z-index: 501;
+      display: none;
+      animation: accFadeIn 0.2s ease;
+    }
+    .acc-support-popup.open { display: block; }
+    .acc-support-popup-title { font-size: 14px; font-weight: 700; color: #111; margin-bottom: 6px; }
+    .acc-support-popup-sub { font-size: 12px; color: #888; margin-bottom: 14px; }
+    .acc-support-wa-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px;
+      background: #25D366;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+    }
+    .acc-support-wa-btn:hover { background: #1da851; }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media (max-width: 1100px) {
+      .acc-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .acc-sidebar { display: none; }
+      .acc-main {
+        margin-left: 0;
+        padding: 16px 16px 100px;
+        padding-top: calc(60px + 52px + 16px); /* header + mobile tabs + gap */
+      }
+      .acc-mobile-tabs { display: flex; }
+      .acc-mobile-bar { display: block; }
+      .acc-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .acc-wishlist-grid { grid-template-columns: repeat(2, 1fr); }
+      .acc-addr-grid { grid-template-columns: 1fr; }
+      .acc-fields-row { grid-template-columns: 1fr; }
+      .acc-support-btn { bottom: 70px; right: 16px; }
+      .acc-support-popup { right: 12px; bottom: 120px; width: 240px; }
+      .acc-toast-wrap { bottom: 70px; }
+    }
+
     @media (max-width: 480px) {
-      .wishlist-grid { grid-template-columns: 1fr; }
+      .acc-wishlist-grid { grid-template-columns: 1fr; }
+      .acc-stat-num { font-size: 26px; }
     }
+
+    /* hide existing mobile bottom nav on this page */
+    .mobile-bottom-nav { display: none !important; }
+
+    /* ── Dashboard greeting header ── */
+    .acc-welcome-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .acc-welcome-greeting {
+      font-size: 26px;
+      font-weight: 800;
+      color: #111;
+      line-height: 1.2;
+    }
+    .acc-welcome-sub {
+      font-size: 13px;
+      color: #999;
+      margin-top: 4px;
+    }
+    .acc-edit-profile-btn {
+      padding: 9px 18px;
+      background: var(--acc-denim-pale);
+      color: var(--acc-denim);
+      border: 1.5px solid var(--acc-denim-pale);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.07em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all var(--acc-transition);
+      font-family: 'Inter', sans-serif;
+      white-space: nowrap;
+    }
+    .acc-edit-profile-btn:hover { background: var(--acc-denim); color: #fff; border-color: var(--acc-denim); }
+
+    .acc-block { background: #fff; border-radius: var(--acc-radius); padding: 22px; box-shadow: var(--acc-shadow); margin-bottom: 20px; }
+    .acc-block-title { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
   </style>
 </head>
 <body>
@@ -215,7 +1084,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
         <span class="cart-badge">0</span>
       </button>
-      <a href="signup.html" class="nav-icon-btn" aria-label="Account" style="display:flex;align-items:center;justify-content:center;">
+      <a href="account.html" class="nav-icon-btn" aria-label="Account" style="display:flex;align-items:center;justify-content:center;">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </a>
       <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
@@ -233,107 +1102,282 @@
   </nav>
 </header>
 
-<!-- ===== ACCOUNT HERO ===== -->
-<section class="account-hero">
-  <div class="account-hero-bg"></div>
-  <div class="account-hero-grid"></div>
-  <div class="account-hero-inner">
-    <div class="account-hero-avatar" id="heroAvatar">?</div>
-    <div class="account-hero-text">
-      <p class="account-hero-tag">Account</p>
-      <h1 class="account-hero-name" id="heroName">My Account</h1>
-      <p class="account-hero-since" id="heroSince">Member</p>
+<!-- ===== MOBILE TOP TAB BAR ===== -->
+<div class="acc-mobile-tabs" id="accMobileTabs">
+  <div class="acc-mobile-tabs-inner">
+    <div class="acc-mobile-tab active" data-section="dashboard" onclick="ACC.nav('dashboard')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="acc-mobile-tab" data-section="orders" onclick="ACC.nav('orders')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+      Orders
+    </div>
+    <div class="acc-mobile-tab" data-section="wishlist" onclick="ACC.nav('wishlist')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Wishlist
+    </div>
+    <div class="acc-mobile-tab" data-section="settings" onclick="ACC.nav('settings')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      Settings
+    </div>
+    <div class="acc-mobile-tab" data-section="addresses" onclick="ACC.nav('addresses')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      Addresses
     </div>
   </div>
-</section>
+</div>
 
-<!-- ===== ACCOUNT LAYOUT ===== -->
-<div class="account-layout">
+<!-- ===== ACCOUNT PAGE ===== -->
+<div class="acc-page">
 
   <!-- SIDEBAR -->
-  <aside class="account-sidebar">
-    <nav class="account-nav">
-      <a href="#orders" class="active">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-        <span data-i18n="my_orders">My Orders</span>
-      </a>
-      <a href="#wishlist">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span data-i18n="wishlist">Wishlist</span>
-      </a>
-      <a href="#">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span data-i18n="profile">Profile</span>
-      </a>
-      <a href="#">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span data-i18n="addresses_tab">Addresses</span>
-      </a>
-      <a href="index.html" class="logout">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        <span data-i18n="logout">Logout</span>
-      </a>
+  <aside class="acc-sidebar">
+    <div class="acc-sidebar-profile">
+      <div class="acc-avatar" id="sbAvatar">?</div>
+      <div class="acc-sidebar-name" id="sbName">Loading...</div>
+      <div class="acc-sidebar-email" id="sbEmail"></div>
+    </div>
+    <nav class="acc-nav">
+      <div class="acc-nav-item active" data-section="dashboard" onclick="ACC.nav('dashboard')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </div>
+      <div class="acc-nav-item" data-section="orders" onclick="ACC.nav('orders')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+        My Orders
+      </div>
+      <div class="acc-nav-item" data-section="wishlist" onclick="ACC.nav('wishlist')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Wishlist
+      </div>
+      <div class="acc-nav-item" data-section="addresses" onclick="ACC.nav('addresses')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        Addresses
+      </div>
+      <div class="acc-nav-item" data-section="settings" onclick="ACC.nav('settings')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Settings
+      </div>
     </nav>
+    <div class="acc-nav-logout">
+      <button class="acc-nav-logout-btn" onclick="ACC.logout()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
   </aside>
 
-  <!-- CONTENT -->
-  <div class="account-content">
+  <!-- MAIN CONTENT -->
+  <main class="acc-main">
 
-    <!-- PHONE LINK BANNER -->
-    <div id="phoneLinkBanner" style="display:none; background:#fff8e8; border:1px solid #e0c97a; padding:20px 24px; margin-bottom:32px;">
-      <p style="font-size:14px;font-weight:600;color:#1a1a1a;margin-bottom:4px;">Link your phone number to see your orders</p>
-      <p style="font-size:13px;color:#888;margin-bottom:14px;">Enter the phone number you used when placing your orders.</p>
-      <form id="phoneLinkForm" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="tel" id="linkPhoneInput" placeholder="e.g. 0612345678" required
-          style="flex:1;min-width:180px;padding:11px 14px;border:1.5px solid #ddd;font-size:14px;font-family:inherit;outline:none;border-radius:4px;">
-        <button type="submit" id="linkPhoneBtn"
-          style="padding:11px 22px;background:#1a1a1a;color:#fff;border:none;font-size:12px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-family:inherit;">
-          Link & View Orders
-        </button>
-      </form>
-      <p id="phoneLinkError" style="display:none;color:#c0392b;font-size:13px;margin-top:8px;"></p>
-    </div>
-
-    <!-- ORDERS -->
-    <div id="orders">
-      <p class="account-section-title">My Orders</p>
-      <table class="orders-table">
-        <thead>
-          <tr>
-            <th>Order #</th>
-            <th>Date</th>
-            <th>Items</th>
-            <th>Total</th>
-            <th>Status</th>
-            <th>City</th>
-          </tr>
-        </thead>
-        <tbody id="ordersBody">
-          <tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">Loading orders...</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- PROFILE -->
-    <div id="profile" style="margin-top:48px;">
-      <p class="account-section-title">Profile</p>
-      <div style="background:#fff;border:1px solid var(--gray-light);padding:24px;max-width:480px;">
-        <div style="margin-bottom:16px;">
-          <label style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;display:block;margin-bottom:6px;">Name</label>
-          <p id="profileName" style="font-size:15px;color:#1a1a1a;"></p>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;display:block;margin-bottom:6px;">Email</label>
-          <p id="profileEmail" style="font-size:15px;color:#1a1a1a;"></p>
-        </div>
+    <!-- ══════════ SECTION: DASHBOARD ══════════ -->
+    <section class="acc-section active" id="sec-dashboard">
+      <div class="acc-welcome-row">
         <div>
-          <label style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#888;display:block;margin-bottom:6px;">Phone</label>
-          <p id="profilePhone" style="font-size:15px;color:#1a1a1a;"></p>
+          <div class="acc-welcome-greeting" id="dashGreeting">Welcome back 👋</div>
+          <div class="acc-welcome-sub">Here's a quick look at your account.</div>
+        </div>
+        <button class="acc-edit-profile-btn" onclick="ACC.nav('settings')">Edit Profile</button>
+      </div>
+
+      <!-- Stat cards -->
+      <div class="acc-stats-grid" id="dashStats">
+        <div class="acc-stat-card">
+          <div class="acc-stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+          </div>
+          <div class="acc-stat-num" id="statTotalOrders">—</div>
+          <div class="acc-stat-label">Total Orders</div>
+        </div>
+        <div class="acc-stat-card">
+          <div class="acc-stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div class="acc-stat-num" id="statPendingOrders">—</div>
+          <div class="acc-stat-label">Pending Orders</div>
+        </div>
+        <div class="acc-stat-card">
+          <div class="acc-stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <div class="acc-stat-num" id="statWishlist">—</div>
+          <div class="acc-stat-label">Wishlist Items</div>
+        </div>
+        <div class="acc-stat-card">
+          <div class="acc-stat-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <div class="acc-stat-num" id="statAddresses">—</div>
+          <div class="acc-stat-label">Saved Addresses</div>
         </div>
       </div>
-    </div>
 
-  </div>
+      <!-- Recent orders -->
+      <div class="acc-block">
+        <div class="acc-block-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+          Recent Orders
+        </div>
+        <div id="dashRecentOrders">
+          <div class="acc-skeleton acc-skeleton-card"></div>
+          <div class="acc-skeleton acc-skeleton-card"></div>
+        </div>
+      </div>
+
+      <!-- Recently viewed -->
+      <div class="acc-block">
+        <div class="acc-block-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Recently Viewed
+        </div>
+        <div id="dashRecentlyViewed" class="acc-rv-scroll"></div>
+      </div>
+    </section>
+
+    <!-- ══════════ SECTION: ORDERS ══════════ -->
+    <section class="acc-section" id="sec-orders">
+      <div class="acc-section-header">
+        <div>
+          <span class="acc-section-title">My Orders</span>
+          <span class="acc-section-badge" id="ordersBadge">0</span>
+        </div>
+      </div>
+      <div id="ordersContainer">
+        <div class="acc-skeleton acc-skeleton-card"></div>
+        <div class="acc-skeleton acc-skeleton-card"></div>
+        <div class="acc-skeleton acc-skeleton-card"></div>
+      </div>
+    </section>
+
+    <!-- ══════════ SECTION: WISHLIST ══════════ -->
+    <section class="acc-section" id="sec-wishlist">
+      <div class="acc-section-header">
+        <span class="acc-section-title">Wishlist</span>
+      </div>
+      <div id="wishlistContainer"></div>
+    </section>
+
+    <!-- ══════════ SECTION: ADDRESSES ══════════ -->
+    <section class="acc-section" id="sec-addresses">
+      <div class="acc-section-header">
+        <span class="acc-section-title">Addresses</span>
+      </div>
+      <button class="acc-add-addr-btn" id="addAddrBtn" onclick="ACC._toggleAddrForm()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add New Address
+      </button>
+      <div class="acc-addr-form-wrap" id="addrFormWrap">
+        <div style="font-size:14px;font-weight:700;margin-bottom:18px;color:#111;">New Address</div>
+        <div class="acc-fields-row">
+          <div class="acc-field"><label>Full Name</label><input type="text" id="af-name" placeholder="e.g. Fatima Zahra"></div>
+          <div class="acc-field"><label>City</label><input type="text" id="af-city" placeholder="e.g. Casablanca"></div>
+        </div>
+        <div class="acc-field"><label>Full Address</label><input type="text" id="af-address" placeholder="Street, neighbourhood..."></div>
+        <div class="acc-field"><label>Phone Number</label><input type="tel" id="af-phone" placeholder="e.g. 0612345678"></div>
+        <div style="display:flex;gap:10px;margin-top:4px;">
+          <button class="acc-save-btn" onclick="ACC._saveAddress()">Save Address</button>
+          <button class="acc-btn-outline" onclick="ACC._toggleAddrForm(false)" style="padding:11px 18px;">Cancel</button>
+        </div>
+      </div>
+      <div class="acc-addr-grid" id="addressesGrid"></div>
+    </section>
+
+    <!-- ══════════ SECTION: SETTINGS ══════════ -->
+    <section class="acc-section" id="sec-settings">
+      <div class="acc-section-header">
+        <span class="acc-section-title">Settings</span>
+      </div>
+
+      <div class="acc-settings-tabs">
+        <div class="acc-settings-tab active" data-tab="profile" onclick="ACC._settingsTab('profile')">Profile</div>
+        <div class="acc-settings-tab" data-tab="password" onclick="ACC._settingsTab('password')">Password</div>
+        <div class="acc-settings-tab" data-tab="size" onclick="ACC._settingsTab('size')">Size Profile</div>
+        <div class="acc-settings-tab" data-tab="notifications" onclick="ACC._settingsTab('notifications')">Notifications</div>
+      </div>
+
+      <!-- Profile tab -->
+      <div class="acc-settings-panel active" id="stab-profile">
+        <div class="acc-avatar-edit-wrap">
+          <div class="acc-avatar-large" id="settingsAvatar">
+            ?
+            <div class="acc-avatar-overlay"><span>Change<br>Photo</span></div>
+          </div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#111;" id="settingsAvatarName">—</div>
+            <div style="font-size:12px;color:#aaa;margin-top:3px;" id="settingsAvatarEmail">—</div>
+          </div>
+        </div>
+        <div class="acc-fields-row">
+          <div class="acc-field"><label>Full Name</label><input type="text" id="sf-name" placeholder="Your name"></div>
+          <div class="acc-field"><label>Phone Number</label><input type="tel" id="sf-phone" placeholder="e.g. 0612345678"></div>
+        </div>
+        <div class="acc-field"><label>Email Address</label><input type="email" id="sf-email" readonly></div>
+        <button class="acc-save-btn" id="profileSaveBtn" onclick="ACC._saveProfile()">Save Changes</button>
+      </div>
+
+      <!-- Password tab -->
+      <div class="acc-settings-panel" id="stab-password">
+        <div id="pwGoogleNote" class="acc-google-note" style="display:none;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Google account — password is managed by Google.
+        </div>
+        <div id="pwForm">
+          <div class="acc-field"><label>Current Password</label><input type="password" id="sf-cur-pw" placeholder="Your current password"></div>
+          <div class="acc-field"><label>New Password</label><input type="password" id="sf-new-pw" placeholder="At least 8 characters" minlength="8"></div>
+          <div class="acc-field"><label>Confirm New Password</label><input type="password" id="sf-con-pw" placeholder="Repeat new password"></div>
+          <p id="pwError" style="color:#e74c3c;font-size:13px;margin-bottom:10px;display:none;"></p>
+          <button class="acc-save-btn" id="pwSaveBtn" onclick="ACC._savePassword()">Update Password</button>
+        </div>
+      </div>
+
+      <!-- Size Profile tab -->
+      <div class="acc-settings-panel" id="stab-size">
+        <div class="acc-fields-row">
+          <div class="acc-field"><label>Waist (cm)</label><input type="number" id="sf-waist" placeholder="e.g. 76" min="50" max="130"></div>
+          <div class="acc-field"><label>Height (cm)</label><input type="number" id="sf-height" placeholder="e.g. 165" min="130" max="220"></div>
+        </div>
+        <div class="acc-field">
+          <label>Preferred Fit</label>
+          <select id="sf-fit">
+            <option value="">Select fit...</option>
+            <option value="Skinny">Skinny</option>
+            <option value="Straight">Straight</option>
+            <option value="Wide">Wide</option>
+            <option value="Baggy">Baggy</option>
+          </select>
+        </div>
+        <button class="acc-save-btn" onclick="ACC._saveSizeProfile()">Save Size Profile</button>
+        <div id="sizeRecCard" style="display:none;"></div>
+      </div>
+
+      <!-- Notifications tab -->
+      <div class="acc-settings-panel" id="stab-notifications">
+        <div class="acc-toggle-row">
+          <div>
+            <div class="acc-toggle-label">Order updates</div>
+            <div class="acc-toggle-sub">Get notified when your order status changes</div>
+          </div>
+          <label class="acc-toggle"><input type="checkbox" id="notif-orders" onchange="ACC._saveNotifications()"><span class="acc-toggle-slider"></span></label>
+        </div>
+        <div class="acc-toggle-row">
+          <div>
+            <div class="acc-toggle-label">Promotions &amp; offers</div>
+            <div class="acc-toggle-sub">Exclusive deals and discount codes</div>
+          </div>
+          <label class="acc-toggle"><input type="checkbox" id="notif-promos" onchange="ACC._saveNotifications()"><span class="acc-toggle-slider"></span></label>
+        </div>
+        <div class="acc-toggle-row">
+          <div>
+            <div class="acc-toggle-label">New arrivals</div>
+            <div class="acc-toggle-sub">Be the first to know about new drops</div>
+          </div>
+          <label class="acc-toggle"><input type="checkbox" id="notif-arrivals" onchange="ACC._saveNotifications()"><span class="acc-toggle-slider"></span></label>
+        </div>
+      </div>
+    </section>
+
+  </main>
 </div>
 
 <!-- ===== FOOTER ===== -->
@@ -376,7 +1420,45 @@
   </div>
 </footer>
 
+<!-- WhatsApp float -->
 <a href="https://wa.me/212771152186" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+<!-- Support button -->
+<button class="acc-support-btn" onclick="ACC._toggleSupport()" title="Need help?">?</button>
+<div class="acc-support-popup" id="accSupportPopup">
+  <div class="acc-support-popup-title">Need help?</div>
+  <div class="acc-support-popup-sub">Chat with us directly on WhatsApp for fast support.</div>
+  <a href="https://wa.me/212771152186" target="_blank" class="acc-support-wa-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Chat on WhatsApp
+  </a>
+</div>
+
+<!-- Toast container -->
+<div class="acc-toast-wrap" id="accToastWrap"></div>
+
+<!-- Mobile bottom nav -->
+<div class="acc-mobile-bar">
+  <div class="acc-mobile-bar-inner">
+    <a href="index.html" class="acc-mobile-bar-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
+    </a>
+    <a href="shop.html" class="acc-mobile-bar-item">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+      Shop
+    </a>
+    <div class="acc-mobile-bar-item" onclick="ACC.nav('orders')">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1" ry="1"/></svg>
+      Orders
+    </div>
+    <a href="account.html" class="acc-mobile-bar-item active">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Account
+    </a>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="products.js"></script>
 <script src="lang.js"></script>
@@ -385,136 +1467,729 @@
 <script src="mobile.js"></script>
 <script>
 (function() {
-  const BACKEND = window.STREETSTORE_BACKEND || 'https://streetstore.ma';
-  const TOKEN_KEY    = 'ss_customer_token';
-  const CUSTOMER_KEY = 'ss_customer';
+'use strict';
 
-  // ── Auth check ──
-  const token = localStorage.getItem(TOKEN_KEY);
-  let customer = null;
-  try { customer = JSON.parse(localStorage.getItem(CUSTOMER_KEY) || 'null'); } catch(e) {}
-  if (!token || !customer) { window.location.href = 'signup.html'; return; }
+/* ════════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════════ */
+const BACKEND     = window.STREETSTORE_BACKEND || 'https://streetstore.ma';
+const TOKEN_KEY   = 'ss_customer_token';
+const CUSTOMER_KEY= 'ss_customer';
+const WISHLIST_KEY= 'ss_wishlist';
+const ADDR_KEY    = 'ss_addresses';
+const RV_KEY      = 'ss_recently_viewed';
+const NOTIF_KEY   = 'ss_notifications';
+const SIZE_KEY    = 'ss_size_profile';
 
-  // ── Populate hero ──
-  function populateHero(c) {
-    const avatar = document.getElementById('heroAvatar');
-    const name   = document.getElementById('heroName');
-    const since  = document.getElementById('heroSince');
+/* ════════════════════════════════════════════
+   AUTH CHECK (before DOM ready)
+════════════════════════════════════════════ */
+const _token = localStorage.getItem(TOKEN_KEY);
+let _customer = null;
+try { _customer = JSON.parse(localStorage.getItem(CUSTOMER_KEY) || 'null'); } catch(e) {}
+if (!_token || !_customer) { window.location.href = 'signup.html'; return; }
+
+/* ════════════════════════════════════════════
+   STATUS HELPERS
+════════════════════════════════════════════ */
+const STATUS_CLASS = {
+  pending: 'acc-status-pending', new: 'acc-status-new',
+  confirmed: 'acc-status-confirmed', processing: 'acc-status-processing',
+  done: 'acc-status-done', delivered: 'acc-status-delivered',
+  cancelled: 'acc-status-cancelled', called: 'acc-status-called',
+  reported: 'acc-status-cancelled'
+};
+
+function statusBadge(s) {
+  const cls = STATUS_CLASS[s] || 'acc-status-pending';
+  return '<span class="acc-status ' + cls + '">' + (s || 'unknown') + '</span>';
+}
+
+function trackStep(status) {
+  const s = (status || '').toLowerCase();
+  if (s === 'cancelled' || s === 'reported') return -1;
+  if (s === 'pending' || s === 'new')        return 1;
+  if (s === 'called'  || s === 'processing') return 2;
+  if (s === 'confirmed')                     return 3;
+  if (s === 'done' || s === 'delivered')     return 4;
+  return 1;
+}
+
+function fmtDate(d) {
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  return name.split(' ').map(function(w) { return w[0]; }).join('').toUpperCase().slice(0, 2);
+}
+
+/* ════════════════════════════════════════════
+   ACC OBJECT
+════════════════════════════════════════════ */
+window.ACC = {
+  state: {
+    customer: _customer,
+    token: _token,
+    orders: null,
+    section: 'dashboard'
+  },
+
+  /* ─── authFetch ─── */
+  authFetch: function(path, opts) {
+    opts = opts || {};
+    opts.headers = opts.headers || {};
+    opts.headers['Authorization'] = 'Bearer ' + ACC.state.token;
+    return fetch(BACKEND + path, opts).then(function(res) {
+      if (res.status === 401) { ACC.logout(); throw new Error('Unauthorized'); }
+      return res;
+    });
+  },
+
+  /* ─── toast ─── */
+  toast: function(msg, type) {
+    type = type || 'info';
+    var wrap = document.getElementById('accToastWrap');
+    var el = document.createElement('div');
+    el.className = 'acc-toast acc-toast-' + type;
+    el.textContent = msg;
+    wrap.appendChild(el);
+    setTimeout(function() {
+      el.style.animation = 'accToastOut 0.3s ease forwards';
+      setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 320);
+    }, 3000);
+  },
+
+  /* ─── nav ─── */
+  nav: function(section) {
+    // Update state
+    ACC.state.section = section;
+
+    // Sidebar nav items
+    document.querySelectorAll('.acc-nav-item').forEach(function(el) {
+      el.classList.toggle('active', el.dataset.section === section);
+    });
+    // Mobile tabs
+    document.querySelectorAll('.acc-mobile-tab').forEach(function(el) {
+      el.classList.toggle('active', el.dataset.section === section);
+    });
+    // Sections
+    document.querySelectorAll('.acc-section').forEach(function(el) {
+      el.classList.toggle('active', el.id === 'sec-' + section);
+    });
+
+    // Lazy-render sections
+    if (section === 'orders' && ACC.state.orders === null) {
+      ACC.loadOrders();
+    } else if (section === 'orders') {
+      ACC.renderOrders();
+    } else if (section === 'wishlist') {
+      ACC.renderWishlist();
+    } else if (section === 'addresses') {
+      ACC.renderAddresses();
+    } else if (section === 'settings') {
+      ACC.renderSettings();
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  /* ─── init ─── */
+  init: function() {
+    var c = ACC.state.customer;
+
+    // Sidebar profile
+    var sbAvatar = document.getElementById('sbAvatar');
     if (c.avatar) {
-      avatar.innerHTML = '<img src="' + c.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" referrerpolicy="no-referrer">';
+      sbAvatar.innerHTML = '<img src="' + c.avatar + '" referrerpolicy="no-referrer" alt="">';
     } else {
-      avatar.textContent = c.name ? c.name[0].toUpperCase() : '?';
+      sbAvatar.textContent = getInitials(c.name);
     }
-    if (name)  name.textContent  = c.name  || 'My Account';
-    if (since) since.textContent = 'Member since ' + new Date(c.createdAt || Date.now()).getFullYear();
-  }
+    document.getElementById('sbName').textContent  = c.name  || 'Account';
+    document.getElementById('sbEmail').textContent = c.email || '';
 
-  // ── Populate profile section ──
-  function populateProfile(c) {
-    const pName  = document.getElementById('profileName');
-    const pEmail = document.getElementById('profileEmail');
-    const pPhone = document.getElementById('profilePhone');
-    if (pName)  pName.textContent  = c.name  || '—';
-    if (pEmail) pEmail.textContent = c.email || '—';
-    if (pPhone) pPhone.textContent = c.phone || 'Not linked yet';
-  }
+    // Dashboard greeting
+    var firstName = (c.name || 'there').split(' ')[0];
+    document.getElementById('dashGreeting').textContent = 'Welcome back, ' + firstName + ' \uD83D\uDC4B';
 
-  // ── Load orders from API ──
-  async function loadOrders() {
-    const tbody = document.getElementById('ordersBody');
-    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#888;">Loading...</td></tr>';
-    try {
-      const res = await fetch(BACKEND + '/api/customer/orders', {
-        headers: { 'Authorization': 'Bearer ' + token }
+    // Stat cards — static ones from localStorage
+    var wishlist  = ACC._getWishlist();
+    var addresses = ACC._getAddresses();
+    document.getElementById('statWishlist').textContent  = wishlist.length;
+    document.getElementById('statAddresses').textContent = addresses.length;
+
+    // Load orders (for dashboard + orders section)
+    ACC.loadOrders();
+
+    // Recently viewed
+    ACC._renderRecentlyViewed();
+
+    // Settings avatar
+    ACC._populateSettingsAvatar();
+  },
+
+  /* ─── loadOrders ─── */
+  loadOrders: function() {
+    return ACC.authFetch('/api/customer/orders')
+      .then(function(res) { return res.json(); })
+      .then(function(orders) {
+        ACC.state.orders = orders || [];
+        ACC.renderDashboard();
+        if (ACC.state.section === 'orders') ACC.renderOrders();
+      })
+      .catch(function(err) {
+        if (err.message === 'Unauthorized') return;
+        ACC.state.orders = [];
+        ACC.renderDashboard();
+        if (ACC.state.section === 'orders') ACC.renderOrders();
       });
-      if (res.status === 401) { logout(); return; }
-      const orders = await res.json();
-      if (!orders.length) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;color:#888;">No orders found for your phone number.</td></tr>';
-        return;
-      }
-      const statusColor = { pending:'#e67e22', confirmed:'#2980b9', processing:'#8e44ad', done:'#27ae60', delivered:'#27ae60', cancelled:'#c0392b', called:'#16a085', reported:'#c0392b' };
-      tbody.innerHTML = orders.map(function(o) {
-        const date  = new Date(o.createdAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
-        const color = statusColor[o.status] || '#888';
-        const items = o.items || [];
-        const qty   = items.reduce(function(s, i) { return s + (i.qty || 1); }, 0);
-        return '<tr>' +
-          '<td><strong>#' + o.id.slice(-6).toUpperCase() + '</strong></td>' +
-          '<td>' + date + '</td>' +
-          '<td>' + qty + ' item' + (qty !== 1 ? 's' : '') + '</td>' +
-          '<td><strong>' + (o.total || 0) + ' MAD</strong></td>' +
-          '<td><span class="order-status" style="background:' + color + '18;color:' + color + '">' + o.status + '</span></td>' +
-          '<td style="font-size:12px;color:#888;">' + (o.city || '') + '</td>' +
-        '</tr>';
-      }).join('');
-    } catch(e) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:32px;color:#c0392b;">Failed to load orders.</td></tr>';
+  },
+
+  /* ─── renderDashboard ─── */
+  renderDashboard: function() {
+    var orders = ACC.state.orders || [];
+
+    // Stats
+    var pending = orders.filter(function(o) {
+      var s = (o.status||'').toLowerCase();
+      return s === 'pending' || s === 'new' || s === 'called';
+    }).length;
+    document.getElementById('statTotalOrders').textContent   = orders.length;
+    document.getElementById('statPendingOrders').textContent = pending;
+
+    // Recent orders (last 3)
+    var container = document.getElementById('dashRecentOrders');
+    var recent = orders.slice(0, 3);
+    if (!recent.length) {
+      container.innerHTML = '<div style="font-size:13px;color:#aaa;padding:12px 0;">No orders yet. <a href="shop.html" style="color:var(--acc-denim);font-weight:700;">Start shopping →</a></div>';
+      return;
     }
-  }
+    container.innerHTML = recent.map(function(o) {
+      var id  = (o._id || o.id || '').toString().slice(-6).toUpperCase();
+      var date = fmtDate(o.createdAt || Date.now());
+      var total = (o.total || 0) + ' MAD';
+      return '<div class="acc-mini-order-card">' +
+        '<div><div class="acc-mini-order-id">#' + id + '</div><div class="acc-mini-order-date">' + date + '</div></div>' +
+        '<div style="display:flex;align-items:center;gap:12px;">' +
+          statusBadge(o.status) +
+          '<span class="acc-mini-order-total">' + total + '</span>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+  },
 
-  // ── Phone linking ──
-  async function handlePhoneLink(e) {
-    e.preventDefault();
-    const phone  = document.getElementById('linkPhoneInput').value.trim();
-    const btn    = document.getElementById('linkPhoneBtn');
-    const errEl  = document.getElementById('phoneLinkError');
-    if (!phone) return;
-    btn.disabled = true;
-    btn.textContent = 'Linking...';
-    errEl.style.display = 'none';
-    try {
-      const res = await fetch(BACKEND + '/api/customer/profile', {
-        method:  'PATCH',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-        body:    JSON.stringify({ phone }),
-      });
-      if (res.status === 401) { logout(); return; }
-      const data = await res.json();
-      if (data.id) {
-        customer = data;
-        localStorage.setItem(CUSTOMER_KEY, JSON.stringify(customer));
-        document.getElementById('phoneLinkBanner').style.display = 'none';
-        populateProfile(customer);
-        loadOrders();
+  /* ─── renderOrders ─── */
+  renderOrders: function() {
+    var orders = ACC.state.orders || [];
+    var container = document.getElementById('ordersContainer');
+    var badge = document.getElementById('ordersBadge');
+    badge.textContent = orders.length;
+
+    if (!orders.length) {
+      container.innerHTML = '<div class="acc-empty">' +
+        '<div class="acc-empty-icon">\uD83D\uDCE6</div>' +
+        '<div class="acc-empty-title">No orders yet</div>' +
+        '<div class="acc-empty-sub">Looks like you haven\'t placed any orders.</div>' +
+        '<a href="shop.html" class="acc-empty-link">Start Shopping</a>' +
+        '</div>';
+      return;
+    }
+
+    container.innerHTML = orders.map(function(o, idx) {
+      var id    = (o._id || o.id || '').toString().slice(-6).toUpperCase();
+      var date  = fmtDate(o.createdAt || Date.now());
+      var total = (o.total || 0) + ' MAD';
+      var items = o.items || [];
+      var step  = trackStep(o.status);
+      var isCancelled = step === -1;
+
+      // Items HTML
+      var itemsHtml = items.length
+        ? items.map(function(it) {
+            return '<div class="acc-order-item-row">' +
+              '<span>' + (it.name || 'Item') + '</span>' +
+              (it.size ? '<span class="acc-order-item-size">' + it.size + '</span>' : '') +
+              (it.qty && it.qty > 1 ? '<span style="font-size:11px;color:#aaa;">x' + it.qty + '</span>' : '') +
+              '</div>';
+          }).join('')
+        : '<div style="font-size:12px;color:#aaa;">No item details available</div>';
+
+      // Tracking HTML
+      var trackHtml;
+      if (isCancelled) {
+        trackHtml = '<div class="acc-cancelled-banner">\u274C Order Cancelled</div>';
       } else {
-        errEl.textContent = data.error || 'Failed to link phone.';
-        errEl.style.display = 'block';
-        btn.disabled = false;
-        btn.textContent = 'Link & View Orders';
+        var steps = ['Ordered', 'Processing', 'Shipped', 'Delivered'];
+        var stepsHtml = steps.map(function(label, i) {
+          var stepNum = i + 1;
+          var cls = step > stepNum ? 'done' : (step === stepNum ? 'current' : '');
+          var icon = step > stepNum ? '\u2713' : stepNum;
+          return '<div class="acc-track-step ' + cls + '">' +
+            '<div class="acc-track-dot">' + icon + '</div>' +
+            '<div class="acc-track-step-label">' + label + '</div>' +
+            '</div>';
+        }).join('');
+        trackHtml = '<div class="acc-tracking"><div class="acc-tracking-label">Order Status</div><div class="acc-track-steps">' + stepsHtml + '</div></div>';
       }
-    } catch(e) {
-      errEl.textContent = 'Connection error. Try again.';
-      errEl.style.display = 'block';
-      btn.disabled = false;
-      btn.textContent = 'Link & View Orders';
-    }
-  }
 
-  // ── Logout ──
-  function logout() {
+      // Detail HTML
+      var detailHtml = '<div class="acc-order-detail" id="detail-' + idx + '">' +
+        '<div style="margin-top:14px;">' +
+        '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#aaa;letter-spacing:0.07em;margin-bottom:8px;">Items</div>' +
+        itemsHtml +
+        '</div>' +
+        (o.city ? '<div style="font-size:12px;color:#666;margin-top:10px;">\uD83D\uDCCD City: ' + o.city + '</div>' : '') +
+        (o.address ? '<div style="font-size:12px;color:#666;margin-top:4px;">\uD83C\uDFE0 Address: ' + o.address + '</div>' : '') +
+        trackHtml +
+        '</div>';
+
+      return '<div class="acc-order-card">' +
+        '<div class="acc-order-card-header">' +
+          '<span class="acc-order-num">#' + id + '</span>' +
+          '<span class="acc-order-date-str">' + date + '</span>' +
+        '</div>' +
+        '<div class="acc-order-card-items">' + itemsHtml + '</div>' +
+        '<div class="acc-order-card-footer">' +
+          '<span class="acc-order-total">' + total + '</span>' +
+          '<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">' +
+            statusBadge(o.status) +
+            '<div class="acc-order-btns">' +
+              '<button class="acc-btn-outline" onclick="ACC._toggleOrderDetail(' + idx + ')">View Details</button>' +
+              '<button class="acc-btn-filled" onclick="ACC.reorder(' + idx + ')">Reorder</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        detailHtml +
+        '</div>';
+    }).join('');
+  },
+
+  /* ─── renderWishlist ─── */
+  renderWishlist: function() {
+    var items = ACC._getWishlist();
+    var container = document.getElementById('wishlistContainer');
+
+    if (!items.length) {
+      container.innerHTML = '<div class="acc-empty">' +
+        '<div class="acc-empty-icon">\u2665\uFE0F</div>' +
+        '<div class="acc-empty-title">Your wishlist is empty</div>' +
+        '<div class="acc-empty-sub">Save items you love for later.</div>' +
+        '<a href="shop.html" class="acc-empty-link">Start Shopping</a>' +
+        '</div>';
+      return;
+    }
+
+    var cards = items.map(function(item, i) {
+      var imgHtml = item.image
+        ? '<img class="acc-wish-img" src="' + item.image + '" alt="' + (item.name||'') + '" loading="lazy">'
+        : '<div class="acc-wish-img-placeholder">\uD83D\uDC56</div>';
+      return '<div class="acc-wish-card">' +
+        (item.href ? '<a href="' + item.href + '">' + imgHtml + '</a>' : imgHtml) +
+        '<div class="acc-wish-info">' +
+          '<div class="acc-wish-name">' + (item.name || 'Product') + '</div>' +
+          '<div class="acc-wish-price">' + (item.price ? item.price + ' MAD' : '') + '</div>' +
+          '<div class="acc-wish-btns">' +
+            '<button class="acc-btn-filled" style="flex:1;font-size:10px;padding:7px 10px;" onclick="ACC._wishAddToCart(' + i + ')">Add to Cart</button>' +
+            '<button class="acc-btn-outline" style="font-size:10px;padding:7px 10px;" onclick="ACC._wishRemove(' + i + ')">Remove</button>' +
+          '</div>' +
+        '</div>' +
+        '</div>';
+    }).join('');
+
+    container.innerHTML = '<div class="acc-wishlist-grid">' + cards + '</div>';
+
+    // Update dashboard stat
+    document.getElementById('statWishlist').textContent = items.length;
+  },
+
+  /* ─── renderAddresses ─── */
+  renderAddresses: function() {
+    var addresses = ACC._getAddresses();
+    var grid = document.getElementById('addressesGrid');
+
+    if (!addresses.length) {
+      grid.innerHTML = '<div style="grid-column:1/-1;" class="acc-empty" style="padding:32px 0;">' +
+        '<div class="acc-empty-icon">\uD83D\uDCCD</div>' +
+        '<div class="acc-empty-title">No addresses saved</div>' +
+        '<div class="acc-empty-sub">Add a delivery address for faster checkout.</div>' +
+        '</div>';
+    } else {
+      grid.innerHTML = addresses.map(function(addr, i) {
+        return '<div class="acc-addr-card' + (addr.isDefault ? ' default-addr' : '') + '">' +
+          (addr.isDefault ? '<span class="acc-addr-default-badge">Default</span>' : '') +
+          '<div class="acc-addr-name">' + (addr.name || '') + '</div>' +
+          '<div class="acc-addr-detail">' +
+            (addr.city ? addr.city + '<br>' : '') +
+            (addr.address || '') +
+            (addr.phone ? '<br>' + addr.phone : '') +
+          '</div>' +
+          '<div class="acc-addr-actions">' +
+            (!addr.isDefault ? '<button class="acc-addr-btn acc-addr-btn-default" onclick="ACC._setDefaultAddr(' + i + ')">Set Default</button>' : '') +
+            '<button class="acc-addr-btn acc-addr-btn-del" onclick="ACC._deleteAddr(' + i + ')">Delete</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    document.getElementById('statAddresses').textContent = addresses.length;
+  },
+
+  /* ─── renderSettings ─── */
+  renderSettings: function() {
+    var c = ACC.state.customer;
+    // Profile tab
+    document.getElementById('sf-name').value  = c.name  || '';
+    document.getElementById('sf-email').value = c.email || '';
+    document.getElementById('sf-phone').value = c.phone || '';
+    // Avatar
+    ACC._populateSettingsAvatar();
+    // Password tab — show Google note if applicable
+    var isGoogle = !!(c.googleId);
+    document.getElementById('pwGoogleNote').style.display = isGoogle ? '' : 'none';
+    document.getElementById('pwForm').style.display       = isGoogle ? 'none' : '';
+    // Size profile
+    ACC._loadSizeProfile();
+    // Notifications
+    ACC._loadNotifications();
+  },
+
+  /* ─── reorder ─── */
+  reorder: function(idx) {
+    var order = (ACC.state.orders || [])[idx];
+    if (!order) return;
+    var items = order.items || [];
+    if (!items.length) { ACC.toast('No items in this order.', 'info'); return; }
+
+    var added = 0;
+    items.forEach(function(item) {
+      // Try to add via global cart system if available
+      if (typeof window.addToCart === 'function') {
+        try { window.addToCart({ id: item.id || item.productId, name: item.name, price: item.price, size: item.size, qty: item.qty || 1, image: item.image }); added++; } catch(e) {}
+      } else if (window.PRODUCTS && Array.isArray(window.PRODUCTS)) {
+        var p = window.PRODUCTS.find(function(pr) { return String(pr.id) === String(item.id || item.productId) || pr.name === item.name; });
+        if (p && typeof window.addToCart === 'function') { window.addToCart(p); added++; }
+      }
+    });
+
+    if (added > 0) {
+      ACC.toast(added + ' item(s) added to cart!', 'success');
+    } else {
+      ACC.toast('Could not add items — please visit the shop.', 'info');
+    }
+  },
+
+  /* ─── logout ─── */
+  logout: function() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(CUSTOMER_KEY);
     window.location.href = 'index.html';
-  }
+  },
 
-  // ── Init ──
-  document.addEventListener('DOMContentLoaded', function() {
-    populateHero(customer);
-    populateProfile(customer);
+  /* ══════════════════════════════════════════
+     PRIVATE HELPERS
+  ══════════════════════════════════════════ */
 
-    if (!customer.phone) {
-      document.getElementById('phoneLinkBanner').style.display = 'block';
-    } else {
-      loadOrders();
+  _getWishlist: function() {
+    try { return JSON.parse(localStorage.getItem(WISHLIST_KEY) || '[]'); } catch(e) { return []; }
+  },
+  _getAddresses: function() {
+    try { return JSON.parse(localStorage.getItem(ADDR_KEY) || '[]'); } catch(e) { return []; }
+  },
+  _saveAddresses: function(arr) {
+    localStorage.setItem(ADDR_KEY, JSON.stringify(arr));
+  },
+
+  _toggleOrderDetail: function(idx) {
+    var el = document.getElementById('detail-' + idx);
+    if (!el) return;
+    el.classList.toggle('open');
+    // Update button text
+    var btns = document.querySelectorAll('.acc-order-card')[idx].querySelectorAll('.acc-btn-outline');
+    if (btns[0]) btns[0].textContent = el.classList.contains('open') ? 'Hide Details' : 'View Details';
+  },
+
+  _renderRecentlyViewed: function() {
+    var items = [];
+    try { items = JSON.parse(localStorage.getItem(RV_KEY) || '[]'); } catch(e) {}
+    var container = document.getElementById('dashRecentlyViewed');
+    if (!items.length) {
+      container.innerHTML = '<div style="font-size:13px;color:#aaa;padding:8px 0;">No recently viewed items yet.</div>';
+      return;
     }
+    container.innerHTML = items.map(function(item) {
+      var imgHtml = item.image
+        ? '<img class="acc-rv-img" src="' + item.image + '" alt="' + (item.name||'') + '" loading="lazy">'
+        : '<div class="acc-rv-img-placeholder">\uD83D\uDC56</div>';
+      return '<a class="acc-rv-card" href="' + (item.href || '#') + '">' +
+        imgHtml +
+        '<div class="acc-rv-info">' +
+          '<div class="acc-rv-name">' + (item.name || 'Product') + '</div>' +
+          (item.price ? '<div class="acc-rv-price">' + item.price + ' MAD</div>' : '') +
+        '</div>' +
+        '</a>';
+    }).join('');
+  },
 
-    document.getElementById('phoneLinkForm').addEventListener('submit', handlePhoneLink);
-    document.querySelector('.account-nav .logout').addEventListener('click', function(e) {
-      e.preventDefault();
-      logout();
+  _wishAddToCart: function(i) {
+    var items = ACC._getWishlist();
+    var item  = items[i];
+    if (!item) return;
+    if (typeof window.addToCart === 'function') {
+      try {
+        window.addToCart({ id: item.id, name: item.name, price: item.price, image: item.image, qty: 1 });
+        ACC.toast(item.name + ' added to cart!', 'success');
+      } catch(e) { ACC.toast('Added to cart.', 'success'); }
+    } else {
+      ACC.toast('Visit the product page to add to cart.', 'info');
+    }
+  },
+
+  _wishRemove: function(i) {
+    var items = ACC._getWishlist();
+    items.splice(i, 1);
+    localStorage.setItem(WISHLIST_KEY, JSON.stringify(items));
+    ACC.renderWishlist();
+    ACC.toast('Removed from wishlist.', 'info');
+  },
+
+  _toggleAddrForm: function(force) {
+    var wrap = document.getElementById('addrFormWrap');
+    var open = force !== undefined ? force : !wrap.classList.contains('open');
+    wrap.classList.toggle('open', open);
+    if (!open) {
+      // Clear form
+      ['af-name','af-city','af-address','af-phone'].forEach(function(id) {
+        document.getElementById(id).value = '';
+      });
+    }
+  },
+
+  _saveAddress: function() {
+    var addrs = ACC._getAddresses();
+    if (addrs.length >= 5) { ACC.toast('Maximum 5 addresses allowed.', 'error'); return; }
+    var name    = document.getElementById('af-name').value.trim();
+    var city    = document.getElementById('af-city').value.trim();
+    var address = document.getElementById('af-address').value.trim();
+    var phone   = document.getElementById('af-phone').value.trim();
+    if (!name || !city || !address) { ACC.toast('Please fill all required fields.', 'error'); return; }
+    addrs.push({ id: Date.now(), name: name, city: city, address: address, phone: phone, isDefault: addrs.length === 0 });
+    ACC._saveAddresses(addrs);
+    ACC._toggleAddrForm(false);
+    ACC.renderAddresses();
+    ACC.toast('Address saved!', 'success');
+  },
+
+  _deleteAddr: function(i) {
+    var addrs = ACC._getAddresses();
+    var wasDefault = addrs[i].isDefault;
+    addrs.splice(i, 1);
+    if (wasDefault && addrs.length) addrs[0].isDefault = true;
+    ACC._saveAddresses(addrs);
+    ACC.renderAddresses();
+    ACC.toast('Address deleted.', 'info');
+  },
+
+  _setDefaultAddr: function(i) {
+    var addrs = ACC._getAddresses();
+    addrs.forEach(function(a, idx) { a.isDefault = idx === i; });
+    ACC._saveAddresses(addrs);
+    ACC.renderAddresses();
+    ACC.toast('Default address updated.', 'success');
+  },
+
+  _settingsTab: function(tab) {
+    document.querySelectorAll('.acc-settings-tab').forEach(function(el) {
+      el.classList.toggle('active', el.dataset.tab === tab);
     });
-  });
+    document.querySelectorAll('.acc-settings-panel').forEach(function(el) {
+      el.classList.toggle('active', el.id === 'stab-' + tab);
+    });
+  },
+
+  _populateSettingsAvatar: function() {
+    var c = ACC.state.customer;
+    var el = document.getElementById('settingsAvatar');
+    if (!el) return;
+    var overlay = el.querySelector('.acc-avatar-overlay');
+    if (c.avatar) {
+      // Remove text, keep overlay
+      Array.from(el.childNodes).forEach(function(n) {
+        if (n.nodeType === Node.TEXT_NODE) el.removeChild(n);
+        if (n.tagName === 'IMG') el.removeChild(n);
+      });
+      var img = document.createElement('img');
+      img.src = c.avatar;
+      img.setAttribute('referrerpolicy', 'no-referrer');
+      el.insertBefore(img, overlay);
+    } else {
+      Array.from(el.childNodes).forEach(function(n) {
+        if (n.nodeType === Node.TEXT_NODE) el.removeChild(n);
+        if (n.tagName === 'IMG') el.removeChild(n);
+      });
+      el.insertBefore(document.createTextNode(getInitials(c.name)), el.firstChild);
+    }
+    var nameEl  = document.getElementById('settingsAvatarName');
+    var emailEl = document.getElementById('settingsAvatarEmail');
+    if (nameEl)  nameEl.textContent  = c.name  || '';
+    if (emailEl) emailEl.textContent = c.email || '';
+  },
+
+  _saveProfile: async function() {
+    var btn  = document.getElementById('profileSaveBtn');
+    var name  = document.getElementById('sf-name').value.trim();
+    var phone = document.getElementById('sf-phone').value.trim();
+    if (!name) { ACC.toast('Name cannot be empty.', 'error'); return; }
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      var res = await ACC.authFetch('/api/customer/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name, phone: phone })
+      });
+      var data = await res.json();
+      if (data.id || data._id || data.name) {
+        ACC.state.customer = Object.assign(ACC.state.customer, { name: name, phone: phone });
+        localStorage.setItem(CUSTOMER_KEY, JSON.stringify(ACC.state.customer));
+        // Update sidebar
+        document.getElementById('sbName').textContent = name;
+        // Update greeting
+        document.getElementById('dashGreeting').textContent = 'Welcome back, ' + name.split(' ')[0] + ' \uD83D\uDC4B';
+        ACC.toast('Profile updated!', 'success');
+      } else {
+        ACC.toast(data.error || 'Could not update profile.', 'error');
+      }
+    } catch(e) {
+      if (e.message !== 'Unauthorized') ACC.toast('Connection error.', 'error');
+    }
+    btn.disabled = false; btn.textContent = 'Save Changes';
+  },
+
+  _savePassword: async function() {
+    var btn    = document.getElementById('pwSaveBtn');
+    var curPw  = document.getElementById('sf-cur-pw').value;
+    var newPw  = document.getElementById('sf-new-pw').value;
+    var conPw  = document.getElementById('sf-con-pw').value;
+    var errEl  = document.getElementById('pwError');
+    errEl.style.display = 'none';
+
+    if (!curPw || !newPw || !conPw) { errEl.textContent = 'Please fill all fields.'; errEl.style.display=''; return; }
+    if (newPw !== conPw) { errEl.textContent = 'New passwords do not match.'; errEl.style.display=''; return; }
+    if (newPw.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display=''; return; }
+
+    btn.disabled = true; btn.textContent = 'Updating...';
+    try {
+      // Verify current password
+      var verRes = await fetch(BACKEND + '/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: ACC.state.customer.email, password: curPw })
+      });
+      var verData = await verRes.json();
+      if (!verData.token) {
+        errEl.textContent = 'Current password is incorrect.'; errEl.style.display='';
+        btn.disabled = false; btn.textContent = 'Update Password'; return;
+      }
+      // Update password
+      var updRes = await ACC.authFetch('/api/customer/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: newPw })
+      });
+      var updData = await updRes.json();
+      if (updData.id || updData._id || updData.name) {
+        ACC.toast('Password updated successfully!', 'success');
+        document.getElementById('sf-cur-pw').value = '';
+        document.getElementById('sf-new-pw').value = '';
+        document.getElementById('sf-con-pw').value = '';
+      } else {
+        errEl.textContent = updData.error || 'Failed to update password.'; errEl.style.display='';
+      }
+    } catch(e) {
+      if (e.message !== 'Unauthorized') { errEl.textContent = 'Connection error.'; errEl.style.display=''; }
+    }
+    btn.disabled = false; btn.textContent = 'Update Password';
+  },
+
+  _loadSizeProfile: function() {
+    var sp = {};
+    try { sp = JSON.parse(localStorage.getItem(SIZE_KEY) || '{}'); } catch(e) {}
+    if (sp.waist)  document.getElementById('sf-waist').value  = sp.waist;
+    if (sp.height) document.getElementById('sf-height').value = sp.height;
+    if (sp.fit)    document.getElementById('sf-fit').value    = sp.fit;
+    if (sp.waist)  ACC._showSizeRec(sp.waist);
+  },
+
+  _saveSizeProfile: function() {
+    var waist  = parseInt(document.getElementById('sf-waist').value)  || 0;
+    var height = parseInt(document.getElementById('sf-height').value) || 0;
+    var fit    = document.getElementById('sf-fit').value;
+    localStorage.setItem(SIZE_KEY, JSON.stringify({ waist: waist, height: height, fit: fit }));
+    ACC.toast('Size profile saved!', 'success');
+    if (waist) ACC._showSizeRec(waist);
+  },
+
+  _showSizeRec: function(waist) {
+    var size;
+    if      (waist < 70)  size = 'XS';
+    else if (waist < 76)  size = 'S';
+    else if (waist < 82)  size = 'M';
+    else if (waist < 88)  size = 'L';
+    else if (waist < 94)  size = 'XL';
+    else                  size = 'XXL';
+
+    var card = document.getElementById('sizeRecCard');
+    card.style.display = '';
+    card.innerHTML = '<div class="acc-size-rec">' +
+      '<div>' +
+        '<div class="acc-size-rec-label">Recommended Size</div>' +
+        '<div class="acc-size-rec-size">' + size + '</div>' +
+        '<div class="acc-size-rec-sub">Based on your waist measurement</div>' +
+      '</div>' +
+      '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"><path d="M12 2a7 7 0 0 1 7 7c0 5.25-7 13-7 13S5 14.25 5 9a7 7 0 0 1 7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>' +
+      '</div>';
+  },
+
+  _loadNotifications: function() {
+    var n = {};
+    try { n = JSON.parse(localStorage.getItem(NOTIF_KEY) || '{}'); } catch(e) {}
+    document.getElementById('notif-orders').checked   = n.orders   !== false;
+    document.getElementById('notif-promos').checked   = n.promos   !== false;
+    document.getElementById('notif-arrivals').checked = n.arrivals !== false;
+  },
+
+  _saveNotifications: function() {
+    localStorage.setItem(NOTIF_KEY, JSON.stringify({
+      orders:   document.getElementById('notif-orders').checked,
+      promos:   document.getElementById('notif-promos').checked,
+      arrivals: document.getElementById('notif-arrivals').checked
+    }));
+    ACC.toast('Preferences saved.', 'success');
+  },
+
+  _toggleSupport: function() {
+    var popup = document.getElementById('accSupportPopup');
+    popup.classList.toggle('open');
+  }
+};
+
+/* ════════════════════════════════════════════
+   BOOT
+════════════════════════════════════════════ */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', function() { ACC.init(); });
+} else {
+  ACC.init();
+}
+
+/* Close support popup when clicking outside */
+document.addEventListener('click', function(e) {
+  var popup = document.getElementById('accSupportPopup');
+  var btn   = document.querySelector('.acc-support-btn');
+  if (popup && popup.classList.contains('open') && !popup.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+    popup.classList.remove('open');
+  }
+});
+
 })();
 </script>
 </body>
