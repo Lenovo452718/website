@@ -1790,6 +1790,13 @@ window.ACC = {
           '<div class="acc-track-items-list">' + itemsHtml + '</div>' +
           '<div class="acc-track-total"><span>Total</span><span>' + (o.total || 0).toFixed(0) + ' MAD</span></div>' +
           (o.city ? '<div style="font-size:12px;color:#888;margin-top:10px;">📍 ' + o.city + '</div>' : '') +
+          (o.trackingCode
+            ? '<div style="margin-top:16px;padding:14px 16px;background:var(--acc-denim-pale);border-radius:10px;">' +
+                '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--acc-denim);margin-bottom:6px;">Tracking Number</div>' +
+                '<div style="font-size:15px;font-weight:800;font-family:monospace;color:#111;letter-spacing:0.05em;">' + o.trackingCode + '</div>' +
+                '<div style="font-size:11px;color:#888;margin-top:4px;">Delivered by Olivraison</div>' +
+              '</div>'
+            : '') +
         '</div>';
       })
       .catch(function() {

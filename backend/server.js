@@ -590,6 +590,15 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
       include: { items: true },
     });
     emit('order:statusChanged', { orderId: order.id, newStatus: order.status });
+
+    // ── Auto-send to Olivraison when confirmed ──────────────────────────
+    if (status === 'confirmed') {
+      autoSendToOlivraison(order).catch(err =>
+        console.error('[Olivraison auto-send error]', order.id, err.message)
+      );
+    }
+    // ───────────────────────────────────────────────────────────────────
+
     res.json(order);
   } catch (err) {
     if (err.code === 'P2025') return res.status(404).json({ error: 'Order not found' });
@@ -1198,6 +1207,106 @@ app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => 
 });
 
 /* ════════════════════════════════════════
+   OLIVRAISON — AUTO-TRACKING
+════════════════════════════════════════ */
+
+/* Map Olivraison shipment statuses → StreetStore order statuses */
+const OLIVRAISON_STATUS_MAP = {
+  created:          'processing',
+  assigned:         'processing',
+  picked_up:        'processing',
+  in_transit:       'processing',
+  out_for_delivery: 'processing',
+  delivered:        'done',
+  returned:         'cancelled',
+  failed:           'reported',
+  exception:        'reported',
+  cancelled:        'cancelled',
+};
+
+/* Internal helper — called automatically after admin confirms an order */
+async function autoSendToOlivraison(order) {
+  const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+  if (!cfg || !cfg.isActive || !cfg.apiKey || !cfg.apiSecret) return; // not configured — skip silently
+
+  const GRAPHQL_URL = 'https://api.olivraison.com/graphql';
+  const firstItem   = (order.items || [])[0] || {};
+
+  const mutation = `mutation CreateShipment($input: ShipmentInput!) {
+    createShipment(input: $input) { id trackingCode status }
+  }`;
+  const variables = {
+    input: {
+      recipientName:    order.customer  || 'Unknown',
+      recipientPhone:   order.phone     || '',
+      recipientAddress: order.address   || '',
+      recipientCity:    order.city      || '',
+      description:      firstItem.name  || '',
+      weight:           1,
+      price:            order.total     || 0,
+      codAmount:        order.total     || 0,
+      externalId:       order.id,
+    }
+  };
+
+  const resp = await fetch(GRAPHQL_URL, {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'x-public-key':  cfg.apiKey,
+      'x-private-key': cfg.apiSecret,
+    },
+    body: JSON.stringify({ query: mutation, variables }),
+  });
+
+  const json = await resp.json();
+  if (json.errors?.length) throw new Error(json.errors[0].message);
+
+  const shipment = json.data?.createShipment;
+  const trackingCode = shipment?.trackingCode || null;
+
+  // Save tracking code + advance status to processing
+  await prisma.$executeRawUnsafe(
+    'UPDATE `Order` SET `trackingCode` = ?, `status` = ? WHERE `id` = ?',
+    trackingCode, 'processing', order.id
+  );
+
+  emit('order:statusChanged', { orderId: order.id, newStatus: 'processing', trackingCode });
+  console.log(`[Olivraison] Shipment created for order ${order.id} — tracking: ${trackingCode}`);
+}
+
+/* POST /api/delivery/webhook — Olivraison pushes status updates here */
+app.post('/api/delivery/webhook', async (req, res) => {
+  // Respond immediately so Olivraison doesn't retry
+  res.sendStatus(200);
+
+  const { trackingCode, tracking_number, status } = req.body;
+  const code = trackingCode || tracking_number;
+  if (!code || !status) return;
+
+  const newStatus = OLIVRAISON_STATUS_MAP[(status || '').toLowerCase()];
+  if (!newStatus) return; // unknown status — ignore
+
+  try {
+    // Find order by trackingCode column
+    const [row] = await prisma.$queryRawUnsafe(
+      'SELECT id FROM `Order` WHERE `trackingCode` = ? LIMIT 1', code
+    );
+    if (!row) return;
+
+    await prisma.order.update({
+      where: { id: row.id },
+      data:  { status: newStatus },
+    });
+
+    emit('order:statusChanged', { orderId: row.id, newStatus, trackingCode: code });
+    console.log(`[Webhook] Order ${row.id} → ${newStatus} (tracking: ${code})`);
+  } catch (err) {
+    console.error('[Webhook] Error processing delivery update:', err.message);
+  }
+});
+
+/* ════════════════════════════════════════
    OLIVRAISON
 ════════════════════════════════════════ */
 app.get('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req, res) => {
@@ -1431,15 +1540,16 @@ app.get('/api/orders/track', async (req, res) => {
   const id = (req.query.id || '').trim();
   if (!id || id.length > 40) return res.status(400).json({ error: 'Invalid order ID' });
   try {
-    const order = await prisma.order.findUnique({
-      where: { id },
-      select: {
-        id: true, status: true, city: true, total: true, createdAt: true,
-        items: { select: { name: true, size: true, qty: true, price: true } }
-      }
+    // Use raw query so trackingCode column works even before Prisma client regen
+    const [row] = await prisma.$queryRawUnsafe(
+      'SELECT id, status, city, total, createdAt, trackingCode FROM `Order` WHERE id = ? LIMIT 1', id
+    );
+    if (!row) return res.status(404).json({ error: 'Order not found' });
+    const items = await prisma.orderItem.findMany({
+      where:  { orderId: id },
+      select: { name: true, size: true, qty: true, price: true },
     });
-    if (!order) return res.status(404).json({ error: 'Order not found' });
-    res.json(order);
+    res.json({ ...row, items });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch order' });
   }
@@ -1485,6 +1595,8 @@ function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `Customer` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `email` VARCHAR(255) NOT NULL, `name` VARCHAR(255) NOT NULL DEFAULT '', `avatar` VARCHAR(500) NULL, `googleId` VARCHAR(255) NULL, `phone` VARCHAR(30) NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_email ON `Customer` (email)",
     "ALTER TABLE `Customer` ADD COLUMN IF NOT EXISTS `passwordHash` VARCHAR(255) NULL",
+    // Auto-tracking: dedicated column (replaces storing it inside notes)
+    "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `trackingCode` VARCHAR(255) NULL",
   ];
   (async () => {
     for (const sql of migrations) {
