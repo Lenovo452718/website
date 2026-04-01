@@ -1275,6 +1275,41 @@ async function autoSendToOlivraison(order) {
   console.log(`[Olivraison] Shipment created for order ${order.id} — tracking: ${trackingCode}`);
 }
 
+/* Query Olivraison GraphQL for driver phone after assignment */
+async function fetchOlivraisonDriverPhone(trackingCode) {
+  try {
+    const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+    if (!cfg || !cfg.apiKey || !cfg.apiSecret) return null;
+
+    const query = `query GetShipment($trackingCode: String!) {
+      shipment(trackingCode: $trackingCode) {
+        trackingCode
+        status
+        driver { name phone code }
+      }
+    }`;
+
+    const resp = await fetch('https://api.olivraison.com/graphql', {
+      method:  'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'x-public-key':  cfg.apiKey,
+        'x-private-key': cfg.apiSecret,
+      },
+      body: JSON.stringify({ query, variables: { trackingCode } }),
+    });
+
+    const json = await resp.json();
+    const driver = json?.data?.shipment?.driver;
+    // Phone comes as "casafark823 - omarfarkil - 0648150286" or a plain phone field
+    if (driver?.phone) return driver.phone;
+    return null;
+  } catch (err) {
+    console.error('[Olivraison] Failed to fetch driver phone:', err.message);
+    return null;
+  }
+}
+
 /* POST /api/delivery/webhook — Olivraison pushes status updates here */
 app.post('/api/delivery/webhook', async (req, res) => {
   // Respond immediately so Olivraison doesn't retry
@@ -1284,17 +1319,24 @@ app.post('/api/delivery/webhook', async (req, res) => {
   const code = trackingCode || tracking_number;
   if (!code || !status) return;
 
-  const newStatus = OLIVRAISON_STATUS_MAP[(status || '').toLowerCase()];
-  if (!newStatus) return; // unknown status — ignore
+  const olivStatus = (status || '').toLowerCase();
+  const newStatus  = OLIVRAISON_STATUS_MAP[olivStatus];
+  if (!newStatus) return;
 
-  // Capture delivery person phone — Olivraison may send it under different field names
-  const deliveryPhone =
-    req.body.courierPhone   ||
-    req.body.driverPhone    ||
-    req.body.agentPhone     ||
-    req.body.deliveryPhone  ||
-    req.body.courier?.phone ||
+  // Try to get driver phone from webhook payload first (various field names)
+  let deliveryPhone =
+    req.body.courierPhone        ||
+    req.body.driverPhone         ||
+    req.body.agentPhone          ||
+    req.body.deliveryPhone       ||
+    req.body.driver?.phone       ||
+    req.body.courier?.phone      ||
     null;
+
+  // If not in payload but driver is now assigned, query Olivraison for it
+  if (!deliveryPhone && ['assigned', 'transit', 'out_for_delivery'].includes(olivStatus)) {
+    deliveryPhone = await fetchOlivraisonDriverPhone(code);
+  }
 
   try {
     const [row] = await prisma.$queryRawUnsafe(
@@ -1302,7 +1344,6 @@ app.post('/api/delivery/webhook', async (req, res) => {
     );
     if (!row) return;
 
-    // Build update — only set deliveryPhone if we actually received one
     if (deliveryPhone) {
       await prisma.$executeRawUnsafe(
         'UPDATE `Order` SET `status` = ?, `deliveryPhone` = ? WHERE `id` = ?',
@@ -1316,7 +1357,7 @@ app.post('/api/delivery/webhook', async (req, res) => {
     }
 
     emit('order:statusChanged', { orderId: row.id, newStatus, trackingCode: code, deliveryPhone });
-    console.log(`[Webhook] Order ${row.id} → ${newStatus} | courier: ${deliveryPhone || 'unknown'}`);
+    console.log(`[Webhook] Order ${row.id} → ${newStatus} | driver: ${deliveryPhone || 'not yet assigned'}`);
   } catch (err) {
     console.error('[Webhook] Error processing delivery update:', err.message);
   }
