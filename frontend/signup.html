@@ -395,12 +395,33 @@ function saveAndRedirect(data) {
 async function handleGoogleSignIn(response) {
   const errEl = document.getElementById('googleError');
   errEl.style.display = 'none';
+  errEl.textContent = '';
+
+  // Show loading overlay
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(255,255,255,0.85);display:flex;align-items:center;justify-content:center;z-index:9999;font-size:15px;font-weight:600;color:#1a1a1a;';
+  overlay.textContent = 'Signing in...';
+  document.body.appendChild(overlay);
+
   try {
-    const res  = await fetch(BACKEND + '/api/auth/google', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ credential: response.credential }) });
+    const res  = await fetch(BACKEND + '/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ credential: response.credential }),
+    });
     const data = await res.json();
-    if (data.token) { saveAndRedirect(data); }
-    else { errEl.textContent = data.error || 'Google sign-in failed.'; errEl.style.display = 'block'; }
-  } catch(e) { errEl.textContent = 'Connection error. Try again.'; errEl.style.display = 'block'; }
+    if (data.token) {
+      saveAndRedirect(data);
+    } else {
+      document.body.removeChild(overlay);
+      errEl.textContent = data.error || 'Google sign-in failed. Please try again.';
+      errEl.style.display = 'block';
+    }
+  } catch(e) {
+    document.body.removeChild(overlay);
+    errEl.textContent = 'Could not connect to server. Please try again.';
+    errEl.style.display = 'block';
+  }
 }
 
 /* ── Email Sign-In ── */
