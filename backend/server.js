@@ -3,6 +3,23 @@
  * Express + Prisma (MySQL) + Cloudinary + Socket.io
  */
 
+/* ── Patch generated Prisma client to use library engine (no subprocess) ── */
+(function patchPrismaEngine() {
+  const fs   = require('fs');
+  const path = require('path');
+  const file = path.join(__dirname, 'node_modules/.prisma/client/index.js');
+  try {
+    let src = fs.readFileSync(file, 'utf8');
+    if (src.includes('"binary"') || src.includes("'binary'")) {
+      src = src.replace(/"binary"/g, '"library"').replace(/'binary'/g, "'library'");
+      fs.writeFileSync(file, src);
+      console.log('[startup] Prisma client patched → library engine');
+    }
+  } catch (e) {
+    console.error('[startup] Prisma patch skipped:', e.message);
+  }
+})();
+
 require('dotenv').config();
 
 const express      = require('express');
