@@ -1658,6 +1658,11 @@ function trackStep(status) {
   return 1;
 }
 
+/* Escape HTML to prevent XSS when inserting user/API data into innerHTML */
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 function fmtDate(d) {
   return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
@@ -1774,22 +1779,22 @@ window.ACC = {
           : '<div class="acc-tracking"><div class="acc-tracking-label">Delivery Progress</div><div class="acc-track-steps">' + stepsHtml + '</div></div>';
         var itemsHtml = (o.items || []).map(function(it) {
           return '<div class="acc-track-item-row">' +
-            '<span class="acc-track-item-name">' + it.name + (it.size ? ' <span class="acc-track-item-detail">(' + it.size + ')</span>' : '') + '</span>' +
-            '<span class="acc-track-item-detail">x' + it.qty + ' &mdash; ' + (it.price * it.qty).toFixed(0) + ' MAD</span>' +
+            '<span class="acc-track-item-name">' + escHtml(it.name) + (it.size ? ' <span class="acc-track-item-detail">(' + escHtml(it.size) + ')</span>' : '') + '</span>' +
+            '<span class="acc-track-item-detail">x' + Number(it.qty) + ' &mdash; ' + (Number(it.price) * Number(it.qty)).toFixed(0) + ' MAD</span>' +
             '</div>';
         }).join('');
         resultEl.innerHTML = '<div class="acc-track-result">' +
           '<div class="acc-track-result-header">' +
             '<div>' +
-              '<div class="acc-track-order-id">Order <span>#' + o.id.slice(-8).toUpperCase() + '</span></div>' +
+              '<div class="acc-track-order-id">Order <span>#' + escHtml(o.id.slice(-8).toUpperCase()) + '</span></div>' +
               '<div class="acc-track-date">' + fmtDate(o.createdAt) + '</div>' +
             '</div>' +
             statusBadge(o.status) +
           '</div>' +
           trackHtml +
           '<div class="acc-track-items-list">' + itemsHtml + '</div>' +
-          '<div class="acc-track-total"><span>Total</span><span>' + (o.total || 0).toFixed(0) + ' MAD</span></div>' +
-          (o.city ? '<div style="font-size:12px;color:#888;margin-top:10px;">📍 ' + o.city + '</div>' : '') +
+          '<div class="acc-track-total"><span>Total</span><span>' + Number(o.total || 0).toFixed(0) + ' MAD</span></div>' +
+          (o.city ? '<div style="font-size:12px;color:#888;margin-top:10px;">📍 ' + escHtml(o.city) + '</div>' : '') +
           (o.trackingCode
             ? '<div style="margin-top:16px;padding:14px 16px;background:var(--acc-denim-pale);border-radius:10px;">' +
                 '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--acc-denim);margin-bottom:6px;">Tracking Number</div>' +
@@ -1853,7 +1858,7 @@ window.ACC = {
     return ACC.authFetch('/api/customer/orders')
       .then(function(res) { return res.json(); })
       .then(function(orders) {
-        ACC.state.orders = orders || [];
+        ACC.state.orders = Array.isArray(orders) ? orders : [];
         ACC.renderDashboard();
         if (ACC.state.section === 'orders') ACC.renderOrders();
       })
@@ -1916,9 +1921,9 @@ window.ACC = {
     }
 
     container.innerHTML = orders.map(function(o, idx) {
-      var id    = (o._id || o.id || '').toString().slice(-6).toUpperCase();
+      var id    = escHtml((o._id || o.id || '').toString().slice(-6).toUpperCase());
       var date  = fmtDate(o.createdAt || Date.now());
-      var total = (o.total || 0) + ' MAD';
+      var total = Number(o.total || 0).toFixed(0) + ' MAD';
       var items = o.items || [];
       var step  = trackStep(o.status);
       var isCancelled = step === -1;
@@ -1927,9 +1932,9 @@ window.ACC = {
       var itemsHtml = items.length
         ? items.map(function(it) {
             return '<div class="acc-order-item-row">' +
-              '<span>' + (it.name || 'Item') + '</span>' +
-              (it.size ? '<span class="acc-order-item-size">' + it.size + '</span>' : '') +
-              (it.qty && it.qty > 1 ? '<span style="font-size:11px;color:#aaa;">x' + it.qty + '</span>' : '') +
+              '<span>' + escHtml(it.name || 'Item') + '</span>' +
+              (it.size ? '<span class="acc-order-item-size">' + escHtml(it.size) + '</span>' : '') +
+              (it.qty && it.qty > 1 ? '<span style="font-size:11px;color:#aaa;">x' + Number(it.qty) + '</span>' : '') +
               '</div>';
           }).join('')
         : '<div style="font-size:12px;color:#aaa;">No item details available</div>';
@@ -1958,8 +1963,8 @@ window.ACC = {
         '<div style="font-size:11px;font-weight:700;text-transform:uppercase;color:#aaa;letter-spacing:0.07em;margin-bottom:8px;">Items</div>' +
         itemsHtml +
         '</div>' +
-        (o.city ? '<div style="font-size:12px;color:#666;margin-top:10px;">\uD83D\uDCCD City: ' + o.city + '</div>' : '') +
-        (o.address ? '<div style="font-size:12px;color:#666;margin-top:4px;">\uD83C\uDFE0 Address: ' + o.address + '</div>' : '') +
+        (o.city ? '<div style="font-size:12px;color:#666;margin-top:10px;">\uD83D\uDCCD City: ' + escHtml(o.city) + '</div>' : '') +
+        (o.address ? '<div style="font-size:12px;color:#666;margin-top:4px;">\uD83C\uDFE0 Address: ' + escHtml(o.address) + '</div>' : '') +
         trackHtml +
         '</div>';
 
@@ -2298,25 +2303,14 @@ window.ACC = {
 
     btn.disabled = true; btn.textContent = 'Updating...';
     try {
-      // Verify current password
-      var verRes = await fetch(BACKEND + '/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: ACC.state.customer.email, password: curPw })
-      });
-      var verData = await verRes.json();
-      if (!verData.token) {
-        errEl.textContent = 'Current password is incorrect.'; errEl.style.display='';
-        btn.disabled = false; btn.textContent = 'Update Password'; return;
-      }
-      // Update password
-      var updRes = await ACC.authFetch('/api/customer/profile', {
+      // Single endpoint: verifies current password + sets new one
+      var updRes = await ACC.authFetch('/api/customer/password', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: newPw })
+        body: JSON.stringify({ currentPassword: curPw, newPassword: newPw })
       });
       var updData = await updRes.json();
-      if (updData.id || updData._id || updData.name) {
+      if (updData.success) {
         ACC.toast('Password updated successfully!', 'success');
         document.getElementById('sf-cur-pw').value = '';
         document.getElementById('sf-new-pw').value = '';
@@ -2358,6 +2352,7 @@ window.ACC = {
     else                  size = 'XXL';
 
     var card = document.getElementById('sizeRecCard');
+    if (!card) return;
     card.style.display = '';
     card.innerHTML = '<div class="acc-size-rec">' +
       '<div>' +

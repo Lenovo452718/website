@@ -1592,6 +1592,27 @@ app.patch('/api/customer/profile', requireCustomerAuth, async (req, res) => {
   }
 });
 
+/* PATCH /api/customer/password — change password (email accounts only) */
+app.patch('/api/customer/password', requireCustomerAuth, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) return res.status(400).json({ error: 'Missing fields' });
+  if (newPassword.length < 8) return res.status(400).json({ error: 'Password must be at least 8 characters' });
+  try {
+    const [customer] = await prisma.$queryRaw`SELECT id, passwordHash, googleId FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
+    if (!customer) return res.status(404).json({ error: 'Account not found' });
+    if (customer.googleId && !customer.passwordHash) {
+      return res.status(400).json({ error: 'Google account — password is managed by Google' });
+    }
+    const valid = await bcrypt.compare(currentPassword, customer.passwordHash || '');
+    if (!valid) return res.status(401).json({ error: 'Current password is incorrect' });
+    const newHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS);
+    await prisma.$executeRaw`UPDATE Customer SET passwordHash = ${newHash} WHERE id = ${req.customerId}`;
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update password' });
+  }
+});
+
 /* GET /api/orders/track?id=ORDER_ID — public, returns limited info */
 app.get('/api/orders/track', async (req, res) => {
   const id = (req.query.id || '').trim();
