@@ -3,19 +3,6 @@
  * Express + Prisma (MySQL) + Cloudinary + Socket.io
  */
 
-/* ── Run prisma generate at startup so the correct engine is always used ── */
-try {
-  const { execSync } = require('child_process');
-  execSync(`"${process.execPath}" node_modules/prisma/build/index.js generate --schema=prisma/schema.prisma`, {
-    cwd: __dirname,
-    stdio: 'pipe',
-    timeout: 60000,
-  });
-  console.log('[startup] prisma generate OK');
-} catch (e) {
-  console.error('[startup] prisma generate failed:', e.stderr?.toString() || e.message);
-}
-
 require('dotenv').config();
 
 const express      = require('express');

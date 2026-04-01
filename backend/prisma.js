@@ -1,4 +1,6 @@
 process.env.DATABASE_URL = process.env.DATABASE_URL || "mysql://u177512110_Noureddine:Ilovetowork53%21@127.0.0.1:3306/u177512110_Streetstore";
+// Force library engine (avoids binary subprocess panic on shared hosting)
+process.env.PRISMA_CLIENT_ENGINE_TYPE = 'library';
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 module.exports = prisma;
