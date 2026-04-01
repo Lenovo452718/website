@@ -561,6 +561,123 @@
     }
 
     /* ══════════════════════════════════════════
+       TRACK ORDER SECTION
+    ══════════════════════════════════════════ */
+    .acc-track-search-box {
+      background: #fff;
+      border-radius: var(--acc-radius);
+      box-shadow: var(--acc-shadow);
+      padding: 32px;
+      max-width: 560px;
+      margin-bottom: 28px;
+    }
+    .acc-track-search-box p {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+    .acc-track-input-row {
+      display: flex;
+      gap: 10px;
+    }
+    .acc-track-input-row input {
+      flex: 1;
+      padding: 12px 16px;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+    .acc-track-input-row input:focus {
+      outline: none;
+      border-color: var(--acc-denim);
+    }
+    .acc-track-input-row button {
+      padding: 12px 22px;
+      background: var(--acc-denim);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.2s;
+      font-family: 'Inter', sans-serif;
+    }
+    .acc-track-input-row button:hover { opacity: 0.85; }
+    .acc-track-result {
+      background: #fff;
+      border-radius: var(--acc-radius);
+      box-shadow: var(--acc-shadow);
+      padding: 28px;
+      max-width: 560px;
+      animation: accFadeIn 0.25s ease forwards;
+    }
+    .acc-track-result-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .acc-track-order-id {
+      font-size: 13px;
+      color: #888;
+      font-weight: 600;
+    }
+    .acc-track-order-id span {
+      color: #111;
+      font-weight: 800;
+      font-family: 'Courier New', monospace;
+    }
+    .acc-track-date {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .acc-track-items-list {
+      margin: 18px 0;
+      border-top: 1px solid var(--acc-denim-pale);
+      padding-top: 14px;
+    }
+    .acc-track-item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 13px;
+      color: #333;
+      gap: 12px;
+    }
+    .acc-track-item-name { font-weight: 600; flex: 1; min-width: 0; }
+    .acc-track-item-detail { color: #888; font-size: 12px; }
+    .acc-track-total {
+      margin-top: 14px;
+      border-top: 1px solid var(--acc-denim-pale);
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 800;
+      color: #111;
+    }
+    .acc-track-error {
+      background: rgba(231,76,60,0.08);
+      border: 1px solid rgba(231,76,60,0.25);
+      border-radius: 10px;
+      padding: 16px 20px;
+      color: #e74c3c;
+      font-size: 13px;
+      font-weight: 600;
+      max-width: 560px;
+      animation: accFadeIn 0.2s ease;
+    }
+
+    /* ══════════════════════════════════════════
        EMPTY STATES
     ══════════════════════════════════════════ */
     .acc-empty {
@@ -1125,6 +1242,10 @@
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
       Addresses
     </div>
+    <div class="acc-mobile-tab" data-section="track" onclick="ACC.nav('track')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Track
+    </div>
   </div>
 </div>
 
@@ -1158,6 +1279,10 @@
       <div class="acc-nav-item" data-section="settings" onclick="ACC.nav('settings')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Settings
+      </div>
+      <div class="acc-nav-item" data-section="track" onclick="ACC.nav('track')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Track Order
       </div>
     </nav>
     <div class="acc-nav-logout">
@@ -1281,6 +1406,24 @@
         </div>
       </div>
       <div class="acc-addr-grid" id="addressesGrid"></div>
+    </section>
+
+    <!-- ══════════ SECTION: TRACK ORDER ══════════ -->
+    <section class="acc-section" id="sec-track">
+      <div class="acc-section-header">
+        <span class="acc-section-title">Track Order</span>
+      </div>
+      <div class="acc-track-search-box">
+        <p>Enter your order ID to see the current status and delivery progress. You can find the order ID in your confirmation message.</p>
+        <div class="acc-track-input-row">
+          <input type="text" id="trackInput" placeholder="e.g. clx4a2b3c0000..." maxlength="40" onkeydown="if(event.key==='Enter')ACC.trackOrder()" />
+          <button onclick="ACC.trackOrder()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:6px;vertical-align:middle"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Track
+          </button>
+        </div>
+      </div>
+      <div id="trackResult"></div>
     </section>
 
     <!-- ══════════ SECTION: SETTINGS ══════════ -->
@@ -1589,9 +1732,69 @@ window.ACC = {
       ACC.renderAddresses();
     } else if (section === 'settings') {
       ACC.renderSettings();
+    } else if (section === 'track') {
+      document.getElementById('trackResult').innerHTML = '';
+      setTimeout(function() { document.getElementById('trackInput').focus(); }, 100);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  /* ─── trackOrder ─── */
+  trackOrder: function() {
+    var id = (document.getElementById('trackInput').value || '').trim();
+    var resultEl = document.getElementById('trackResult');
+    if (!id) {
+      resultEl.innerHTML = '<div class="acc-track-error">Please enter an order ID.</div>';
+      return;
+    }
+    resultEl.innerHTML = '<div class="acc-skeleton acc-skeleton-card"></div>';
+    fetch(BACKEND + '/api/orders/track?id=' + encodeURIComponent(id))
+      .then(function(res) { return res.json().then(function(data) { return { ok: res.ok, data: data }; }); })
+      .then(function(r) {
+        if (!r.ok) {
+          resultEl.innerHTML = '<div class="acc-track-error">' + (r.data.error || 'Order not found. Please check your order ID and try again.') + '</div>';
+          return;
+        }
+        var o = r.data;
+        var step = trackStep(o.status);
+        var isCancelled = step === -1;
+        var stepsLabels = ['Ordered', 'Processing', 'Shipped', 'Delivered'];
+        var stepsHtml = stepsLabels.map(function(label, i) {
+          var stepNum = i + 1;
+          var cls = step > stepNum ? 'done' : (step === stepNum ? 'current' : '');
+          var icon = step > stepNum ? '✓' : stepNum;
+          return '<div class="acc-track-step ' + cls + '">' +
+            '<div class="acc-track-dot">' + icon + '</div>' +
+            '<div class="acc-track-step-label">' + label + '</div>' +
+            '</div>';
+        }).join('');
+        var trackHtml = isCancelled
+          ? '<div class="acc-cancelled-banner">❌ Order Cancelled</div>'
+          : '<div class="acc-tracking"><div class="acc-tracking-label">Delivery Progress</div><div class="acc-track-steps">' + stepsHtml + '</div></div>';
+        var itemsHtml = (o.items || []).map(function(it) {
+          return '<div class="acc-track-item-row">' +
+            '<span class="acc-track-item-name">' + it.name + (it.size ? ' <span class="acc-track-item-detail">(' + it.size + ')</span>' : '') + '</span>' +
+            '<span class="acc-track-item-detail">x' + it.qty + ' &mdash; ' + (it.price * it.qty).toFixed(0) + ' MAD</span>' +
+            '</div>';
+        }).join('');
+        resultEl.innerHTML = '<div class="acc-track-result">' +
+          '<div class="acc-track-result-header">' +
+            '<div>' +
+              '<div class="acc-track-order-id">Order <span>#' + o.id.slice(-8).toUpperCase() + '</span></div>' +
+              '<div class="acc-track-date">' + fmtDate(o.createdAt) + '</div>' +
+            '</div>' +
+            statusBadge(o.status) +
+          '</div>' +
+          trackHtml +
+          '<div class="acc-track-items-list">' + itemsHtml + '</div>' +
+          '<div class="acc-track-total"><span>Total</span><span>' + (o.total || 0).toFixed(0) + ' MAD</span></div>' +
+          (o.city ? '<div style="font-size:12px;color:#888;margin-top:10px;">📍 ' + o.city + '</div>' : '') +
+        '</div>';
+      })
+      .catch(function() {
+        resultEl.innerHTML = '<div class="acc-track-error">Unable to reach the server. Please try again later.</div>';
+      });
   },
 
   /* ─── init ─── */

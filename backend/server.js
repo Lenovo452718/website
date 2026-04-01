@@ -1426,6 +1426,25 @@ app.patch('/api/customer/profile', requireCustomerAuth, async (req, res) => {
   }
 });
 
+/* GET /api/orders/track?id=ORDER_ID — public, returns limited info */
+app.get('/api/orders/track', async (req, res) => {
+  const id = (req.query.id || '').trim();
+  if (!id || id.length > 40) return res.status(400).json({ error: 'Invalid order ID' });
+  try {
+    const order = await prisma.order.findUnique({
+      where: { id },
+      select: {
+        id: true, status: true, city: true, total: true, createdAt: true,
+        items: { select: { name: true, size: true, qty: true, price: true } }
+      }
+    });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch order' });
+  }
+});
+
 /* GET /api/customer/orders */
 app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
   try {
