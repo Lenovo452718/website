@@ -169,6 +169,7 @@ setInterval(runBackup, 24 * 60 * 60 * 1000);
 
 /* ── Helpers ── */
 function getClientIp(req) { return req.ip || req.socket?.remoteAddress || 'unknown'; }
+function normalizePhone(p) { return p ? p.replace(/[\s\-\.()]/g, '') : ''; }
 function sanitize(str, maxLen = 200) {
   if (typeof str !== 'string') return '';
   return str.replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
@@ -374,9 +375,11 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
           'UPDATE `Order` SET customerId = ? WHERE id = ?',
           customerId, order.id
         );
+        // Save normalized phone so future lookups always match
+        const phoneNorm = normalizePhone(phone);
         await prisma.$executeRawUnsafe(
           'UPDATE `Customer` SET phone = ? WHERE id = ? AND (phone IS NULL OR phone = "")',
-          phone, customerId
+          phoneNorm, customerId
         );
       } catch (_) {}
     }
@@ -1702,13 +1705,19 @@ app.get('/api/orders/track', async (req, res) => {
 app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
   try {
     const [customer] = await prisma.$queryRaw`SELECT phone FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
-    // Query by customerId (new orders) OR phone (old orders placed before the link was added)
-    const orders = customer?.phone
+    // Build phone variants for fuzzy match (with/without spaces/dashes)
+    const rawPhone = customer?.phone || '';
+    const normPhone = normalizePhone(rawPhone); // e.g. "0612345678"
+    // Query by customerId (new orders) OR either phone variant (old orders)
+    const orders = normPhone
       ? await prisma.$queryRawUnsafe(
           `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,
                   trackingCode, deliveryPhone
-           FROM \`Order\` WHERE customerId = ? OR phone = ? ORDER BY createdAt DESC LIMIT 50`,
-          req.customerId, customer.phone
+           FROM \`Order\`
+           WHERE customerId = ?
+              OR REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'.','') = ?
+           ORDER BY createdAt DESC LIMIT 50`,
+          req.customerId, normPhone
         )
       : await prisma.$queryRawUnsafe(
           `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,

@@ -2250,15 +2250,21 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 @media (max-width: 768px) {
   /* Nav: logo left, icons right — no left column needed */
   .nav-inner {
-    padding: 0 20px;
+    padding: 0 16px;
     grid-template-columns: auto 1fr;
   }
   .nav-left { display: none; }
-  .nav-logo { text-align: left; }
+  .nav-logo { grid-column: 1; text-align: left; }
   .nav-right {
+    grid-column: 2;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 8px;
   }
+  /* Hide text links + lang switcher from header on mobile — accessible via hamburger menu */
+  .nav-right > a:not([aria-label]) { display: none; }
+  .nav-right .lang-switcher { display: none; }
+  /* Show account icon on mobile */
+  .nav-icon-btn[aria-label="Account"] { display: flex !important; }
   /* Hide header cart — already in the bottom nav bar */
   .nav-right .cart-btn { display: none; }
   .mobile-menu { padding: 20px 20px 28px; }
