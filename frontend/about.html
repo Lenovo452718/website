@@ -265,7 +265,16 @@
       line-height: 1;
       color: var(--white);
     }
-    .stat-num.gold { color: #e0c97a; }
+    .stat-num .stat-cursor {
+      display: inline-block;
+      width: 3px;
+      background: var(--white);
+      height: 0.78em;
+      vertical-align: middle;
+      margin-left: 2px;
+      animation: stat-blink 0.5s step-end infinite;
+    }
+    @keyframes stat-blink { 0%,100%{opacity:1} 50%{opacity:0} }
     .stat-label {
       font-size: 10px;
       letter-spacing: 0.2em;
@@ -789,24 +798,88 @@
 <!-- ===== STATS BAR ===== -->
 <div class="stats-bar">
   <div class="stats-inner">
-    <div class="stat-item reveal">
-      <span class="stat-num">6</span>
-      <span class="stat-label" data-i18n="stat_styles">Styles</span>
+    <div class="stat-item" data-stype="count" data-starget="10" data-ssuffix="K+">
+      <span class="stat-num">0K+</span>
+      <span class="stat-label">Satisfied Customers</span>
     </div>
-    <div class="stat-item reveal reveal-delay-1">
-      <span class="stat-num gold">100%</span>
+    <div class="stat-item" data-stype="count" data-starget="100" data-ssuffix="%">
+      <span class="stat-num">0%</span>
       <span class="stat-label" data-i18n="stat_quality">Quality</span>
     </div>
-    <div class="stat-item reveal reveal-delay-2">
-      <span class="stat-num">FREE</span>
+    <div class="stat-item" data-stype="text" data-starget="FREE">
+      <span class="stat-num">&nbsp;</span>
       <span class="stat-label" data-i18n="stat_shipping_label">Shipping</span>
     </div>
-    <div class="stat-item reveal reveal-delay-3">
-      <span class="stat-num">COD</span>
+    <div class="stat-item" data-stype="text" data-starget="COD">
+      <span class="stat-num">&nbsp;</span>
       <span class="stat-label" data-i18n="stat_payment">Payment</span>
     </div>
   </div>
 </div>
+
+<script>
+(function() {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@!%&';
+
+  function animateCount(el, target, suffix) {
+    var duration = 1600;
+    var start = performance.now();
+    function tick(now) {
+      var p = Math.min((now - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3); // ease-out cubic
+      var val = Math.round(eased * target);
+      el.textContent = val + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = target + suffix;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function animateText(el, text, stagger) {
+    // slot-machine: each letter scrambles then locks in
+    function lockLetter(i) {
+      if (i >= text.length) { el.textContent = text; return; }
+      var flicks = 0, maxFlicks = 7;
+      function scramble() {
+        if (flicks < maxFlicks) {
+          el.textContent = text.slice(0, i) + CHARS[Math.floor(Math.random() * CHARS.length)];
+          flicks++;
+          setTimeout(scramble, 35);
+        } else {
+          el.textContent = text.slice(0, i + 1);
+          setTimeout(function() { lockLetter(i + 1); }, stagger);
+        }
+      }
+      scramble();
+    }
+    el.textContent = '';
+    lockLetter(0);
+  }
+
+  var bar = document.querySelector('.stats-bar');
+  if (!bar) return;
+  var fired = false;
+
+  new IntersectionObserver(function(entries, obs) {
+    if (!entries[0].isIntersecting || fired) return;
+    fired = true;
+    obs.disconnect();
+
+    var items = bar.querySelectorAll('.stat-item[data-stype]');
+    items.forEach(function(item, idx) {
+      var el    = item.querySelector('.stat-num');
+      var type  = item.dataset.stype;
+      var tgt   = item.dataset.starget;
+      var sfx   = item.dataset.ssuffix || '';
+
+      setTimeout(function() {
+        if (type === 'count') animateCount(el, parseInt(tgt), sfx);
+        else animateText(el, tgt, 100);
+      }, idx * 200);
+    });
+  }, { threshold: 0.35 }).observe(bar);
+})();
+</script>
 
 <!-- ===== VALUES ===== -->
 <section class="values-section">
