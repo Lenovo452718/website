@@ -322,6 +322,17 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
   if (digits.length < 9 || digits.length > 15) return res.status(400).json({ error: 'Invalid phone number' });
   if (!/^[\p{L}\s'\-\.]{2,80}$/u.test(customer)) return res.status(400).json({ error: 'Invalid customer name' });
 
+  // Identify logged-in customer from auth token (optional)
+  let customerId = null;
+  const authHeader = req.headers['authorization'] || '';
+  const customerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+  if (customerToken) {
+    try {
+      const decoded = jwt.verify(customerToken, JWT_SECRET);
+      if (decoded.customerId) customerId = decoded.customerId;
+    } catch (_) {}
+  }
+
   // Support both old single-product format and new cart format
   const items = Array.isArray(req.body.items) && req.body.items.length
     ? req.body.items
@@ -344,6 +355,7 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
         discount,
         clientIp,
         msgSent:   false,
+        ...(customerId ? { customerId } : {}),
         items: {
           create: items.map(i => ({
             name:  sanitize(String(i.name || ''), 200),
@@ -355,6 +367,16 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
       },
       include: { items: true },
     });
+
+    // Save phone to customer account if not already set
+    if (customerId) {
+      try {
+        await prisma.$executeRawUnsafe(
+          'UPDATE `Customer` SET phone = ? WHERE id = ? AND (phone IS NULL OR phone = "")',
+          phone, customerId
+        );
+      } catch (_) {}
+    }
 
     emit('order:new', { orderId: order.id, customer: order.customer });
 
@@ -1677,13 +1699,20 @@ app.get('/api/orders/track', async (req, res) => {
 app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
   try {
     const [customer] = await prisma.$queryRaw`SELECT phone FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
-    if (!customer || !customer.phone) return res.json([]);
-    const orders = await prisma.$queryRawUnsafe(
-      `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,
-              trackingCode, deliveryPhone
-       FROM \`Order\` WHERE phone = ? ORDER BY createdAt DESC LIMIT 50`,
-      customer.phone
-    );
+    // Query by customerId (new orders) OR phone (old orders placed before the link was added)
+    const orders = customer?.phone
+      ? await prisma.$queryRawUnsafe(
+          `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,
+                  trackingCode, deliveryPhone
+           FROM \`Order\` WHERE customerId = ? OR phone = ? ORDER BY createdAt DESC LIMIT 50`,
+          req.customerId, customer.phone
+        )
+      : await prisma.$queryRawUnsafe(
+          `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,
+                  trackingCode, deliveryPhone
+           FROM \`Order\` WHERE customerId = ? ORDER BY createdAt DESC LIMIT 50`,
+          req.customerId
+        );
     const orderIds = orders.map(o => o.id);
     let items = [];
     if (orderIds.length) {
@@ -1729,6 +1758,8 @@ function runMigrations() {
     // Auto-tracking: dedicated columns
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `trackingCode` VARCHAR(255) NULL",
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `deliveryPhone` VARCHAR(30) NULL",
+    // Link orders to customer accounts
+    "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `customerId` VARCHAR(30) NULL",
   ];
   (async () => {
     for (const sql of migrations) {

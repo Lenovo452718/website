@@ -1228,9 +1228,12 @@ function initPlaceOrder() {
     const BACKEND_URL = typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : 'http://localhost:3000';
 
     try {
+      const _orderHeaders = { 'Content-Type': 'application/json' };
+      const _customerToken = localStorage.getItem('ss_customer_token');
+      if (_customerToken) _orderHeaders['Authorization'] = `Bearer ${_customerToken}`;
       const resp = await fetch(BACKEND_URL + '/api/orders', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: _orderHeaders,
         body: JSON.stringify({ customer, phone, city, address, items, total, discount: packDiscount + couponDiscount, couponCode }),
       });
 
@@ -1443,9 +1446,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (BACKEND_URL) {
       try {
+        const _bnHeaders = { 'Content-Type': 'application/json' };
+        const _bnToken = localStorage.getItem('ss_customer_token');
+        if (_bnToken) _bnHeaders['Authorization'] = `Bearer ${_bnToken}`;
         const resp = await fetch(BACKEND_URL + '/api/orders', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: _bnHeaders,
           body: JSON.stringify(orderData),
         });
         if (resp.status === 403) {
