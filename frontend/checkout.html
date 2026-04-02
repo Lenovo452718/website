@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#1a1a1a">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -11,219 +13,662 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
   <style>
-    @media (max-width: 768px) {
-      /* Checkout: visually separate each step section */
-      .checkout-step { border-radius: 8px; }
-      .checkout-step h2 {
-        font-size: 18px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid var(--gray-light);
-        margin-bottom: 20px;
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rose:       #e8b4bc;
+      --rose-pale:  #fdf0f2;
+      --rose-mid:   #d4919d;
+      --gold:       #c8a96e;
+      --gold-pale:  #fdf6ed;
+      --charcoal:   #1a1a1a;
+      --ink:        #333;
+      --muted:      #888;
+      --line:       #ede8e3;
+      --bg:         #fdf8f5;
+      --white:      #ffffff;
+      --shadow:     0 4px 24px rgba(180,120,130,0.10);
+      --shadow-sm:  0 2px 10px rgba(0,0,0,0.06);
+      --radius:     16px;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+    }
+
+    /* ── HEADER ── */
+    .co-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 48px;
+      height: 64px;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .co-logo {
+      font-family: 'Bebas Neue', 'Cormorant Garamond', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.14em;
+      color: var(--charcoal);
+      text-decoration: none;
+    }
+    .co-header-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--rose-mid);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .co-header-tag::before {
+      content: '';
+      width: 18px;
+      height: 1px;
+      background: var(--rose-mid);
+    }
+
+    /* ── BODY LAYOUT ── */
+    .co-body {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 32px;
+      align-items: start;
+    }
+
+    /* ── FORM COLUMN ── */
+    .co-form-col {}
+
+    /* Section card */
+    .co-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px;
+      margin-bottom: 20px;
+    }
+
+    .co-section-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--rose-mid);
+      margin-bottom: 6px;
+    }
+    .co-section-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--charcoal);
+      line-height: 1.1;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1.5px solid var(--line);
+      position: relative;
+    }
+    .co-section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -1.5px;
+      left: 0;
+      width: 48px;
+      height: 1.5px;
+      background: var(--gold);
+    }
+
+    /* Fields grid */
+    .co-fields {
+      display: grid;
+      gap: 20px;
+    }
+    .co-field {
+      position: relative;
+    }
+    .co-field label {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+      transition: color 0.2s;
+    }
+    .co-field:focus-within label { color: var(--gold); }
+
+    .co-field input, .co-field select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      font-size: 15px;
+      color: var(--charcoal);
+      background: var(--white);
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      -webkit-appearance: none;
+    }
+    .co-field input:focus, .co-field select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(200,169,110,0.12);
+    }
+    .co-field input.error { border-color: #e07070; background: #fff8f8; }
+    .co-field input::placeholder { color: #bbb; }
+    .co-field-hint {
+      font-size: 11px;
+      color: #e07070;
+      margin-top: 5px;
+      display: none;
+    }
+    .co-field-hint.show { display: block; }
+
+    /* Two-column row */
+    .co-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* ── SHIPPING ── */
+    .co-ship-options { display: flex; flex-direction: column; gap: 10px; }
+    .co-ship-opt {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 16px 18px;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .co-ship-opt:has(input:checked) {
+      border-color: var(--gold);
+      background: var(--gold-pale);
+    }
+    .co-ship-opt input[type="radio"] { accent-color: var(--gold); width: 16px; height: 16px; cursor: pointer; }
+    .co-ship-opt-info { flex: 1; }
+    .co-ship-opt-name { font-size: 14px; font-weight: 600; color: var(--charcoal); }
+    .co-ship-opt-time { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .co-ship-opt-price { font-size: 14px; font-weight: 700; color: var(--charcoal); }
+
+    /* ── PAYMENT ── */
+    .co-payment-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 20px;
+      background: var(--rose-pale);
+      border: 1.5px solid var(--rose);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .co-payment-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--white);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-sm);
+      flex-shrink: 0;
+    }
+    .co-payment-body strong {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--charcoal);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .co-payment-body p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    .co-payment-notes {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .co-payment-note {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--ink);
+    }
+    .co-payment-note-icon {
+      width: 28px;
+      height: 28px;
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    /* ── PLACE ORDER BUTTON ── */
+    .co-place-btn {
+      width: 100%;
+      padding: 18px;
+      background: var(--charcoal);
+      color: var(--white);
+      border: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .co-place-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(200,169,110,0.15) 0%, transparent 60%);
+    }
+    .co-place-btn:hover { background: #000; transform: translateY(-1px); }
+    .co-place-btn:active { transform: translateY(0); }
+    .co-place-btn:disabled { opacity: 0.65; cursor: not-allowed; transform: none; }
+
+    .co-back-link {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+    }
+    .co-back-link:hover { color: var(--charcoal); }
+
+    /* ── SUMMARY COLUMN ── */
+    .co-summary-col {
+      position: sticky;
+      top: 84px;
+    }
+    .co-summary-card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+    }
+    .co-summary-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--charcoal);
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    /* Items */
+    .co-items { display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+    .co-item {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .co-item-img {
+      width: 56px;
+      height: 68px;
+      border-radius: 10px;
+      object-fit: cover;
+      background: #f0ede8;
+      flex-shrink: 0;
+    }
+    .co-item-info { flex: 1; min-width: 0; }
+    .co-item-name { font-size: 13px; font-weight: 600; color: var(--charcoal); line-height: 1.3; }
+    .co-item-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+    .co-item-price { font-size: 14px; font-weight: 700; color: var(--charcoal); flex-shrink: 0; }
+
+    /* Upsell */
+    .co-upsell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #fff8ed, #fdf0f2);
+      border: 1px solid var(--rose);
+      border-radius: 12px;
+      margin-bottom: 16px;
+    }
+    .co-upsell-tag {
+      background: var(--rose-mid);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.04em;
+      flex-shrink: 0;
+    }
+    .co-upsell-body { flex: 1; }
+    .co-upsell-body strong { font-size: 12px; font-weight: 700; color: var(--charcoal); display: block; }
+    .co-upsell-body p { font-size: 11px; color: var(--muted); }
+    .co-upsell-link {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--rose-mid);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    /* Deal badge */
+    .co-deal-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+      border: 1px solid #86efac;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #166534;
+    }
+    .co-deal-badge .check {
+      width: 20px;
+      height: 20px;
+      background: #22c55e;
+      color: #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Totals */
+    .co-totals { border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 8px; }
+    .co-total-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink); }
+    .co-total-row.discount { color: #16a34a; }
+    .co-total-row.grand { font-size: 18px; font-weight: 800; color: var(--charcoal); padding-top: 10px; border-top: 1px solid var(--line); margin-top: 4px; }
+
+    /* Promo */
+    .co-promo { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+    .co-promo-label { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+    .co-promo-row { display: flex; gap: 8px; }
+    .co-promo-row input {
+      flex: 1;
+      padding: 11px 14px;
+      border: 1.5px solid var(--line);
+      border-radius: 10px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+      color: var(--charcoal);
+    }
+    .co-promo-row input:focus { border-color: var(--gold); }
+    .co-promo-row button {
+      padding: 11px 18px;
+      background: var(--charcoal);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.2s;
+    }
+    .co-promo-row button:hover { background: #000; }
+    .co-promo-msg { font-size: 12px; margin-top: 6px; }
+
+    /* Trust row */
+    .co-trust {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      padding-top: 16px;
+      border-top: 1px solid var(--line);
+      justify-content: center;
+    }
+    .co-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .co-trust-item svg { opacity: 0.5; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 860px) {
+      .co-body {
+        grid-template-columns: 1fr;
+        padding: 20px 16px 80px;
+        gap: 20px;
       }
-
-      /* Shipping options easier to tap */
-      .shipping-option { padding: 16px; gap: 12px; }
-      .shipping-option input[type="radio"] { width: 20px; height: 20px; flex-shrink: 0; }
-      .shipping-option-name { font-size: 14px; }
-
-      /* COD box */
-      .cod-box { flex-direction: column; align-items: flex-start; gap: 12px; }
-      .cod-note p { font-size: 14px; line-height: 1.6; }
-
-      /* Checkout nav buttons */
-      .checkout-nav-btns { flex-direction: column-reverse; gap: 12px; margin-top: 24px; }
-      .checkout-nav-btns .btn-dark,
-      .checkout-nav-btns .place-order-btn { width: 100%; text-align: center; padding: 16px; font-size: 14px; }
-      .checkout-nav-btns .checkout-back,
-      .checkout-nav-btns > a { text-align: center; }
-
-      /* Summary section */
-      .summary-items { margin-bottom: 16px; }
-      .summary-row { font-size: 14px; padding: 6px 0; }
-      .summary-row.total { font-size: 15px; }
-
-      /* Upsell banner */
-      .checkout-upsell { flex-direction: column; gap: 10px; }
-      .upsell-link { align-self: flex-start; }
-
-      /* Info summary text */
-      .info-summary { font-size: 13px; padding: 12px 14px; word-break: break-word; }
+      .co-summary-col { position: static; order: -1; }
+      .co-card { padding: 24px 20px; }
+      .co-summary-card { padding: 20px; }
+      .co-row-2 { grid-template-columns: 1fr; gap: 20px; }
+      .co-header { padding: 0 20px; }
     }
-
     @media (max-width: 480px) {
-      .checkout-header { padding: 0 16px; }
-      .checkout-form-col, .checkout-summary-col { padding: 20px 16px; }
+      .co-header { padding: 0 16px; }
     }
+
+    /* Hidden field (kept for JS compatibility) */
+    #info-last { display: none; }
   </style>
-<style>
-  .shipping-option { min-height: 56px; padding: 14px 16px; }
-</style>
 </head>
 <body>
 
-<!-- ===== MINIMAL HEADER ===== -->
-<header class="checkout-header">
-  <a href="index.html" class="checkout-logo">STREETSTORE</a>
+<!-- ── HEADER ── -->
+<header class="co-header checkout-header">
+  <a href="index.html" class="co-logo checkout-logo">STREETSTORE</a>
+  <div class="co-header-tag">Secure Checkout</div>
 </header>
 
-<!-- ===== PROGRESS BAR ===== -->
-<div class="checkout-progress">
-  <div class="progress-step active" id="step1-indicator">
-    <div class="step-num">1</div>
-    <span class="step-label" data-i18n="step_info">Information</span>
-  </div>
-  <div class="progress-step" id="step2-indicator">
-    <div class="step-num">2</div>
-    <span class="step-label" data-i18n="step_shipping">Shipping</span>
-  </div>
-  <div class="progress-step" id="step3-indicator">
-    <div class="step-num">3</div>
-    <span class="step-label" data-i18n="step_payment">Payment</span>
-  </div>
-</div>
-
-<!-- ===== CHECKOUT BODY ===== -->
-<div class="checkout-body">
+<!-- ── BODY ── -->
+<div class="co-body checkout-body">
 
   <!-- FORM COLUMN -->
-  <div class="checkout-form-col">
+  <div class="co-form-col checkout-form-col">
 
-    <!-- STEP 1: INFORMATION -->
-    <div class="checkout-step active" id="step1">
-      <h2 data-i18n="contact_info">Contact Information</h2>
-      <form class="checkout-form">
-        <div class="form-row">
-          <div class="form-group">
-            <label data-i18n="first_name">First Name</label>
-            <input type="text" placeholder="Sarah" id="info-first" />
-          </div>
-          <div class="form-group">
-            <label data-i18n="last_name">Last Name</label>
-            <input type="text" placeholder="M." id="info-last" />
-          </div>
+    <!-- ── DELIVERY INFO ── -->
+    <div class="co-card">
+      <div class="co-section-label">Step 1 of 1</div>
+      <div class="co-section-title">Delivery Information</div>
+
+      <div class="co-fields">
+        <!-- Full Name -->
+        <div class="co-field">
+          <label>Full Name</label>
+          <input type="text" id="info-first" placeholder="e.g. Fatima Zahra" autocomplete="name" />
+          <!-- hidden last name kept for JS compatibility -->
+          <input type="text" id="info-last" value="" tabindex="-1" aria-hidden="true" />
         </div>
-        <div class="form-group">
-          <label data-i18n="address_label">Address</label>
-          <input type="text" placeholder="123 Street Name" id="info-address" />
-        </div>
-        <div class="form-group">
-          <label data-i18n="city">City</label>
-          <input type="text" placeholder="Casablanca" id="info-city" />
-        </div>
-        <div class="form-group">
+
+        <!-- Phone -->
+        <div class="co-field">
           <label data-i18n="phone_label">Phone Number</label>
-          <input type="tel" placeholder="06 12 34 56 78" id="info-phone" maxlength="15" />
-          <span class="field-error" id="phone-error" style="display:none; color:#c0392b; font-size:12px; margin-top:4px;" data-i18n="phone_error">Please enter at least 10 digits.</span>
+          <input type="tel" id="info-phone" placeholder="06 12 34 56 78" maxlength="15" autocomplete="tel" />
+          <div class="co-field-hint" id="phone-error" data-i18n="phone_error">Please enter at least 10 digits.</div>
         </div>
-        <div class="form-group">
-          <label data-i18n="country">Country</label>
-          <select id="info-country">
-            <option>Morocco</option>
-            <option>Algeria</option>
-            <option>Tunisia</option>
-            <option>France</option>
-          </select>
+
+        <div class="co-row-2">
+          <!-- City -->
+          <div class="co-field">
+            <label data-i18n="city">City</label>
+            <input type="text" id="info-city" placeholder="Casablanca" autocomplete="address-level2" />
+          </div>
+          <!-- Address -->
+          <div class="co-field">
+            <label data-i18n="address_label">Address</label>
+            <input type="text" id="info-address" placeholder="Street, Quartier..." autocomplete="street-address" />
+          </div>
         </div>
-      </form>
-      <div class="checkout-nav-btns">
-        <a href="index.html?opencart=1" style="font-size:13px; color:var(--gray); text-decoration:underline;" data-i18n="return_to_cart">← Return to cart</a>
-        <button class="btn-dark next-step" data-i18n="continue_to_shipping">Continue to Shipping</button>
       </div>
     </div>
 
-    <!-- STEP 2: SHIPPING -->
-    <div class="checkout-step" id="step2">
-      <h2 data-i18n="shipping_method">Shipping Method</h2>
-      <div class="info-summary" id="infoSummary">
-        sarah@example.com — 123 Street Name, Algiers, Algeria
-      </div>
-      <div class="shipping-options">
-        <label class="shipping-option selected">
+    <!-- ── SHIPPING ── -->
+    <div class="co-card">
+      <div class="co-section-title" style="font-size:22px;" data-i18n="shipping_method">Shipping Method</div>
+      <div class="co-ship-options shipping-options">
+        <label class="co-ship-opt shipping-option selected">
           <input type="radio" name="shipping" value="free" checked />
-          <div class="shipping-option-info">
-            <p class="shipping-option-name" data-i18n="standard_shipping">Standard Shipping</p>
-            <p class="shipping-option-time" data-i18n="days_std">5–7 business days</p>
+          <div class="co-ship-opt-info shipping-option-info">
+            <div class="co-ship-opt-name shipping-option-name" data-i18n="standard_shipping">Standard Shipping</div>
+            <div class="co-ship-opt-time shipping-option-time" data-i18n="days_std">3–7 business days</div>
           </div>
-          <span class="shipping-option-price" data-i18n="free">Free</span>
+          <span class="co-ship-opt-price shipping-option-price" data-i18n="free">Free</span>
         </label>
-        <label class="shipping-option">
+        <label class="co-ship-opt shipping-option">
           <input type="radio" name="shipping" value="express" />
-          <div class="shipping-option-info">
-            <p class="shipping-option-name" data-i18n="express_shipping">Express Shipping</p>
-            <p class="shipping-option-time" data-i18n="days_exp">2–3 business days</p>
+          <div class="co-ship-opt-info shipping-option-info">
+            <div class="co-ship-opt-name shipping-option-name" data-i18n="express_shipping">Express Shipping</div>
+            <div class="co-ship-opt-time shipping-option-time" data-i18n="days_exp">1–2 business days</div>
           </div>
-          <span class="shipping-option-price">30 MAD</span>
+          <span class="co-ship-opt-price shipping-option-price">30 MAD</span>
         </label>
-      </div>
-      <div class="checkout-nav-btns">
-        <button class="checkout-back prev-step" data-i18n="back_btn">← Back</button>
-        <button class="btn-dark next-step" data-i18n="continue_to_payment">Continue to Payment</button>
       </div>
     </div>
 
-    <!-- STEP 3: PAYMENT -->
-    <div class="checkout-step" id="step3">
-      <h2 data-i18n="payment">Payment</h2>
-      <div class="cod-box">
-        <div class="cod-icon"><img src="images/icons/cash.png" alt="Cash" style="width:36px;height:36px;"></div>
-        <div class="cod-text">
+    <!-- ── PAYMENT ── -->
+    <div class="co-card">
+      <div class="co-section-title" style="font-size:22px;" data-i18n="payment">Payment</div>
+      <div class="co-payment-card cod-box">
+        <div class="co-payment-icon cod-icon">
+          <img src="images/icons/cash.png" alt="Cash" style="width:28px;height:28px;" />
+        </div>
+        <div class="co-payment-body cod-text">
           <strong data-i18n="cod_title">Cash on Delivery</strong>
-          <p data-i18n="cod_desc">You will pay in cash when your order arrives at your door. No card required.</p>
+          <p data-i18n="cod_desc">Pay in cash when your order arrives. No card needed.</p>
         </div>
       </div>
-      <div class="cod-note">
-        <p data-i18n="cod_note1">📦 Our delivery agent will contact you before arrival.</p>
-        <p data-i18n="cod_note2">✅ Please have the exact amount ready.</p>
-        <p data-i18n="cod_note3">🔒 Your order is 100% secure and guaranteed.</p>
-        <p data-i18n="cod_note4">🇲🇦 We deliver across Morocco.</p>
+      <div class="co-payment-notes cod-note">
+        <div class="co-payment-note">
+          <div class="co-payment-note-icon">📦</div>
+          <span data-i18n="cod_note1">Our delivery agent will contact you before arrival.</span>
+        </div>
+        <div class="co-payment-note">
+          <div class="co-payment-note-icon">✅</div>
+          <span data-i18n="cod_note2">Please have the exact amount ready.</span>
+        </div>
+        <div class="co-payment-note">
+          <div class="co-payment-note-icon">🔒</div>
+          <span data-i18n="cod_note3">Your order is 100% secure and guaranteed.</span>
+        </div>
+        <div class="co-payment-note">
+          <div class="co-payment-note-icon">🇲🇦</div>
+          <span data-i18n="cod_note4">We deliver across Morocco.</span>
+        </div>
       </div>
-      <div class="checkout-nav-btns">
-        <button class="checkout-back prev-step" data-i18n="back_btn">← Back</button>
-        <button class="btn-dark place-order-btn" data-i18n="place_order">Place Order →</button>
-      </div>
+
+      <button class="co-place-btn place-order-btn btn-dark" data-i18n="place_order">
+        Place Order →
+      </button>
+      <a href="index.html?opencart=1" class="co-back-link" data-i18n="return_to_cart">← Return to cart</a>
     </div>
 
   </div>
 
-  <!-- ORDER SUMMARY COLUMN -->
-  <div class="checkout-summary-col">
-    <h3 data-i18n="order_summary">Order Summary</h3>
+  <!-- SUMMARY COLUMN -->
+  <div class="co-summary-col checkout-summary-col">
+    <div class="co-summary-card">
+      <div class="co-summary-title" data-i18n="order_summary">Your Order</div>
 
-    <div class="summary-items" id="checkoutSummaryItems"></div>
+      <div class="co-items summary-items" id="checkoutSummaryItems"></div>
 
-    <!-- UPSELL BANNER — shown when cart has only 1 item -->
-    <div class="checkout-upsell" id="checkoutUpsellBanner" style="display:none;">
-      <div class="upsell-tag" id="checkoutUpsellTag">−39 MAD</div>
-      <div class="upsell-body">
-        <strong data-i18n="upsell_title">Take advantage of the duo deal!</strong>
-        <p id="checkoutUpsellDesc" data-i18n="upsell_desc">Add a 2nd jean and save 39 MAD on your order.</p>
+      <!-- Upsell banner -->
+      <div class="co-upsell checkout-upsell" id="checkoutUpsellBanner" style="display:none;">
+        <div class="co-upsell-tag upsell-tag" id="checkoutUpsellTag">−39 MAD</div>
+        <div class="co-upsell-body upsell-body">
+          <strong data-i18n="upsell_title">Take advantage of the duo deal!</strong>
+          <p id="checkoutUpsellDesc" data-i18n="upsell_desc">Add a 2nd jean and save 39 MAD.</p>
+        </div>
+        <a href="shop.html" class="co-upsell-link upsell-link" data-i18n="upsell_cta">Add →</a>
       </div>
-      <a href="shop.html" class="upsell-link" data-i18n="upsell_cta">Add →</a>
-    </div>
 
-    <!-- DISCOUNT APPLIED — shown when 2+ items in cart -->
-    <div class="checkout-deal-badge" id="checkoutDealBadge" style="display:none;">
-      <span class="deal-check">✓</span>
-      <span data-i18n="deal_applied_pre">Duo deal applied — you save</span> <strong id="checkoutDealSaving">39 MAD</strong><span data-i18n="deal_applied_suf">!</span>
-    </div>
-
-    <div class="summary-totals">
-      <div class="summary-row"><span data-i18n="subtotal">Subtotal</span><span id="checkoutSubtotal">0 MAD</span></div>
-      <div class="summary-row discount-row" id="checkoutDiscountRow" style="display:none;"><span data-i18n="discount_label">Duo deal discount</span><span id="checkoutDiscount">−0 MAD</span></div>
-      <div class="summary-row"><span data-i18n="shipping_label">Shipping</span><span id="checkoutShipping">Free</span></div>
-      <div class="summary-row total"><span data-i18n="total_label">Total</span><span id="checkoutTotal">0 MAD</span></div>
-    </div>
-
-    <div style="margin-top: 8px;">
-      <p style="font-size:12px; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:10px;" data-i18n="promo_code">Promo Code</p>
-      <div class="promo-form">
-        <input type="text" id="promoCodeInput" placeholder="Enter code" data-i18n-ph="promo_ph" />
-        <button type="button" id="applyPromoBtn" onclick="applyPromoCode()" data-i18n="apply">Apply</button>
+      <!-- Deal badge -->
+      <div class="co-deal-badge checkout-deal-badge" id="checkoutDealBadge" style="display:none;">
+        <div class="check">✓</div>
+        <span data-i18n="deal_applied_pre">Duo deal applied — you save</span>&nbsp;<strong id="checkoutDealSaving">39 MAD</strong><span data-i18n="deal_applied_suf">!</span>
       </div>
-      <div id="promoMsg" style="font-size:12px;margin-top:6px;display:none"></div>
+
+      <!-- Totals -->
+      <div class="co-totals summary-totals">
+        <div class="co-total-row summary-row">
+          <span data-i18n="subtotal">Subtotal</span>
+          <span id="checkoutSubtotal">0 MAD</span>
+        </div>
+        <div class="co-total-row discount summary-row discount-row" id="checkoutDiscountRow" style="display:none;">
+          <span data-i18n="discount_label">Duo deal discount</span>
+          <span id="checkoutDiscount">−0 MAD</span>
+        </div>
+        <div class="co-total-row summary-row">
+          <span data-i18n="shipping_label">Shipping</span>
+          <span id="checkoutShipping">Free</span>
+        </div>
+        <div class="co-total-row grand total summary-row total">
+          <span data-i18n="total_label">Total</span>
+          <span id="checkoutTotal">0 MAD</span>
+        </div>
+      </div>
+
+      <!-- Promo code -->
+      <div class="co-promo">
+        <div class="co-promo-label" data-i18n="promo_code">Promo Code</div>
+        <div class="co-promo-row promo-form">
+          <input type="text" id="promoCodeInput" placeholder="Enter code" data-i18n-ph="promo_ph" />
+          <button type="button" id="applyPromoBtn" onclick="applyPromoCode()" data-i18n="apply">Apply</button>
+        </div>
+        <div id="promoMsg" class="co-promo-msg" style="display:none"></div>
+      </div>
+
+      <!-- Trust signals -->
+      <div class="co-trust">
+        <div class="co-trust-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Secure
+        </div>
+        <div class="co-trust-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          Free Returns
+        </div>
+        <div class="co-trust-item">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          Fast Delivery
+        </div>
+      </div>
     </div>
   </div>
 
+</div>
+
+<!-- Keep hidden elements script.js might reference -->
+<div style="display:none">
+  <div id="step1-indicator"></div>
+  <div id="step2-indicator"></div>
+  <div id="step3-indicator"></div>
+  <div id="infoSummary"></div>
 </div>
 
 <script src="config.js"></script>
@@ -253,7 +698,7 @@ function applyPromoCode() {
       document.getElementById('applyPromoBtn').disabled = false;
       if (data.valid) {
         _appliedCoupon = { code, discount: data.discount, type: data.type, value: data.value };
-        msgEl.style.color = '#1e7e34';
+        msgEl.style.color = '#16a34a';
         msgEl.textContent = '✓ Code applied! You save ' + Math.round(data.discount) + ' MAD';
         renderCheckoutTotals();
       } else {
@@ -276,32 +721,30 @@ function renderCheckoutTotals() {
   const couponDiscount = _appliedCoupon ? Math.round(_appliedCoupon.discount) : 0;
   const total = Math.max(0, subtotal - packDiscount - couponDiscount);
 
-  const subEl = document.getElementById('checkoutSubtotal');
-  const discEl = document.getElementById('checkoutDiscount');
+  const subEl     = document.getElementById('checkoutSubtotal');
+  const discEl    = document.getElementById('checkoutDiscount');
   const discRowEl = document.getElementById('checkoutDiscountRow');
-  const totalEl = document.getElementById('checkoutTotal');
+  const totalEl   = document.getElementById('checkoutTotal');
   const dealBadge = document.getElementById('checkoutDealBadge');
-  const dealSaving = document.getElementById('checkoutDealSaving');
+  const dealSaving= document.getElementById('checkoutDealSaving');
 
-  if (subEl) subEl.textContent = subtotal + ' MAD';
-  if (totalEl) totalEl.textContent = total + ' MAD';
+  if (subEl)   subEl.textContent   = subtotal + ' MAD';
+  if (totalEl) totalEl.textContent = total    + ' MAD';
 
   if (packDiscount > 0) {
-    if (discRowEl) discRowEl.style.display = '';
-    if (discEl) discEl.textContent = '−' + packDiscount + ' MAD';
-    if (dealBadge) dealBadge.style.display = '';
-    if (dealSaving) dealSaving.textContent = packDiscount + ' MAD';
+    if (discRowEl)  discRowEl.style.display  = '';
+    if (discEl)     discEl.textContent       = '−' + packDiscount + ' MAD';
+    if (dealBadge)  dealBadge.style.display  = '';
+    if (dealSaving) dealSaving.textContent   = packDiscount + ' MAD';
   }
 
-  // Show coupon discount row if applied
   if (couponDiscount > 0) {
-    // Add/update a coupon discount row
     let couponRow = document.getElementById('checkoutCouponRow');
     if (!couponRow && discRowEl) {
       couponRow = document.createElement('div');
       couponRow.id = 'checkoutCouponRow';
-      couponRow.className = 'summary-row discount-row';
-      couponRow.innerHTML = '<span>Coupon (' + _appliedCoupon.code + ')</span><span id="checkoutCouponDiscount">−' + couponDiscount + ' MAD</span>';
+      couponRow.className = 'co-total-row discount summary-row discount-row';
+      couponRow.innerHTML = '<span>Coupon (' + _appliedCoupon.code + ')</span><span>−' + couponDiscount + ' MAD</span>';
       discRowEl.parentNode.insertBefore(couponRow, discRowEl.nextSibling);
     } else if (couponRow) {
       couponRow.style.display = '';
