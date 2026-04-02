@@ -230,7 +230,26 @@
       flex: 1;
       text-align: center;
     }
-    .co-trust-item svg { color: var(--charcoal); }
+    .co-trust-item svg {
+      color: var(--charcoal);
+      animation: co-trust-pop 3s ease-in-out infinite;
+    }
+    /* each icon pops at a different time */
+    .co-trust-item:nth-child(1) svg { animation-delay: 0s; }
+    .co-trust-item:nth-child(2) svg { animation-delay: 0.75s; }
+    .co-trust-item:nth-child(3) svg { animation-delay: 1.5s; }
+    .co-trust-item:nth-child(4) svg { animation-delay: 2.25s; }
+
+    @keyframes co-trust-pop {
+      /* spend ~80% of the 3s just sitting still */
+      0%   { transform: translateY(0) scale(1); }
+      8%   { transform: translateY(-8px) scale(1.22) rotate(-8deg); }
+      16%  { transform: translateY(0) scale(1) rotate(0deg); }
+      22%  { transform: translateY(-3px) scale(1.08); }
+      28%  { transform: translateY(0) scale(1); }
+      100% { transform: translateY(0) scale(1); }
+    }
+
     .co-trust-label {
       font-size: 9px;
       font-weight: 700;
