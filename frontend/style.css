@@ -33,12 +33,12 @@ input, select, textarea { font-family: 'Inter', sans-serif; font-size: 14px; }
 /* --- Custom Properties --- */
 :root {
   --white: #ffffff;
-  --off: #eaf3fa;
-  --denim: #1a72b8;
+  --off: #f5f5f5;
+  --denim: #111111;
   --charcoal: #111111;
   --gray: #333333;
-  --gray-light: #c4daea;
-  --gray-mid: #7fb0cc;
+  --gray-light: #e0e0e0;
+  --gray-mid: #bdbdbd;
   --transition: 0.3s ease;
 }
 
@@ -547,7 +547,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #111111 0%, #4a80a8 40%, #000000 100%);
+  background: linear-gradient(135deg, #111111 0%, #444444 40%, #000000 100%);
 }
 .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.25); }
 
@@ -1371,7 +1371,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 /* ===== PACK DEAL BANNER ===== */
 .pack-deal {
   position: relative;
-  background: linear-gradient(135deg, #111111 0%, #4a80a8 100%);
+  background: linear-gradient(135deg, #111111 0%, #333333 100%);
   border-radius: 10px;
   padding: 16px 18px;
   margin-bottom: 16px;
@@ -1702,7 +1702,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .lookbook-tall-box:hover .lookbook-tall-box-overlay .shop-look-btn { opacity: 1; transform: translateY(0); }
 .lookbook-tall-box-text { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 48px 40px; background: #eef5fb; }
 .lookbook-tall-box-text h2 { font-family: 'Bebas Neue', sans-serif; font-size: clamp(60px, 6vw, 100px); letter-spacing: 0.02em; color: #111111; line-height: 0.95; margin-bottom: 24px; }
-.lookbook-tall-box-text p { font-size: 13px; letter-spacing: 0.10em; color: #4a6a84; line-height: 1.8; max-width: 260px; }
+.lookbook-tall-box-text p { font-size: 13px; letter-spacing: 0.10em; color: #555555; line-height: 1.8; max-width: 260px; }
 .lookbook-tall-box-text .btn-dark { margin-top: 36px; display: inline-block; }
 
 .lookbook-text-overlay p { font-size: 13px; letter-spacing: 0.14em; color: rgba(255,255,255,0.75); margin-top: 4px; }
@@ -3460,7 +3460,7 @@ body.rtl {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: linear-gradient(135deg, #111111 0%, #4a80a8 100%);
+  background: linear-gradient(135deg, #111111 0%, #333333 100%);
   border-radius: 8px;
   padding: 14px 16px;
   margin-bottom: 20px;
