@@ -701,7 +701,8 @@ function initProductAddToCart() {
     const qty = parseInt(document.querySelector('.qty-display')?.textContent, 10) || 1;
     const pageProductId = document.body.dataset.product;
     const pageImageUrl = (pageProductId && typeof PRODUCTS !== 'undefined' && PRODUCTS[pageProductId]) ? PRODUCTS[pageProductId].image : null;
-    for (let i = 0; i < qty; i++) addToCart(name, price, 'Dark Wash', activeSize, pageImageUrl);
+    const selectedColor = btn.dataset.color || document.querySelector('.product-swatch.active')?.dataset?.color || document.querySelector('.product-swatch.active')?.title || '';
+    for (let i = 0; i < qty; i++) addToCart(name, price, selectedColor, activeSize, pageImageUrl);
   });
 }
 
@@ -721,7 +722,8 @@ function initQuickAdd() {
       const imageUrl = (productId && typeof PRODUCTS !== 'undefined' && PRODUCTS[productId]) ? PRODUCTS[productId].image : null;
       const productData = (productId && typeof PRODUCTS !== 'undefined') ? PRODUCTS[productId] : null;
       const firstSize = productData && productData.sizes ? productData.sizes.split(',')[0].trim() : '';
-      addToCart(name, price, '', firstSize, imageUrl);
+      const firstColor = productData && productData.color ? (typeof parseProductColors !== 'undefined' ? (parseProductColors(productData.color)[0]||{}).label : productData.color.split(',')[0].split(':')[0].trim()) : '';
+      addToCart(name, price, firstColor, firstSize, imageUrl);
     });
   });
 }

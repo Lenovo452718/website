@@ -143,6 +143,7 @@ export interface Product {
   fitFilter?: string | null;
   category?: string | null;
   href?: string | null;
+  color?: string | null;
   sortOrder: number;
   createdAt: string;
   updatedAt: string;

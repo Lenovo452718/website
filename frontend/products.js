@@ -354,6 +354,23 @@ initProductImages();
   }
 })();
 
+/* ── Parse color string into [{label, hex}] array ── */
+var _colorNameMap = { navy:'#0f1f3d', blue:'#1e3a5f', caramel:'#8b6347', black:'#1a1a1a', white:'#f0ede8', gray:'#888888', brown:'#6b4e30', red:'#8b2020', green:'#1e4a2e', beige:'#c8b99a', cream:'#f5f0e8' };
+function parseProductColors(colorStr) {
+  if (!colorStr) return [];
+  return colorStr.split(',').map(function(entry) {
+    entry = entry.trim();
+    var colon = entry.lastIndexOf(':');
+    if (colon > 0 && entry[colon + 1] === '#') {
+      return { label: entry.slice(0, colon).trim(), hex: entry.slice(colon + 1).trim() };
+    } else if (entry.startsWith('#')) {
+      return { label: entry, hex: entry };
+    } else {
+      return { label: entry, hex: _colorNameMap[entry.toLowerCase()] || '#888' };
+    }
+  }).filter(function(c) { return c.hex; });
+}
+
 /* ── Auto-populate product info panel (product detail page) ── */
 function initProductInfo() {
   var page = document.body.dataset.product;
@@ -384,6 +401,31 @@ function initProductInfo() {
 
   var fitNote = document.querySelector('.fit-note');
   if (fitNote && product.fit) fitNote.textContent = product.fit;
+
+  // ── Dynamic color swatches ──
+  var colors = parseProductColors(product.color);
+  var swatchWrap = document.querySelector('.product-swatches');
+  var colorLabel = document.querySelector('.product-option-label span:last-child');
+  if (swatchWrap && colors.length) {
+    swatchWrap.innerHTML = colors.map(function(c, i) {
+      return '<div class="product-swatch' + (i === 0 ? ' active' : '') + '" style="background:' + c.hex + ';" title="' + c.label + '" data-color="' + c.label + '"></div>';
+    }).join('');
+    if (colorLabel) colorLabel.textContent = colors[0].label;
+    // Update label on swatch click
+    swatchWrap.addEventListener('click', function(e) {
+      var swatch = e.target.closest('.product-swatch');
+      if (!swatch) return;
+      swatchWrap.querySelectorAll('.product-swatch').forEach(function(s) { s.classList.remove('active'); });
+      swatch.classList.add('active');
+      if (colorLabel) colorLabel.textContent = swatch.dataset.color || swatch.title;
+      // Keep cart button aware of selected color
+      var cartBtn = document.querySelector('.add-to-cart-btn');
+      if (cartBtn) cartBtn.dataset.color = swatch.dataset.color || swatch.title;
+    });
+    // Set initial color on cart button
+    var cartBtn = document.querySelector('.add-to-cart-btn');
+    if (cartBtn) cartBtn.dataset.color = colors[0].label;
+  }
 
   var cartBtn = document.querySelector('.add-to-cart-btn');
   if (cartBtn) { cartBtn.dataset.name = product.name; cartBtn.dataset.price = product.price; }

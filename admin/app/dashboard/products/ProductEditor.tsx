@@ -35,6 +35,7 @@ export default function ProductEditor({ productId }: Props) {
   const [fitFilter,    setFitFilter]    = useState('wide');
   const [category,     setCategory]     = useState('');
   const [href,         setHref]         = useState('');
+  const [color,        setColor]        = useState('');
   const [images,       setImages]       = useState<Image[]>([]);
   const [variants,     setVariants]     = useState<Array<{size: string; inStock: boolean; stock: number}>>([]);
   const [savedId,      setSavedId]      = useState<string | null>(null);
@@ -53,6 +54,7 @@ export default function ProductEditor({ productId }: Props) {
       setFitFilter(p.fitFilter || 'wide');
       setCategory(p.category || '');
       setHref(p.href || '');
+      setColor(p.color || '');
       setImages(p.images);
       setVariants(p.variants.map(v => ({ size: v.size || '', inStock: v.inStock, stock: v.stock })));
       setSavedId(p.id);
@@ -70,7 +72,8 @@ export default function ProductEditor({ productId }: Props) {
     try {
       const data = { name, description, status, price: parseFloat(price),
         comparePrice: comparePrice ? parseFloat(comparePrice) : null,
-        badge: badge || null, fit: fit || null, fitFilter, category: category || null, href: href || null };
+        badge: badge || null, fit: fit || null, fitFilter, category: category || null, href: href || null,
+        color: color || null };
 
       let p: Product;
       if (isNew && !savedId) {
@@ -264,6 +267,27 @@ export default function ProductEditor({ productId }: Props) {
                     placeholder="product-name.html"
                     className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#c8a96e] transition" />
                 </div>
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Colors</label>
+                <input value={color} onChange={e => setColor(e.target.value)}
+                  placeholder="e.g. Dark Blue:#1a2744, Navy:#253660, Black:#1a1a1a"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#c8a96e] transition font-mono" />
+                <p className="text-xs text-gray-400 mt-1">Format: <span className="font-mono">Label:#hex</span> — separate multiple colors with commas</p>
+                {color && (
+                  <div className="flex gap-2 mt-2 flex-wrap">
+                    {color.split(',').map((entry, i) => {
+                      const [label, hex] = entry.includes(':') ? entry.split(':').map(s => s.trim()) : [entry.trim(), entry.trim()];
+                      const bg = hex?.startsWith('#') ? hex : '#888';
+                      return (
+                        <div key={i} className="flex items-center gap-1.5 bg-gray-50 border border-gray-200 rounded-full px-2.5 py-1">
+                          <span style={{ background: bg }} className="w-4 h-4 rounded-full inline-block border border-white shadow-sm flex-shrink-0" />
+                          <span className="text-xs font-medium text-gray-700">{label || hex}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </div>
