@@ -33,12 +33,12 @@ input, select, textarea { font-family: 'Inter', sans-serif; font-size: 14px; }
 /* --- Custom Properties --- */
 :root {
   --white: #ffffff;
-  --off: #eef5fb;
-  --denim: #a8d4ea;
+  --off: #eaf3fa;
+  --denim: #1a72b8;
   --charcoal: #111111;
   --gray: #333333;
-  --gray-light: #d8ecf6;
-  --gray-mid: #b8d8ea;
+  --gray-light: #c4daea;
+  --gray-mid: #7fb0cc;
   --transition: 0.3s ease;
 }
 
