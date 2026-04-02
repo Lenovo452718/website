@@ -355,7 +355,6 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
         discount,
         clientIp,
         msgSent:   false,
-        ...(customerId ? { customerId } : {}),
         items: {
           create: items.map(i => ({
             name:  sanitize(String(i.name || ''), 200),
@@ -368,9 +367,13 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
       include: { items: true },
     });
 
-    // Save phone to customer account if not already set
+    // Link order to customer account + save phone — via raw SQL (customerId not in Prisma schema)
     if (customerId) {
       try {
+        await prisma.$executeRawUnsafe(
+          'UPDATE `Order` SET customerId = ? WHERE id = ?',
+          customerId, order.id
+        );
         await prisma.$executeRawUnsafe(
           'UPDATE `Customer` SET phone = ? WHERE id = ? AND (phone IS NULL OR phone = "")',
           phone, customerId
