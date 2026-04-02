@@ -42,11 +42,49 @@
       left: 0;
       height: calc(100vh - 72px);
       overflow-y: auto;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       z-index: 100;
       box-shadow: 2px 0 12px rgba(45,79,108,0.06);
+      transition: width 0.25s ease;
     }
+    .acc-sidebar.collapsed { width: 60px; }
+    .acc-sidebar.collapsed .acc-sidebar-name,
+    .acc-sidebar.collapsed .acc-sidebar-email,
+    .acc-sidebar.collapsed .acc-nav-item span,
+    .acc-sidebar.collapsed .acc-nav-logout-btn span,
+    .acc-sidebar.collapsed .acc-nav-badge { display: none; }
+    .acc-sidebar.collapsed .acc-sidebar-profile { align-items: center; padding: 20px 0; }
+    .acc-sidebar.collapsed .acc-sidebar-avatar { margin: 0; }
+    .acc-sidebar.collapsed .acc-nav-item { justify-content: center; padding: 14px 0; }
+    .acc-sidebar.collapsed .acc-nav-logout-btn { justify-content: center; padding: 14px 0; width: 100%; }
+    .acc-sidebar.collapsed .acc-sidebar-toggle svg { transform: rotate(180deg); }
+
+    /* Toggle button */
+    .acc-sidebar-toggle {
+      position: absolute;
+      top: 50%;
+      right: -13px;
+      transform: translateY(-50%);
+      width: 26px;
+      height: 26px;
+      background: #fff;
+      border: 1.5px solid var(--acc-denim-pale);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 101;
+      box-shadow: 0 2px 8px rgba(45,79,108,0.12);
+      transition: background 0.15s;
+    }
+    .acc-sidebar-toggle:hover { background: var(--acc-denim-pale); }
+    .acc-sidebar-toggle svg { transition: transform 0.25s ease; }
+
+    .acc-main { transition: margin-left 0.25s ease; }
+    .acc-main.sidebar-collapsed { margin-left: 60px; }
 
     .acc-sidebar-profile {
       padding: 28px 20px 20px;
@@ -1253,7 +1291,10 @@
 <div class="acc-page">
 
   <!-- SIDEBAR -->
-  <aside class="acc-sidebar">
+  <aside class="acc-sidebar" id="accSidebar">
+    <button class="acc-sidebar-toggle" onclick="ACC.toggleSidebar()" title="Collapse sidebar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
     <div class="acc-sidebar-profile">
       <div class="acc-avatar" id="sbAvatar">?</div>
       <div class="acc-sidebar-name" id="sbName">Loading...</div>
@@ -1262,33 +1303,33 @@
     <nav class="acc-nav">
       <div class="acc-nav-item active" data-section="dashboard" onclick="ACC.nav('dashboard')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        Dashboard
+        <span>Dashboard</span>
       </div>
       <div class="acc-nav-item" data-section="orders" onclick="ACC.nav('orders')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-        My Orders
+        <span>My Orders</span>
       </div>
       <div class="acc-nav-item" data-section="wishlist" onclick="ACC.nav('wishlist')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        Wishlist
+        <span>Wishlist</span>
       </div>
       <div class="acc-nav-item" data-section="addresses" onclick="ACC.nav('addresses')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Addresses
+        <span>Addresses</span>
       </div>
       <div class="acc-nav-item" data-section="settings" onclick="ACC.nav('settings')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        Settings
+        <span>Settings</span>
       </div>
       <div class="acc-nav-item" data-section="track" onclick="ACC.nav('track')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Track Order
+        <span>Track Order</span>
       </div>
     </nav>
     <div class="acc-nav-logout">
       <button class="acc-nav-logout-btn" onclick="ACC.logout()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Logout
+        <span>Logout</span>
       </button>
     </div>
   </aside>
@@ -1803,6 +1844,15 @@ window.ACC = {
           : '') +
       '</div>';
     }).join('');
+  },
+
+  /* ─── toggleSidebar ─── */
+  toggleSidebar: function() {
+    var sidebar = document.getElementById('accSidebar');
+    var main    = document.querySelector('.acc-main');
+    var collapsed = sidebar.classList.toggle('collapsed');
+    main.classList.toggle('sidebar-collapsed', collapsed);
+    localStorage.setItem('ss_sidebar_collapsed', collapsed ? '1' : '0');
   },
 
   /* ─── init ─── */
@@ -2379,9 +2429,15 @@ window.ACC = {
    BOOT
 ════════════════════════════════════════════ */
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', function() { ACC.init(); });
+  document.addEventListener('DOMContentLoaded', function() { ACC.init(); _restoreSidebar(); });
 } else {
-  ACC.init();
+  ACC.init(); _restoreSidebar();
+}
+function _restoreSidebar() {
+  if (localStorage.getItem('ss_sidebar_collapsed') === '1') {
+    document.getElementById('accSidebar').classList.add('collapsed');
+    document.querySelector('.acc-main').classList.add('sidebar-collapsed');
+  }
 }
 
 /* Close support popup when clicking outside */
