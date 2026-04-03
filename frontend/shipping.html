@@ -3,643 +3,668 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1a1a1a">
+  <meta name="theme-color" content="#111111">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Shipping &amp; Exchanges — StreetStore</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
   <style>
 
+    /* ─── SCROLL REVEAL ─────────────────────────────────────── */
+    .sp-reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .sp-reveal.sp-visible {
+      opacity: 1;
+      transform: none;
+    }
+
     /* ─── HERO ─────────────────────────────────────────────── */
     .sp-hero {
       position: relative;
-      background: #0a1628;
+      background: #111111;
       overflow: hidden;
-      padding: 100px 24px 80px;
+      padding: 110px 24px 0;
       text-align: center;
     }
-    .sp-hero-bg {
+    /* grid-line texture */
+    .sp-hero::before {
+      content: '';
       position: absolute;
       inset: 0;
-      background:
-        radial-gradient(ellipse 70% 60% at 20% 50%, rgba(26,48,96,0.9) 0%, transparent 70%),
-        radial-gradient(ellipse 50% 50% at 80% 30%, rgba(224,201,122,0.07) 0%, transparent 60%);
+      background-image:
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px),
+        repeating-linear-gradient(0deg,  transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px);
+      pointer-events: none;
     }
-    .sp-hero-lines {
+    /* big watermark */
+    .sp-hero::after {
+      content: 'SHIPPING';
       position: absolute;
-      inset: 0;
-      background-image: repeating-linear-gradient(
-        90deg, transparent, transparent 60px,
-        rgba(255,255,255,0.02) 60px, rgba(255,255,255,0.02) 61px
-      );
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(90px, 20vw, 180px);
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 0;
     }
-    .sp-hero-content { position: relative; z-index: 1; }
+    .sp-hero-content {
+      position: relative;
+      z-index: 1;
+      padding-bottom: 0;
+    }
     .sp-hero-eyebrow {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.24em;
       text-transform: uppercase;
-      color: #e0c97a;
-      background: rgba(224,201,122,0.1);
-      border: 1px solid rgba(224,201,122,0.25);
-      padding: 6px 14px;
-      border-radius: 20px;
-      margin-bottom: 24px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 20px;
+    }
+    .sp-hero-eyebrow::before,
+    .sp-hero-eyebrow::after {
+      content: '';
+      display: block;
+      width: 28px;
+      height: 1px;
+      background: rgba(255,255,255,0.25);
     }
     .sp-hero h1 {
-      font-size: clamp(32px, 6vw, 58px);
-      font-weight: 900;
-      letter-spacing: -0.03em;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 11vw, 96px);
+      font-weight: 400;
+      letter-spacing: 0.05em;
       color: #fff;
-      line-height: 1.1;
-      margin-bottom: 20px;
+      line-height: 0.95;
+      margin-bottom: 18px;
     }
     .sp-hero h1 em {
       font-style: italic;
-      color: #e0c97a;
+      color: rgba(255,255,255,0.38);
     }
     .sp-hero-sub {
-      font-size: 15px;
-      color: rgba(255,255,255,0.5);
-      max-width: 420px;
-      margin: 0 auto 48px;
-      line-height: 1.7;
+      font-size: 14px;
+      color: rgba(255,255,255,0.42);
+      max-width: 380px;
+      margin: 0 auto 56px;
+      line-height: 1.75;
     }
+
+    /* stat bar sits flush at bottom of hero */
     .sp-hero-stats {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       border-top: 1px solid rgba(255,255,255,0.08);
-      padding-top: 36px;
-      max-width: 600px;
-      margin: 0 auto;
+      margin: 0 -24px;
+      position: relative;
+      z-index: 1;
     }
     .sp-stat {
-      flex: 1;
-      min-width: 120px;
-      padding: 0 24px;
+      padding: 28px 20px 32px;
       border-right: 1px solid rgba(255,255,255,0.08);
+      position: relative;
     }
     .sp-stat:last-child { border-right: none; }
-    .sp-stat-val {
-      font-size: 28px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.02em;
-      line-height: 1;
-      margin-bottom: 4px;
+    /* accent top bar that animates in */
+    .sp-stat::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: #fff;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.6s ease 0.2s;
     }
-    .sp-stat-val span { color: #e0c97a; }
+    .sp-stat.sp-visible::before { transform: scaleX(1); }
+    .sp-stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 6px;
+      min-height: 40px;
+    }
     .sp-stat-label {
       font-size: 10px;
       font-weight: 600;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.4);
+      color: rgba(255,255,255,0.35);
     }
 
     /* ─── WRAPPER ───────────────────────────────────────────── */
     .sp-wrap {
-      max-width: 860px;
+      max-width: 880px;
       margin: 0 auto;
       padding: 0 24px 100px;
     }
 
     /* ─── NO RETURNS BANNER ─────────────────────────────────── */
     .sp-no-return {
-      border-radius: 20px;
+      margin: 0 0 72px;
+      position: relative;
+      background: #0d0d0d;
+      border: 1px solid rgba(192,57,43,0.35);
+      border-top: none;
       overflow: hidden;
-      margin: -32px auto 64px;
-      position: relative;
-      box-shadow: 0 24px 80px rgba(192,57,43,0.28), 0 4px 20px rgba(0,0,0,0.2);
-      background: #0a0a0a;
     }
-    /* red glow border */
     .sp-no-return::before {
-      content: '';
+      content: 'NO RETURNS';
       position: absolute;
-      inset: 0;
-      border-radius: 20px;
-      border: 1.5px solid rgba(192,57,43,0.5);
+      right: -10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(60px, 12vw, 110px);
+      letter-spacing: 0.04em;
+      color: rgba(192,57,43,0.06);
       pointer-events: none;
-      z-index: 2;
+      white-space: nowrap;
+      line-height: 1;
     }
-    /* background layers */
-    .sp-no-return-bg {
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 80% 60% at 0% 50%, rgba(120,10,10,0.55) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 80% at 100% 30%, rgba(192,57,43,0.18) 0%, transparent 55%),
-        linear-gradient(160deg, #150303 0%, #0a0a0a 60%, #0a1628 100%);
-      z-index: 0;
-    }
-    /* diagonal stripe texture */
-    .sp-no-return-texture {
-      position: absolute;
-      inset: 0;
-      background-image: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 18px,
-        rgba(255,255,255,0.012) 18px,
-        rgba(255,255,255,0.012) 19px
-      );
-      z-index: 0;
-    }
-    .sp-no-return-inner {
-      position: relative;
-      z-index: 1;
-    }
-    /* top strip */
+    /* red top bar */
     .sp-no-return-top {
-      background: linear-gradient(90deg, #7b0d0d 0%, #c0392b 50%, #7b0d0d 100%);
-      padding: 10px 28px;
+      background: #c0392b;
+      padding: 9px 28px;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 10px;
     }
     .sp-no-return-top-dot {
-      width: 6px; height: 6px;
+      width: 5px; height: 5px;
       border-radius: 50%;
-      background: rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.6);
       animation: blink 1.4s infinite;
     }
-    @keyframes blink {
-      0%,100% { opacity: 1; } 50% { opacity: 0.2; }
-    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.2; } }
     .sp-no-return-top span {
-      font-size: 10px;
+      font-size: 9px;
       font-weight: 900;
-      letter-spacing: 0.22em;
+      letter-spacing: 0.26em;
       text-transform: uppercase;
       color: #fff;
     }
-    /* body */
     .sp-no-return-body {
-      padding: 36px 36px 40px;
+      padding: 36px 40px 40px;
       display: grid;
-      grid-template-columns: auto 1px 1fr;
-      gap: 0 32px;
+      grid-template-columns: 88px 1px 1fr;
+      gap: 0 36px;
       align-items: center;
+      position: relative;
+      z-index: 1;
     }
-    @media (max-width: 600px) {
-      .sp-no-return-body {
-        grid-template-columns: 1fr;
-        gap: 20px;
-        padding: 28px 24px 32px;
-      }
-      .sp-no-return-sep { display: none; }
-    }
-    .sp-no-return-left {
-      text-align: center;
-    }
+    .sp-no-return-left { text-align: center; }
     .sp-no-return-icon-wrap {
-      width: 72px;
-      height: 72px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(192,57,43,0.25) 0%, rgba(192,57,43,0.05) 70%);
-      border: 1.5px solid rgba(192,57,43,0.4);
+      width: 72px; height: 72px;
+      background: rgba(192,57,43,0.1);
+      border: 1.5px solid rgba(192,57,43,0.35);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 32px;
-      margin: 0 auto 14px;
+      margin: 0 auto 12px;
     }
     .sp-no-return-badge {
       display: inline-block;
-      background: rgba(192,57,43,0.15);
-      border: 1px solid rgba(192,57,43,0.35);
+      background: rgba(192,57,43,0.18);
+      border: 1px solid rgba(192,57,43,0.4);
       color: #e07070;
-      font-size: 9px;
-      font-weight: 800;
-      letter-spacing: 0.15em;
+      font-size: 8px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
-      padding: 4px 10px;
-      border-radius: 20px;
+      padding: 4px 8px;
     }
     .sp-no-return-sep {
-      width: 1px;
-      height: 100%;
-      background: linear-gradient(to bottom, transparent, rgba(192,57,43,0.3), transparent);
+      width: 1px; height: 100%;
+      background: linear-gradient(to bottom, transparent, rgba(192,57,43,0.25), transparent);
       align-self: stretch;
     }
     .sp-no-return-text h3 {
-      font-size: 26px;
-      font-weight: 900;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
       color: #fff;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
+      line-height: 1.05;
       margin-bottom: 14px;
     }
-    .sp-no-return-text h3 em {
-      font-style: italic;
-      color: #e74c3c;
-    }
+    .sp-no-return-text h3 em { font-style: italic; color: #e74c3c; }
     .sp-no-return-text p {
-      font-size: 14px;
-      color: rgba(255,255,255,0.55);
-      line-height: 1.75;
+      font-size: 13px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.8;
       margin: 0 0 16px;
     }
-    .sp-no-return-text p strong { color: #e0c97a; }
-    .sp-no-return-pills {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .sp-no-return-text p strong { color: rgba(255,255,255,0.85); }
+    .sp-no-return-pills { display: flex; gap: 8px; flex-wrap: wrap; }
     .sp-no-return-pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      padding: 5px 12px;
-      border-radius: 20px;
-      background: rgba(192,57,43,0.15);
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      background: rgba(192,57,43,0.1);
       border: 1px solid rgba(192,57,43,0.3);
       color: #e07070;
     }
+    @media (max-width: 600px) {
+      .sp-no-return-body { grid-template-columns: 1fr; gap: 20px; padding: 28px 24px 32px; }
+      .sp-no-return-sep { display: none; }
+    }
 
-    /* ─── SECTION ───────────────────────────────────────────── */
-    .sp-section { margin-bottom: 64px; }
+    /* ─── SECTION HEAD ───────────────────────────────────────── */
+    .sp-section { margin-bottom: 72px; }
     .sp-section-head {
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 28px;
+      gap: 18px;
+      margin-bottom: 32px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .sp-section-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      color: #bbb;
+      flex-shrink: 0;
     }
     .sp-section-icon {
-      width: 44px;
-      height: 44px;
-      background: #0a1628;
-      border-radius: 12px;
+      width: 46px; height: 46px;
+      background: #111;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
       flex-shrink: 0;
-      box-shadow: 0 4px 12px rgba(10,22,40,0.15);
     }
     .sp-section-head h2 {
-      font-size: 22px;
-      font-weight: 800;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
       color: #111;
-      letter-spacing: -0.02em;
+      line-height: 1;
     }
     .sp-section-head h2 span {
       display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: #999;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-
-    /* ─── SHIPPING CARDS ────────────────────────────────────── */
-    .sp-cards {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-bottom: 28px;
-    }
-    @media (max-width: 600px) { .sp-cards { grid-template-columns: 1fr; } }
-    .sp-card {
-      border-radius: 14px;
-      padding: 22px 20px;
-      border: 1.5px solid #ebebeb;
-      background: #fff;
-      transition: box-shadow 0.2s, transform 0.2s;
-    }
-    .sp-card:hover {
-      box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-      transform: translateY(-2px);
-    }
-    .sp-card.dark {
-      background: #0a1628;
-      border-color: #0a1628;
-    }
-    .sp-card-icon {
-      font-size: 24px;
-      margin-bottom: 12px;
-      display: block;
-    }
-    .sp-card-label {
+      font-family: Inter, sans-serif;
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
       color: #aaa;
-      margin-bottom: 6px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
     }
-    .sp-card.dark .sp-card-label { color: rgba(255,255,255,0.4); }
-    .sp-card-val {
-      font-size: 26px;
-      font-weight: 900;
-      color: #111;
-      letter-spacing: -0.02em;
-      margin-bottom: 6px;
-      line-height: 1;
+    .sp-section-head-line {
+      flex: 1;
+      height: 1px;
+      background: #e8e8e8;
+      display: none;
     }
-    .sp-card.dark .sp-card-val { color: #e0c97a; }
-    .sp-card-note {
-      font-size: 12px;
-      color: #777;
-      line-height: 1.6;
-    }
-    .sp-card.dark .sp-card-note { color: rgba(255,255,255,0.5); }
 
-    /* ─── CHECK LIST ────────────────────────────────────────── */
+    /* ─── SHIPPING METRIC ROWS ───────────────────────────────── */
+    .sp-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid #e8e8e8;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .sp-metric {
+      padding: 28px 24px;
+      border-right: 1px solid #e8e8e8;
+      position: relative;
+      transition: background 0.2s;
+    }
+    .sp-metric:last-child { border-right: none; }
+    .sp-metric::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: #111;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.5s ease;
+    }
+    .sp-metric.sp-visible::before { transform: scaleX(1); }
+    .sp-metric-icon {
+      margin-bottom: 14px;
+      display: block;
+      opacity: 0.7;
+    }
+    .sp-metric-label {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #bbb;
+      margin-bottom: 8px;
+    }
+    .sp-metric-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: #111;
+      margin-bottom: 8px;
+      line-height: 1;
+      min-height: 34px;
+    }
+    .sp-metric.dark { background: #111; }
+    .sp-metric.dark .sp-metric-val { color: #fff; }
+    .sp-metric.dark .sp-metric-label { color: rgba(255,255,255,0.35); }
+    .sp-metric.dark .sp-metric-icon { opacity: 1; }
+    .sp-metric.dark::before { background: #444; }
+    .sp-metric-note {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.65;
+    }
+    .sp-metric.dark .sp-metric-note { color: rgba(255,255,255,0.4); }
+    @media (max-width: 600px) { .sp-metrics { grid-template-columns: 1fr; } .sp-metric { border-right: none; border-bottom: 1px solid #e8e8e8; } .sp-metric:last-child { border-bottom: none; } }
+
+    /* ─── CHECK LIST ─────────────────────────────────────────── */
     .sp-checklist {
       list-style: none;
-      padding: 0;
-      margin: 0;
+      padding: 0; margin: 0;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 0;
+      border: 1px solid #e8e8e8;
+      overflow: hidden;
     }
     .sp-checklist li {
       display: flex;
-      gap: 14px;
+      gap: 16px;
       align-items: flex-start;
       font-size: 14px;
       color: #444;
-      line-height: 1.6;
-      padding: 12px 16px;
-      border-radius: 10px;
-      background: #fafafa;
-      border: 1px solid #f0f0f0;
+      line-height: 1.65;
+      padding: 14px 18px;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fff;
     }
+    .sp-checklist li:last-child { border-bottom: none; }
     .sp-check {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
+      width: 22px; height: 22px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 11px;
-      font-weight: 800;
+      font-weight: 900;
       flex-shrink: 0;
-      margin-top: 0;
+      margin-top: 1px;
     }
-    .sp-check.yes { background: #e8f5e9; color: #27ae60; }
-    .sp-check.no  { background: #fdecea; color: #e74c3c; }
+    .sp-check.yes { color: #27ae60; }
+    .sp-check.no  { color: #e74c3c; }
 
-    /* ─── TWO-COL POLICY ────────────────────────────────────── */
+    /* ─── DIVIDER ────────────────────────────────────────────── */
+    .sp-divider {
+      height: 1px;
+      background: #e8e8e8;
+      margin: 0 0 72px;
+    }
+
+    /* ─── POLICY COLUMNS ─────────────────────────────────────── */
     .sp-policy-cols {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 16px;
       margin-bottom: 28px;
     }
     @media (max-width: 600px) { .sp-policy-cols { grid-template-columns: 1fr; } }
-    .sp-policy-col {
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-    }
+    .sp-policy-col { border: 1px solid #e8e8e8; overflow: hidden; }
     .sp-policy-col-head {
-      padding: 18px 22px;
-      font-size: 12px;
+      padding: 14px 20px;
+      font-size: 10px;
       font-weight: 900;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
       display: flex;
       align-items: center;
       gap: 10px;
       color: #fff;
-      position: relative;
-      overflow: hidden;
     }
-    .sp-policy-col-head::after {
-      content: '';
-      position: absolute;
-      top: -20px; right: -20px;
-      width: 70px; height: 70px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.08);
-      pointer-events: none;
-    }
-    .sp-policy-col-head.green {
-      background: linear-gradient(135deg, #0a3d1f 0%, #1a6b38 60%, #27ae60 100%);
-    }
-    .sp-policy-col-head.red {
-      background: linear-gradient(135deg, #1a0505 0%, #6b0f0f 60%, #c0392b 100%);
-    }
+    .sp-policy-col-head.green { background: #1a5c2e; }
+    .sp-policy-col-head.red   { background: #8b1a1a; }
     .sp-policy-col-head .head-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.15);
+      width: 22px; height: 22px;
+      background: rgba(255,255,255,0.18);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 900;
       flex-shrink: 0;
     }
     .sp-policy-col-body {
-      padding: 20px 22px;
+      padding: 16px 20px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 0;
       background: #fff;
     }
     .sp-policy-col-item {
       font-size: 13px;
       color: #333;
-      line-height: 1.6;
-      padding: 10px 14px;
-      border-radius: 8px;
-      background: #fafafa;
-      border: 1px solid #f0f0f0;
-      position: relative;
-      padding-left: 14px;
+      line-height: 1.65;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
     }
-    .sp-policy-col.can .sp-policy-col-item {
-      border-left: 3px solid #27ae60;
-    }
-    .sp-policy-col.cant .sp-policy-col-item {
-      border-left: 3px solid #c0392b;
-    }
+    .sp-policy-col-item:last-child { border-bottom: none; }
+    .sp-policy-col.can  .sp-policy-col-item { padding-left: 12px; border-left: 2px solid #27ae60; margin-left: -1px; }
+    .sp-policy-col.cant .sp-policy-col-item { padding-left: 12px; border-left: 2px solid #c0392b; margin-left: -1px; }
 
-    /* ─── FEE BANNER ────────────────────────────────────────── */
+    /* ─── FEE BANNER ─────────────────────────────────────────── */
     .sp-fee {
-      border-radius: 16px;
-      background: linear-gradient(135deg, #0a1628 0%, #1a3060 100%);
-      padding: 32px;
+      background: #111;
       display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 32px;
-      align-items: center;
-      position: relative;
+      grid-template-columns: 200px 1fr;
+      min-height: 160px;
       overflow: hidden;
+      position: relative;
     }
     .sp-fee::before {
       content: '';
       position: absolute;
-      top: -40px; right: -40px;
-      width: 160px; height: 160px;
-      border-radius: 50%;
-      background: rgba(224,201,122,0.07);
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        -45deg, transparent, transparent 18px,
+        rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 19px
+      );
     }
-    .sp-fee::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: 60px;
-      width: 200px; height: 200px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.03);
+    @media (max-width: 540px) { .sp-fee { grid-template-columns: 1fr; } }
+    .sp-fee-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 20px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+      z-index: 1;
     }
-    @media (max-width: 500px) { .sp-fee { grid-template-columns: 1fr; gap: 16px; } }
-    .sp-fee-left { text-align: center; }
     .sp-fee-tag {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.15em;
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: rgba(255,255,255,0.5);
-      margin-bottom: 6px;
+      color: rgba(255,255,255,0.38);
+      margin-bottom: 4px;
     }
     .sp-fee-amount {
-      font-size: 56px;
-      font-weight: 900;
-      color: #e0c97a;
-      letter-spacing: -0.04em;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      color: #fff;
       line-height: 1;
+      min-height: 72px;
     }
     .sp-fee-unit {
-      font-size: 16px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.6);
-      margin-top: 4px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: rgba(255,255,255,0.38);
+      margin-top: 2px;
+    }
+    .sp-fee-right {
+      padding: 32px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
     }
     .sp-fee-right h3 {
-      font-size: 18px;
-      font-weight: 800;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
       color: #fff;
       margin-bottom: 10px;
     }
     .sp-fee-right p {
       font-size: 13px;
-      color: rgba(255,255,255,0.6);
-      line-height: 1.7;
+      color: rgba(255,255,255,0.48);
+      line-height: 1.75;
       margin: 0;
     }
+    .sp-fee-right p strong { color: rgba(255,255,255,0.85); }
 
-    /* ─── STEPS ─────────────────────────────────────────────── */
+    /* ─── STEPS ──────────────────────────────────────────────── */
+    .sp-steps-wrap {
+      border: 1px solid #e8e8e8;
+      overflow: hidden;
+    }
     .sp-steps {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      position: relative;
     }
-    @media (max-width: 680px) {
-      .sp-steps { grid-template-columns: 1fr; }
-      .sp-steps::before { display: none; }
-    }
-    .sp-steps::before {
-      content: '';
-      position: absolute;
-      top: 22px;
-      left: calc(12.5% + 1px);
-      right: calc(12.5% + 1px);
-      height: 2px;
-      background: linear-gradient(90deg, #0a1628, #1a3060);
-      z-index: 0;
-    }
+    @media (max-width: 680px) { .sp-steps { grid-template-columns: 1fr; } }
     .sp-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding: 0 12px 0;
+      padding: 28px 24px;
+      border-right: 1px solid #e8e8e8;
       position: relative;
-      z-index: 1;
     }
-    @media (max-width: 680px) {
-      .sp-step {
-        flex-direction: row;
-        text-align: left;
-        padding: 0 0 24px;
-        gap: 16px;
-        align-items: flex-start;
-      }
-    }
+    .sp-step:last-child { border-right: none; }
+    @media (max-width: 680px) { .sp-step { border-right: none; border-bottom: 1px solid #e8e8e8; display: flex; gap: 18px; padding: 20px 24px; } .sp-step:last-child { border-bottom: none; } }
     .sp-step-num {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      background: #0a1628;
-      color: #e0c97a;
-      font-size: 16px;
+      width: 36px; height: 36px;
+      background: #111;
+      color: #fff;
+      font-size: 14px;
       font-weight: 900;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
       margin-bottom: 16px;
-      box-shadow: 0 0 0 4px #fff, 0 0 0 6px #0a1628;
     }
     @media (max-width: 680px) { .sp-step-num { margin-bottom: 0; } }
     .sp-step-body h4 {
       font-size: 13px;
-      font-weight: 700;
+      font-weight: 800;
       color: #111;
       margin-bottom: 6px;
+      letter-spacing: 0.01em;
     }
     .sp-step-body p {
       font-size: 12px;
       color: #888;
-      line-height: 1.6;
+      line-height: 1.65;
     }
+    /* step number watermark */
+    .sp-step::after {
+      content: attr(data-n);
+      position: absolute;
+      bottom: 8px; right: 12px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px;
+      color: rgba(0,0,0,0.04);
+      line-height: 1;
+      pointer-events: none;
+    }
+    @media (max-width: 680px) { .sp-step::after { display: none; } }
 
-    /* ─── CTA ───────────────────────────────────────────────── */
+    /* ─── CTA ────────────────────────────────────────────────── */
     .sp-cta {
-      border-radius: 16px;
-      background: #0a1628;
-      padding: 48px 32px;
+      background: #111;
+      padding: 56px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
-      margin-top: 64px;
+      margin-top: 72px;
     }
     .sp-cta::before {
       content: '';
       position: absolute;
-      top: -60px; right: -60px;
-      width: 200px; height: 200px;
-      border-radius: 50%;
-      background: rgba(224,201,122,0.06);
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.022) 79px, rgba(255,255,255,0.022) 80px),
+        repeating-linear-gradient(0deg,  transparent, transparent 79px, rgba(255,255,255,0.022) 79px, rgba(255,255,255,0.022) 80px);
     }
     .sp-cta-eyebrow {
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: #e0c97a;
-      margin-bottom: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    .sp-cta-eyebrow::before,
+    .sp-cta-eyebrow::after {
+      content: '';
+      display: block;
+      width: 24px;
+      height: 1px;
+      background: rgba(255,255,255,0.2);
     }
     .sp-cta h3 {
-      font-size: 26px;
-      font-weight: 900;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(36px, 6vw, 56px);
+      font-weight: 400;
+      letter-spacing: 0.04em;
       color: #fff;
-      letter-spacing: -0.02em;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+      line-height: 1;
     }
     .sp-cta p {
       font-size: 14px;
-      color: rgba(255,255,255,0.5);
-      max-width: 380px;
-      margin: 0 auto 28px;
-      line-height: 1.7;
+      color: rgba(255,255,255,0.44);
+      max-width: 360px;
+      margin: 0 auto 32px;
+      line-height: 1.75;
+      position: relative;
+      z-index: 1;
     }
     .sp-cta-btns {
       display: flex;
@@ -653,14 +678,13 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 14px 28px;
+      padding: 14px 30px;
       background: #25d366;
       color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
-      border-radius: 4px;
       text-decoration: none;
       transition: opacity 0.2s;
     }
@@ -669,15 +693,14 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 14px 28px;
+      padding: 14px 30px;
       background: transparent;
       color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
       border: 1.5px solid rgba(255,255,255,0.2);
-      border-radius: 4px;
       text-decoration: none;
       transition: border-color 0.2s, background 0.2s;
     }
@@ -686,29 +709,30 @@
       background: rgba(255,255,255,0.05);
     }
 
-    /* ─── DIVIDER ───────────────────────────────────────────── */
-    .sp-divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, #e8e8e8 20%, #e8e8e8 80%, transparent);
-      margin: 0 0 64px;
+    /* ─── STAT / CARD ANIMATION INIT ────────────────────────── */
+    .sp-stat-val[data-stype],
+    .sp-metric-val[data-stype],
+    .sp-fee-amount[data-stype] {
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .sp-stat-val[data-stype].sp-animated,
+    .sp-metric-val[data-stype].sp-animated,
+    .sp-fee-amount[data-stype].sp-animated {
+      opacity: 1;
     }
 
-    /* ─── MOBILE (≤ 768px) ──────────────────────────────────── */
+    /* ─── MOBILE (≤ 768px) ───────────────────────────────────── */
     @media (max-width: 768px) {
-      .sp-hero { padding: 80px 20px 60px; }
-      .sp-stat { min-width: unset; border-right: none; padding: 0 16px; }
-      .sp-no-return-body { grid-template-columns: 1fr; gap: 20px; padding: 28px 20px 32px; }
-      .sp-no-return-sep { display: none; }
-      .sp-cards { grid-template-columns: 1fr; }
-      .sp-policy-cols { grid-template-columns: 1fr; }
-      .sp-fee { grid-template-columns: 1fr; gap: 16px; }
-      .sp-steps { grid-template-columns: 1fr; }
-      .sp-steps::before { display: none; }
-      .sp-step { flex-direction: row; text-align: left; padding: 0 0 24px; gap: 16px; align-items: flex-start; }
-      .sp-step-num { margin-bottom: 0; }
-      .sp-cta { padding: 32px 20px; }
+      .sp-hero { padding: 80px 20px 0; }
+      .sp-hero::after { font-size: 80px; }
+      .sp-hero-stats { margin: 0 -20px; grid-template-columns: repeat(3,1fr); }
+      .sp-stat { padding: 20px 12px 24px; }
+      .sp-stat-val { font-size: 28px; min-height: 28px; }
+      .sp-cta { padding: 40px 20px; }
       .sp-cta-btns { flex-direction: column; align-items: stretch; }
       .sp-cta-btns a { text-align: center; justify-content: center; }
+      .sp-fee-right { padding: 24px 20px; }
     }
   </style>
 </head>
@@ -759,28 +783,26 @@
 
 <!-- ===== HERO ===== -->
 <div class="sp-hero">
-  <div class="sp-hero-bg"></div>
-  <div class="sp-hero-lines"></div>
   <div class="sp-hero-content">
-    <div class="sp-hero-eyebrow" data-i18n="sp_eyebrow">✦ Our Policies</div>
+    <div class="sp-hero-eyebrow" data-i18n="sp_eyebrow">Our Policies</div>
     <h1>
       <span data-lang="en">Shipping &amp; <em>Exchanges</em></span>
       <span data-lang="fr">Livraison &amp; <em>Échanges</em></span>
     </h1>
     <p class="sp-hero-sub" data-i18n="sp_hero_sub">Clear, simple, and honest — everything you need to know before and after your order.</p>
-    <div class="sp-hero-stats">
-      <div class="sp-stat">
-        <div class="sp-stat-val"><span data-i18n="sp_stat1_val">Free</span></div>
-        <div class="sp-stat-label" data-i18n="sp_stat1_label">Shipping</div>
-      </div>
-      <div class="sp-stat">
-        <div class="sp-stat-val">3<span> days</span></div>
-        <div class="sp-stat-label" data-i18n="sp_stat2_label">Exchange window</div>
-      </div>
-      <div class="sp-stat">
-        <div class="sp-stat-val">35<span> MAD</span></div>
-        <div class="sp-stat-label" data-i18n="sp_stat3_label">Exchange fee</div>
-      </div>
+  </div>
+  <div class="sp-hero-stats">
+    <div class="sp-stat sp-reveal">
+      <div class="sp-stat-val" data-stype="text" data-starget="FREE">FREE</div>
+      <div class="sp-stat-label" data-i18n="sp_stat1_label">Shipping</div>
+    </div>
+    <div class="sp-stat sp-reveal">
+      <div class="sp-stat-val" data-stype="count" data-starget="3" data-ssuffix=" DAYS">3 DAYS</div>
+      <div class="sp-stat-label" data-i18n="sp_stat2_label">Exchange window</div>
+    </div>
+    <div class="sp-stat sp-reveal">
+      <div class="sp-stat-val" data-stype="count" data-starget="35" data-ssuffix=" MAD">35 MAD</div>
+      <div class="sp-stat-label" data-i18n="sp_stat3_label">Exchange fee</div>
     </div>
   </div>
 </div>
@@ -789,85 +811,92 @@
 <div class="sp-wrap">
 
   <!-- NO RETURNS BANNER -->
-  <div class="sp-no-return reveal">
-    <div class="sp-no-return-bg"></div>
-    <div class="sp-no-return-texture"></div>
-    <div class="sp-no-return-inner">
-      <div class="sp-no-return-top">
-        <div class="sp-no-return-top-dot"></div>
-        <span data-i18n="sp_important">Important — Please Read Before Ordering</span>
-        <div class="sp-no-return-top-dot"></div>
-      </div>
-      <div class="sp-no-return-body">
-        <div class="sp-no-return-left">
-          <div class="sp-no-return-icon-wrap">🚫</div>
-          <span class="sp-no-return-badge" data-i18n="sp_final_sale">Final Sale</span>
+  <div class="sp-no-return sp-reveal">
+    <div class="sp-no-return-top">
+      <div class="sp-no-return-top-dot"></div>
+      <span data-i18n="sp_important">Important — Please Read Before Ordering</span>
+      <div class="sp-no-return-top-dot"></div>
+    </div>
+    <div class="sp-no-return-body">
+      <div class="sp-no-return-left">
+        <div class="sp-no-return-icon-wrap">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#e07070" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
         </div>
-        <div class="sp-no-return-sep"></div>
-        <div class="sp-no-return-text">
-          <h3>
-            <span data-lang="en">No Returns.<br><em>No Refunds.</em></span>
-            <span data-lang="fr">Aucun retour.<br><em>Aucun remboursement.</em></span>
-          </h3>
-          <p>
-            <span data-lang="en">All sales are final. Once your order has been delivered, we do not accept returns or issue refunds under any circumstances. Please check your size carefully before ordering.<br><br>
-            The only exception is a <strong>size exchange within 3 business days</strong> of delivery.</span>
-            <span data-lang="fr">Toutes les ventes sont définitives. Une fois votre commande livrée, nous n'acceptons aucun retour ni remboursement. Vérifiez votre taille attentivement avant de commander.<br><br>
-            La seule exception est un <strong>échange de taille dans les 3 jours ouvrables</strong> suivant la livraison.</span>
-          </p>
-          <div class="sp-no-return-pills">
-            <span class="sp-no-return-pill" data-i18n="sp_pill1">✗ No refunds</span>
-            <span class="sp-no-return-pill" data-i18n="sp_pill2">✗ No returns</span>
-            <span class="sp-no-return-pill" data-i18n="sp_pill3">✓ Size exchange only</span>
-          </div>
+        <span class="sp-no-return-badge" data-i18n="sp_final_sale">Final Sale</span>
+      </div>
+      <div class="sp-no-return-sep"></div>
+      <div class="sp-no-return-text">
+        <h3>
+          <span data-lang="en">No Returns.<br><em>No Refunds.</em></span>
+          <span data-lang="fr">Aucun retour.<br><em>Aucun remboursement.</em></span>
+        </h3>
+        <p>
+          <span data-lang="en">All sales are final. Once your order has been delivered, we do not accept returns or issue refunds under any circumstances. Please check your size carefully before ordering.<br><br>
+          The only exception is a <strong>size exchange within 3 business days</strong> of delivery.</span>
+          <span data-lang="fr">Toutes les ventes sont définitives. Une fois votre commande livrée, nous n'acceptons aucun retour ni remboursement. Vérifiez votre taille attentivement avant de commander.<br><br>
+          La seule exception est un <strong>échange de taille dans les 3 jours ouvrables</strong> suivant la livraison.</span>
+        </p>
+        <div class="sp-no-return-pills">
+          <span class="sp-no-return-pill" data-i18n="sp_pill1">✗ No refunds</span>
+          <span class="sp-no-return-pill" data-i18n="sp_pill2">✗ No returns</span>
+          <span class="sp-no-return-pill" data-i18n="sp_pill3">✓ Size exchange only</span>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ── SHIPPING ── -->
-  <div class="sp-section reveal">
+  <div class="sp-section sp-reveal">
     <div class="sp-section-head">
-      <div class="sp-section-icon">🚚</div>
+      <span class="sp-section-num">01</span>
+      <div class="sp-section-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 4v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
       <h2>
         <span data-lang="en"><span>Delivery</span>Shipping</span>
         <span data-lang="fr"><span>Livraison</span>Expédition</span>
       </h2>
     </div>
 
-    <div class="sp-cards">
-      <div class="sp-card">
-        <span class="sp-card-icon">📦</span>
-        <p class="sp-card-label" data-i18n="sp_card1_label">Standard Delivery</p>
-        <p class="sp-card-val" data-i18n="sp_card1_val">Free</p>
-        <p class="sp-card-note" data-i18n="sp_card1_note">All orders across Morocco. Delivered within 2–5 business days.</p>
+    <div class="sp-metrics">
+      <div class="sp-metric">
+        <span class="sp-metric-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.8"><path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"/><path d="M16 16l2 2 4-4"/></svg>
+        </span>
+        <p class="sp-metric-label" data-i18n="sp_card1_label">Standard Delivery</p>
+        <p class="sp-metric-val" data-stype="text" data-starget="FREE">FREE</p>
+        <p class="sp-metric-note" data-i18n="sp_card1_note">All orders across Morocco. Delivered within 2–5 business days.</p>
       </div>
-      <div class="sp-card">
-        <span class="sp-card-icon">⚡</span>
-        <p class="sp-card-label" data-i18n="sp_card2_label">Express Delivery</p>
-        <p class="sp-card-val">30 MAD</p>
-        <p class="sp-card-note" data-i18n="sp_card2_note">Priority dispatch. Delivered within 1–2 business days.</p>
+      <div class="sp-metric">
+        <span class="sp-metric-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="1.8"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        </span>
+        <p class="sp-metric-label" data-i18n="sp_card2_label">Express Delivery</p>
+        <p class="sp-metric-val" data-stype="count" data-starget="30" data-ssuffix=" MAD">30 MAD</p>
+        <p class="sp-metric-note" data-i18n="sp_card2_note">Priority dispatch. Delivered within 1–2 business days.</p>
       </div>
-      <div class="sp-card dark">
-        <span class="sp-card-icon">⏱</span>
-        <p class="sp-card-label" data-i18n="sp_card3_label">Order Processing</p>
-        <p class="sp-card-val">24 h</p>
-        <p class="sp-card-note" data-i18n="sp_card3_note">Orders before 3 PM are processed the same day.</p>
+      <div class="sp-metric dark">
+        <span class="sp-metric-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        <p class="sp-metric-label" data-i18n="sp_card3_label">Order Processing</p>
+        <p class="sp-metric-val" data-stype="count" data-starget="24" data-ssuffix=" H">24 H</p>
+        <p class="sp-metric-note" data-i18n="sp_card3_note">Orders before 3 PM are processed the same day.</p>
       </div>
     </div>
 
     <ul class="sp-checklist">
       <li><span class="sp-check yes">✓</span>
-        <span data-lang="en"> You will receive a confirmation message once your order is dispatched.</span>
-        <span data-lang="fr"> Vous recevrez un message de confirmation une fois votre commande expédiée.</span>
+        <span data-lang="en">You will receive a confirmation message once your order is dispatched.</span>
+        <span data-lang="fr">Vous recevrez un message de confirmation une fois votre commande expédiée.</span>
       </li>
       <li><span class="sp-check yes">✓</span>
-        <span data-lang="en"> Delivery available across all regions of Morocco.</span>
-        <span data-lang="fr"> Livraison disponible dans toutes les régions du Maroc.</span>
+        <span data-lang="en">Delivery available across all regions of Morocco.</span>
+        <span data-lang="fr">Livraison disponible dans toutes les régions du Maroc.</span>
       </li>
       <li><span class="sp-check yes">✓</span>
-        <span data-lang="en"> Someone must be present to receive the package upon delivery.</span>
-        <span data-lang="fr"> Une personne doit être présente pour réceptionner le colis à la livraison.</span>
+        <span data-lang="en">Someone must be present to receive the package upon delivery.</span>
+        <span data-lang="fr">Une personne doit être présente pour réceptionner le colis à la livraison.</span>
       </li>
     </ul>
   </div>
@@ -875,9 +904,12 @@
   <div class="sp-divider"></div>
 
   <!-- ── EXCHANGE POLICY ── -->
-  <div class="sp-section reveal">
+  <div class="sp-section sp-reveal">
     <div class="sp-section-head">
-      <div class="sp-section-icon">🔄</div>
+      <span class="sp-section-num">02</span>
+      <div class="sp-section-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      </div>
       <h2>
         <span data-lang="en"><span>Policy</span>Size Exchange</span>
         <span data-lang="fr"><span>Politique</span>Échange de taille</span>
@@ -894,7 +926,7 @@
         <div class="sp-policy-col-body">
           <p class="sp-policy-col-item">
             <span data-lang="en">Request a size exchange within <strong>3 business days</strong> of receiving your order.</span>
-            <span data-lang="fr">Demander un échange de taille dans les <strong>3 jours ouvrables</strong> suivant la réception de votre commande.</span>
+            <span data-lang="fr">Demander un échange de taille dans les <strong>3 jours ouvrables</strong> suivant la réception.</span>
           </p>
           <p class="sp-policy-col-item">
             <span data-lang="en">Exchange for the same product in a <strong>different size</strong>.</span>
@@ -915,7 +947,7 @@
         <div class="sp-policy-col-body">
           <p class="sp-policy-col-item">
             <span data-lang="en">Request a <strong>refund or return</strong> — all sales are final once delivered.</span>
-            <span data-lang="fr">Demander un <strong>remboursement ou retour</strong> — toutes les ventes sont définitives une fois livrées.</span>
+            <span data-lang="fr">Demander un <strong>remboursement ou retour</strong> — toutes les ventes sont définitives.</span>
           </p>
           <p class="sp-policy-col-item">
             <span data-lang="en">Exchange a worn, washed, or damaged item.</span>
@@ -929,28 +961,28 @@
       </div>
     </div>
 
-    <ul class="sp-checklist" style="margin-bottom:24px;">
+    <ul class="sp-checklist" style="margin-bottom:28px;">
       <li><span class="sp-check yes">✓</span>
-        <span data-lang="en"> Item must be <strong>unworn, unwashed, and in original condition</strong> with tags still attached.</span>
-        <span data-lang="fr"> L'article doit être <strong>non porté, non lavé et en état d'origine</strong> avec les étiquettes attachées.</span>
+        <span data-lang="en">Item must be <strong>unworn, unwashed, and in original condition</strong> with tags still attached.</span>
+        <span data-lang="fr">L'article doit être <strong>non porté, non lavé et en état d'origine</strong> avec les étiquettes.</span>
       </li>
       <li><span class="sp-check no">✗</span>
-        <span data-lang="en"> Exchanges are for <strong>size only</strong> — you cannot swap to a different product or color.</span>
-        <span data-lang="fr"> Les échanges concernent la <strong>taille uniquement</strong> — vous ne pouvez pas changer de produit ou de couleur.</span>
+        <span data-lang="en">Exchanges are for <strong>size only</strong> — you cannot swap to a different product or color.</span>
+        <span data-lang="fr">Les échanges concernent la <strong>taille uniquement</strong> — pas de changement de produit ou couleur.</span>
       </li>
     </ul>
 
-    <div class="sp-fee">
+    <div class="sp-fee sp-reveal">
       <div class="sp-fee-left">
         <p class="sp-fee-tag" data-i18n="sp_fee_tag">Exchange Fee</p>
-        <p class="sp-fee-amount">35</p>
+        <p class="sp-fee-amount" data-stype="count" data-starget="35" data-ssuffix="">35</p>
         <p class="sp-fee-unit">MAD</p>
       </div>
       <div class="sp-fee-right">
         <h3 data-i18n="sp_fee_h3">Re-shipping fee applies</h3>
         <p>
-          <span data-lang="en">A flat fee of <strong style="color:#e0c97a;">35 MAD</strong> is required for every size exchange to cover re-shipping costs. This must be paid before the new size is dispatched to you.</span>
-          <span data-lang="fr">Des frais forfaitaires de <strong style="color:#e0c97a;">35 MAD</strong> sont requis pour chaque échange de taille afin de couvrir les frais de réexpédition. Ce paiement doit être effectué avant l'envoi de votre nouvelle taille.</span>
+          <span data-lang="en">A flat fee of <strong>35 MAD</strong> is required for every size exchange to cover re-shipping costs. This must be paid before the new size is dispatched to you.</span>
+          <span data-lang="fr">Des frais forfaitaires de <strong>35 MAD</strong> sont requis pour chaque échange de taille afin de couvrir les frais de réexpédition.</span>
         </p>
       </div>
     </div>
@@ -959,49 +991,54 @@
   <div class="sp-divider"></div>
 
   <!-- ── HOW TO EXCHANGE ── -->
-  <div class="sp-section reveal">
+  <div class="sp-section sp-reveal">
     <div class="sp-section-head">
-      <div class="sp-section-icon">📋</div>
+      <span class="sp-section-num">03</span>
+      <div class="sp-section-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg>
+      </div>
       <h2>
         <span data-lang="en"><span>Step by Step</span>How to Request an Exchange</span>
         <span data-lang="fr"><span>Étape par étape</span>Comment demander un échange</span>
       </h2>
     </div>
 
-    <div class="sp-steps">
-      <div class="sp-step">
-        <div class="sp-step-num">1</div>
-        <div class="sp-step-body">
-          <h4 data-i18n="sp_step1_h4">Contact us</h4>
-          <p data-i18n="sp_step1_p">Message us on WhatsApp or via the contact form within 3 business days of delivery.</p>
+    <div class="sp-steps-wrap">
+      <div class="sp-steps">
+        <div class="sp-step" data-n="1">
+          <div class="sp-step-num">1</div>
+          <div class="sp-step-body">
+            <h4 data-i18n="sp_step1_h4">Contact us</h4>
+            <p data-i18n="sp_step1_p">Message us on WhatsApp or via the contact form within 3 business days of delivery.</p>
+          </div>
         </div>
-      </div>
-      <div class="sp-step">
-        <div class="sp-step-num">2</div>
-        <div class="sp-step-body">
-          <h4 data-i18n="sp_step2_h4">Send a photo</h4>
-          <p data-i18n="sp_step2_p">Photo of the item — unworn, tags attached — so we can confirm eligibility.</p>
+        <div class="sp-step" data-n="2">
+          <div class="sp-step-num">2</div>
+          <div class="sp-step-body">
+            <h4 data-i18n="sp_step2_h4">Send a photo</h4>
+            <p data-i18n="sp_step2_p">Photo of the item — unworn, tags attached — so we can confirm eligibility.</p>
+          </div>
         </div>
-      </div>
-      <div class="sp-step">
-        <div class="sp-step-num">3</div>
-        <div class="sp-step-body">
-          <h4 data-i18n="sp_step3_h4">Pay the 35 MAD</h4>
-          <p data-i18n="sp_step3_p">Pay the exchange fee. Your new size is dispatched immediately after confirmation.</p>
+        <div class="sp-step" data-n="3">
+          <div class="sp-step-num">3</div>
+          <div class="sp-step-body">
+            <h4 data-i18n="sp_step3_h4">Pay the 35 MAD</h4>
+            <p data-i18n="sp_step3_p">Pay the exchange fee. Your new size is dispatched immediately after confirmation.</p>
+          </div>
         </div>
-      </div>
-      <div class="sp-step">
-        <div class="sp-step-num">4</div>
-        <div class="sp-step-body">
-          <h4 data-i18n="sp_step4_h4">Hand back the item</h4>
-          <p data-i18n="sp_step4_p">Give the original item to our delivery agent when they arrive with your new size.</p>
+        <div class="sp-step" data-n="4">
+          <div class="sp-step-num">4</div>
+          <div class="sp-step-body">
+            <h4 data-i18n="sp_step4_h4">Hand back the item</h4>
+            <p data-i18n="sp_step4_p">Give the original item to our delivery agent when they arrive with your new size.</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
   <!-- ── CTA ── -->
-  <div class="sp-cta reveal">
+  <div class="sp-cta sp-reveal">
     <p class="sp-cta-eyebrow" data-i18n="sp_cta_eyebrow">We're here for you</p>
     <h3 data-i18n="sp_cta_h3">Still have questions?</h3>
     <p data-i18n="sp_cta_p">Reach our team on WhatsApp or through the contact page — we respond fast.</p>
@@ -1065,5 +1102,101 @@
 <script src="i18n.js"></script>
 <script src="script.js"></script>
 <script src="mobile.js"></script>
+
+<script>
+(function() {
+  var CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+  /* ── counter animation ── */
+  function animateCount(el, target, suffix) {
+    el.classList.add('sp-animated');
+    var duration = 1400, start = performance.now();
+    (function tick(now) {
+      var p = Math.min((now - start) / duration, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (p < 1) requestAnimationFrame(tick);
+    })(performance.now());
+  }
+
+  /* ── slot-machine text animation ── */
+  function animateText(el, text) {
+    el.classList.add('sp-animated');
+    function lockLetter(i) {
+      if (i >= text.length) { el.textContent = text; return; }
+      var flicks = 0;
+      (function scramble() {
+        if (flicks < 6) {
+          el.textContent = text.slice(0, i) + CHARS[Math.floor(Math.random() * CHARS.length)];
+          flicks++; setTimeout(scramble, 38);
+        } else {
+          el.textContent = text.slice(0, i + 1);
+          setTimeout(function() { lockLetter(i + 1); }, 55);
+        }
+      })();
+    }
+    el.textContent = ''; lockLetter(0);
+  }
+
+  /* ── run one element ── */
+  function runEl(el, delay) {
+    setTimeout(function() {
+      var t = el.getAttribute('data-stype'), val = el.getAttribute('data-starget'), sfx = el.getAttribute('data-ssuffix') || '';
+      if (t === 'count') animateCount(el, parseInt(val, 10), sfx);
+      else if (t === 'text') animateText(el, val);
+    }, delay);
+  }
+
+  /* ── scroll reveal + trigger animations ── */
+  function initAll() {
+    /* scroll reveal for sections */
+    var reveals = document.querySelectorAll('.sp-reveal');
+    var revealIO = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('sp-visible'); revealIO.unobserve(e.target); }
+      });
+    }, { threshold: 0.08 });
+    reveals.forEach(function(el) { revealIO.observe(el); });
+
+    /* hero stats */
+    var heroStats = document.querySelectorAll('.sp-hero-stats .sp-stat-val[data-stype]');
+    var io1 = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        heroStats.forEach(function(el, i) {
+          el.closest('.sp-stat').classList.add('sp-visible');
+          runEl(el, i * 200);
+        });
+        io1.disconnect();
+      }
+    }, { threshold: 0.3 });
+    if (heroStats.length) io1.observe(document.querySelector('.sp-hero-stats'));
+
+    /* metric row values */
+    var metrics = document.querySelectorAll('.sp-metric-val[data-stype]');
+    var io2 = new IntersectionObserver(function(entries) {
+      if (entries[0].isIntersecting) {
+        metrics.forEach(function(el, i) {
+          el.closest('.sp-metric').classList.add('sp-visible');
+          runEl(el, i * 180);
+        });
+        io2.disconnect();
+      }
+    }, { threshold: 0.25 });
+    if (metrics.length) io2.observe(metrics[0].closest('.sp-metrics'));
+
+    /* fee amount */
+    var feeEl = document.querySelector('.sp-fee-amount[data-stype]');
+    if (feeEl) {
+      var io3 = new IntersectionObserver(function(entries) {
+        if (entries[0].isIntersecting) { runEl(feeEl, 0); io3.disconnect(); }
+      }, { threshold: 0.4 });
+      io3.observe(feeEl);
+    }
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initAll);
+  else initAll();
+})();
+</script>
 </body>
 </html>
