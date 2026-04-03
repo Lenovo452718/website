@@ -816,7 +816,7 @@ function initCheckout() {
     opt.querySelector('input')?.addEventListener('change', () => {
       document.querySelectorAll('.shipping-option').forEach(o => o.classList.remove('selected'));
       opt.classList.add('selected');
-      shippingCost = opt.querySelector('input').value === 'express' ? 30 : 0;
+      shippingCost = opt.querySelector('input').value === 'express' ? 15 : 0;
       updateCheckoutTotals(shippingCost);
     });
   });
