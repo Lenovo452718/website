@@ -2341,6 +2341,9 @@ async function pmUploadVideo(input) {
   prog.textContent = 'Uploading video...';
   const formData = new FormData();
   formData.append('file', file);
+  // Send productId so backend uses deterministic Cloudinary path (no orphaned files)
+  const productId = document.getElementById('pmEditId').value;
+  if (productId) formData.append('productId', productId);
   try {
     const res = await authFetch('/api/admin/upload', { method: 'POST', body: formData });
     const data = await res.json();

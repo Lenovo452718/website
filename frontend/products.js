@@ -215,7 +215,12 @@ function refetchProducts() {
 (function startPolling() {
   var API = (window.SS_API_URL || window.STREETSTORE_BACKEND || '');
   if (!API) return;
-  setInterval(refetchProducts, 30000);
+  var pollInterval = setInterval(refetchProducts, 30000);
+  // Pause polling when tab is hidden, resume when visible
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) { clearInterval(pollInterval); }
+    else { pollInterval = setInterval(refetchProducts, 30000); }
+  });
 })();
 
 /* ── Render home page featured grid ── */

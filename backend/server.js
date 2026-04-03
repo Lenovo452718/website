@@ -1043,13 +1043,43 @@ app.post('/api/admin/upload', adminLimiter, requireAuth, upload.single('file'), 
   console.log('Upload request received, file:', req.file ? req.file.originalname : 'none');
   if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
   try {
-    const isVideo = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
-    const result  = await streamUpload(req.file.buffer, {
-      resource_type:   isVideo ? 'video' : 'image',
-      folder:          'streetstore',
-      use_filename:    true,
-      unique_filename: true,
-    });
+    const isVideo    = /\.(mp4|mov|webm|avi)$/i.test(req.file.originalname);
+    const productId  = req.body.productId || null;
+
+    let uploadOptions;
+    if (isVideo && productId) {
+      // Use deterministic public_id so re-uploading replaces the old video in-place
+      // Old Cloudinary file is overwritten — no orphaned files accumulate
+      const deterministicId = `streetstore/products/${productId}/video`;
+
+      // If product has an old video with a different public_id (legacy random name), delete it
+      try {
+        const existing = await prisma.product.findUnique({ where: { id: productId }, select: { videoUrl: true } });
+        if (existing && existing.videoUrl) {
+          const oldPublicId = existing.videoUrl.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.\w+)?$/)?.[1];
+          if (oldPublicId && oldPublicId !== deterministicId) {
+            await cloudinary.uploader.destroy(oldPublicId, { resource_type: 'video', invalidate: true })
+              .catch(e => console.warn('Could not delete old video:', e.message));
+          }
+        }
+      } catch (e) { console.warn('Old video cleanup skipped:', e.message); }
+
+      uploadOptions = {
+        resource_type:   'video',
+        public_id:       deterministicId,
+        overwrite:       true,
+        invalidate:      true,
+      };
+    } else {
+      uploadOptions = {
+        resource_type:   isVideo ? 'video' : 'image',
+        folder:          'streetstore',
+        use_filename:    true,
+        unique_filename: true,
+      };
+    }
+
+    const result = await streamUpload(req.file.buffer, uploadOptions);
     return res.json({ url: result.secure_url, publicId: result.public_id });
   } catch (err) {
     console.error('Cloudinary upload error:', err.message);
