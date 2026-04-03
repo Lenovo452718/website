@@ -46,7 +46,7 @@
     .lp-hero h1 em { font-style:italic; color:rgba(255,255,255,.38); }
     .lp-hero-sub {
       font-size:14px; color:rgba(255,255,255,.42);
-      max-width:380px; margin:0 auto; line-height:1.75;
+      max-width:420px; margin:0 auto; line-height:1.75;
     }
 
     .lp-wrap { max-width:820px; margin:0 auto; padding:72px 24px 100px; }
@@ -150,9 +150,14 @@
 <!-- ===== HERO ===== -->
 <div class="lp-hero">
   <div class="lp-hero-content">
-    <div class="lp-hero-eyebrow">Legal</div>
-    <h1>Terms of <em>Service</em></h1>
-    <p class="lp-hero-sub">The rules and conditions that govern your use of StreetStore and purchases made on our website.</p>
+    <div class="lp-hero-eyebrow" data-lang="en">Legal</div>
+    <div class="lp-hero-eyebrow" data-lang="fr">Légal</div>
+    <h1>
+      <span data-lang="en">Terms of <em>Service</em></span>
+      <span data-lang="fr">Conditions <em>d'utilisation</em></span>
+    </h1>
+    <p class="lp-hero-sub" data-lang="en">The rules and conditions that govern your use of StreetStore and purchases made on our website.</p>
+    <p class="lp-hero-sub" data-lang="fr">Les règles et conditions qui régissent votre utilisation de StreetStore et les achats effectués sur notre site.</p>
   </div>
 </div>
 
@@ -162,15 +167,18 @@
   <!-- Meta -->
   <div class="lp-meta lp-reveal">
     <div class="lp-meta-item">
-      <p class="lp-meta-label">Last Updated</p>
+      <p class="lp-meta-label" data-lang="en">Last Updated</p>
+      <p class="lp-meta-label" data-lang="fr">Dernière mise à jour</p>
       <p class="lp-meta-val">April 2026</p>
     </div>
     <div class="lp-meta-item">
-      <p class="lp-meta-label">Jurisdiction</p>
+      <p class="lp-meta-label" data-lang="en">Jurisdiction</p>
+      <p class="lp-meta-label" data-lang="fr">Juridiction</p>
       <p class="lp-meta-val">Morocco</p>
     </div>
     <div class="lp-meta-item">
-      <p class="lp-meta-label">Business</p>
+      <p class="lp-meta-label" data-lang="en">Business</p>
+      <p class="lp-meta-label" data-lang="fr">Entreprise</p>
       <p class="lp-meta-val">StreetStore — streetstore.ma</p>
     </div>
   </div>
@@ -179,12 +187,19 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">01</span>
-      <h2><span>Agreement</span>Acceptance of Terms</h2>
+      <h2>
+        <span data-lang="en"><span>Agreement</span>Acceptance of Terms</span>
+        <span data-lang="fr"><span>Accord</span>Acceptation des conditions</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-body">
+      <div class="lp-block-body" data-lang="en">
         <p>By accessing or using the StreetStore website (<strong>streetstore.ma</strong>) or placing an order, you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our website or services.</p>
         <p>These terms apply to all visitors, customers, and users of the website. StreetStore reserves the right to update these terms at any time. Continued use of the website after changes are posted constitutes your acceptance.</p>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p>En accédant ou en utilisant le site StreetStore (<strong>streetstore.ma</strong>) ou en passant une commande, vous acceptez d'être lié par ces Conditions d'utilisation. Si vous n'acceptez pas ces conditions, veuillez ne pas utiliser notre site ou nos services.</p>
+        <p>Ces conditions s'appliquent à tous les visiteurs, clients et utilisateurs du site. StreetStore se réserve le droit de mettre à jour ces conditions à tout moment. L'utilisation continue du site après la publication de modifications constitue votre acceptation.</p>
       </div>
     </div>
   </div>
@@ -193,11 +208,15 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">02</span>
-      <h2><span>Purchasing</span>Orders & Payment</h2>
+      <h2>
+        <span data-lang="en"><span>Purchasing</span>Orders &amp; Payment</span>
+        <span data-lang="fr"><span>Achats</span>Commandes &amp; Paiement</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-head">Order Process</div>
-      <div class="lp-block-body">
+      <div class="lp-block-head" data-lang="en">Order Process</div>
+      <div class="lp-block-head" data-lang="fr">Processus de commande</div>
+      <div class="lp-block-body" data-lang="en">
         <ul>
           <li>All orders are subject to availability and confirmation</li>
           <li>You must provide accurate name, phone number, and delivery address when ordering</li>
@@ -205,21 +224,42 @@
           <li>Prices are displayed in <strong>Moroccan Dirhams (MAD)</strong> and are inclusive of applicable taxes</li>
         </ul>
       </div>
-    </div>
-    <div class="lp-block">
-      <div class="lp-block-head">Payment Method</div>
-      <div class="lp-block-body">
-        <p>StreetStore operates exclusively on a <strong>Cash on Delivery (COD)</strong> basis. Payment is made in cash when your order is delivered by our delivery agent. We do not accept online card payments, bank transfers, or any prepaid methods.</p>
-        <p>If you are unavailable to receive the delivery, our agent will contact you to reschedule. Repeated failed deliveries may result in order cancellation.</p>
+      <div class="lp-block-body" data-lang="fr">
+        <ul>
+          <li>Toutes les commandes sont soumises à disponibilité et confirmation</li>
+          <li>Vous devez fournir un nom, un numéro de téléphone et une adresse de livraison exacts lors de la commande</li>
+          <li>Nous nous réservons le droit d'annuler toute commande à tout moment et vous en informerons par téléphone</li>
+          <li>Les prix sont affichés en <strong>Dirhams marocains (MAD)</strong> et incluent les taxes applicables</li>
+        </ul>
       </div>
     </div>
     <div class="lp-block">
-      <div class="lp-block-head">Pricing & Shipping Fees</div>
-      <div class="lp-block-body">
+      <div class="lp-block-head" data-lang="en">Payment Method</div>
+      <div class="lp-block-head" data-lang="fr">Moyen de paiement</div>
+      <div class="lp-block-body" data-lang="en">
+        <p>StreetStore operates exclusively on a <strong>Cash on Delivery (COD)</strong> basis. Payment is made in cash when your order is delivered by our delivery agent. We do not accept online card payments, bank transfers, or any prepaid methods.</p>
+        <p>If you are unavailable to receive the delivery, our agent will contact you to reschedule. Repeated failed deliveries may result in order cancellation.</p>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p>StreetStore fonctionne exclusivement sur la base du <strong>paiement à la livraison (PAL)</strong>. Le paiement s'effectue en espèces lors de la livraison par notre livreur. Nous n'acceptons pas les paiements par carte en ligne, les virements bancaires ni aucune méthode prépayée.</p>
+        <p>Si vous n'êtes pas disponible pour réceptionner la livraison, notre livreur vous contactera pour convenir d'un nouveau rendez-vous. Des tentatives de livraison répétées et infructueuses peuvent entraîner l'annulation de la commande.</p>
+      </div>
+    </div>
+    <div class="lp-block">
+      <div class="lp-block-head" data-lang="en">Pricing &amp; Shipping Fees</div>
+      <div class="lp-block-head" data-lang="fr">Prix &amp; frais de livraison</div>
+      <div class="lp-block-body" data-lang="en">
         <ul>
           <li><strong>Standard delivery</strong> — Free on all orders across Morocco</li>
           <li><strong>Express delivery</strong> — 15 MAD additional fee for 1–2 business day delivery</li>
           <li>Prices may change at any time; the price shown at the time of order is the price you pay</li>
+        </ul>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <ul>
+          <li><strong>Livraison standard</strong> — Gratuite sur toutes les commandes au Maroc</li>
+          <li><strong>Livraison express</strong> — Supplément de 15 MAD pour une livraison en 1 à 2 jours ouvrables</li>
+          <li>Les prix peuvent changer à tout moment ; le prix affiché au moment de la commande est le prix que vous payez</li>
         </ul>
       </div>
     </div>
@@ -229,17 +269,25 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">03</span>
-      <h2><span>Policy</span>Returns & Exchanges</h2>
+      <h2>
+        <span data-lang="en"><span>Policy</span>Returns &amp; Exchanges</span>
+        <span data-lang="fr"><span>Politique</span>Retours &amp; Échanges</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-head red">No Returns — No Refunds</div>
-      <div class="lp-block-body">
+      <div class="lp-block-head red" data-lang="en">No Returns — No Refunds</div>
+      <div class="lp-block-head red" data-lang="fr">Aucun retour — Aucun remboursement</div>
+      <div class="lp-block-body" data-lang="en">
         <p><strong>All sales are final.</strong> Once your order has been delivered, we do not accept returns or issue refunds under any circumstances. Please verify your size carefully using our size guide before placing an order.</p>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p><strong>Toutes les ventes sont définitives.</strong> Une fois votre commande livrée, nous n'acceptons aucun retour ni aucun remboursement, quelles que soient les circonstances. Veuillez vérifier attentivement votre taille à l'aide de notre guide des tailles avant de passer commande.</p>
       </div>
     </div>
     <div class="lp-block">
-      <div class="lp-block-head green">Size Exchange — Conditions</div>
-      <div class="lp-block-body">
+      <div class="lp-block-head green" data-lang="en">Size Exchange — Conditions</div>
+      <div class="lp-block-head green" data-lang="fr">Échange de taille — Conditions</div>
+      <div class="lp-block-body" data-lang="en">
         <p>The only exception to the no-returns policy is a size exchange, subject to the following conditions:</p>
         <ul>
           <li>Request must be made within <strong>3 business days</strong> of receiving your order</li>
@@ -250,6 +298,17 @@
           <li>Hand the original item to our delivery agent when they bring your replacement</li>
         </ul>
       </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p>La seule exception à la politique de non-retour est l'échange de taille, sous réserve des conditions suivantes :</p>
+        <ul>
+          <li>La demande doit être effectuée dans les <strong>3 jours ouvrables</strong> suivant la réception de votre commande</li>
+          <li>L'article doit être <strong>non porté, non lavé et en état d'origine</strong> avec toutes les étiquettes attachées</li>
+          <li>L'échange concerne <strong>le même article dans une taille différente uniquement</strong> — aucun échange de couleur ou de produit</li>
+          <li>Des <strong>frais de réexpédition de 30 MAD</strong> s'appliquent à chaque échange de taille</li>
+          <li>Les frais doivent être réglés avant l'envoi de la nouvelle taille</li>
+          <li>Remettez l'article original à notre livreur lorsqu'il vous apporte votre remplacement</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -257,15 +316,26 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">04</span>
-      <h2><span>Products</span>Product Information</h2>
+      <h2>
+        <span data-lang="en"><span>Products</span>Product Information</span>
+        <span data-lang="fr"><span>Produits</span>Informations produits</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-body">
+      <div class="lp-block-body" data-lang="en">
         <p>We make every effort to display accurate product descriptions, colors, and sizing information. However, actual colors may vary slightly due to screen settings. Product images are for illustrative purposes and minor differences may exist.</p>
         <ul>
           <li>All products are subject to availability — we reserve the right to limit quantities</li>
           <li>Size availability is not guaranteed and may change without notice</li>
           <li>We reserve the right to discontinue products at any time</li>
+        </ul>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p>Nous faisons tout notre possible pour afficher des descriptions de produits, des couleurs et des informations de taille précises. Cependant, les couleurs réelles peuvent légèrement varier selon les paramètres de votre écran. Les images des produits sont fournies à titre illustratif et de légères différences peuvent exister.</p>
+        <ul>
+          <li>Tous les produits sont soumis à disponibilité — nous nous réservons le droit de limiter les quantités</li>
+          <li>La disponibilité des tailles n'est pas garantie et peut changer sans préavis</li>
+          <li>Nous nous réservons le droit de retirer des produits à tout moment</li>
         </ul>
       </div>
     </div>
@@ -275,10 +345,13 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">05</span>
-      <h2><span>Shipping</span>Delivery Terms</h2>
+      <h2>
+        <span data-lang="en"><span>Shipping</span>Delivery Terms</span>
+        <span data-lang="fr"><span>Expédition</span>Conditions de livraison</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-body">
+      <div class="lp-block-body" data-lang="en">
         <ul>
           <li>Delivery is available <strong>across all regions of Morocco only</strong> — we do not ship internationally</li>
           <li>Standard delivery: <strong>2–5 business days</strong> after order processing</li>
@@ -288,6 +361,16 @@
           <li>StreetStore is not responsible for delays caused by circumstances beyond our control</li>
         </ul>
       </div>
+      <div class="lp-block-body" data-lang="fr">
+        <ul>
+          <li>La livraison est disponible <strong>dans toutes les régions du Maroc uniquement</strong> — nous ne livrons pas à l'international</li>
+          <li>Livraison standard : <strong>2 à 5 jours ouvrables</strong> après traitement de la commande</li>
+          <li>Livraison express : <strong>1 à 2 jours ouvrables</strong> moyennant un supplément de 15 MAD</li>
+          <li>Les commandes passées avant 15h sont traitées le jour même</li>
+          <li>Une personne doit être présente pour réceptionner la livraison — le livreur appellera avant d'arriver</li>
+          <li>StreetStore n'est pas responsable des retards causés par des circonstances indépendantes de notre volonté</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -295,15 +378,26 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">06</span>
-      <h2><span>Accounts</span>User Accounts</h2>
+      <h2>
+        <span data-lang="en"><span>Accounts</span>User Accounts</span>
+        <span data-lang="fr"><span>Comptes</span>Comptes utilisateurs</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-body">
+      <div class="lp-block-body" data-lang="en">
         <p>Creating an account is optional. If you create one, you are responsible for maintaining the confidentiality of your login credentials. You agree to notify us immediately of any unauthorized use of your account.</p>
         <ul>
           <li>You must provide accurate and complete information when creating an account</li>
           <li>One account per person — duplicate accounts may be removed</li>
           <li>We reserve the right to suspend or delete accounts that violate these terms</li>
+        </ul>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p>La création d'un compte est facultative. Si vous en créez un, vous êtes responsable de la confidentialité de vos identifiants de connexion. Vous acceptez de nous notifier immédiatement de toute utilisation non autorisée de votre compte.</p>
+        <ul>
+          <li>Vous devez fournir des informations exactes et complètes lors de la création d'un compte</li>
+          <li>Un compte par personne — les doublons peuvent être supprimés</li>
+          <li>Nous nous réservons le droit de suspendre ou supprimer les comptes qui enfreignent ces conditions</li>
         </ul>
       </div>
     </div>
@@ -313,12 +407,19 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">07</span>
-      <h2><span>Liability</span>Limitation of Liability</h2>
+      <h2>
+        <span data-lang="en"><span>Liability</span>Limitation of Liability</span>
+        <span data-lang="fr"><span>Responsabilité</span>Limitation de responsabilité</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-body">
+      <div class="lp-block-body" data-lang="en">
         <p>To the maximum extent permitted by applicable law, StreetStore shall not be liable for any indirect, incidental, or consequential damages arising from your use of our website or products.</p>
         <p>Our liability is limited to the value of the order placed. We are not responsible for any losses resulting from delivery delays, product availability, or website downtime.</p>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p>Dans la mesure maximale permise par la loi applicable, StreetStore ne pourra être tenu responsable de dommages indirects, accessoires ou consécutifs découlant de votre utilisation de notre site ou de nos produits.</p>
+        <p>Notre responsabilité est limitée à la valeur de la commande passée. Nous ne sommes pas responsables des pertes résultant de retards de livraison, de la disponibilité des produits ou d'une interruption du site.</p>
       </div>
     </div>
   </div>
@@ -327,15 +428,26 @@
   <div class="lp-section lp-reveal">
     <div class="lp-section-head">
       <span class="lp-section-num">08</span>
-      <h2><span>Contact</span>Questions About These Terms</h2>
+      <h2>
+        <span data-lang="en"><span>Contact</span>Questions About These Terms</span>
+        <span data-lang="fr"><span>Contact</span>Questions sur ces conditions</span>
+      </h2>
     </div>
     <div class="lp-block">
-      <div class="lp-block-body">
+      <div class="lp-block-body" data-lang="en">
         <p>If you have any questions about these Terms of Service, please contact us:</p>
         <ul>
           <li><strong>WhatsApp:</strong> +212 771 152 186</li>
           <li><strong>Instagram:</strong> @streetstore1994</li>
           <li><strong>Contact form:</strong> <a href="contact.html" style="color:#111;font-weight:700;">streetstore.ma/contact</a></li>
+        </ul>
+      </div>
+      <div class="lp-block-body" data-lang="fr">
+        <p>Si vous avez des questions concernant ces Conditions d'utilisation, veuillez nous contacter :</p>
+        <ul>
+          <li><strong>WhatsApp :</strong> +212 771 152 186</li>
+          <li><strong>Instagram :</strong> @streetstore1994</li>
+          <li><strong>Formulaire de contact :</strong> <a href="contact.html" style="color:#111;font-weight:700;">streetstore.ma/contact</a></li>
         </ul>
       </div>
     </div>
@@ -345,12 +457,19 @@
 
 <!-- ===== CTA ===== -->
 <div class="lp-cta lp-reveal">
-  <p class="lp-cta-eyebrow">Have a Question?</p>
-  <h3>We're Here to Help</h3>
-  <p>If you need clarification about any of our terms, reach us directly on WhatsApp.</p>
-  <a href="https://wa.me/212771152186" target="_blank">
+  <p class="lp-cta-eyebrow" data-lang="en">Have a Question?</p>
+  <p class="lp-cta-eyebrow" data-lang="fr">Une question ?</p>
+  <h3 data-lang="en">We're Here to Help</h3>
+  <h3 data-lang="fr">Nous sommes là pour vous</h3>
+  <p data-lang="en">If you need clarification about any of our terms, reach us directly on WhatsApp.</p>
+  <p data-lang="fr">Si vous avez besoin d'éclaircissements sur nos conditions, contactez-nous directement sur WhatsApp.</p>
+  <a href="https://wa.me/212771152186" target="_blank" data-lang="en">
     <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
     Chat on WhatsApp
+  </a>
+  <a href="https://wa.me/212771152186" target="_blank" data-lang="fr">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Chatter sur WhatsApp
   </a>
 </div>
 
