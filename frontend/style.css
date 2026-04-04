@@ -674,7 +674,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 .hero-heading {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(90px, 13vw, 180px);
+  font-size: clamp(64px, 9vw, 128px);
   color: var(--white);
   line-height: 0.88;
   letter-spacing: 0.02em;
@@ -682,11 +682,11 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 [lang="fr"] .hero-heading,
 [lang="fr"] .hero-heading-italic {
-  font-size: clamp(58px, 8.5vw, 115px);
+  font-size: clamp(48px, 7vw, 96px);
 }
 .hero-heading-italic {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(90px, 13vw, 180px);
+  font-size: clamp(64px, 9vw, 128px);
   color: var(--white);
   line-height: 0.88;
   letter-spacing: 0.02em;
@@ -761,8 +761,19 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   border-right: 1px solid rgba(255,255,255,0.07);
 }
 .benefit-item:last-child { border-right: none; }
-.benefit-icon { font-size: 18px; flex-shrink: 0; color: rgba(255,255,255,0.4); }
-.benefit-icon svg { stroke: rgba(255,255,255,0.4); }
+.benefit-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: rgba(255,255,255,0.65);
+}
+.benefit-icon svg { stroke: rgba(255,255,255,0.65); }
 .benefit-text strong { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 3px; color: rgba(255,255,255,0.75); }
 .benefit-text span { font-size: 11px; color: rgba(255,255,255,0.3); }
 
@@ -2760,7 +2771,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
   .hero-content { padding: 0 24px; }
   .hero-bg-word { font-size: clamp(120px, 40vw, 200px); }
-  .hero-heading, .hero-heading-italic { font-size: clamp(56px, 14vw, 96px); }
+  .hero-heading, .hero-heading-italic { font-size: clamp(44px, 11vw, 72px); }
   [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(40px, 10vw, 68px); }
   .hero-cta { flex-direction: column; align-items: flex-start; }
 
@@ -2896,7 +2907,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
    RESPONSIVE — 480px
    ============================================================ */
 @media (max-width: 480px) {
-  .hero-heading, .hero-heading-italic { font-size: clamp(36px, 11vw, 56px); }
+  .hero-heading, .hero-heading-italic { font-size: clamp(30px, 9vw, 46px); }
   .product-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .product-grid-3 { grid-template-columns: repeat(2, 1fr); }
   .product-grid-3-related { grid-template-columns: repeat(2, 1fr); }
