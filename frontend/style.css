@@ -1849,6 +1849,20 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .accordion-item.open .accordion-icon { transform: rotate(45deg); }
 .accordion-body { display: none; padding-bottom: 20px; }
 .accordion-body p, .accordion-body li { font-size: 13px; color: var(--gray); line-height: 1.7; }
+.size-chart-btn {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 9px 18px;
+  background: var(--charcoal);
+  color: #fff;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: opacity 0.15s;
+}
+.size-chart-btn:hover { opacity: 0.8; }
 .accordion-body ul { padding-left: 16px; }
 .accordion-body ul li { list-style: disc; margin-bottom: 4px; }
 
