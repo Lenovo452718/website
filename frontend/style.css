@@ -4244,7 +4244,7 @@ body.rtl {
 .bundle-offer-price {
   font-family: 'Bebas Neue', sans-serif;
   font-size: 32px;
-  color: #c4a882;
+  color: #fff;
   letter-spacing: 0.04em;
   line-height: 1;
   margin-left: 4px;
@@ -4258,7 +4258,7 @@ body.rtl {
 .bundle-offer-btn {
   width: 100%;
   padding: 14px;
-  background: #c4a882;
+  background: #fff;
   color: #111;
   border: none;
   border-radius: 9px;
