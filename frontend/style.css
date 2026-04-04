@@ -1790,6 +1790,41 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .trust-icon-wrap svg { stroke: #ffffff; }
 .trust-item span { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--charcoal); line-height: 1.5; }
 
+/* Trust icon animations */
+@keyframes iconTruck {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(6px); }
+  40%  { transform: translateX(2px); }
+  60%  { transform: translateX(7px); }
+  80%  { transform: translateX(3px); }
+  100% { transform: translateX(0); }
+}
+@keyframes iconSpin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+@keyframes iconLock {
+  0%, 100% { transform: translateY(0); }
+  20%      { transform: translateY(-4px); }
+  40%      { transform: translateY(0); }
+  60%      { transform: translateY(-2px); }
+  80%      { transform: translateY(0); }
+}
+@keyframes iconWrapPulse {
+  0%   { box-shadow: 0 0 0 0 rgba(0,0,0,0.3); }
+  70%  { box-shadow: 0 0 0 10px rgba(0,0,0,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+}
+
+/* Truck drives continuously */
+.trust-item:nth-child(1) .trust-icon-wrap svg { animation: iconTruck 2.2s ease-in-out infinite; }
+/* Return arrow spins continuously */
+.trust-item:nth-child(2) .trust-icon-wrap svg { animation: iconSpin 3s linear infinite; }
+/* Lock bounces like it's securing */
+.trust-item:nth-child(3) .trust-icon-wrap svg { animation: iconLock 2.5s ease-in-out infinite; }
+/* Pulse ring on hover */
+.trust-item:hover .trust-icon-wrap { animation: iconWrapPulse 0.8s ease-out; }
+
 .accordion { border-top: 1px solid var(--gray-light); }
 .accordion-item { border-bottom: 1px solid var(--gray-light); }
 .accordion-trigger {
