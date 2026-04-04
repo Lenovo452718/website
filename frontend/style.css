@@ -1969,7 +1969,10 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .complete-look .product-card-img-inner {
   border-radius: 0;
   height: 100%;
+  object-fit: contain;
+  background: #f5f5f5;
 }
+.complete-look .product-card:hover .product-card-img-inner { transform: none; }
 .complete-look .product-card-info {
   padding: 16px 18px 18px;
   background: #fff;
