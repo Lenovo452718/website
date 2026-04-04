@@ -2769,14 +2769,43 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .nav-right .cart-btn { display: none; }
   .mobile-menu { padding: 20px 20px 28px; }
 
-  .hero-content { padding: 0 24px; }
-  .hero-bg-word { font-size: clamp(120px, 40vw, 200px); }
-  .hero-heading, .hero-heading-italic { font-size: clamp(44px, 11vw, 72px); }
-  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(40px, 10vw, 68px); }
+  .hero-content { padding: 0 24px; max-width: 100%; }
+  .hero-bg-word {
+    font-size: clamp(160px, 52vw, 280px);
+    bottom: -0.08em;
+    right: -0.02em;
+    -webkit-text-stroke: 1px rgba(255,255,255,0.055);
+  }
+  .hero-heading, .hero-heading-italic { font-size: clamp(52px, 13vw, 80px); }
+  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(36px, 10vw, 60px); }
+  .hero-eyebrow { font-size: 11px; }
+  .hero-subtitle { font-size: 14px; max-width: 280px; margin-bottom: 28px; }
   .hero-cta { flex-direction: column; align-items: flex-start; }
+  .hero-cta > a, .hero-cta > button { width: 100%; text-align: center; }
+  .hero-scroll { display: none; }
+
+  /* Show stats in a horizontal row at the bottom of the hero */
+  .hero-stats {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    bottom: 28px;
+    right: auto;
+    left: 24px;
+    gap: 0;
+  }
+  .hero-stat {
+    align-items: flex-start;
+    padding-right: 20px;
+    margin-right: 20px;
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .hero-stat:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+  .hero-stat-num { font-size: 22px; }
+  .hero-stat-label { font-size: 8px; letter-spacing: 0.16em; }
 
   .benefits-inner { grid-template-columns: 1fr; }
-  .benefit-item { border-right: none; border-bottom: 1px solid var(--gray-light); }
+  .benefit-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
   .benefit-item:last-child { border-bottom: none; }
 
   .section-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 20px; }
@@ -2883,9 +2912,6 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .page-title-bar-inner { flex-direction: column; gap: 4px; }
   .page-title-bar h1 { font-size: 32px; }
 
-  /* Hero CTA buttons full-width on mobile */
-  .hero-cta > a, .hero-cta > button { width: 100%; text-align: center; }
-
   /* Checkout step headings */
   .checkout-step h2 { font-size: clamp(18px, 5vw, 28px); margin-bottom: 20px; }
 
@@ -2907,7 +2933,11 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
    RESPONSIVE — 480px
    ============================================================ */
 @media (max-width: 480px) {
-  .hero-heading, .hero-heading-italic { font-size: clamp(30px, 9vw, 46px); }
+  .hero-heading, .hero-heading-italic { font-size: clamp(40px, 12vw, 58px); }
+  .hero-bg-word { font-size: clamp(130px, 48vw, 200px); }
+  .hero-stats { gap: 0; }
+  .hero-stat { padding-right: 14px; margin-right: 14px; }
+  .hero-stat-num { font-size: 18px; }
   .product-grid-4 { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .product-grid-3 { grid-template-columns: repeat(2, 1fr); }
   .product-grid-3-related { grid-template-columns: repeat(2, 1fr); }
@@ -2941,7 +2971,10 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 /* 360px — smallest phones */
 @media (max-width: 360px) {
-  .hero-heading, .hero-heading-italic { font-size: clamp(30px, 9vw, 44px); }
+  .hero-heading, .hero-heading-italic { font-size: clamp(36px, 11vw, 48px); }
+  .hero-content { padding: 0 16px; }
+  .hero-stats { left: 16px; }
+  .hero-bg-word { font-size: clamp(110px, 44vw, 170px); }
   .nav-inner { padding: 0 14px; }
   .breadcrumb { padding: 14px; }
   .product-layout { padding: 0 14px 60px; }
