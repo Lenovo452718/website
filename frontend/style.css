@@ -1601,21 +1601,21 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 /* --- Hero --- */
 .lookbook-hero {
-  height: calc(100vh - 60px);
+  height: calc(100vh - 72px);
   min-height: 600px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  margin-top: 60px;
+  margin-top: 72px;
   overflow: hidden;
 }
 .lookbook-hero-bg {
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center 20%;
+  background-position: center 75%;
   transform: scale(1.06);
   transition: transform 10s ease;
 }
@@ -1930,7 +1930,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 /* --- Lookbook Responsive --- */
 @media (max-width: 900px) {
-  .lookbook-hero { height: 85vh; min-height: 500px; margin-top: 70px; }
+  .lookbook-hero { height: 85vh; min-height: 500px; margin-top: 72px; }
   .lookbook-row-full-img { height: 420px; }
   .lookbook-item-img { height: 360px; }
   .lookbook-item-3 .lookbook-item-img { height: 260px; }
