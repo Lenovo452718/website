@@ -126,6 +126,8 @@ model SiteSettings {
   packDealBadge      String  @default("Save up to 10% off")
   packDealSub        String  @default("Mix & match any styles")
   packEnabled        Boolean @default(true)
+  bundle3Price       Float   @default(499)
+  bundle3Enabled     Boolean @default(true)
   whatsappBotKey     String  @default("")
 }
 

@@ -20,6 +20,23 @@ try {
   }
 } catch(e) {}
 
+/* ── Bundle 3 Settings ── */
+var _bundleSettings = { bundle3Price: 499, bundle3Enabled: true };
+try {
+  var _bc = JSON.parse(localStorage.getItem('ss_bundle3') || 'null');
+  if (_bc) {
+    if (_bc.bundle3Price) _bundleSettings.bundle3Price = _bc.bundle3Price;
+    if (_bc.bundle3Enabled !== undefined) _bundleSettings.bundle3Enabled = _bc.bundle3Enabled;
+  }
+} catch(e2) {}
+document.addEventListener('DOMContentLoaded', function() {
+  var _bl = document.getElementById('bundleOfferBlock');
+  if (!_bl) return;
+  _bl.style.display = _bundleSettings.bundle3Enabled ? '' : 'none';
+  var _pr = _bl.querySelector('.bundle-offer-price');
+  if (_pr) _pr.textContent = _bundleSettings.bundle3Price + ' MAD';
+});
+
 function fetchPackSettings() {
   var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
   fetch(API + '/api/settings')
@@ -32,6 +49,16 @@ function fetchPackSettings() {
       if (s.packDealSub)   _packSettings.packDealSub   = s.packDealSub;
       // Cache to localStorage for next visit
       try { localStorage.setItem('ss_pack', JSON.stringify({packDeal2:_packSettings.packDeal2, packDeal3:_packSettings.packDeal3})); } catch(e) {}
+      // Bundle3 settings
+      if (s.bundle3Price !== undefined) _bundleSettings.bundle3Price = s.bundle3Price;
+      if (s.bundle3Enabled !== undefined) _bundleSettings.bundle3Enabled = s.bundle3Enabled;
+      try { localStorage.setItem('ss_bundle3', JSON.stringify({bundle3Price:_bundleSettings.bundle3Price, bundle3Enabled:_bundleSettings.bundle3Enabled})); } catch(e) {}
+      var _bundleBlock = document.getElementById('bundleOfferBlock');
+      if (_bundleBlock) {
+        _bundleBlock.style.display = _bundleSettings.bundle3Enabled ? '' : 'none';
+        var _bundlePrEl = _bundleBlock.querySelector('.bundle-offer-price');
+        if (_bundlePrEl) _bundlePrEl.textContent = _bundleSettings.bundle3Price + ' MAD';
+      }
       // Update cart deal offer text if already rendered
       var titleEl = document.getElementById('cartDealTitle');
       var subEl   = document.getElementById('cartDealSub');
@@ -1510,3 +1537,308 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(closeModal, 2500);
   });
 })();
+
+/* ═══════════════════════════════════════════════════════════════
+   BUNDLE PICKER — Buy 3 for X MAD
+   ═══════════════════════════════════════════════════════════════ */
+
+var _bundleProducts = null;
+var _bundleSlots = [null, null, null];
+var _bundleCurrentProduct = null;
+var _bosSelectedColor = null;
+var _bosSelectedSize = null;
+
+var _BUNDLE_COLOR_NAMES = {
+  '#0f1f3d':'Navy','#1e3a5f':'Dark Blue','#2980b9':'Blue','#1a1a1a':'Black',
+  '#333333':'Charcoal','#8b6347':'Caramel','#6b4e30':'Brown','#c0392b':'Red',
+  '#e67e22':'Orange','#e0c97a':'Gold','#f5f0e8':'Cream','#ffffff':'White',
+  '#dcdfe5':'Lt Gray','#888888':'Gray','#1e4a2e':'Green','#8b0000':'Burgundy'
+};
+function bundleColorName(hex) {
+  if (!hex) return '';
+  return _BUNDLE_COLOR_NAMES[hex.toLowerCase()] || hex.toUpperCase();
+}
+
+function openBundlePicker() {
+  if (!_bundleSettings.bundle3Enabled) return;
+  _bundleSlots = [null, null, null];
+  _bundleCurrentProduct = null;
+  var overlay = document.createElement('div');
+  overlay.id = 'bundlePickerOverlay';
+  overlay.innerHTML = `
+    <div id="bundlePicker">
+      <div class="bundle-header">
+        <button class="bundle-close" onclick="closeBundlePicker()">✕</button>
+        <div>
+          <h2 class="bundle-title">Build Your Bundle</h2>
+          <p class="bundle-subtitle">Pick any 3 — <strong>${_bundleSettings.bundle3Price} MAD</strong></p>
+        </div>
+      </div>
+      <div class="bundle-slots">
+        <div class="bundle-slot empty" id="bundleSlot0"><div class="bundle-slot-inner"><span class="bundle-slot-plus">+</span></div><span class="bundle-slot-num">1</span></div>
+        <div class="bundle-slot empty" id="bundleSlot1"><div class="bundle-slot-inner"><span class="bundle-slot-plus">+</span></div><span class="bundle-slot-num">2</span></div>
+        <div class="bundle-slot empty" id="bundleSlot2"><div class="bundle-slot-inner"><span class="bundle-slot-plus">+</span></div><span class="bundle-slot-num">3</span></div>
+      </div>
+      <div class="bundle-grid-area">
+        <p class="bundle-grid-label">Choose your jeans</p>
+        <div class="bundle-product-grid" id="bundleProductGrid"><div class="bundle-loading">Loading\u2026</div></div>
+      </div>
+      <div class="bundle-options-sheet" id="bundleOptionsSheet">
+        <div class="bos-header">
+          <p class="bos-product-name" id="bosProductName"></p>
+          <button class="bos-close" onclick="closeBundleOptions()">✕</button>
+        </div>
+        <div id="bosColorSection"></div>
+        <div id="bosSizeSection"></div>
+        <button class="bos-add-btn" onclick="confirmBundleAdd()">Add to Bundle \u2192</button>
+      </div>
+      <div class="bundle-footer">
+        <div class="bundle-footer-info"><span id="bundleSelectedCount">0</span> of 3 selected</div>
+        <button class="bundle-checkout-btn" id="bundleCheckoutBtn" disabled onclick="openBundleCheckout()">Checkout \u2014 ${_bundleSettings.bundle3Price} MAD</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+  document.body.style.overflow = 'hidden';
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeBundlePicker(); });
+  requestAnimationFrame(function() { overlay.classList.add('active'); });
+  loadBundleProducts();
+}
+
+function closeBundlePicker() {
+  var ov = document.getElementById('bundlePickerOverlay');
+  if (!ov) return;
+  ov.classList.remove('active');
+  setTimeout(function() { ov.remove(); document.body.style.overflow = ''; }, 300);
+}
+
+async function loadBundleProducts() {
+  if (_bundleProducts) { renderBundleGrid(_bundleProducts); return; }
+  try {
+    var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
+    var r = await fetch(API + '/api/products');
+    _bundleProducts = await r.json();
+    renderBundleGrid(_bundleProducts);
+  } catch(e) {
+    var g = document.getElementById('bundleProductGrid');
+    if (g) g.innerHTML = '<p style="text-align:center;color:#888;padding:40px">Could not load products</p>';
+  }
+}
+
+function renderBundleGrid(products) {
+  var grid = document.getElementById('bundleProductGrid');
+  if (!grid) return;
+  var available = products.filter(function(p) {
+    if (!p.variants || !p.variants.length) return true;
+    return p.variants.some(function(v) { return v.inStock; });
+  });
+  if (!available.length) {
+    grid.innerHTML = '<p style="text-align:center;color:#888;padding:40px">No products available</p>';
+    return;
+  }
+  grid.innerHTML = available.map(function(p) {
+    var mainImg = (p.images || []).find(function(i) { return i.isMain; }) || (p.images || [])[0];
+    var imgEl = mainImg
+      ? '<img src="' + mainImg.url + '" alt="" class="bundle-card-img" onerror="this.style.display=\'none\'">'
+      : '<div class="bundle-card-img-placeholder">\uD83D\uDC56</div>';
+    return '<div class="bundle-product-card" onclick="showBundleOptions(\'' + p.id + '\')">'
+      + '<div class="bundle-card-img-wrap">' + imgEl + '</div>'
+      + '<div class="bundle-card-info"><p class="bundle-card-name">' + p.name + '</p>'
+      + '<p class="bundle-card-price">' + p.price + ' MAD each</p></div></div>';
+  }).join('');
+}
+
+function showBundleOptions(productId) {
+  var products = _bundleProducts || [];
+  var p = products.find(function(x) { return x.id === productId; });
+  if (!p) return;
+  _bundleCurrentProduct = p;
+  var colors = p.color ? p.color.split(',').map(function(c) { return c.trim(); }).filter(Boolean) : [];
+  var sizes = (p.variants || []).filter(function(v) { return v.inStock; }).map(function(v) { return v.size; }).filter(Boolean);
+  _bosSelectedColor = colors[0] || null;
+  _bosSelectedSize = sizes[0] || null;
+  var sheet = document.getElementById('bundleOptionsSheet');
+  document.getElementById('bosProductName').textContent = p.name;
+  var cs = document.getElementById('bosColorSection');
+  if (colors.length) {
+    cs.innerHTML = '<div class="bos-section"><p class="bos-label">Color: <span id="bosColorLabel">' + bundleColorName(colors[0]) + '</span></p>'
+      + '<div class="bos-colors">' + colors.map(function(hex, i) {
+          return '<div class="bos-swatch' + (i===0?' selected':'') + '" data-hex="' + hex + '" style="background:' + hex + '" title="' + bundleColorName(hex) + '" onclick="bosPickColor(this)"></div>';
+        }).join('') + '</div></div>';
+    cs.style.display = '';
+  } else { cs.innerHTML = ''; cs.style.display = 'none'; }
+  var ss = document.getElementById('bosSizeSection');
+  if (sizes.length) {
+    ss.innerHTML = '<div class="bos-section"><p class="bos-label">Size</p>'
+      + '<div class="bos-sizes">' + sizes.map(function(sz, i) {
+          return '<button class="bos-size' + (i===0?' selected':'') + '" onclick="bosPickSize(this)">' + sz + '</button>';
+        }).join('') + '</div></div>';
+    ss.style.display = '';
+  } else { ss.innerHTML = ''; ss.style.display = 'none'; }
+  sheet.classList.add('active');
+}
+
+function closeBundleOptions() {
+  var sheet = document.getElementById('bundleOptionsSheet');
+  if (sheet) sheet.classList.remove('active');
+  _bundleCurrentProduct = null;
+}
+
+function bosPickColor(el) {
+  el.closest('.bos-colors').querySelectorAll('.bos-swatch').forEach(function(s) { s.classList.remove('selected'); });
+  el.classList.add('selected');
+  _bosSelectedColor = el.dataset.hex;
+  var lbl = document.getElementById('bosColorLabel');
+  if (lbl) lbl.textContent = bundleColorName(el.dataset.hex);
+}
+
+function bosPickSize(el) {
+  el.closest('.bos-sizes').querySelectorAll('.bos-size').forEach(function(b) { b.classList.remove('selected'); });
+  el.classList.add('selected');
+  _bosSelectedSize = el.textContent.trim();
+}
+
+function confirmBundleAdd() {
+  if (!_bundleCurrentProduct) return;
+  var slotIdx = _bundleSlots.findIndex(function(s) { return s === null; });
+  if (slotIdx === -1) {
+    closeBundleOptions();
+    bundleShowToast('All 3 slots filled. Tap a slot to remove.');
+    return;
+  }
+  var p = _bundleCurrentProduct;
+  var mainImg = (p.images || []).find(function(i) { return i.isMain; }) || (p.images || [])[0];
+  _bundleSlots[slotIdx] = { id: p.id, name: p.name, color: _bosSelectedColor, size: _bosSelectedSize, price: p.price, image: mainImg ? mainImg.url : null };
+  closeBundleOptions();
+  updateBundleSlots();
+  updateBundleFooter();
+}
+
+function bundleSlotClick(idx) {
+  if (_bundleSlots[idx]) { _bundleSlots[idx] = null; updateBundleSlots(); updateBundleFooter(); }
+}
+
+function updateBundleSlots() {
+  for (var i = 0; i < 3; i++) {
+    var el = document.getElementById('bundleSlot' + i);
+    if (!el) continue;
+    var slot = _bundleSlots[i];
+    if (slot) {
+      var meta = [slot.color ? bundleColorName(slot.color) : null, slot.size].filter(Boolean).join(' / ');
+      el.className = 'bundle-slot filled';
+      (function(idx) { el.onclick = function() { bundleSlotClick(idx); }; })(i);
+      el.innerHTML = (slot.image ? '<img src="' + slot.image + '" alt="" class="bundle-slot-img">' : '<div class="bundle-slot-placeholder">\uD83D\uDC56</div>')
+        + '<div class="bundle-slot-overlay"><p class="bundle-slot-name">' + slot.name + '</p>' + (meta ? '<p class="bundle-slot-meta">' + meta + '</p>' : '') + '</div>'
+        + '<button class="bundle-slot-remove" onclick="event.stopPropagation();bundleSlotClick(' + i + ')">\u2715</button>'
+        + '<span class="bundle-slot-num">' + (i+1) + '</span>';
+    } else {
+      el.className = 'bundle-slot empty';
+      el.onclick = null;
+      el.innerHTML = '<div class="bundle-slot-inner"><span class="bundle-slot-plus">+</span></div><span class="bundle-slot-num">' + (i+1) + '</span>';
+    }
+  }
+}
+
+function updateBundleFooter() {
+  var filled = _bundleSlots.filter(Boolean).length;
+  var c = document.getElementById('bundleSelectedCount');
+  var btn = document.getElementById('bundleCheckoutBtn');
+  if (c) c.textContent = filled;
+  if (btn) btn.disabled = filled < 3;
+}
+
+function bundleShowToast(msg) {
+  var picker = document.getElementById('bundlePicker');
+  if (!picker) return;
+  var t = document.createElement('div');
+  t.className = 'bundle-toast';
+  t.textContent = msg;
+  picker.appendChild(t);
+  requestAnimationFrame(function() { t.classList.add('show'); });
+  setTimeout(function() { t.classList.remove('show'); setTimeout(function() { t.remove(); }, 300); }, 2500);
+}
+
+function openBundleCheckout() {
+  if (_bundleSlots.filter(Boolean).length < 3) return;
+  var checkoutEl = document.createElement('div');
+  checkoutEl.id = 'bundleCheckoutOverlay';
+  var itemsHtml = _bundleSlots.map(function(s) {
+    var meta = [s.color ? bundleColorName(s.color) : null, s.size].filter(Boolean).join(' / ');
+    return '<div class="bco-item">' + (s.image ? '<img src="' + s.image + '" alt="" class="bco-item-img">' : '<div class="bco-item-img-ph">\uD83D\uDC56</div>')
+      + '<div class="bco-item-info"><p class="bco-item-name">' + s.name + '</p>' + (meta ? '<p class="bco-item-meta">' + meta + '</p>' : '') + '</div></div>';
+  }).join('');
+  checkoutEl.innerHTML = `
+    <div id="bundleCheckoutModal">
+      <div class="bco-header">
+        <button class="bco-back" onclick="closeBundleCheckout()">\u2190 Back</button>
+        <h2 class="bco-title">Bundle Checkout</h2>
+      </div>
+      <div class="bco-body">
+        <div class="bco-items">${itemsHtml}</div>
+        <div class="bco-total-row"><span>Bundle Total</span><strong>${_bundleSettings.bundle3Price} MAD</strong></div>
+        <div class="bco-form">
+          <p class="bco-form-title">Your details</p>
+          <div class="bco-field-row">
+            <input class="bco-input" id="bcoFirst" placeholder="First name" autocomplete="given-name">
+            <input class="bco-input" id="bcoLast" placeholder="Last name" autocomplete="family-name">
+          </div>
+          <input class="bco-input" id="bcoPhone" placeholder="Phone number" type="tel" autocomplete="tel">
+          <input class="bco-input" id="bcoCity" placeholder="City" autocomplete="address-level2">
+          <input class="bco-input" id="bcoAddress" placeholder="Address (optional)" autocomplete="street-address">
+        </div>
+      </div>
+      <div class="bco-footer">
+        <button class="bco-submit-btn" id="bcoSubmitBtn" onclick="placeBundleOrder()">Place Bundle Order \u2014 ${_bundleSettings.bundle3Price} MAD</button>
+      </div>
+    </div>`;
+  document.body.appendChild(checkoutEl);
+  requestAnimationFrame(function() { checkoutEl.classList.add('active'); });
+}
+
+function closeBundleCheckout() {
+  var el = document.getElementById('bundleCheckoutOverlay');
+  if (el) { el.classList.remove('active'); setTimeout(function() { el.remove(); }, 300); }
+}
+
+async function placeBundleOrder() {
+  var firstName = (document.getElementById('bcoFirst') ? document.getElementById('bcoFirst').value : '').trim();
+  var lastName  = (document.getElementById('bcoLast')  ? document.getElementById('bcoLast').value  : '').trim();
+  var customer  = (firstName + ' ' + lastName).trim();
+  var phone     = (document.getElementById('bcoPhone')   ? document.getElementById('bcoPhone').value   : '').trim();
+  var city      = (document.getElementById('bcoCity')    ? document.getElementById('bcoCity').value    : '').trim();
+  var address   = (document.getElementById('bcoAddress') ? document.getElementById('bcoAddress').value : '').trim();
+  if (!customer) { alert('Please enter your name.'); return; }
+  if (!phone || phone.replace(/\D/g,'').length < 9) { alert('Please enter a valid phone number.'); return; }
+  if (!city) { alert('Please enter your city.'); return; }
+  var btn = document.getElementById('bcoSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Placing order\u2026'; }
+  var base = Math.floor(_bundleSettings.bundle3Price / 3);
+  var rem  = _bundleSettings.bundle3Price - base * 3;
+  var items = _bundleSlots.map(function(s, i) {
+    var label = s.name + (s.color || s.size ? ' (' + [s.color ? bundleColorName(s.color) : null, s.size].filter(Boolean).join(' / ') + ')' : '');
+    return { name: label, size: s.size || null, qty: 1, price: base + (i === 0 ? rem : 0) };
+  });
+  try {
+    var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
+    var hdrs = { 'Content-Type': 'application/json' };
+    var tok = localStorage.getItem('ss_customer_token');
+    if (tok) hdrs['Authorization'] = 'Bearer ' + tok;
+    var resp = await fetch(API + '/api/orders', {
+      method: 'POST', headers: hdrs,
+      body: JSON.stringify({ customer: customer, phone: phone, city: city, address: address, items: items, total: _bundleSettings.bundle3Price, discount: 0 })
+    });
+    if (resp.ok) {
+      closeBundleCheckout();
+      closeBundlePicker();
+      setTimeout(function() { alert('\uD83C\uDF89 Bundle order placed! We will contact you shortly.'); }, 350);
+    } else if (resp.status === 403) {
+      var d = await resp.json().catch(function() { return {}; });
+      alert(d.message || 'Your access has been blocked.');
+      if (btn) { btn.disabled = false; btn.textContent = 'Place Bundle Order \u2014 ' + _bundleSettings.bundle3Price + ' MAD'; }
+    } else {
+      throw new Error();
+    }
+  } catch(e) {
+    alert('Could not place order. Please try again.');
+    if (btn) { btn.disabled = false; btn.textContent = 'Place Bundle Order \u2014 ' + _bundleSettings.bundle3Price + ' MAD'; }
+  }
+}

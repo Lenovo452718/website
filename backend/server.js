@@ -1272,7 +1272,7 @@ app.get('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
 
 app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, logoPublicId, announcementBar, announcementActive, packDeal2, packDeal3, packDealBadge, packDealSub, packEnabled, whatsappBotKey } = req.body;
+    const { storeName, primaryColor, accentColor, currency, whatsapp, email, logo, logoPublicId, announcementBar, announcementActive, packDeal2, packDeal3, packDealBadge, packDealSub, packEnabled, bundle3Price, bundle3Enabled, whatsappBotKey } = req.body;
     const data = {};
     if (storeName          !== undefined) data.storeName          = sanitize(storeName, 100);
     if (primaryColor       !== undefined) data.primaryColor       = sanitize(primaryColor, 20);
@@ -1289,6 +1289,8 @@ app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => 
     if (packDealBadge !== undefined) data.packDealBadge = sanitize(packDealBadge, 100);
     if (packDealSub   !== undefined) data.packDealSub   = sanitize(packDealSub, 100);
     if (packEnabled     !== undefined) data.packEnabled     = Boolean(packEnabled);
+    if (bundle3Price    !== undefined) data.bundle3Price    = parseFloat(bundle3Price) || 499;
+    if (bundle3Enabled  !== undefined) data.bundle3Enabled  = Boolean(bundle3Enabled);
     if (whatsappBotKey  !== undefined) data.whatsappBotKey = sanitize(whatsappBotKey, 100);
 
     const settings = await prisma.siteSettings.upsert({

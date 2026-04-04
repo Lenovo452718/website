@@ -786,6 +786,17 @@ select.pm-input{cursor:pointer}
       </div>
 
       <div class="panel">
+        <div class="panel-header"><h2>Bundle Builder (3 for X MAD)</h2></div>
+        <div class="panel-body">
+          <div class="field-row">
+            <div class="field-group"><label class="field-label">Bundle Price (MAD)</label><input class="field-input" id="bundle3Price" type="number" placeholder="499"></div>
+            <div class="field-group"><label class="field-label">Status</label><select class="field-input" id="bundle3Enabled"><option value="true">Active ✓</option><option value="false">Inactive</option></select></div>
+          </div>
+          <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveBundle3()">Save Bundle Settings</button></div>
+        </div>
+      </div>
+
+      <div class="panel">
         <div class="panel-header"><h2>Pack Deal</h2></div>
         <div class="panel-body">
           <div class="field-row">
@@ -2870,6 +2881,8 @@ async function loadContentForms() {
     const res = await authFetch('/api/admin/settings');
     if (res.ok) {
       const api = await res.json();
+      if (api.bundle3Price !== undefined) document.getElementById('bundle3Price').value = api.bundle3Price;
+      document.getElementById('bundle3Enabled').value = api.bundle3Enabled === false ? 'false' : 'true';
       document.getElementById('pd2price').value  = api.packDeal2||'319';
       document.getElementById('pd3price').value  = api.packDeal3||'479';
       document.getElementById('pdBadge').value   = api.packDealBadge||'Save up to 10% off';
@@ -2879,6 +2892,8 @@ async function loadContentForms() {
       document.getElementById('pvBadge').textContent = api.packDealBadge||'Save up to 10% off';
       document.getElementById('pvSub').textContent   = api.packDealSub||'Mix & match any styles — discount applied automatically in cart';
     } else {
+      if (s.bundle3Price !== undefined) document.getElementById('bundle3Price').value = s.bundle3Price;
+      document.getElementById('bundle3Enabled').value = s.bundle3Enabled === false ? 'false' : 'true';
       document.getElementById('pd2price').value  = s.packDeal2||'319';
       document.getElementById('pd3price').value  = s.packDeal3||'479';
       document.getElementById('pdBadge').value   = s.packDealBadge||'Save up to 10% off';
@@ -2889,6 +2904,8 @@ async function loadContentForms() {
       document.getElementById('pvSub').textContent   = s.packDealSub||'Mix & match any styles — discount applied automatically in cart';
     }
   } catch(e) {
+    if (s.bundle3Price !== undefined) document.getElementById('bundle3Price').value = s.bundle3Price;
+    document.getElementById('bundle3Enabled').value = s.bundle3Enabled === false ? 'false' : 'true';
     document.getElementById('pd2price').value  = s.packDeal2||'319';
     document.getElementById('pd3price').value  = s.packDeal3||'479';
     document.getElementById('pdBadge').value   = s.packDealBadge||'Save up to 10% off';
@@ -2928,6 +2945,18 @@ async function saveAnnouncement() {
       showToast('Failed to save announcement','error');
     }
   } catch(e) { showToast('Error saving announcement','error'); }
+}
+
+async function saveBundle3() {
+  const body = {
+    bundle3Price: parseFloat(document.getElementById('bundle3Price').value) || 499,
+    bundle3Enabled: document.getElementById('bundle3Enabled').value === 'true',
+  };
+  try {
+    const res = await authFetch('/api/admin/settings', { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    if (res.ok) { showToast('Bundle settings saved'); logActivity('Bundle settings saved'); }
+    else showToast('Failed to save','error');
+  } catch(e) { showToast('Error saving bundle settings','error'); }
 }
 
 async function savePackDeal() {
