@@ -4,7 +4,7 @@
 
 /* ── Pack Deal Settings ── */
 let _packSettings = {
-  packDeal2: 319,
+  packDeal2: 339,
   packDeal3: 479,
   packEnabled: true,
   packDealBadge: 'Save up to 10% off',
