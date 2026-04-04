@@ -1333,7 +1333,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="buynow-upsell-icon">💡</span>
         <div>
           <strong>Save more — grab a 2nd item!</strong>
-          <span>2 items → <b>319 MAD</b> &nbsp;·&nbsp; 3 items → <b>479 MAD</b></span>
+          <span>2 items → <b>${_packSettings.packDeal2} MAD</b> &nbsp;·&nbsp; 3 items → <b>${_packSettings.packDeal3} MAD</b></span>
         </div>
       </div>
 
