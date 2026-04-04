@@ -2860,6 +2860,13 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .reviews-grid { grid-template-columns: 1fr; }
   .reviews-header { flex-direction: column; align-items: flex-start; gap: 12px; }
 
+  /* Brand statement: stack on mobile */
+  .brand-statement { padding: 60px 24px; }
+  .brand-statement-inner { flex-direction: column; align-items: flex-start; gap: 28px; }
+  .brand-statement-sep { width: 48px; height: 1px; }
+  .brand-statement h2 { font-size: clamp(52px, 14vw, 80px); }
+  .brand-statement-text p { font-size: 15px; }
+
   .lookbook-grid { padding: 32px 20px 60px; }
   .lookbook-row-2, .lookbook-row-3 { grid-template-columns: 1fr; }
   .lookbook-tall-box-section { flex-direction: column; }
