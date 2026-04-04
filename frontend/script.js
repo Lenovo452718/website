@@ -10,6 +10,15 @@ let _packSettings = {
   packDealBadge: 'Save up to 10% off',
   packDealSub: 'Mix & match any styles — discount applied automatically in cart',
 };
+// Load cached settings instantly (before API responds)
+try {
+  var _cached = localStorage.getItem('ss_pack');
+  if (_cached) {
+    var _cp = JSON.parse(_cached);
+    if (_cp.packDeal2) _packSettings.packDeal2 = _cp.packDeal2;
+    if (_cp.packDeal3) _packSettings.packDeal3 = _cp.packDeal3;
+  }
+} catch(e) {}
 
 function fetchPackSettings() {
   var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
@@ -21,6 +30,8 @@ function fetchPackSettings() {
       if (s.packEnabled !== undefined) _packSettings.packEnabled = s.packEnabled;
       if (s.packDealBadge) _packSettings.packDealBadge = s.packDealBadge;
       if (s.packDealSub)   _packSettings.packDealSub   = s.packDealSub;
+      // Cache to localStorage for next visit
+      try { localStorage.setItem('ss_pack', JSON.stringify({packDeal2:_packSettings.packDeal2, packDeal3:_packSettings.packDeal3})); } catch(e) {}
       // Update cart deal offer text if already rendered
       var titleEl = document.getElementById('cartDealTitle');
       var subEl   = document.getElementById('cartDealSub');
