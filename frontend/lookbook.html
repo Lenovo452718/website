@@ -50,28 +50,47 @@
 </header>
 
 <!-- ===== LOOKBOOK HERO ===== -->
-<section class="lookbook-hero">
+<section class="lookbook-hero" id="lookbookHero">
+  <div class="lookbook-hero-bg" style="background-image:url('images/lookbook/urban-series.jpg');"></div>
+  <div class="lookbook-hero-vignette"></div>
   <div class="lookbook-hero-content">
-    <h1 data-i18n="lookbook_title">THE LOOKBOOK</h1>
-    <p data-i18n="lookbook_subtitle">Spring / Summer 2026</p>
+    <span class="lookbook-hero-eyebrow" data-i18n="lookbook_subtitle">Spring / Summer 2026</span>
+    <h1 data-i18n="lookbook_title">THE<br>LOOKBOOK</h1>
+    <p class="lookbook-hero-sub">07 Looks &nbsp;·&nbsp; New Collection</p>
+  </div>
+  <div class="lookbook-hero-scroll">
+    <span>Scroll</span>
+    <div class="lookbook-scroll-line"></div>
   </div>
 </section>
+
+<!-- ===== INTRO STRIP ===== -->
+<div class="lookbook-intro-strip">
+  <span>STREETSTORE</span>
+  <span class="lookbook-intro-sep">·</span>
+  <span>SS 2026</span>
+  <span class="lookbook-intro-sep">·</span>
+  <span>THE NEW COLLECTION</span>
+  <span class="lookbook-intro-sep">·</span>
+  <span>7 LOOKS</span>
+</div>
 
 <!-- ===== EDITORIAL GRID ===== -->
 <div class="lookbook-grid">
 
-  <!-- Row 1: Full-width hero — denim editorial -->
+  <!-- LOOK 01 — Denim On Denim -->
   <div class="lookbook-row-full reveal">
-    <div class="lookbook-row-full-img" style="background-image:url('images/lookbook/urban-series.jpg');background-size:cover;background-position:center 30%;"></div>
-    <div class="lookbook-text-overlay">
-      <h3 data-i18n="lookbook_series1" style="color:#b8c8e8;">Urban Series</h3>
+    <div class="lookbook-row-full-img" style="background-image:url('images/lookbook/denim-editorial.jpg');background-size:cover;background-position:center 35%;"></div>
+    <div class="lookbook-series-label">
+      <span class="lookbook-series-num">01</span>
+      <span class="lookbook-series-name" data-i18n="lookbook_series1">Denim On Denim</span>
     </div>
     <div class="lookbook-overlay">
       <button class="shop-look-btn" data-i18n="shop_the_look">Shop the Look</button>
     </div>
   </div>
 
-  <!-- Tall Image Box — Balloon Jeans editorial -->
+  <!-- LOOK 02 — Signature Piece (Caramel — KEPT) -->
   <div class="lookbook-tall-box-section reveal">
     <div class="lookbook-tall-box">
       <img src="images/lookbook/cafe-mocha-balloon.jpg" alt="Café Mocha Balloon Jeans">
@@ -80,27 +99,32 @@
       </div>
     </div>
     <div class="lookbook-tall-box-text">
+      <div class="lookbook-tall-box-bg-num">02</div>
+      <p class="lookbook-tall-box-eyebrow">Signature Piece · Look 02</p>
       <h2>CAFÉ<br>MOCHA<br>BALLOON</h2>
+      <div class="lookbook-tall-box-divider"></div>
       <p>Wide leg. Relaxed fit.<br>The richest brown of the season.</p>
       <a href="shop.html" class="btn-dark">Shop the Look</a>
     </div>
   </div>
 
-  <!-- Row 2: Two equal -->
+  <!-- LOOKS 03 & 04 — Two Equal -->
   <div class="lookbook-row-2">
     <div class="lookbook-item reveal">
-      <div class="lookbook-item-img" style="background-image:url('images/lookbook/curly-denim-set.jpg');background-size:cover;background-position:center 30%;"></div>
-      <div class="lookbook-text-overlay">
-        <h3 data-i18n="lookbook_series2" style="color:#d0d0d0;">Street Denim</h3>
+      <div class="lookbook-item-img" style="background-image:url('images/lookbook/curly-denim-set.jpg');background-size:cover;background-position:center 20%;"></div>
+      <div class="lookbook-series-label">
+        <span class="lookbook-series-num">03</span>
+        <span class="lookbook-series-name" data-i18n="lookbook_series2">Street Denim</span>
       </div>
       <div class="lookbook-overlay">
         <button class="shop-look-btn" data-i18n="shop_the_look">Shop the Look</button>
       </div>
     </div>
     <div class="lookbook-item reveal reveal-delay-1">
-      <div class="lookbook-item-img" style="background-image:url('images/lookbook/light-denim-full.jpg');background-size:cover;background-position:center 20%;"></div>
-      <div class="lookbook-text-overlay">
-        <h3 data-i18n="lookbook_series3" style="color:#7ec8e3;">Full Denim</h3>
+      <div class="lookbook-item-img" style="background-image:url('images/lookbook/light-denim-full.jpg');background-size:cover;background-position:center 10%;"></div>
+      <div class="lookbook-series-label">
+        <span class="lookbook-series-num">04</span>
+        <span class="lookbook-series-name" data-i18n="lookbook_series3">Full Denim</span>
       </div>
       <div class="lookbook-overlay">
         <button class="shop-look-btn" data-i18n="shop_the_look">Shop the Look</button>
@@ -108,33 +132,42 @@
     </div>
   </div>
 
-  <!-- Row 3: Three equal -->
+  <!-- LOOKS 05, 06, 07 — Three Equal -->
   <div class="lookbook-row-3">
     <div class="lookbook-item lookbook-item-3 reveal">
-      <div class="lookbook-item-img" style="background-image:url('images/lookbook/white-shirt-wide.jpg');background-size:cover;background-position:center 30%;"></div>
+      <div class="lookbook-item-img" style="background-image:url('images/lookbook/white-shirt-wide.jpg');background-size:cover;background-position:center 25%;"></div>
+      <div class="lookbook-series-label">
+        <span class="lookbook-series-num">05</span>
+      </div>
       <div class="lookbook-overlay">
         <button class="shop-look-btn" data-i18n="shop_the_look">Shop the Look</button>
       </div>
     </div>
     <div class="lookbook-item lookbook-item-3 reveal reveal-delay-1">
-      <div class="lookbook-item-img" style="background-image:url('images/lookbook/grey-cargo-wide.jpg');background-size:cover;background-position:center 30%;"></div>
+      <div class="lookbook-item-img" style="background-image:url('images/lookbook/grey-cargo-wide.jpg');background-size:cover;background-position:center 25%;"></div>
+      <div class="lookbook-series-label">
+        <span class="lookbook-series-num">06</span>
+      </div>
       <div class="lookbook-overlay">
         <button class="shop-look-btn" data-i18n="shop_the_look">Shop the Look</button>
       </div>
     </div>
     <div class="lookbook-item lookbook-item-3 reveal reveal-delay-2">
-      <div class="lookbook-item-img" style="background-image:url('images/lookbook/denim-jacket-portrait.jpg');background-size:cover;background-position:center 20%;"></div>
+      <div class="lookbook-item-img" style="background-image:url('images/lookbook/denim-jacket-portrait.jpg');background-size:cover;background-position:center 15%;"></div>
+      <div class="lookbook-series-label">
+        <span class="lookbook-series-num">07</span>
+      </div>
       <div class="lookbook-overlay">
         <button class="shop-look-btn" data-i18n="shop_the_look">Shop the Look</button>
       </div>
     </div>
   </div>
 
-  <!-- Row 4: Full-width — The Detail -->
+  <!-- CLOSING — The Detail -->
   <div class="lookbook-row-full reveal">
     <div class="lookbook-row-full-img" style="background-image:url('images/lookbook/denim-detail.jpg');background-size:cover;background-position:center 40%;"></div>
-    <div class="lookbook-text-overlay">
-      <h3 data-i18n="lookbook_grey" style="color:#c8c8c8;">The Detail</h3>
+    <div class="lookbook-series-label">
+      <span class="lookbook-series-name" data-i18n="lookbook_grey">The Detail</span>
     </div>
     <div class="lookbook-overlay">
       <button class="shop-look-btn" data-i18n="shop_the_look">Shop the Look</button>
@@ -145,8 +178,8 @@
 
 <!-- ===== LOOKBOOK CTA ===== -->
 <section class="lookbook-cta reveal">
-  <h2 data-i18n="ready_to_shop">Ready to Shop?</h2>
-  <p style="font-size:15px; color:var(--gray); margin-bottom:32px;" data-i18n="lookbook_ready_sub">Explore the full collection and find your perfect fit.</p>
+  <h2 data-i18n="ready_to_shop">Ready to<br>Shop?</h2>
+  <p data-i18n="lookbook_ready_sub">Explore the full collection and find your perfect fit.</p>
   <a href="shop.html" class="btn-dark" data-i18n="shop_all_jeans">Shop All Jeans</a>
 </section>
 
@@ -195,5 +228,12 @@
 <script src="i18n.js" defer></script>
 <script src="script.js" defer></script>
 <script src="mobile.js" defer></script>
+<script>
+  // Hero parallax zoom-in on load
+  window.addEventListener('load', function() {
+    var hero = document.getElementById('lookbookHero');
+    if (hero) setTimeout(function(){ hero.classList.add('is-visible'); }, 100);
+  });
+</script>
 </body>
 </html>
