@@ -4189,49 +4189,89 @@ body.rtl {
    ═══════════════════════════════════════════════════════════════ */
 .bundle-offer-block {
   margin: 16px 0;
-  background: var(--charcoal);
+  background: linear-gradient(135deg, #111 0%, #1a1a1a 60%, #0d0d0d 100%);
   color: var(--white);
-  border-radius: 14px;
-  padding: 18px 20px;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.bundle-offer-block::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -20px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(196,168,130,0.18) 0%, transparent 70%);
+  pointer-events: none;
 }
 .bundle-offer-badge {
   font-size: 10px;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: #c4a882;
-  margin-bottom: 10px;
+  margin-bottom: 16px;
 }
-.bundle-offer-main {
+.bundle-offer-slots-row {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 14px;
+  gap: 8px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
 }
-.bundle-offer-icon { font-size: 28px; }
-.bundle-offer-title {
+.bundle-offer-slot-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(255,255,255,0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  background: rgba(255,255,255,0.04);
+  flex-shrink: 0;
+}
+.bundle-offer-connector {
+  font-size: 14px;
+  color: rgba(255,255,255,0.3);
+  font-weight: 700;
+}
+.bundle-offer-price {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 22px;
-  letter-spacing: 0.05em;
-  line-height: 1.1;
+  font-size: 32px;
+  color: #c4a882;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  margin-left: 4px;
 }
-.bundle-offer-price { color: #c4a882; }
-.bundle-offer-sub { font-size: 12px; color: rgba(255,255,255,0.65); margin-top: 4px; }
+.bundle-offer-sub {
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
 .bundle-offer-btn {
   width: 100%;
-  padding: 13px;
-  background: var(--white);
-  color: var(--charcoal);
+  padding: 14px;
+  background: #c4a882;
+  color: #111;
   border: none;
-  border-radius: 8px;
+  border-radius: 9px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.1s;
   font-family: 'Bebas Neue', sans-serif;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
+  position: relative;
+  z-index: 1;
 }
-.bundle-offer-btn:hover { opacity: 0.85; }
+.bundle-offer-btn:hover { opacity: 0.88; transform: translateY(-1px); }
 
 /* ═══════════════════════════════════════════════════════════════
    BUNDLE PICKER MODAL
@@ -4403,8 +4443,8 @@ body.rtl {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
-.bundle-card-img-wrap { height: 130px; background: #f5f5f5; overflow: hidden; }
-.bundle-card-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bundle-card-img-wrap { height: 200px; background: #f5f5f5; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+.bundle-card-img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .bundle-card-img-placeholder {
   width: 100%;
   height: 100%;
