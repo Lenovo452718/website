@@ -3013,11 +3013,11 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
     width: 100%;
     padding: 12px 0;
     margin-top: 14px;
-    background: rgba(255,255,255,0.07);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.12);
-    border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    border-radius: 0;
     gap: 0;
     box-sizing: border-box;
     overflow: hidden;
