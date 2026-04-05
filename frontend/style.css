@@ -3095,13 +3095,33 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   /* General mobile typography */
   .section-title { font-size: clamp(22px, 6.5vw, 36px); }
   .section-subtitle { font-size: 12px; letter-spacing: 0.1em; }
-  .hero-subtitle { font-size: 15px; line-height: 1.65; }
+  .hero-subtitle { font-size: 12px; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .breadcrumb { padding: 20px 20px; }
 
-  .complete-look { padding: 60px 20px; }
+  /* Trending — horizontal swipe on mobile */
+  .trending-grid {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 10px;
+    padding-bottom: 10px;
+    scrollbar-width: none;
+  }
+  .trending-grid::-webkit-scrollbar { display: none; }
+  .trending-panel {
+    min-width: 72vw;
+    max-width: 72vw;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+  .trending-panel-main .trending-panel-img { height: 320px; }
+
+  .complete-look { padding: 36px 20px; }
   .complete-look-header { flex-direction: column; align-items: flex-start; gap: 20px; }
   .product-grid-3-related { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-  .reviews-section { padding: 60px 20px; }
+  .reviews-section { padding: 36px 20px; }
   .reviews-grid { grid-template-columns: 1fr; }
   .reviews-header { flex-direction: column; align-items: flex-start; gap: 12px; }
 
