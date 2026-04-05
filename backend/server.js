@@ -502,6 +502,31 @@ app.get('/api/products', async (req, res) => {
   }
 });
 
+/* ── Reviews (public) ── */
+app.post('/api/reviews', async (req, res) => {
+  try {
+    const { productSlug, name, rating, text } = req.body;
+    if (!productSlug || !name || !rating || !text) return res.status(400).json({ error: 'Missing fields' });
+    if (rating < 1 || rating > 5) return res.status(400).json({ error: 'Rating must be 1-5' });
+    let customerId = null;
+    const authHeader = req.headers['authorization'] || '';
+    const tok = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    if (tok) { try { const d = jwt.verify(tok, JWT_SECRET); if (d.customerId) customerId = d.customerId; } catch(_) {} }
+    const review = await prisma.review.create({
+      data: { productSlug: String(productSlug).slice(0,100), name: String(name).slice(0,80), rating: parseInt(rating), text: String(text).slice(0,1000), approved: false, customerId }
+    });
+    res.status(201).json({ ok: true, id: review.id });
+  } catch (err) { console.error(err); res.status(500).json({ error: 'Failed to submit review' }); }
+});
+
+app.get('/api/reviews/:slug', async (req, res) => {
+  try {
+    const reviews = await prisma.review.findMany({ where: { productSlug: req.params.slug, approved: true }, orderBy: { createdAt: 'desc' } });
+    const avg = reviews.length ? (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1) : null;
+    res.json({ reviews, avg: avg ? parseFloat(avg) : null, count: reviews.length });
+  } catch (err) { res.status(500).json({ error: 'Failed to fetch reviews' }); }
+});
+
 /* GET /api/products/:slug — public single product */
 app.get('/api/products/:slug', async (req, res) => {
   try {
@@ -881,6 +906,32 @@ app.get('/api/deals', async (req, res) => {
 /* ════════════════════════════════════════
    ADMIN — PRODUCTS (CRUD)
 ════════════════════════════════════════ */
+
+/* ════════════════════════════════════════
+   ADMIN — REVIEWS
+════════════════════════════════════════ */
+app.get('/api/admin/reviews', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { status } = req.query;
+    const where = status === 'pending' ? { approved: false } : status === 'approved' ? { approved: true } : {};
+    const reviews = await prisma.review.findMany({ where, orderBy: { createdAt: 'desc' } });
+    res.json(reviews);
+  } catch (err) { res.status(500).json({ error: 'Failed to fetch reviews' }); }
+});
+
+app.patch('/api/admin/reviews/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const review = await prisma.review.update({ where: { id: req.params.id }, data: { approved: Boolean(req.body.approved) } });
+    res.json(review);
+  } catch (err) { res.status(500).json({ error: 'Failed to update review' }); }
+});
+
+app.delete('/api/admin/reviews/:id', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    await prisma.review.delete({ where: { id: req.params.id } });
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: 'Failed to delete review' }); }
+});
 
 /* GET /api/admin/products */
 app.get('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {

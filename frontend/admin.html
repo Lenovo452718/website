@@ -547,6 +547,10 @@ select.pm-input{cursor:pointer}
       <a class="nav-item" onclick="showSection('products',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>Products
       </a>
+      <a class="nav-item" onclick="showSection('reviews',this)" id="navReviews">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Reviews
+        <span class="nav-badge" id="reviewsPendingBadge" style="display:none">0</span>
+      </a>
       <a class="nav-item" onclick="showSection('customers',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customers
       </a>
@@ -722,6 +726,16 @@ select.pm-input{cursor:pointer}
     </section>
 
     <!-- ── CUSTOMERS ── -->
+    <section class="admin-section" id="secReviews">
+      <div class="page-header"><h1>Reviews</h1><p>Approve or reject customer reviews before they appear on the site.</p></div>
+      <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="loadAdminReviews('all')" id="rvFilterAll">All</button>
+        <button class="btn btn-outline" onclick="loadAdminReviews('pending')" id="rvFilterPending">Pending</button>
+        <button class="btn btn-outline" onclick="loadAdminReviews('approved')" id="rvFilterApproved">Approved</button>
+      </div>
+      <div id="adminReviewsTable"><p style="color:#888;padding:20px">Loading…</p></div>
+    </section>
+
     <section class="admin-section" id="secCustomers">
       <div class="page-header"><h1>Customers</h1><p>All customers derived from order history.</p></div>
       <div class="search-wrap">
@@ -1627,6 +1641,7 @@ function showSection(id, el) {
   if (id==='settings')      { loadSettingsForm(); loadActivityLog(); loadBlockedIpsSettings(); load2faStatus(); loadBackupsList(); }
   if (id==='integrations')  loadIntegrations();
   if (id==='suspicious')    loadSuspiciousCustomers();
+  if (id==='reviews')       loadAdminReviews('all');
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
@@ -3778,6 +3793,94 @@ async function initAdmin() {
         if (txt) txt.textContent = `${d.length} customer${d.length>1?'s have':' has'} placed 3+ failed/cancelled orders.`;
       }
     }).catch(()=>{});
+  loadReviewsPendingBadge();
+}
+
+/* ═══════════════════════════════════════════
+   REVIEWS
+═══════════════════════════════════════════ */
+async function loadAdminReviews(status = 'all') {
+  // Update filter button styles
+  ['All','Pending','Approved'].forEach(s => {
+    const btn = document.getElementById('rvFilter' + s);
+    if (btn) btn.className = (s.toLowerCase() === status || (status === 'all' && s === 'All')) ? 'btn btn-primary' : 'btn btn-outline';
+  });
+  const el = document.getElementById('adminReviewsTable');
+  if (!el) return;
+  el.innerHTML = '<p style="color:#888;padding:20px">Loading…</p>';
+  try {
+    const res  = await authFetch(`/api/admin/reviews?status=${status}`);
+    const list = await res.json();
+    if (!list.length) { el.innerHTML = '<p style="color:#888;padding:20px">No reviews found.</p>'; return; }
+    el.innerHTML = `<table class="data-table" style="width:100%">
+      <thead><tr>
+        <th>Product</th><th>Customer</th><th>Rating</th><th>Review</th><th>Date</th><th>Status</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        ${list.map(r => `
+        <tr id="rvRow_${r.id}">
+          <td style="font-size:12px;color:var(--gray)">${r.productSlug}</td>
+          <td style="font-size:13px;font-weight:600">${escHtml(r.name)}</td>
+          <td>${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</td>
+          <td style="max-width:260px;font-size:13px">${escHtml(r.text)}</td>
+          <td style="font-size:11px;color:var(--gray)">${new Date(r.createdAt).toLocaleDateString()}</td>
+          <td><span style="font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;background:${r.approved?'#d4edda':'#fff3cd'};color:${r.approved?'#155724':'#856404'}">${r.approved?'Approved':'Pending'}</span></td>
+          <td style="white-space:nowrap">
+            ${!r.approved ? `<button class="btn btn-sm btn-primary" onclick="reviewAction('${r.id}',true)" style="margin-right:4px">Approve</button>` : `<button class="btn btn-sm btn-outline" onclick="reviewAction('${r.id}',false)" style="margin-right:4px">Reject</button>`}
+            <button class="btn btn-sm" style="background:var(--red);color:white;border:none" onclick="reviewDelete('${r.id}')">Delete</button>
+          </td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  } catch(e) { el.innerHTML = '<p style="color:var(--red);padding:20px">Failed to load reviews.</p>'; }
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function reviewAction(id, approve) {
+  try {
+    const res = await authFetch(`/api/admin/reviews/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ approved: approve })
+    });
+    if (res.ok) {
+      showToast(approve ? 'Review approved' : 'Review rejected');
+      // Refresh with current filter
+      const activeFilter = document.querySelector('#rvFilterAll.btn-primary') ? 'all'
+        : document.querySelector('#rvFilterPending.btn-primary') ? 'pending' : 'approved';
+      loadAdminReviews(activeFilter);
+      // Update pending badge
+      loadReviewsPendingBadge();
+    } else { showToast('Action failed','error'); }
+  } catch(e) { showToast('Server error','error'); }
+}
+
+async function reviewDelete(id) {
+  if (!confirm('Delete this review permanently?')) return;
+  try {
+    const res = await authFetch(`/api/admin/reviews/${id}`, { method: 'DELETE' });
+    if (res.ok) {
+      showToast('Review deleted');
+      const row = document.getElementById('rvRow_' + id);
+      if (row) row.remove();
+      loadReviewsPendingBadge();
+    } else { showToast('Delete failed','error'); }
+  } catch(e) { showToast('Server error','error'); }
+}
+
+async function loadReviewsPendingBadge() {
+  try {
+    const res  = await authFetch('/api/admin/reviews?status=pending');
+    const list = await res.json();
+    const badge = document.getElementById('reviewsPendingBadge');
+    if (badge) {
+      if (list.length > 0) { badge.textContent = list.length; badge.style.display = ''; }
+      else { badge.style.display = 'none'; }
+    }
+  } catch(_) {}
 }
 
 /* Auto-login if session exists */

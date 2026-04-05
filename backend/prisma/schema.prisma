@@ -131,6 +131,17 @@ model SiteSettings {
   whatsappBotKey     String  @default("")
 }
 
+model Review {
+  id          String   @id @default(cuid())
+  productSlug String
+  customerId  String?
+  name        String
+  rating      Int
+  text        String   @db.Text
+  approved    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
 model OlivraisonConfig {
   id        String  @id @default("singleton")
   apiKey    String  @default("")

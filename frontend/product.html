@@ -283,34 +283,40 @@
 <section class="reviews-section">
   <div class="reviews-inner">
     <div class="reviews-header">
-      <h2data-i18n="customer_reviews">Customer Reviews</h2>
-      <div class="reviews-avg">
-        <span class="big-rating">4.9</span>
-        <div>
-          <div class="stars">★★★★★</div>
-          <span style="font-size:13px; color:var(--gray);">Based on 48 reviews</span>
+      <div class="reviews-header-left">
+        <h2 data-i18n="customer_reviews">Customer Reviews</h2>
+        <div class="reviews-avg" id="reviewsAvg" style="display:none">
+          <span class="big-rating" id="reviewsAvgNum">—</span>
+          <div>
+            <div class="stars" id="reviewsAvgStars"></div>
+            <span class="reviews-count" id="reviewsCount"></span>
+          </div>
         </div>
       </div>
+      <button class="write-review-btn" onclick="toggleReviewForm()">✦ Write a Review</button>
     </div>
-    <div class="reviews-grid">
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-quote">"These are the best jeans I've ever owned. The fit is incredible — hugs in all the right places without feeling tight. I've already ordered a second pair."</p>
-        <p class="review-author">Emma R.</p>
-        <p class="review-date">March 2, 2026</p>
+
+    <!-- Review Form -->
+    <div class="review-form-wrap" id="reviewFormWrap" style="display:none">
+      <div class="review-form">
+        <h3 class="review-form-title">Share Your Experience</h3>
+        <div class="review-star-picker" id="reviewStarPicker">
+          <span class="rsp-star" data-val="1">★</span>
+          <span class="rsp-star" data-val="2">★</span>
+          <span class="rsp-star" data-val="3">★</span>
+          <span class="rsp-star" data-val="4">★</span>
+          <span class="rsp-star" data-val="5">★</span>
+        </div>
+        <p class="review-star-label" id="reviewStarLabel">Tap to rate</p>
+        <input class="review-input" id="reviewName" placeholder="Your name" autocomplete="name">
+        <textarea class="review-input review-textarea" id="reviewText" placeholder="Tell us about your experience…" rows="4"></textarea>
+        <button class="review-submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Submit Review</button>
+        <p class="review-form-note">Reviews appear after approval.</p>
       </div>
-      <div class="review-card">
-        <div class="review-stars">★★★★★</div>
-        <p class="review-quote">"Ordered size S as suggested and they fit perfectly. The dark wash looks so premium in person. Great quality stitching and super comfy all day."</p>
-        <p class="review-author">Layla M.</p>
-        <p class="review-date">February 18, 2026</p>
-      </div>
-      <div class="review-card">
-        <div class="review-stars">★★★★☆</div>
-        <p class="review-quote">"Absolutely love the cut and the colour. Delivery was fast and packaging was beautiful. Sizing runs true — exactly what I needed."</p>
-        <p class="review-author">Sofia K.</p>
-        <p class="review-date">January 30, 2026</p>
-      </div>
+    </div>
+
+    <div class="reviews-grid" id="reviewsGrid">
+      <p class="reviews-loading">Loading reviews…</p>
     </div>
   </div>
 </section>

@@ -1842,3 +1842,130 @@ async function placeBundleOrder() {
     if (btn) { btn.disabled = false; btn.textContent = 'Place Bundle Order \u2014 ' + _bundleSettings.bundle3Price + ' MAD'; }
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   REVIEWS SYSTEM
+   ═══════════════════════════════════════════════════════════════ */
+var _reviewRating = 0;
+
+function initReviews() {
+  if (!document.getElementById('reviewsGrid')) return;
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('slug');
+  if (!slug) return;
+
+  // Pre-fill name if customer is logged in
+  try {
+    var tok = localStorage.getItem('ss_customer_token');
+    if (tok) {
+      var payload = JSON.parse(atob(tok.split('.')[1]));
+      if (payload && payload.name) {
+        var nameEl = document.getElementById('reviewName');
+        if (nameEl) nameEl.value = payload.name;
+      }
+    }
+  } catch(e) {}
+
+  // Load reviews
+  var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
+  fetch(API + '/api/reviews/' + encodeURIComponent(slug))
+    .then(function(r) { return r.json(); })
+    .then(function(data) { renderReviews(data.reviews || [], data.avg, data.count); })
+    .catch(function() {
+      var g = document.getElementById('reviewsGrid');
+      if (g) g.innerHTML = '<p class="reviews-loading">Could not load reviews.</p>';
+    });
+
+  // Star picker interactions
+  document.querySelectorAll('.rsp-star').forEach(function(star) {
+    star.addEventListener('mouseenter', function() { highlightStars(parseInt(this.dataset.val)); });
+    star.addEventListener('mouseleave', function() { highlightStars(_reviewRating); });
+    star.addEventListener('click', function() {
+      _reviewRating = parseInt(this.dataset.val);
+      highlightStars(_reviewRating);
+      var labels = ['','Poor','Fair','Good','Very Good','Excellent'];
+      var lbl = document.getElementById('reviewStarLabel');
+      if (lbl) lbl.textContent = labels[_reviewRating];
+    });
+  });
+}
+
+function highlightStars(val) {
+  document.querySelectorAll('.rsp-star').forEach(function(s) {
+    s.classList.toggle('active', parseInt(s.dataset.val) <= val);
+  });
+}
+
+function renderReviews(reviews, avg, count) {
+  var avgEl  = document.getElementById('reviewsAvg');
+  var avgNum = document.getElementById('reviewsAvgNum');
+  var avgStars = document.getElementById('reviewsAvgStars');
+  var countEl  = document.getElementById('reviewsCount');
+  var grid     = document.getElementById('reviewsGrid');
+
+  if (avg && count > 0) {
+    if (avgEl) avgEl.style.display = 'flex';
+    if (avgNum) avgNum.textContent = avg;
+    if (avgStars) avgStars.textContent = '\u2605'.repeat(Math.round(avg)) + '\u2606'.repeat(5 - Math.round(avg));
+    if (countEl) countEl.textContent = 'Based on ' + count + ' review' + (count !== 1 ? 's' : '');
+  }
+
+  if (!grid) return;
+  if (!reviews.length) {
+    grid.innerHTML = '<p class="reviews-loading">No reviews yet. Be the first!</p>';
+    return;
+  }
+  grid.innerHTML = reviews.map(function(r) {
+    var stars = '\u2605'.repeat(r.rating) + '\u2606'.repeat(5 - r.rating);
+    var date = new Date(r.createdAt).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+    return '<div class="review-card">'
+      + '<div class="review-stars">' + stars + '</div>'
+      + '<p class="review-quote">\u201c' + r.text.replace(/</g,'&lt;') + '\u201d</p>'
+      + '<p class="review-author">' + r.name.replace(/</g,'&lt;') + '</p>'
+      + '<p class="review-date">' + date + '</p>'
+      + '</div>';
+  }).join('');
+}
+
+function toggleReviewForm() {
+  var wrap = document.getElementById('reviewFormWrap');
+  if (!wrap) return;
+  var open = wrap.style.display === 'none' || !wrap.style.display;
+  wrap.style.display = open ? 'block' : 'none';
+  if (open) setTimeout(function() { wrap.scrollIntoView({ behavior:'smooth', block:'nearest' }); }, 50);
+}
+
+async function submitReview() {
+  var name   = (document.getElementById('reviewName')  ? document.getElementById('reviewName').value  : '').trim();
+  var text   = (document.getElementById('reviewText')  ? document.getElementById('reviewText').value  : '').trim();
+  if (!_reviewRating) { alert('Please select a star rating.'); return; }
+  if (!name)           { alert('Please enter your name.');      return; }
+  if (text.length < 10){ alert('Please write at least 10 characters.'); return; }
+
+  var params = new URLSearchParams(window.location.search);
+  var slug = params.get('slug');
+  if (!slug) return;
+
+  var btn = document.getElementById('reviewSubmitBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Submitting\u2026'; }
+
+  try {
+    var API = (typeof STREETSTORE_BACKEND !== 'undefined') ? STREETSTORE_BACKEND : 'http://localhost:3000';
+    var hdrs = { 'Content-Type': 'application/json' };
+    var tok = localStorage.getItem('ss_customer_token');
+    if (tok) hdrs['Authorization'] = 'Bearer ' + tok;
+    var resp = await fetch(API + '/api/reviews', {
+      method: 'POST', headers: hdrs,
+      body: JSON.stringify({ productSlug: slug, name: name, rating: _reviewRating, text: text })
+    });
+    if (resp.ok) {
+      var wrap = document.getElementById('reviewFormWrap');
+      if (wrap) wrap.innerHTML = '<div class="review-submitted"><p>\uD83C\uDF89 Thank you, ' + name + '!</p><p>Your review is pending approval and will appear shortly.</p></div>';
+    } else { throw new Error(); }
+  } catch(e) {
+    alert('Could not submit review. Please try again.');
+    if (btn) { btn.disabled = false; btn.textContent = 'Submit Review'; }
+  }
+}
+
+document.addEventListener('DOMContentLoaded', initReviews);
