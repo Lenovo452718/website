@@ -128,7 +128,7 @@ function writeAuth(data) {
     } catch(_) {}
   }
   console.log('Video URLs seeded');
-})();
+})().catch(err => console.error('Bootstrap error (non-fatal):', err.message));
 
 /* ── Login throttle ── */
 const loginAttempts = new Map();
@@ -1855,6 +1855,11 @@ function runMigrations() {
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `deliveryPhone` VARCHAR(30) NULL",
     // Link orders to customer accounts
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `customerId` VARCHAR(30) NULL",
+    // Bundle 3 deal settings
+    "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `bundle3Price` DOUBLE NOT NULL DEFAULT 499",
+    "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `bundle3Enabled` TINYINT(1) NOT NULL DEFAULT 1",
+    // Customer reviews
+    "CREATE TABLE IF NOT EXISTS `Review` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `productSlug` VARCHAR(255) NOT NULL, `customerId` VARCHAR(30) NULL, `name` VARCHAR(255) NOT NULL, `rating` INT NOT NULL, `text` TEXT NOT NULL, `approved` TINYINT(1) NOT NULL DEFAULT 0, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
   ];
   (async () => {
     for (const sql of migrations) {
