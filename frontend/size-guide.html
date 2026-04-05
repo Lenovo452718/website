@@ -176,7 +176,7 @@
     .sg-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     .sg-table {
       width: 100%;
-      min-width: 520px;
+      min-width: 640px;
       border-collapse: collapse;
     }
     .sg-table thead tr { background: #111; }
@@ -200,10 +200,20 @@
     .sg-table td:first-child {
       text-align: center;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 24px;
+      font-size: 22px;
       letter-spacing: .04em;
       color: #111;
       font-weight: 400;
+      white-space: nowrap;
+    }
+    .sg-size-label {
+      display: block;
+      font-family: 'Inter', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      color: #999;
+      margin-top: 2px;
     }
     .sg-table td.sg-em { color: #111; font-weight: 600; }
     .sg-table tr.sg-best td { background: #f5f5f5; }
@@ -515,6 +525,8 @@
         <thead>
           <tr>
             <th>Size</th>
+            <th class="unit-cm">Height (cm)</th>
+            <th class="unit-in">Height (in)</th>
             <th class="unit-cm">Waist (cm)</th>
             <th class="unit-in">Waist (in)</th>
             <th class="unit-cm">Hip (cm)</th>
@@ -523,42 +535,54 @@
         </thead>
         <tbody>
           <tr>
-            <td>34</td>
+            <td>34<span class="sg-size-label">XS</span></td>
+            <td class="unit-cm">155 – 160</td>
+            <td class="unit-in">61 – 63"</td>
             <td class="sg-em unit-cm">61 – 63</td>
             <td class="sg-em unit-in">24 – 25"</td>
             <td class="unit-cm">86 – 89</td>
             <td class="unit-in">34 – 35"</td>
           </tr>
           <tr>
-            <td>36</td>
+            <td>36<span class="sg-size-label">S</span></td>
+            <td class="unit-cm">158 – 163</td>
+            <td class="unit-in">62 – 64"</td>
             <td class="sg-em unit-cm">66 – 68</td>
             <td class="sg-em unit-in">26 – 27"</td>
             <td class="unit-cm">91 – 94</td>
             <td class="unit-in">36 – 37"</td>
           </tr>
           <tr class="sg-best">
-            <td>38 <span class="sg-best-badge">Popular</span></td>
+            <td>38<span class="sg-size-label">M</span></td>
+            <td class="unit-cm">160 – 165</td>
+            <td class="unit-in">63 – 65"</td>
             <td class="sg-em unit-cm">71 – 73</td>
             <td class="sg-em unit-in">28 – 29"</td>
             <td class="unit-cm">96 – 99</td>
             <td class="unit-in">38 – 39"</td>
           </tr>
           <tr>
-            <td>40</td>
+            <td>40<span class="sg-size-label">L</span></td>
+            <td class="unit-cm">162 – 167</td>
+            <td class="unit-in">64 – 66"</td>
             <td class="sg-em unit-cm">76 – 78</td>
             <td class="sg-em unit-in">30 – 31"</td>
             <td class="unit-cm">101 – 104</td>
             <td class="unit-in">40 – 41"</td>
           </tr>
           <tr>
-            <td>42</td>
+            <td>42<span class="sg-size-label">XL</span></td>
+            <td class="unit-cm">163 – 168</td>
+            <td class="unit-in">64 – 66"</td>
             <td class="sg-em unit-cm">81 – 83</td>
             <td class="sg-em unit-in">32 – 33"</td>
             <td class="unit-cm">106 – 109</td>
             <td class="unit-in">42 – 43"</td>
           </tr>
           <tr>
-            <td>44</td>
+            <td>44<span class="sg-size-label">XXL</span></td>
+            <td class="unit-cm">165 – 170</td>
+            <td class="unit-in">65 – 67"</td>
             <td class="sg-em unit-cm">86 – 89</td>
             <td class="sg-em unit-in">34 – 35"</td>
             <td class="unit-cm">111 – 114</td>
