@@ -127,26 +127,37 @@ function apiProductToLocal(p) {
   };
 }
 
-/* ── Page blur overlay — hides stale content while API loads ── */
+/* ── Skeleton cards — shown while API loads ── */
+function _showSkeletons(gridId, count) {
+  var grid = document.getElementById(gridId);
+  if (!grid) return;
+  var skels = '';
+  for (var i = 0; i < count; i++) {
+    skels += '<div class="product-card ss-skeleton">'
+      + '<div class="ss-skel-img"></div>'
+      + '<div class="ss-skel-info">'
+      + '<div class="ss-skel-line ss-skel-line-lg"></div>'
+      + '<div class="ss-skel-line ss-skel-line-sm"></div>'
+      + '<div class="ss-skel-line ss-skel-line-md"></div>'
+      + '</div></div>';
+  }
+  grid.innerHTML = skels;
+}
+
+/* ── Inject skeleton CSS once ── */
 (function() {
-  var overlay = document.createElement('div');
-  overlay.id = 'ss-load-blur';
-  overlay.style.cssText = [
-    'position:fixed','inset:0','z-index:9999',
-    'background:rgba(255,255,255,0.55)',
-    'backdrop-filter:blur(10px)',
-    '-webkit-backdrop-filter:blur(10px)',
-    'transition:opacity 0.4s ease',
-    'pointer-events:none',
-    'opacity:1'
-  ].join(';');
-  document.documentElement.appendChild(overlay);
-  window._ssRemoveBlur = function() {
-    overlay.style.opacity = '0';
-    setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 420);
-  };
-  // Safety fallback — always remove after 3s even if API hangs
-  setTimeout(window._ssRemoveBlur, 3000);
+  var s = document.createElement('style');
+  s.textContent = [
+    '.ss-skeleton{pointer-events:none;cursor:default}',
+    '.ss-skel-img{width:100%;aspect-ratio:3/4;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:ssSkelShim 1.4s infinite}',
+    '.ss-skel-info{padding:14px 0 8px}',
+    '.ss-skel-line{height:12px;border-radius:4px;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);background-size:200% 100%;animation:ssSkelShim 1.4s infinite;margin-bottom:10px}',
+    '.ss-skel-line-lg{width:70%}',
+    '.ss-skel-line-sm{width:40%}',
+    '.ss-skel-line-md{width:55%}',
+    '@keyframes ssSkelShim{0%{background-position:200% 0}100%{background-position:-200% 0}}'
+  ].join('');
+  document.head.appendChild(s);
 })();
 
 /* ── Fetch all products from the API ── */
@@ -155,14 +166,17 @@ function apiProductToLocal(p) {
   if (!API) {
     document.dispatchEvent(new CustomEvent('productsLoaded'));
     renderShopGrid();
-    if (window._ssRemoveBlur) window._ssRemoveBlur();
     return;
   }
   fetch(API + '/api/products')
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(list) {
-      if (!Array.isArray(list) || !list.length) return;
-      Object.keys(PRODUCTS).forEach(function(k) { if (!PRODUCTS[k].id) delete PRODUCTS[k]; });
+      if (!Array.isArray(list) || !list.length) {
+        renderShopGrid(); renderHomeGrid(); return;
+      }
+      // Clear ALL products (hardcoded + stale cache) — API is single source of truth
+      Object.keys(PRODUCTS).forEach(function(k) { delete PRODUCTS[k]; });
+      // Load fresh from API
       list.forEach(function(p) {
         if ((p.status || 'active').toUpperCase() === 'ACTIVE') {
           PRODUCTS[p.slug] = apiProductToLocal(p);
@@ -173,13 +187,12 @@ function apiProductToLocal(p) {
       renderHomeGrid();
       if (typeof initProductImages === 'function') initProductImages();
       if (typeof initProductInfo === 'function') initProductInfo();
-      if (window._ssRemoveBlur) window._ssRemoveBlur();
     })
     .catch(function() {
+      // API failed — fall back to whatever is in PRODUCTS
       document.dispatchEvent(new CustomEvent('productsLoaded'));
       renderShopGrid();
       renderHomeGrid();
-      if (window._ssRemoveBlur) window._ssRemoveBlur();
     });
 })();
 
@@ -343,8 +356,9 @@ function renderShopGrid() {
   if (typeof window._shopApplyFilters === 'function') window._shopApplyFilters();
   if (typeof window.reObserveReveal === 'function') window.reObserveReveal();
 }
-renderShopGrid();
-renderHomeGrid();
+// Show skeletons immediately — real products replace them after API responds
+_showSkeletons('shopProductGrid', 6);
+_showSkeletons('homeProductGrid', 4);
 
 /* ── Auto-populate all product card images on the page ── */
 function initProductImages() {
