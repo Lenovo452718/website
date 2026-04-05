@@ -2975,59 +2975,41 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .nav-right .cart-btn { display: none; }
   .mobile-menu { padding: 20px 20px 28px; }
 
-  /* ── Mobile Hero Redesign ── */
+  /* ── Mobile Hero ── */
   .hero {
     height: 100svh;
     min-height: 620px;
     align-items: flex-end;
-    padding-bottom: 0;
-  }
-  .hero-bg {
-    background-image: url('images/products/high-rise-dark-blue/1.jpg');
-    background-size: cover;
-    background-position: center top;
-  }
-  .hero-overlay {
-    background: linear-gradient(
-      to top,
-      rgba(0,0,0,0.92) 0%,
-      rgba(0,0,0,0.55) 45%,
-      rgba(0,0,0,0.15) 100%
-    );
   }
   .hero-bg-word { display: none; }
   .hero-accent-strip { display: none; }
-  .hero-meta { margin-bottom: 14px; }
   .hero-content {
-    padding: 0 22px 32px;
+    padding: 0 22px 28px;
     max-width: 100%;
     width: 100%;
     z-index: 2;
   }
-  .hero-heading, .hero-heading-italic { font-size: clamp(44px, 12vw, 68px); }
-  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(32px, 9vw, 52px); }
+  .hero-meta { margin-bottom: 12px; }
+  .hero-heading, .hero-heading-italic { font-size: clamp(40px, 11vw, 62px); }
+  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(30px, 8vw, 48px); }
   .hero-eyebrow { font-size: 10px; margin-bottom: 10px; }
   .hero-subtitle { font-size: 13px; max-width: 100%; margin-bottom: 22px; opacity: 0.8; }
   .hero-cta { flex-direction: row; gap: 10px; }
-  .hero-cta > a, .hero-cta > button { width: auto; flex: 1; text-align: center; padding: 13px 10px; font-size: 11px; }
+  .hero-cta > a, .hero-cta > button { flex: 1; text-align: center; padding: 13px 10px; font-size: 11px; }
   .hero-scroll { display: none; }
 
-  /* Stats bar pinned at very bottom of hero */
+  /* Stats bar at bottom of hero */
   .hero-stats {
     position: relative;
-    bottom: auto;
-    right: auto;
-    left: auto;
+    bottom: auto; right: auto; left: auto;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     padding: 14px 22px;
-    margin-top: 20px;
-    background: rgba(255,255,255,0.06);
+    margin-top: 18px;
     border-top: 1px solid rgba(255,255,255,0.1);
-    backdrop-filter: blur(6px);
     gap: 0;
   }
   .hero-stat {
