@@ -1695,7 +1695,8 @@ function loadDashboard() {
   const todayOrders   = orders.filter(o=>new Date(o.date||o.createdAt).toDateString()===today);
   const pending       = orders.filter(o=>['new','pending'].includes(o.status));
   const processing    = orders.filter(o=>o.status==='processing');
-  const done          = orders.filter(o=>['done','delivered','confirmed'].includes(o.status));
+  const confirmed     = orders.filter(o=>o.status==='confirmed');
+  const done          = orders.filter(o=>['done','delivered'].includes(o.status));
   const cancelled     = orders.filter(o=>o.status==='cancelled');
   const revenue       = done.reduce((s,o)=>s+parseFloat((o.price||'0').replace(/[^0-9.]/g,'')),0);
 
@@ -1708,8 +1709,9 @@ function loadDashboard() {
       {label:'Orders Today',  value:todayOrders.length,     sub:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'}), cls:''},
       {label:'Total Revenue', value:Math.round(liveRevenue).toLocaleString()+' MAD', sub:'Completed orders',  cls:'accent'},
       {label:'Pending',       value:pending.length,         sub:'Awaiting action',   cls:pending.length>0?'red-card':''},
-      {label:'Processing',    value:processing.length,      sub:'Being prepared',    cls:''},
-      {label:'Delivered',     value:done.length,            sub:'Fulfilled',         cls:'green'},
+      {label:'Confirmed',     value:confirmed.length,       sub:'Ready to ship',     cls:''},
+      {label:'Processing',    value:processing.length,      sub:'With delivery',     cls:''},
+      {label:'Delivered',     value:done.length,            sub:'Delivered by carrier', cls:'green'},
       {label:'Cancelled',     value:cancelled.length,       sub:'Lost orders',       cls:cancelled.length>0?'red-card':''},
       {label:'Products',      value:products,               sub:'In catalog',        cls:''},
     ];
@@ -1726,8 +1728,9 @@ function loadDashboard() {
     {label:'Orders Today',  value:todayOrders.length,     sub:new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short'}), cls:''},
     {label:'Total Revenue', value:Math.round(revenue).toLocaleString()+' MAD', sub:'Completed orders',  cls:'accent'},
     {label:'Pending',       value:pending.length,         sub:'Awaiting action',   cls:pending.length>0?'red-card':''},
-    {label:'Processing',    value:processing.length,      sub:'Being prepared',    cls:''},
-    {label:'Delivered',     value:done.length,            sub:'Fulfilled',         cls:'green'},
+    {label:'Confirmed',     value:confirmed.length,       sub:'Ready to ship',     cls:''},
+    {label:'Processing',    value:processing.length,      sub:'With delivery',     cls:''},
+    {label:'Delivered',     value:done.length,            sub:'Delivered by carrier', cls:'green'},
     {label:'Cancelled',     value:cancelled.length,       sub:'Lost orders',       cls:cancelled.length>0?'red-card':''},
     {label:'Products',      value:Object.keys(getActiveProducts()).length, sub:'In catalog', cls:''},
   ];
@@ -1760,7 +1763,7 @@ function renderCharts(orders) {
 
   const revenueData = days.map(d => {
     const ds = d.toDateString();
-    return orders.filter(o=>['done','delivered','confirmed'].includes(o.status)&&new Date(o.date||o.createdAt).toDateString()===ds)
+    return orders.filter(o=>['done','delivered'].includes(o.status)&&new Date(o.date||o.createdAt).toDateString()===ds)
       .reduce((s,o)=>s+parseFloat((o.price||'0').replace(/[^0-9.]/g,'')),0);
   });
   const ordersData = days.map(d => {
