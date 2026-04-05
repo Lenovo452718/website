@@ -674,7 +674,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 .hero-heading {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(64px, 9vw, 128px);
+  font-size: clamp(44px, 6vw, 88px);
   color: var(--white);
   line-height: 0.88;
   letter-spacing: 0.02em;
@@ -682,11 +682,11 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 [lang="fr"] .hero-heading,
 [lang="fr"] .hero-heading-italic {
-  font-size: clamp(48px, 7vw, 96px);
+  font-size: clamp(34px, 5vw, 70px);
 }
 .hero-heading-italic {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(64px, 9vw, 128px);
+  font-size: clamp(44px, 6vw, 88px);
   color: var(--white);
   line-height: 0.88;
   letter-spacing: 0.02em;

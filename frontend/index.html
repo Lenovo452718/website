@@ -73,9 +73,9 @@
     </div>
   </div>
   <div class="hero-stats">
-    <div class="hero-stat"><span class="hero-stat-num">07</span><span class="hero-stat-label">New Looks</span></div>
+    <div class="hero-stat"><span class="hero-stat-num count-up" data-target="10" data-suffix="K+">0</span><span class="hero-stat-label">Satisfied Customers</span></div>
     <div class="hero-stat"><span class="hero-stat-num">SS26</span><span class="hero-stat-label">Collection</span></div>
-    <div class="hero-stat"><span class="hero-stat-num">100%</span><span class="hero-stat-label">Premium</span></div>
+    <div class="hero-stat"><span class="hero-stat-num count-up" data-target="100" data-suffix="%">0</span><span class="hero-stat-label">Premium</span></div>
   </div>
   <div class="hero-scroll">
     <span>Scroll</span>
@@ -318,5 +318,32 @@
 <script src="i18n.js" defer></script>
 <script src="script.js" defer></script>
 <script src="mobile.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const counters = document.querySelectorAll('.count-up');
+  const observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        const target = +el.getAttribute('data-target');
+        const suffix = el.getAttribute('data-suffix') || '';
+        const duration = 1800;
+        const step = target / (duration / 16);
+        let current = 0;
+        const timer = setInterval(function() {
+          current += step;
+          if (current >= target) {
+            current = target;
+            clearInterval(timer);
+          }
+          el.textContent = Math.floor(current) + suffix;
+        }, 16);
+        observer.unobserve(el);
+      }
+    });
+  }, { threshold: 0.3 });
+  counters.forEach(function(c) { observer.observe(c); });
+});
+</script>
 </body>
 </html>
