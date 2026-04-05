@@ -5,7 +5,7 @@
   "scripts": {
     "start": "node server.js",
     "build": "echo 'No build step'",
-    "postinstall": "cd backend && npm install"
+    "postinstall": "cd backend && npm install && node -e \"const fs=require('fs'),p='../public_html/.htaccess';if(fs.existsSync(p)){let c=fs.readFileSync(p,'utf8');if(!c.includes('RewriteEngine On')){c=c.replace('RewriteRule',`RewriteEngine On\\nRewriteRule`);fs.writeFileSync(p,c);console.log('Patched .htaccess');}}\" 2>/dev/null || true"
   },
   "dependencies": {}
 }
