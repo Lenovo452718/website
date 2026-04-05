@@ -2982,7 +2982,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
-    padding-top: 80px;
+    padding-top: 110px;
     padding-bottom: 0;
   }
   .hero-bg-word { display: none; }
