@@ -3250,12 +3250,12 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 @media (max-width: 380px) {
   .hero-content { padding: 0 16px; }
-  .hero-heading { font-size: clamp(28px, 8vw, 36px); }
+  .hero-heading, .hero-heading-italic { font-size: clamp(54px, 15vw, 68px); }
 }
 
 /* 360px — smallest phones */
 @media (max-width: 360px) {
-  .hero-heading, .hero-heading-italic { font-size: clamp(36px, 11vw, 48px); }
+  .hero-heading, .hero-heading-italic { font-size: clamp(50px, 14vw, 62px); }
   .hero-content { padding: 0 16px; }
   .hero-stats { left: 16px; }
   .hero-bg-word { font-size: clamp(110px, 44vw, 170px); }
