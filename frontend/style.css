@@ -912,10 +912,13 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .brand-statement-text p {
   font-size: 16px;
   line-height: 1.9;
-  color: var(--gray);
+  color: var(--white);
   max-width: 380px;
   margin-bottom: 28px;
   font-weight: 300;
+}
+.brand-statement .btn-text {
+  color: var(--white);
 }
 
 /* Trending Section */
