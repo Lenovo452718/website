@@ -1830,8 +1830,9 @@ app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
 /* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */
-/* Run safe DB migrations on startup — fully non-blocking */
-function runMigrations() {
+/* Run DB migrations FIRST, then bootstrap, then start listening.
+   This order guarantees columns always exist before Prisma touches them. */
+async function runMigrations() {
   const migrations = [
     "ALTER TABLE `Product` ADD COLUMN IF NOT EXISTS `videoUrl` VARCHAR(2048) NULL",
     "ALTER TABLE `Product` ADD COLUMN IF NOT EXISTS `color` VARCHAR(100) NULL",
@@ -1850,26 +1851,47 @@ function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `Customer` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `email` VARCHAR(255) NOT NULL, `name` VARCHAR(255) NOT NULL DEFAULT '', `avatar` VARCHAR(500) NULL, `googleId` VARCHAR(255) NULL, `phone` VARCHAR(30) NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_email ON `Customer` (email)",
     "ALTER TABLE `Customer` ADD COLUMN IF NOT EXISTS `passwordHash` VARCHAR(255) NULL",
-    // Auto-tracking: dedicated columns
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `trackingCode` VARCHAR(255) NULL",
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `deliveryPhone` VARCHAR(30) NULL",
-    // Link orders to customer accounts
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `customerId` VARCHAR(30) NULL",
-    // Bundle 3 deal settings
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `bundle3Price` DOUBLE NOT NULL DEFAULT 499",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `bundle3Enabled` TINYINT(1) NOT NULL DEFAULT 1",
-    // Customer reviews
     "CREATE TABLE IF NOT EXISTS `Review` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `productSlug` VARCHAR(255) NOT NULL, `customerId` VARCHAR(30) NULL, `name` VARCHAR(255) NOT NULL, `rating` INT NOT NULL, `text` TEXT NOT NULL, `approved` TINYINT(1) NOT NULL DEFAULT 0, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
   ];
-  (async () => {
-    for (const sql of migrations) {
-      try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
-    }
-    console.log('DB migrations complete');
-  })().catch(() => {});
+  for (const sql of migrations) {
+    try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
+  }
+  console.log('DB migrations complete');
 }
-try { runMigrations(); } catch(_) {}
 
-httpServer.listen(PORT, () => {
-  console.log(`\nStreetStore API + Socket.io running on port ${PORT}\n`);
-});
+async function bootstrap() {
+  const auth = readAuth();
+  if (!auth.passwordHash) {
+    const raw  = process.env.API_SECRET || 'admin123';
+    const hash = await bcrypt.hash(raw, BCRYPT_ROUNDS);
+    writeAuth({ ...auth, passwordHash: hash });
+    console.log('Password hashed and stored');
+  }
+  await prisma.siteSettings.upsert({ where: { id: 'singleton' }, update: {}, create: { id: 'singleton' } });
+  await prisma.olivraisonConfig.upsert({ where: { id: 'singleton' }, update: {}, create: { id: 'singleton' } });
+  const videoSeeds = [
+    { slug: 'patte-elephant',     videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703910/streetstore/products/videos/patte-elephant.mp4' },
+    { slug: 'high-rise-dark-blue',videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703925/streetstore/products/videos/high-rise-dark-blue.mp4' },
+    { slug: 'brown-wide-leg',     videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703935/streetstore/products/videos/brown-wide-leg.mp4' },
+    { slug: 'baggy-wide-leg',     videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703938/streetstore/products/videos/baggy-wide-leg.mp4' },
+  ];
+  for (const v of videoSeeds) {
+    try { await prisma.product.updateMany({ where: { slug: v.slug, videoUrl: null }, data: { videoUrl: v.videoUrl } }); } catch(_) {}
+  }
+  console.log('Video URLs seeded');
+}
+
+/* Startup sequence: migrations → bootstrap → listen (strict order, no race conditions) */
+runMigrations()
+  .then(() => bootstrap())
+  .catch(err => console.error('Startup error:', err.message))
+  .finally(() => {
+    httpServer.listen(PORT, () => {
+      console.log(`\nStreetStore API + Socket.io running on port ${PORT}\n`);
+    });
+  });
