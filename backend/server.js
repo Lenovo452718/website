@@ -128,12 +128,6 @@ function writeBlockedIps(list) {
   fs.writeFileSync(BLOCKED_IPS_FILE, JSON.stringify(list, null, 2));
 }
 
-/* ── Products cache (30s TTL — avoids DB hit on every page load) ── */
-let _productsCache = null;
-let _productsCacheAt = 0;
-const PRODUCTS_CACHE_TTL = 30_000; // 30 seconds
-function invalidateProductsCache() { _productsCache = null; }
-
 /* ── Helpers ── */
 function getClientIp(req) { return req.ip || req.socket?.remoteAddress || 'unknown'; }
 function normalizePhone(p) { return p ? p.replace(/[\s\-\.()]/g, '') : ''; }
@@ -411,7 +405,8 @@ app.get('/api/coupons/validate', async (req, res) => {
 /* GET /api/products/overrides — legacy compat for products.js */
 let _productsCache = null;
 let _productsCacheTime = 0;
-const PRODUCTS_CACHE_TTL = 60_000; // 60 seconds
+const PRODUCTS_CACHE_TTL = 30_000; // 30 seconds
+function invalidateProductsCache() { _productsCache = null; }
 
 app.get('/api/products/overrides', async (req, res) => {
   try {
@@ -461,7 +456,7 @@ app.get('/api/products/overrides', async (req, res) => {
 app.get('/api/products', async (req, res) => {
   try {
     const now = Date.now();
-    if (_productsCache && (now - _productsCacheAt) < PRODUCTS_CACHE_TTL) {
+    if (_productsCache && (now - _productsCacheTime) < PRODUCTS_CACHE_TTL) {
       return res.json(_productsCache);
     }
     const products = await prisma.product.findMany({
@@ -470,7 +465,7 @@ app.get('/api/products', async (req, res) => {
       orderBy: { sortOrder: 'asc' },
     });
     _productsCache = products;
-    _productsCacheAt = now;
+    _productsCacheTime = now;
     res.json(products);
   } catch (err) {
     console.error('GET /api/products error:', err);
