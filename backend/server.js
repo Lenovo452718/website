@@ -114,22 +114,25 @@ function recordFailedLogin(ip) {
 }
 function resetLoginAttempts(ip) { loginAttempts.delete(ip); }
 
-/* ── Blocked IPs ── */
+/* ── Blocked IPs (memory cache — no disk read per request) ── */
 const BLOCKED_IPS_FILE = path.join(__dirname, 'blocked_ips.json');
+let _blockedIpsCache = null;
 function readBlockedIps() {
-  try { return JSON.parse(fs.existsSync(BLOCKED_IPS_FILE) ? fs.readFileSync(BLOCKED_IPS_FILE, 'utf8') : '[]'); }
-  catch { return []; }
+  if (_blockedIpsCache) return _blockedIpsCache;
+  try { _blockedIpsCache = JSON.parse(fs.existsSync(BLOCKED_IPS_FILE) ? fs.readFileSync(BLOCKED_IPS_FILE, 'utf8') : '[]'); }
+  catch { _blockedIpsCache = []; }
+  return _blockedIpsCache;
 }
-function writeBlockedIps(list) { fs.writeFileSync(BLOCKED_IPS_FILE, JSON.stringify(list, null, 2)); }
+function writeBlockedIps(list) {
+  _blockedIpsCache = list;
+  fs.writeFileSync(BLOCKED_IPS_FILE, JSON.stringify(list, null, 2));
+}
 
-/* ── Backup ── */
-const BACKUP_DIR = path.join(__dirname, 'backups');
-if (!fs.existsSync(BACKUP_DIR)) fs.mkdirSync(BACKUP_DIR);
-function runBackup() {
-  // No-op: orders are now in MySQL. Kept for backward compat.
-}
-runBackup();
-setInterval(runBackup, 24 * 60 * 60 * 1000);
+/* ── Products cache (30s TTL — avoids DB hit on every page load) ── */
+let _productsCache = null;
+let _productsCacheAt = 0;
+const PRODUCTS_CACHE_TTL = 30_000; // 30 seconds
+function invalidateProductsCache() { _productsCache = null; }
 
 /* ── Helpers ── */
 function getClientIp(req) { return req.ip || req.socket?.remoteAddress || 'unknown'; }
@@ -182,8 +185,9 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log(`Socket disconnected: ${socket.id}`));
 });
 
-/* Helper: emit storefront sync event */
+/* Helper: emit storefront sync event + auto-invalidate products cache */
 function emit(event, data) {
+  if (event.startsWith('product')) invalidateProductsCache();
   io.emit(event, data);
 }
 
@@ -215,11 +219,13 @@ app.use(cors({
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
 }));
 app.use(express.static(path.join(__dirname, '../frontend'), {
-  maxAge: 0,       // always revalidate — never serve stale JS/HTML
-  etag: true,      // still use ETags so 304 Not Modified saves bandwidth
+  maxAge: 0,
+  etag: true,
   setHeaders: function(res, filePath) {
     if (/\.(jpg|jpeg|png|webp|gif|svg|mp4|mov|webm|woff2?|ttf)$/i.test(filePath)) {
-      res.setHeader('Cache-Control', 'public, max-age=604800'); // 7d for images/fonts/videos only
+      res.setHeader('Cache-Control', 'public, max-age=604800'); // 7d for images/fonts/videos
+    } else if (/\.(css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=300'); // 5 min for CSS/JS
     }
   }
 }));
@@ -454,11 +460,17 @@ app.get('/api/products/overrides', async (req, res) => {
 /* GET /api/products — public product list for storefront */
 app.get('/api/products', async (req, res) => {
   try {
+    const now = Date.now();
+    if (_productsCache && (now - _productsCacheAt) < PRODUCTS_CACHE_TTL) {
+      return res.json(_productsCache);
+    }
     const products = await prisma.product.findMany({
       where:   { status: 'ACTIVE' },
       include: { images: { orderBy: { sortOrder: 'asc' } }, variants: { orderBy: { sortOrder: 'asc' } } },
       orderBy: { sortOrder: 'asc' },
     });
+    _productsCache = products;
+    _productsCacheAt = now;
     res.json(products);
   } catch (err) {
     console.error('GET /api/products error:', err);
