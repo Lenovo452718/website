@@ -2993,7 +2993,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
     z-index: 2;
   }
   .hero-eyebrow { font-size: 9px; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .hero-heading, .hero-heading-italic { font-size: clamp(38px, 10vw, 56px); }
+  .hero-heading, .hero-heading-italic { font-size: clamp(52px, 14vw, 72px); }
   [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(28px, 8vw, 44px); }
   .hero-subtitle { font-size: 12px; max-width: 100%; margin-bottom: 20px; opacity: 0.7; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hero-cta { flex-direction: column; gap: 8px; width: 100%; }
