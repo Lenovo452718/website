@@ -2983,45 +2983,51 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   }
   .hero-bg-word { display: none; }
   .hero-accent-strip { display: none; }
+  .hero-meta { display: none; }
   .hero-content {
-    padding: 0 22px 28px;
+    padding: 0 20px 20px;
     max-width: 100%;
     width: 100%;
+    box-sizing: border-box;
     z-index: 2;
   }
-  .hero-meta { margin-bottom: 12px; }
-  .hero-heading, .hero-heading-italic { font-size: clamp(40px, 11vw, 62px); }
-  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(30px, 8vw, 48px); }
-  .hero-eyebrow { font-size: 10px; margin-bottom: 10px; }
-  .hero-subtitle { font-size: 13px; max-width: 100%; margin-bottom: 22px; opacity: 0.8; }
-  .hero-cta { flex-direction: row; gap: 10px; }
-  .hero-cta > a, .hero-cta > button { flex: 1; text-align: center; padding: 13px 10px; font-size: 11px; }
+  .hero-eyebrow { font-size: 9px; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .hero-heading, .hero-heading-italic { font-size: clamp(38px, 10vw, 56px); }
+  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(28px, 8vw, 44px); }
+  .hero-subtitle { font-size: 13px; max-width: 100%; margin-bottom: 20px; opacity: 0.75; line-height: 1.5; }
+  .hero-cta { flex-direction: column; gap: 8px; width: 100%; }
+  .hero-cta > a, .hero-cta > button { width: 100%; text-align: center; padding: 14px; font-size: 12px; box-sizing: border-box; }
   .hero-scroll { display: none; }
 
-  /* Stats bar at bottom of hero */
+  /* Stats bar with blur effect */
   .hero-stats {
     position: relative;
     bottom: auto; right: auto; left: auto;
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     width: 100%;
-    padding: 14px 22px;
-    margin-top: 18px;
-    border-top: 1px solid rgba(255,255,255,0.1);
+    padding: 14px 16px;
+    margin-top: 16px;
+    background: rgba(255,255,255,0.07);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
     gap: 0;
+    box-sizing: border-box;
   }
   .hero-stat {
     align-items: center;
-    padding: 0;
+    padding: 0 8px;
     margin: 0;
     flex: 1;
     border-right: 1px solid rgba(255,255,255,0.12);
   }
   .hero-stat:last-child { border-right: none; }
-  .hero-stat-num { font-size: 20px; }
-  .hero-stat-label { font-size: 7px; letter-spacing: 0.14em; text-align: center; }
+  .hero-stat-num { font-size: 18px; }
+  .hero-stat-label { font-size: 7px; letter-spacing: 0.12em; text-align: center; white-space: nowrap; }
 
   .benefits-inner { grid-template-columns: 1fr; }
   .benefit-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
