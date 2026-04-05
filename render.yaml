@@ -5,30 +5,21 @@ services:
     rootDir: backend
     buildCommand: npm install
     startCommand: npm start
-    plan: free
+    plan: starter
     envVars:
       - key: PORT
         value: 10000
-      - key: API_SECRET
-        sync: false
+      - key: DATABASE_URL
+        value: mysql://u177512110_Noureddine:Ilovetowork53%21@srv2123.hstgr.io:3306/u177512110_Streetstore?connection_limit=5&pool_timeout=10
+      - key: WEBSITE_URL
+        value: https://streetstore.ma
       - key: JWT_SECRET
         sync: false
-      - key: WEBSITE_URL
-        value: https://lenovo452718.github.io
-      - key: CLOUDINARY_URL
+      - key: API_SECRET
         sync: false
-
-  - type: web
-    name: streetstore-admin
-    env: node
-    rootDir: admin
-    buildCommand: npm install && npm run build
-    startCommand: npm start
-    plan: free
-    envVars:
-      - key: PORT
-        value: 10000
-      - key: NEXT_PUBLIC_API_URL
-        value: https://streetstore-api.onrender.com
-      - key: NEXT_PUBLIC_SOCKET_URL
-        value: https://streetstore-api.onrender.com
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
