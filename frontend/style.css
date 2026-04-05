@@ -2975,40 +2975,71 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .nav-right .cart-btn { display: none; }
   .mobile-menu { padding: 20px 20px 28px; }
 
-  .hero-content { padding: 0 24px; max-width: 100%; }
-  .hero-bg-word {
-    font-size: clamp(160px, 52vw, 280px);
-    bottom: -0.08em;
-    right: -0.02em;
-    -webkit-text-stroke: 1px rgba(255,255,255,0.055);
+  /* ── Mobile Hero Redesign ── */
+  .hero {
+    height: 100svh;
+    min-height: 620px;
+    align-items: flex-end;
+    padding-bottom: 0;
   }
-  .hero-heading, .hero-heading-italic { font-size: clamp(52px, 13vw, 80px); }
-  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(36px, 10vw, 60px); }
-  .hero-eyebrow { font-size: 11px; }
-  .hero-subtitle { font-size: 14px; max-width: 280px; margin-bottom: 28px; }
-  .hero-cta { flex-direction: column; align-items: flex-start; }
-  .hero-cta > a, .hero-cta > button { width: 100%; text-align: center; }
+  .hero-bg {
+    background-image: url('images/products/high-rise-dark-blue/1.jpg');
+    background-size: cover;
+    background-position: center top;
+  }
+  .hero-overlay {
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.92) 0%,
+      rgba(0,0,0,0.55) 45%,
+      rgba(0,0,0,0.15) 100%
+    );
+  }
+  .hero-bg-word { display: none; }
+  .hero-accent-strip { display: none; }
+  .hero-meta { margin-bottom: 14px; }
+  .hero-content {
+    padding: 0 22px 32px;
+    max-width: 100%;
+    width: 100%;
+    z-index: 2;
+  }
+  .hero-heading, .hero-heading-italic { font-size: clamp(44px, 12vw, 68px); }
+  [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(32px, 9vw, 52px); }
+  .hero-eyebrow { font-size: 10px; margin-bottom: 10px; }
+  .hero-subtitle { font-size: 13px; max-width: 100%; margin-bottom: 22px; opacity: 0.8; }
+  .hero-cta { flex-direction: row; gap: 10px; }
+  .hero-cta > a, .hero-cta > button { width: auto; flex: 1; text-align: center; padding: 13px 10px; font-size: 11px; }
   .hero-scroll { display: none; }
 
-  /* Show stats in a horizontal row at the bottom of the hero */
+  /* Stats bar pinned at very bottom of hero */
   .hero-stats {
+    position: relative;
+    bottom: auto;
+    right: auto;
+    left: auto;
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    bottom: 28px;
-    right: auto;
-    left: 24px;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 22px;
+    margin-top: 20px;
+    background: rgba(255,255,255,0.06);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(6px);
     gap: 0;
   }
   .hero-stat {
-    align-items: flex-start;
-    padding-right: 20px;
-    margin-right: 20px;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    flex: 1;
     border-right: 1px solid rgba(255,255,255,0.12);
   }
-  .hero-stat:last-child { border-right: none; margin-right: 0; padding-right: 0; }
-  .hero-stat-num { font-size: 22px; }
-  .hero-stat-label { font-size: 8px; letter-spacing: 0.16em; }
+  .hero-stat:last-child { border-right: none; }
+  .hero-stat-num { font-size: 20px; }
+  .hero-stat-label { font-size: 7px; letter-spacing: 0.14em; text-align: center; }
 
   .benefits-inner { grid-template-columns: 1fr; }
   .benefit-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
