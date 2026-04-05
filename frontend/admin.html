@@ -107,6 +107,30 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
 .panel-header h2{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--charcoal)}
 .panel-body{padding:20px}
 
+/* MOBILE ORDER CARDS */
+.order-cards{display:none;flex-direction:column;gap:10px;padding:4px 0}
+.order-card{background:#fff;border:1px solid var(--gray-light);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.order-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.order-card-customer{font-weight:700;font-size:14px;line-height:1.2}
+.order-card-meta{font-size:11px;color:var(--gray);margin-top:2px}
+.order-card-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0}
+.order-card-total{font-weight:800;font-size:15px}
+.order-card-items{font-size:12px;color:var(--charcoal);line-height:1.5}
+.order-card-phone{font-size:13px;font-weight:600;color:#2980b9;text-decoration:none}
+.order-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.order-card-actions{display:flex;gap:6px}
+.order-card-selected{outline:2px solid #27ae60}
+/* FAB — Send to Olivraison on mobile */
+.mobile-oliv-fab{display:none;position:fixed;bottom:20px;right:16px;z-index:200;background:#27ae60;color:#fff;border:none;border-radius:50px;padding:13px 20px;font-size:13px;font-weight:700;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);cursor:pointer;align-items:center;white-space:nowrap}
+@media(max-width:700px){
+  .order-cards{display:flex}
+  #ordersTableWrap{display:none}
+  #olivraisonBar{flex-direction:column;align-items:stretch}
+  #olivraisonBar>div{margin-left:0!important;justify-content:stretch}
+  #olivraisonBar .btn{width:100%;justify-content:center}
+  .mobile-oliv-fab{display:flex}
+}
+
 /* TABLES */
 .admin-table{width:100%;border-collapse:collapse;font-size:13px}
 .admin-table th{text-align:left;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gray);padding:10px 14px;border-bottom:1px solid var(--gray-light);white-space:nowrap}
@@ -669,7 +693,8 @@ select.pm-input{cursor:pointer}
         <input class="search-input" id="orderSearch" placeholder="Search by customer, product, phone..." oninput="loadOrdersTable()">
       </div>
       <div class="panel">
-        <div class="table-wrap"><table class="admin-table" id="ordersTable"></table></div>
+        <div id="ordersTableWrap" class="table-wrap"><table class="admin-table" id="ordersTable"></table></div>
+        <div id="orderCards" class="order-cards"></div>
       </div>
     </section>
 
@@ -1841,6 +1866,7 @@ function updateOlivraisonBar() {
   } else {
     bar.style.display = 'none';
   }
+  updateMobileFab();
 }
 
 async function sendToOlivraison() {
@@ -1918,6 +1944,77 @@ function loadOrdersTable() {
   if (badge) badge.textContent = orders.length + ' order' + (orders.length!==1?'s':'');
   document.getElementById('ordersTable').innerHTML =
     orderTableRows(orders,false) || '<tr class="empty-row"><td colspan="9">No orders found.</td></tr>';
+  renderOrderCards(orders);
+  updateMobileFab();
+}
+
+function renderOrderCards(orders) {
+  const el = document.getElementById('orderCards');
+  if (!el) return;
+  if (!orders.length) { el.innerHTML = '<div style="text-align:center;padding:32px;color:var(--gray);font-size:13px">No orders found.</div>'; return; }
+  const statusColors = { confirmed:'#27ae60', cancelled:'#e74c3c', reported:'#e67e22', called:'#2980b9', processing:'#2980b9', pending:'#f0ad4e', done:'#27ae60', new:'#aaa' };
+  const statusEmoji  = { confirmed:'✅', cancelled:'❌', reported:'⚠️', called:'📞', processing:'⚙️', pending:'⏳', done:'🏁', new:'🆕' };
+  el.innerHTML = orders.map(o => {
+    const status = o.status || 'pending';
+    const d = new Date(o.date||o.createdAt||Date.now());
+    const ds = d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'});
+    const isConfirmed = status === 'confirmed';
+    const selected = _selectedOrders.has(o.id);
+    const itemsList = Array.isArray(o.items) && o.items.length
+      ? o.items.map(i => `${escHtml(i.name||'')} ${i.size?'('+i.size+')':''} ×${i.qty||1}`).join(', ')
+      : escHtml(o.product || '—');
+    const total = o.total ? Math.round(o.total)+' MAD' : (escHtml(o.price)||'—');
+    const st = `<select class="status-select" onchange="setOrderStatus('${o.id}',this.value)" style="border-color:${statusColors[status]||'#ccc'};color:${statusColors[status]||'#333'};font-size:11px;padding:4px 8px;flex:1">
+      <option value="new"        ${status==='new'        ?'selected':''}>🆕 New</option>
+      <option value="pending"    ${status==='pending'    ?'selected':''}>⏳ Pending</option>
+      <option value="processing" ${status==='processing' ?'selected':''}>⚙️ Processing</option>
+      <option value="confirmed"  ${status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
+      <option value="called"     ${status==='called'     ?'selected':''}>📞 Called</option>
+      <option value="reported"   ${status==='reported'   ?'selected':''}>⚠️ Reported</option>
+      <option value="cancelled"  ${status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
+      <option value="done"       ${status==='done'       ?'selected':''}>🏁 Done</option>
+    </select>`;
+    return `<div class="order-card order-card-${status} ${selected?'order-card-selected':''}">
+      <div class="order-card-top">
+        <div>
+          <div class="order-card-customer">${escHtml(o.customer||'—')}</div>
+          <div class="order-card-meta">${escHtml(o.city||'')}${o.city?' · ':''}${ds}</div>
+        </div>
+        <div class="order-card-right">
+          <div class="order-card-total">${total}</div>
+          ${isConfirmed ? `<input type="checkbox" ${selected?'checked':''} onchange="toggleOrderSelect('${o.id}',this);updateMobileFab()" title="Select for Olivraison">` : ''}
+        </div>
+      </div>
+      <div class="order-card-items">${itemsList}</div>
+      ${o.phone ? `<a class="order-card-phone" href="tel:${escHtml(o.phone)}">📞 ${escHtml(o.phone)}</a>` : ''}
+      ${o.trackingCode ? `<div style="font-size:12px;color:var(--gray)">📦 Tracking: <strong>${escHtml(o.trackingCode)}</strong></div>` : ''}
+      <div class="order-card-footer">
+        ${st}
+        <div class="order-card-actions">
+          <button class="btn-icon" onclick="openOrderModal('${o.id}')" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="btn-icon danger" onclick="deleteOrder('${o.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function updateMobileFab() {
+  const fab = document.getElementById('mobileFab');
+  const txt = document.getElementById('mobileFabText');
+  if (!fab) return;
+  const confirmedCount = getOrders().filter(o => o.status === 'confirmed').length;
+  if (confirmedCount > 0) {
+    fab.style.display = 'flex';
+    txt.textContent = 'Send ' + confirmedCount + ' Confirmed to Olivraison';
+  } else {
+    fab.style.display = 'none';
+  }
+}
+
+function mobileOlivSend() {
+  selectAllConfirmed();
+  sendToOlivraison();
 }
 
 function orderTableRows(orders, compact) {
@@ -3982,5 +4079,10 @@ if (_storedSession) {
   }
 }
 </script>
+
+<!-- Mobile FAB: Send to Olivraison -->
+<button class="mobile-oliv-fab" id="mobileFab" onclick="mobileOlivSend()" style="display:none">
+  🚚 <span id="mobileFabText">Send Confirmed</span>
+</button>
 </body>
 </html>
