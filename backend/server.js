@@ -94,42 +94,6 @@ function writeAuth(data) {
   fs.writeFileSync(AUTH_FILE, JSON.stringify(data, null, 2));
 }
 
-(async function bootstrap() {
-  const auth = readAuth();
-  if (!auth.passwordHash) {
-    const raw  = process.env.API_SECRET || 'admin123';
-    const hash = await bcrypt.hash(raw, BCRYPT_ROUNDS);
-    writeAuth({ ...auth, passwordHash: hash });
-    console.log('Password hashed and stored');
-  }
-  // Ensure SiteSettings singleton exists
-  await prisma.siteSettings.upsert({
-    where:  { id: 'singleton' },
-    update: {},
-    create: { id: 'singleton' },
-  });
-  // Ensure OlivraisonConfig singleton exists
-  await prisma.olivraisonConfig.upsert({
-    where:  { id: 'singleton' },
-    update: {},
-    create: { id: 'singleton' },
-  });
-
-  // Seed Cloudinary video URLs for products that don't have them yet
-  const videoSeeds = [
-    { slug: 'patte-elephant',     videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703910/streetstore/products/videos/patte-elephant.mp4' },
-    { slug: 'high-rise-dark-blue',videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703925/streetstore/products/videos/high-rise-dark-blue.mp4' },
-    { slug: 'brown-wide-leg',     videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703935/streetstore/products/videos/brown-wide-leg.mp4' },
-    { slug: 'baggy-wide-leg',     videoUrl: 'https://res.cloudinary.com/dze20ah0s/video/upload/v1774703938/streetstore/products/videos/baggy-wide-leg.mp4' },
-  ];
-  for (const v of videoSeeds) {
-    try {
-      await prisma.product.updateMany({ where: { slug: v.slug, videoUrl: null }, data: { videoUrl: v.videoUrl } });
-    } catch(_) {}
-  }
-  console.log('Video URLs seeded');
-})().catch(err => console.error('Bootstrap error (non-fatal):', err.message));
-
 /* ── Login throttle ── */
 const loginAttempts = new Map();
 const MAX_ATTEMPTS  = 5;
