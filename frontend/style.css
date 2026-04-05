@@ -3032,28 +3032,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .hero-stat-num { font-size: 16px; }
   .hero-stat-label { font-size: 6px; letter-spacing: 0.1em; text-align: center; white-space: nowrap; }
 
-  .benefits-bar { border-bottom: none; padding: 28px 16px; }
-  .benefits-inner {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    max-width: 100%;
-  }
-  .benefit-item {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-    padding: 18px 8px;
-    border-right: none;
-    border-bottom: none;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 4px;
-  }
-  .benefit-item:last-child { border-right: none; border-bottom: none; }
-  .benefit-icon { width: 32px; height: 32px; }
-  .benefit-text strong { font-size: 9px; letter-spacing: 0.1em; }
-  .benefit-text span { font-size: 9px; }
+  .benefits-bar { display: none; }
 
   .section-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 20px; }
   .product-grid-4 { grid-template-columns: repeat(2, 1fr); padding: 0 20px; }
