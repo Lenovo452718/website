@@ -2995,7 +2995,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .hero-eyebrow { font-size: 9px; margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hero-heading, .hero-heading-italic { font-size: clamp(38px, 10vw, 56px); }
   [lang="fr"] .hero-heading, [lang="fr"] .hero-heading-italic { font-size: clamp(28px, 8vw, 44px); }
-  .hero-subtitle { font-size: 13px; max-width: 100%; margin-bottom: 20px; opacity: 0.75; line-height: 1.5; }
+  .hero-subtitle { font-size: 12px; max-width: 100%; margin-bottom: 20px; opacity: 0.7; line-height: 1.4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .hero-cta { flex-direction: column; gap: 8px; width: 100%; }
   .hero-cta > a, .hero-cta > button { width: 100%; text-align: center; padding: 14px; font-size: 12px; box-sizing: border-box; }
   .hero-cta .btn-outline { display: none; }
@@ -3036,19 +3036,38 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
   .section-header { flex-direction: column; align-items: flex-start; gap: 12px; padding: 0 20px; }
   .product-grid-4 { grid-template-columns: repeat(2, 1fr); padding: 0 20px; }
-  .featured-products { padding: 80px 0; }
+  .featured-products { padding: 40px 0; }
 
-  .trending-section { padding: 32px 20px 80px; }
-  .trending-panel-img { height: 380px; }
+  .trending-section { padding: 20px 20px 40px; }
+  .trending-panel-img { height: 320px; }
 
-  .editorial-cards { grid-template-columns: 1fr; padding: 0 20px; }
-  .style-editorial { padding: 80px 0 60px; }
-  .editorial-card-img { height: 400px; }
+  /* Editorial — horizontal swipe carousel */
+  .style-editorial { padding: 40px 0 30px; }
+  .editorial-cards {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    padding: 0 20px 16px;
+    grid-template-columns: unset;
+    scrollbar-width: none;
+  }
+  .editorial-cards::-webkit-scrollbar { display: none; }
+  .editorial-card, .editorial-card-featured, .editorial-card-wide {
+    min-width: 72vw;
+    max-width: 72vw;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    height: 420px;
+  }
+  .editorial-card-img { height: 100%; }
 
   .instagram-grid { grid-template-columns: repeat(3, 1fr); padding: 0 20px; }
-  .instagram-section { padding: 80px 0; }
+  .instagram-section { padding: 40px 0; }
 
-  .newsletter-section { padding: 80px 20px; }
+  .newsletter-section { padding: 40px 20px; }
   .newsletter-form { flex-direction: column; }
   .newsletter-form input { border-right: 1px solid var(--gray-mid); border-bottom: none; }
 
@@ -3087,11 +3106,23 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .reviews-header { flex-direction: column; align-items: flex-start; gap: 12px; }
 
   /* Brand statement: stack on mobile */
-  .brand-statement { padding: 60px 24px; }
-  .brand-statement-inner { flex-direction: column; align-items: flex-start; gap: 28px; }
+  .brand-statement {
+    padding: 60px 24px;
+    background-image: url('images/lookbook/light-denim-full.jpg');
+    background-size: cover;
+    background-position: center 15%;
+    position: relative;
+  }
+  .brand-statement::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+  }
+  .brand-statement-inner { position: relative; z-index: 1; flex-direction: column; align-items: flex-start; gap: 20px; }
   .brand-statement-sep { width: 48px; height: 1px; }
-  .brand-statement h2 { font-size: clamp(52px, 14vw, 80px); }
-  .brand-statement-text p { font-size: 15px; }
+  .brand-statement h2 { font-size: clamp(48px, 13vw, 72px); }
+  .brand-statement-text p { font-size: 14px; }
 
   .lookbook-grid { padding: 32px 20px 60px; }
   .lookbook-row-2, .lookbook-row-3 { grid-template-columns: 1fr; }
