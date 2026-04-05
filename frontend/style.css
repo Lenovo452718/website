@@ -900,7 +900,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   font-size: clamp(72px, 8vw, 130px);
   letter-spacing: 0.02em;
   line-height: 0.88;
-  color: var(--charcoal);
+  color: var(--white);
   flex-shrink: 0;
 }
 .brand-statement-sep {
