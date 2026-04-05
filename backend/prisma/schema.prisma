@@ -129,6 +129,8 @@ model SiteSettings {
   bundle3Price       Float   @default(499)
   bundle3Enabled     Boolean @default(true)
   whatsappBotKey     String  @default("")
+  heroVideoUrl       String?
+  heroVideoActive    Boolean @default(false)
 }
 
 model Review {

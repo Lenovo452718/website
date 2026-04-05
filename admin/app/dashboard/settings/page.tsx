@@ -166,6 +166,34 @@ export default function SettingsPage() {
         </button>
       </div>
 
+      {/* Hero Video */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-semibold text-gray-800">Hero Video Intro</h2>
+            <p className="text-xs text-gray-500 mt-0.5">Video plays first, then reveals the hero title and buttons</p>
+          </div>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <div className={`w-9 h-5 rounded-full transition-colors relative ${data.heroVideoActive ? 'bg-green-500' : 'bg-gray-300'}`}
+              onClick={() => update('heroVideoActive', !data.heroVideoActive)}>
+              <div className={`w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-transform ${data.heroVideoActive ? 'translate-x-[18px]' : 'translate-x-[3px]'}`} />
+            </div>
+            <span className="text-xs text-gray-500">{data.heroVideoActive ? 'Active' : 'Inactive'}</span>
+          </label>
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide mb-1.5">Video URL (Cloudinary or direct .mp4)</label>
+          <input value={data.heroVideoUrl || ''} onChange={e => update('heroVideoUrl', e.target.value)}
+            placeholder="https://res.cloudinary.com/…/video/upload/…/hero.mp4"
+            className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#c8a96e] transition font-mono" />
+        </div>
+        <button onClick={handleSave} disabled={saving}
+          className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-60"
+          style={{ background: 'linear-gradient(135deg, #c8a96e, #a8864e)' }}>
+          {saving ? 'Saving…' : 'Save Settings'}
+        </button>
+      </div>
+
       {/* Change Password */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 space-y-4">
         <h2 className="font-semibold text-gray-800">Change Password</h2>

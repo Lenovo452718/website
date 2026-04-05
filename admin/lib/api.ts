@@ -210,6 +210,8 @@ export interface SiteSettings {
   logo?: string | null;
   announcementBar?: string | null;
   announcementActive: boolean;
+  heroVideoUrl?: string | null;
+  heroVideoActive: boolean;
 }
 
 export interface OlivraisonConfig {

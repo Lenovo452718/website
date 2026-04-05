@@ -52,10 +52,11 @@
 <!-- ===== HERO ===== -->
 <section class="hero">
   <div class="hero-bg"></div>
+  <video class="hero-video" muted playsinline preload="auto" style="display:none"></video>
   <div class="hero-overlay"></div>
   <div class="hero-bg-word">DENIM</div>
   <div class="hero-accent-strip"></div>
-  <div class="hero-content">
+  <div class="hero-content hero-reveal">
     <div class="hero-meta">
       <span class="hero-meta-line"></span>
       <span class="hero-meta-text">SS 2026 — Issue No. 01</span>
@@ -72,12 +73,12 @@
       <a href="lookbook.html" class="btn-outline" data-i18n="hero_lookbook">View Lookbook</a>
     </div>
   </div>
-  <div class="hero-stats">
+  <div class="hero-stats hero-reveal">
     <div class="hero-stat"><span class="hero-stat-num count-up" data-target="10" data-suffix="K+">0</span><span class="hero-stat-label">Satisfied Customers</span></div>
     <div class="hero-stat"><span class="hero-stat-num">SS26</span><span class="hero-stat-label">Collection</span></div>
     <div class="hero-stat"><span class="hero-stat-num count-up" data-target="100" data-suffix="%">0</span><span class="hero-stat-label">Premium</span></div>
   </div>
-  <div class="hero-scroll">
+  <div class="hero-scroll hero-reveal">
     <span>Scroll</span>
     <div class="hero-scroll-line"></div>
   </div>
@@ -319,6 +320,35 @@
 <script src="script.js" defer></script>
 <script src="mobile.js" defer></script>
 <script>
+// Hero video intro
+(function() {
+  var apiBase = window.SS_API_URL || window.STREETSTORE_BACKEND || 'https://streetstore.ma';
+  fetch(apiBase + '/api/settings')
+    .then(function(r) { return r.json(); })
+    .then(function(s) {
+      if (!s.heroVideoActive || !s.heroVideoUrl) {
+        // No video — show content immediately
+        document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
+        return;
+      }
+      var video = document.querySelector('.hero-video');
+      video.src = s.heroVideoUrl;
+      video.style.display = '';
+      video.play().catch(function() {
+        // Autoplay blocked — show content immediately
+        document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
+      });
+      video.addEventListener('ended', function() {
+        video.loop = true;
+        video.play();
+        document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
+      }, { once: true });
+    })
+    .catch(function() {
+      document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
+    });
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
   const counters = document.querySelectorAll('.count-up');
   const observer = new IntersectionObserver(function(entries) {
