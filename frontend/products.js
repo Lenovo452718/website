@@ -127,39 +127,59 @@ function apiProductToLocal(p) {
   };
 }
 
+/* ── Page blur overlay — hides stale content while API loads ── */
+(function() {
+  var overlay = document.createElement('div');
+  overlay.id = 'ss-load-blur';
+  overlay.style.cssText = [
+    'position:fixed','inset:0','z-index:9999',
+    'background:rgba(255,255,255,0.55)',
+    'backdrop-filter:blur(10px)',
+    '-webkit-backdrop-filter:blur(10px)',
+    'transition:opacity 0.4s ease',
+    'pointer-events:none',
+    'opacity:1'
+  ].join(';');
+  document.documentElement.appendChild(overlay);
+  window._ssRemoveBlur = function() {
+    overlay.style.opacity = '0';
+    setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 420);
+  };
+  // Safety fallback — always remove after 3s even if API hangs
+  setTimeout(window._ssRemoveBlur, 3000);
+})();
+
 /* ── Fetch all products from the API ── */
 (function loadLiveProducts() {
   var API = (window.SS_API_URL || window.STREETSTORE_BACKEND || '');
   if (!API) {
     document.dispatchEvent(new CustomEvent('productsLoaded'));
     renderShopGrid();
+    if (window._ssRemoveBlur) window._ssRemoveBlur();
     return;
   }
   fetch(API + '/api/products')
     .then(function(r) { return r.ok ? r.json() : null; })
     .then(function(list) {
       if (!Array.isArray(list) || !list.length) return;
-      // Clear hardcoded-only fallback products so API is the single source of truth
       Object.keys(PRODUCTS).forEach(function(k) { if (!PRODUCTS[k].id) delete PRODUCTS[k]; });
-      // Load all active API products
       list.forEach(function(p) {
         if ((p.status || 'active').toUpperCase() === 'ACTIVE') {
           PRODUCTS[p.slug] = apiProductToLocal(p);
         }
       });
-      // Remove products deleted from DB (only remove if they exist in API response)
-      // (keep local fallbacks if API returns partial data)
       document.dispatchEvent(new CustomEvent('productsLoaded'));
       renderShopGrid();
       renderHomeGrid();
       if (typeof initProductImages === 'function') initProductImages();
       if (typeof initProductInfo === 'function') initProductInfo();
+      if (window._ssRemoveBlur) window._ssRemoveBlur();
     })
     .catch(function() {
-      // Fallback to hardcoded data
       document.dispatchEvent(new CustomEvent('productsLoaded'));
       renderShopGrid();
       renderHomeGrid();
+      if (window._ssRemoveBlur) window._ssRemoveBlur();
     });
 })();
 

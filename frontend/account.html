@@ -1665,6 +1665,24 @@ let _customer = null;
 try { _customer = JSON.parse(localStorage.getItem(CUSTOMER_KEY) || 'null'); } catch(e) {}
 if (!_token || !_customer) { window.location.href = 'signup.html'; return; }
 
+/* ── Page spinner — hides content until auth is confirmed ── */
+(function() {
+  var sp = document.createElement('div');
+  sp.id = 'acc-spinner';
+  sp.style.cssText = 'position:fixed;inset:0;z-index:9999;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 0.35s ease';
+  sp.innerHTML = '<div style="width:44px;height:44px;border:3px solid #e0e0e0;border-top-color:#111;border-radius:50%;animation:accSpin 0.7s linear infinite"></div>'
+    + '<span style="font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#999">Loading</span>';
+  var style = document.createElement('style');
+  style.textContent = '@keyframes accSpin{to{transform:rotate(360deg)}}';
+  document.head.appendChild(style);
+  document.documentElement.appendChild(sp);
+  window._accRemoveSpinner = function() {
+    sp.style.opacity = '0';
+    setTimeout(function() { if (sp.parentNode) sp.parentNode.removeChild(sp); }, 380);
+  };
+  setTimeout(window._accRemoveSpinner, 4000); // safety fallback
+})();
+
 /* ════════════════════════════════════════════
    STATUS HELPERS
 ════════════════════════════════════════════ */
@@ -1860,6 +1878,7 @@ window.ACC = {
   /* ─── init ─── */
   init: function() {
     var c = ACC.state.customer;
+    if (window._accRemoveSpinner) window._accRemoveSpinner();
 
     // Sidebar profile
     var sbAvatar = document.getElementById('sbAvatar');
