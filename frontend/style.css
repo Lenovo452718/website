@@ -2997,6 +2997,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .hero-subtitle { font-size: 13px; max-width: 100%; margin-bottom: 20px; opacity: 0.75; line-height: 1.5; }
   .hero-cta { flex-direction: column; gap: 8px; width: 100%; }
   .hero-cta > a, .hero-cta > button { width: 100%; text-align: center; padding: 14px; font-size: 12px; box-sizing: border-box; }
+  .hero-cta .btn-outline { display: none; }
   .hero-scroll { display: none; }
 
   /* Stats bar with blur effect */
@@ -3008,26 +3009,27 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
     align-items: center;
     justify-content: space-around;
     width: 100%;
-    padding: 14px 16px;
-    margin-top: 16px;
+    padding: 12px 0;
+    margin-top: 14px;
     background: rgba(255,255,255,0.07);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 12px;
     gap: 0;
     box-sizing: border-box;
+    overflow: hidden;
   }
   .hero-stat {
     align-items: center;
-    padding: 0 8px;
+    padding: 0;
     margin: 0;
     flex: 1;
     border-right: 1px solid rgba(255,255,255,0.12);
   }
   .hero-stat:last-child { border-right: none; }
-  .hero-stat-num { font-size: 18px; }
-  .hero-stat-label { font-size: 7px; letter-spacing: 0.12em; text-align: center; white-space: nowrap; }
+  .hero-stat-num { font-size: 16px; }
+  .hero-stat-label { font-size: 6px; letter-spacing: 0.1em; text-align: center; white-space: nowrap; }
 
   .benefits-inner { grid-template-columns: 1fr; }
   .benefit-item { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
