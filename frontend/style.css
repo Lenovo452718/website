@@ -1055,7 +1055,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 
 /* Style Editorial */
-.style-editorial { background: var(--charcoal); padding: 100px 0 80px; }
+.style-editorial { display: none; }
 
 .editorial-header { text-align: center; margin-bottom: 56px; padding: 0 40px; }
 .editorial-header .section-subtitle { color: rgba(255,255,255,0.35); }
