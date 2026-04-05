@@ -11,227 +11,309 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
   <style>
-    /* ── PAGE WRAPPER ── */
-    .sg-page { max-width: 1100px; margin: 0 auto; padding: 0 40px 100px; }
+
+    /* ── ROOT ── */
+    :root {
+      --accent: #111111;
+      --blue: #5aabcf;
+    }
+
+    .sg-wrap { max-width: 1080px; margin: 0 auto; padding: 0 32px 120px; }
 
     /* ── HERO ── */
     .sg-hero {
+      padding: 60px 0 56px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      padding: 56px 0 52px;
-      border-bottom: 1px solid var(--gray-light);
+      grid-template-columns: 1fr 420px;
+      gap: 48px;
+      align-items: end;
+      border-bottom: 1px solid #e0e0e0;
       margin-bottom: 72px;
     }
-    .sg-hero-title .sg-season {
-      display: block;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--denim);
-      margin-bottom: 12px;
-      font-weight: 600;
-    }
-    .sg-hero-title h1 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(72px, 9vw, 120px);
-      letter-spacing: 0.03em;
-      line-height: 0.88;
-      color: #111;
-      margin: 0;
-    }
-    .sg-hero-info {
-      padding-left: 56px;
-      border-left: 1px solid var(--gray-light);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 20px;
-    }
-    .sg-hero-info h3 {
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #aaa;
-      margin: 0;
-    }
-    .sg-hero-info p {
-      font-size: 14px;
-      color: #444;
-      line-height: 1.8;
-      margin: 0;
-      max-width: 380px;
-    }
-
-    /* ── BODY + MEASUREMENT PANEL ── */
-    .sg-body-panel {
-      display: grid;
-      grid-template-columns: 280px 1fr;
-      gap: 56px;
-      align-items: start;
-      margin-bottom: 80px;
-    }
-    .sg-figure { display: flex; flex-direction: column; align-items: center; }
-    .sg-body-svg { width: 260px; height: auto; display: block; }
-
-    .sg-measure-panel h2 {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 34px;
-      letter-spacing: 0.06em;
-      margin: 0 0 8px;
-      color: #111;
-    }
-    .sg-measure-panel .sg-panel-sub {
-      font-size: 12px;
-      color: #999;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 32px;
-      display: block;
-    }
-    .sg-measure-rows { display: flex; flex-direction: column; }
-    .sg-measure-row {
-      display: grid;
-      grid-template-columns: 120px 1fr;
-      gap: 28px;
-      padding: 24px 0;
-      border-bottom: 1px solid #e5eff7;
-      align-items: start;
-    }
-    .sg-measure-row:first-child { border-top: 1px solid #e5eff7; }
-    .sg-row-label {
+    .sg-hero-eyebrow {
       font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.18em;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #999;
+      margin-bottom: 16px;
+    }
+    .sg-hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(80px, 10vw, 130px);
+      line-height: .88;
+      letter-spacing: .02em;
+      color: #111;
+      margin: 0;
+    }
+    .sg-hero-right {
+      padding-bottom: 8px;
+    }
+    .sg-hero-right p {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.8;
+      margin-bottom: 24px;
+    }
+    .sg-unit-toggle {
+      display: inline-flex;
+      border: 1.5px solid #111;
+      border-radius: 0;
+      overflow: hidden;
+    }
+    .sg-unit-btn {
+      padding: 9px 22px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #999;
+      transition: background .15s, color .15s;
+    }
+    .sg-unit-btn.active { background: #111; color: #fff; }
+
+    /* ── SECTION LABEL ── */
+    .sg-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .sg-label::after { content: ''; flex: 1; height: 1px; background: #e0e0e0; }
+
+    /* ── HOW TO MEASURE ── */
+    .sg-measure-section { margin-bottom: 72px; }
+    .sg-measure-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .sg-measure-card {
+      background: #f5f5f5;
+      padding: 32px 28px 36px;
+      position: relative;
+    }
+    .sg-measure-card::before {
+      content: '';
+      display: block;
+      width: 32px;
+      height: 3px;
+      background: #111;
+      margin-bottom: 24px;
+    }
+    .sg-measure-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px;
+      color: #e0e0e0;
+      line-height: 1;
+      position: absolute;
+      top: 20px;
+      right: 20px;
+    }
+    .sg-measure-card h3 {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .16em;
       text-transform: uppercase;
       color: #111;
-      padding-top: 2px;
+      margin-bottom: 10px;
     }
-    .sg-row-label .sg-range {
-      display: block;
+    .sg-measure-range {
+      font-family: 'Courier New', monospace;
       font-size: 13px;
-      letter-spacing: 0;
       font-weight: 600;
       color: #5aabcf;
-      margin-top: 6px;
-      font-family: 'Courier New', monospace;
+      margin-bottom: 14px;
+      display: block;
     }
-    .sg-row-body p { font-size: 13px; color: #444; line-height: 1.7; margin: 0 0 6px; }
-    .sg-row-body small { font-size: 12px; color: #888; line-height: 1.6; display: block; }
+    .sg-measure-card p { font-size: 13px; color: #555; line-height: 1.7; margin: 0; }
 
-    /* ── SECTION HEADER ── */
-    .sg-section { margin-bottom: 64px; }
-    .sg-section-head {
+    /* ── SIZE TABLE ── */
+    .sg-table-section { margin-bottom: 72px; }
+    .sg-table-head {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
-      border-bottom: 2px solid #111;
-      padding-bottom: 14px;
       margin-bottom: 0;
+      padding-bottom: 16px;
+      border-bottom: 2.5px solid #111;
     }
-    .sg-section-head h2 {
+    .sg-table-head h2 {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 34px;
-      letter-spacing: 0.06em;
-      margin: 0;
+      font-size: 38px;
+      letter-spacing: .05em;
       color: #111;
+      margin: 0;
     }
-    .sg-section-head span {
-      font-size: 11px;
-      color: #999;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+    .sg-table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .sg-table {
+      width: 100%;
+      min-width: 520px;
+      border-collapse: collapse;
     }
-
-    /* ── SIZE TABLE ── */
-    .sg-table { width: 100%; border-collapse: collapse; }
     .sg-table thead tr { background: #111; }
     .sg-table th {
       color: #fff;
       font-size: 10px;
-      letter-spacing: 0.16em;
+      letter-spacing: .16em;
       text-transform: uppercase;
-      padding: 14px 20px;
-      font-weight: 500;
+      font-weight: 600;
+      padding: 15px 24px;
       text-align: left;
+      white-space: nowrap;
     }
-    .sg-table th:first-child { text-align: center; width: 72px; }
+    .sg-table th:first-child { text-align: center; width: 80px; }
     .sg-table td {
-      padding: 15px 20px;
+      padding: 16px 24px;
       font-size: 14px;
-      border-bottom: 1px solid #e5eff7;
       color: #444;
+      border-bottom: 1px solid #ebebeb;
     }
     .sg-table td:first-child {
       text-align: center;
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 0.04em;
+      font-size: 24px;
+      letter-spacing: .04em;
       color: #111;
+      font-weight: 400;
     }
-    .sg-table td.sg-bold { color: #111; font-weight: 600; }
-    .sg-table tr.sg-pop td { background: #eef6fb; }
-    .sg-table tr.sg-pop td:first-child { color: #5aabcf; }
-    .sg-table tr.sg-pop td.sg-bold { color: #5aabcf; }
+    .sg-table td.sg-em { color: #111; font-weight: 600; }
+    .sg-table tr.sg-best td { background: #f0f8fd; }
+    .sg-table tr.sg-best td:first-child { color: #5aabcf; }
+    .sg-table tr.sg-best td.sg-em { color: #5aabcf; }
+    .sg-table tr:hover td { background: #fafafa; }
+    .sg-table tr.sg-best:hover td { background: #e5f3fa; }
+
+    /* unit switching */
+    .unit-cm, .unit-in { transition: opacity .15s; }
+    body.show-in .unit-cm { display: none; }
+    body.show-cm .unit-in { display: none; }
+
+    .sg-best-badge {
+      display: inline-block;
+      background: #5aabcf;
+      color: #fff;
+      font-size: 8px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
 
     /* ── FIT GUIDE ── */
+    .sg-fit-section { margin-bottom: 72px; }
+    .sg-fit-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 2.5px solid #111;
+      margin-bottom: 0;
+    }
+    .sg-fit-head h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 38px;
+      letter-spacing: .05em;
+      color: #111;
+      margin: 0;
+    }
     .sg-fit-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 2px;
-      margin-top: 0;
     }
     .sg-fit-card {
-      background: #f4f9fd;
-      padding: 32px 28px 36px;
+      background: #111;
+      padding: 36px 28px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sg-fit-card::before {
+      content: attr(data-fit);
+      position: absolute;
+      bottom: -10px;
+      right: -4px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px;
+      letter-spacing: .02em;
+      color: rgba(255,255,255,.04);
+      line-height: 1;
+      pointer-events: none;
     }
     .sg-fit-tag {
       font-size: 9px;
-      letter-spacing: 0.22em;
+      font-weight: 700;
+      letter-spacing: .22em;
       text-transform: uppercase;
       color: #5aabcf;
-      font-weight: 700;
       display: block;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
     .sg-fit-card h4 {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 26px;
-      letter-spacing: 0.04em;
-      margin: 0 0 14px;
-      color: #111;
-    }
-    .sg-fit-card p { font-size: 13px; color: #555; line-height: 1.72; margin: 0; }
-
-    /* ── TIPS ── */
-    .sg-tips {
-      background: #111;
-      display: grid;
-      grid-template-columns: 180px 1fr;
-      gap: 56px;
-      padding: 48px 56px;
-      margin-bottom: 64px;
-      align-items: start;
-    }
-    .sg-tips-heading {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 44px;
-      letter-spacing: 0.04em;
-      line-height: 1;
+      font-size: 28px;
+      letter-spacing: .04em;
+      margin: 0 0 16px;
       color: #fff;
     }
-    .sg-tips-heading span { display: block; color: #5aabcf; }
-    .sg-tips ul { list-style: none; padding: 0; margin: 0; }
-    .sg-tips ul li {
+    .sg-fit-card p { font-size: 13px; color: rgba(255,255,255,.6); line-height: 1.75; margin: 0; }
+    .sg-fit-pill {
+      display: inline-block;
+      margin-top: 18px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.2);
+      padding: 5px 12px;
+    }
+
+    /* ── TIPS BANNER ── */
+    .sg-tips {
+      background: #111;
+      padding: 52px 56px;
+      margin-bottom: 72px;
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 56px;
+      align-items: start;
+    }
+    .sg-tips-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px;
+      line-height: 1;
+      color: #fff;
+      letter-spacing: .03em;
+    }
+    .sg-tips-title span { display: block; color: #5aabcf; }
+    .sg-tips-list { list-style: none; padding: 0; margin: 0; }
+    .sg-tips-list li {
       font-size: 13px;
-      color: rgba(255,255,255,0.72);
+      color: rgba(255,255,255,.65);
       line-height: 1.75;
-      padding: 12px 0 12px 22px;
-      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 14px 0 14px 24px;
+      border-bottom: 1px solid rgba(255,255,255,.07);
       position: relative;
     }
-    .sg-tips ul li:first-child { border-top: 1px solid rgba(255,255,255,0.07); }
-    .sg-tips ul li::before { content: "—"; position: absolute; left: 0; color: #5aabcf; }
+    .sg-tips-list li:first-child { border-top: 1px solid rgba(255,255,255,.07); }
+    .sg-tips-list li::before {
+      content: '—';
+      position: absolute;
+      left: 0;
+      color: #5aabcf;
+      font-weight: 700;
+    }
 
     /* ── CTA ── */
     .sg-cta {
@@ -239,35 +321,69 @@
       align-items: center;
       justify-content: space-between;
       gap: 32px;
-      padding: 40px 48px;
-      background: #f4f9fd;
+      padding: 44px 52px;
+      border: 1.5px solid #111;
     }
-    .sg-cta h3 {
+    .sg-cta-text h3 {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px;
-      letter-spacing: 0.06em;
+      font-size: 30px;
+      letter-spacing: .06em;
       margin: 0 0 6px;
       color: #111;
     }
-    .sg-cta p { font-size: 13px; color: #666; margin: 0; }
+    .sg-cta-text p { font-size: 13px; color: #666; margin: 0; }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 860px) {
-      .sg-page { padding: 0 24px 80px; }
-      .sg-hero { grid-template-columns: 1fr; gap: 32px; padding: 40px 0 40px; margin-bottom: 48px; }
-      .sg-hero-info { padding-left: 0; border-left: none; border-top: 1px solid var(--gray-light); padding-top: 32px; }
-      .sg-hero-title h1 { font-size: 72px; }
-      .sg-body-panel { grid-template-columns: 1fr; gap: 40px; margin-bottom: 56px; }
-      .sg-body-svg { width: 160px; }
-      .sg-figure { align-items: flex-start; }
-      .sg-fit-grid { grid-template-columns: 1fr; }
-      .sg-tips { grid-template-columns: 1fr; gap: 24px; padding: 36px 28px; }
-      .sg-cta { flex-direction: column; align-items: flex-start; padding: 28px 24px; }
-      .sg-measure-row { grid-template-columns: 90px 1fr; gap: 18px; }
+    /* ══ MOBILE ══ */
+    @media (max-width: 768px) {
+      .sg-wrap { padding: 0 18px 80px; }
+
+      /* hero */
+      .sg-hero {
+        grid-template-columns: 1fr;
+        gap: 28px;
+        padding: 40px 0 40px;
+        margin-bottom: 48px;
+      }
+      .sg-hero h1 { font-size: 80px; }
+      .sg-hero-right { padding-bottom: 0; }
+
+      /* measure cards */
+      .sg-measure-grid { grid-template-columns: 1fr; gap: 2px; }
+      .sg-measure-card { padding: 24px 22px 28px; }
+      .sg-measure-num { font-size: 40px; }
+
+      /* table */
+      .sg-table th, .sg-table td { padding: 13px 16px; }
+      .sg-table td:first-child { font-size: 20px; }
+      .sg-table-head h2 { font-size: 30px; }
+
+      /* fit cards */
+      .sg-fit-grid { grid-template-columns: 1fr; gap: 2px; }
+      .sg-fit-card { padding: 28px 22px 32px; }
+
+      /* tips */
+      .sg-tips {
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 36px 24px;
+      }
+      .sg-tips-title { font-size: 44px; }
+
+      /* cta */
+      .sg-cta {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 32px 24px;
+      }
+      .sg-cta .btn-dark { width: 100%; text-align: center; }
+    }
+
+    @media (max-width: 480px) {
+      .sg-hero h1 { font-size: 64px; }
     }
   </style>
 </head>
-<body>
+<body class="show-cm">
 
 <!-- ===== HEADER ===== -->
 <header class="site-header" id="siteHeader">
@@ -291,9 +407,7 @@
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </a>
       <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
-      <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </div>
   <nav class="mobile-menu" id="mobileMenu">
@@ -313,149 +427,173 @@
 </nav>
 
 <!-- ===== PAGE ===== -->
-<div class="sg-page">
+<div class="sg-wrap">
 
   <!-- HERO -->
   <div class="sg-hero">
-    <div class="sg-hero-title">
-      <span class="sg-season" data-i18n="sg_season">StreetStore — SS 2026</span>
-      <h1><span data-i18n="sg_h1_line1">Size</span><br><span data-i18n="sg_h1_line2">Guide</span></h1>
+    <div class="sg-hero-left">
+      <p class="sg-hero-eyebrow">StreetStore — SS 2026</p>
+      <h1>Size<br>Guide</h1>
     </div>
-    <div class="sg-hero-info">
-      <h3 data-i18n="sg_about_sizing">About Our Sizing</h3>
-      <p data-i18n="sg_intro">All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
+    <div class="sg-hero-right">
+      <p>All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
+      <div class="sg-unit-toggle">
+        <button class="sg-unit-btn active" id="btnCm" onclick="setUnit('cm')">CM</button>
+        <button class="sg-unit-btn" id="btnIn" onclick="setUnit('in')">INCHES</button>
+      </div>
     </div>
   </div>
 
-  <!-- BODY + MEASUREMENTS -->
-  <div class="sg-body-panel">
-    <div class="sg-figure">
-      <svg class="sg-body-svg" viewBox="150 0 450 1024" xmlns="http://www.w3.org/2000/svg">
-        <image href="images/figure-body.svg" x="0" y="0" width="1536" height="1024"/>
-      </svg>
-    </div>
+  <!-- HOW TO MEASURE -->
+  <div class="sg-measure-section">
+    <p class="sg-label">How to measure</p>
+    <div class="sg-measure-grid">
 
-    <div class="sg-measure-panel">
-      <h2 data-i18n="sg_how_measure">How to Measure</h2>
-      <span class="sg-panel-sub" data-i18n="sg_tape_note">Use a soft measuring tape</span>
-      <div class="sg-measure-rows">
-
-        <div class="sg-measure-row">
-          <div class="sg-row-label">
-            <span data-i18n="sg_waist">Waist</span>
-            <span class="sg-range" data-i18n="sg_waist_range">61 – 89 cm</span>
-          </div>
-          <div class="sg-row-body">
-            <p data-i18n="sg_waist_desc">The narrowest part of your torso, just above the belly button.</p>
-            <small data-i18n="sg_waist_how">Wrap the tape snugly around your natural waist. Breathe normally — don't hold your breath.</small>
-          </div>
-        </div>
-
-        <div class="sg-measure-row">
-          <div class="sg-row-label">
-            <span data-i18n="sg_hip">Hip</span>
-            <span class="sg-range" data-i18n="sg_hip_range">86 – 114 cm</span>
-          </div>
-          <div class="sg-row-body">
-            <p data-i18n="sg_hip_desc">The fullest part of your hips and seat — approx. 20 cm below the waist.</p>
-            <small data-i18n="sg_hip_how">Stand feet together. Keep the tape level all the way around.</small>
-          </div>
-        </div>
-
-        <div class="sg-measure-row">
-          <div class="sg-row-label"><span data-i18n="sg_thigh">Thigh</span></div>
-          <div class="sg-row-body">
-            <p data-i18n="sg_thigh_desc">Upper thigh circumference, just below the hip joint.</p>
-            <small data-i18n="sg_thigh_how">Measure around the fullest part of the thigh, close to the hip.</small>
-          </div>
-        </div>
-
+      <div class="sg-measure-card">
+        <span class="sg-measure-num">01</span>
+        <h3>Waist</h3>
+        <span class="sg-measure-range unit-cm">61 – 89 cm</span>
+        <span class="sg-measure-range unit-in">24" – 35"</span>
+        <p>The narrowest part of your torso, just above the belly button. Wrap the tape snugly — breathe normally and don't hold your breath.</p>
       </div>
+
+      <div class="sg-measure-card">
+        <span class="sg-measure-num">02</span>
+        <h3>Hip</h3>
+        <span class="sg-measure-range unit-cm">86 – 114 cm</span>
+        <span class="sg-measure-range unit-in">34" – 45"</span>
+        <p>The fullest part of your hips and seat, approximately 20 cm below the waist. Stand feet together and keep the tape level all the way around.</p>
+      </div>
+
+      <div class="sg-measure-card">
+        <span class="sg-measure-num">03</span>
+        <h3>Thigh</h3>
+        <span class="sg-measure-range unit-cm">Upper thigh</span>
+        <span class="sg-measure-range unit-in">Upper thigh</span>
+        <p>Measure around the fullest part of the thigh, just below the hip joint. Useful for wide-leg and baggy fits.</p>
+      </div>
+
     </div>
   </div>
 
   <!-- SIZE TABLE -->
-  <div class="sg-section">
-    <div class="sg-section-head">
-      <h2 data-i18n="sg_chart_title">Jeans Size Chart</h2>
-      <span data-i18n="sg_chart_sub">Inches &amp; centimetres</span>
+  <div class="sg-table-section">
+    <div class="sg-table-head">
+      <h2>Jeans Size Chart</h2>
+      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase" class="unit-cm">Centimetres</span>
+      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase" class="unit-in">Inches</span>
     </div>
-    <table class="sg-table">
-      <thead>
-        <tr>
-          <th data-i18n="sg_th_size">Size</th>
-          <th data-i18n="sg_th_waist_in">Waist (in)</th>
-          <th data-i18n="sg_th_waist_cm">Waist (cm)</th>
-          <th data-i18n="sg_th_hip_in">Hip (in)</th>
-          <th data-i18n="sg_th_hip_cm">Hip (cm)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>34</td><td>24 – 25"</td><td class="sg-bold">61 – 63 cm</td><td>34 – 35"</td><td class="sg-bold">86 – 89 cm</td>
-        </tr>
-        <tr>
-          <td>36</td><td>26 – 27"</td><td class="sg-bold">66 – 68 cm</td><td>36 – 37"</td><td class="sg-bold">91 – 94 cm</td>
-        </tr>
-        <tr class="sg-pop">
-          <td>38</td><td>28 – 29"</td><td class="sg-bold">71 – 73 cm</td><td>38 – 39"</td><td class="sg-bold">96 – 99 cm</td>
-        </tr>
-        <tr>
-          <td>40</td><td>30 – 31"</td><td class="sg-bold">76 – 78 cm</td><td>40 – 41"</td><td class="sg-bold">101 – 104 cm</td>
-        </tr>
-        <tr>
-          <td>42</td><td>32 – 33"</td><td class="sg-bold">81 – 83 cm</td><td>42 – 43"</td><td class="sg-bold">106 – 109 cm</td>
-        </tr>
-        <tr>
-          <td>44</td><td>34 – 35"</td><td class="sg-bold">86 – 89 cm</td><td>44 – 45"</td><td class="sg-bold">111 – 114 cm</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="sg-table-scroll">
+      <table class="sg-table">
+        <thead>
+          <tr>
+            <th>Size</th>
+            <th class="unit-cm">Waist (cm)</th>
+            <th class="unit-in">Waist (in)</th>
+            <th class="unit-cm">Hip (cm)</th>
+            <th class="unit-in">Hip (in)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>34</td>
+            <td class="sg-em unit-cm">61 – 63</td>
+            <td class="sg-em unit-in">24 – 25"</td>
+            <td class="unit-cm">86 – 89</td>
+            <td class="unit-in">34 – 35"</td>
+          </tr>
+          <tr>
+            <td>36</td>
+            <td class="sg-em unit-cm">66 – 68</td>
+            <td class="sg-em unit-in">26 – 27"</td>
+            <td class="unit-cm">91 – 94</td>
+            <td class="unit-in">36 – 37"</td>
+          </tr>
+          <tr class="sg-best">
+            <td>38 <span class="sg-best-badge">Popular</span></td>
+            <td class="sg-em unit-cm">71 – 73</td>
+            <td class="sg-em unit-in">28 – 29"</td>
+            <td class="unit-cm">96 – 99</td>
+            <td class="unit-in">38 – 39"</td>
+          </tr>
+          <tr>
+            <td>40</td>
+            <td class="sg-em unit-cm">76 – 78</td>
+            <td class="sg-em unit-in">30 – 31"</td>
+            <td class="unit-cm">101 – 104</td>
+            <td class="unit-in">40 – 41"</td>
+          </tr>
+          <tr>
+            <td>42</td>
+            <td class="sg-em unit-cm">81 – 83</td>
+            <td class="sg-em unit-in">32 – 33"</td>
+            <td class="unit-cm">106 – 109</td>
+            <td class="unit-in">42 – 43"</td>
+          </tr>
+          <tr>
+            <td>44</td>
+            <td class="sg-em unit-cm">86 – 89</td>
+            <td class="sg-em unit-in">34 – 35"</td>
+            <td class="unit-cm">111 – 114</td>
+            <td class="unit-in">44 – 45"</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <!-- FIT GUIDE -->
-  <div class="sg-section">
-    <div class="sg-section-head">
-      <h2 data-i18n="sg_fit_guide">Fit Guide</h2>
-      <span data-i18n="sg_fit_sub">How each style fits</span>
+  <div class="sg-fit-section">
+    <div class="sg-fit-head">
+      <h2>Fit Guide</h2>
+      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase">How each style fits</span>
     </div>
     <div class="sg-fit-grid">
-      <div class="sg-fit-card">
-        <span class="sg-fit-tag" data-i18n="sg_fit1_tag">Wide Leg</span>
-        <h4 data-i18n="sg_fit1_title">Wide &amp; Relaxed</h4>
-        <p data-i18n="sg_fit1_desc">Generous through the hip and thigh, with a wide straight leg. True to size — size up for extra flow.</p>
+
+      <div class="sg-fit-card" data-fit="WIDE">
+        <span class="sg-fit-tag">Wide Leg</span>
+        <h4>Wide &amp; Relaxed</h4>
+        <p>Generous through the hip and thigh with a wide straight leg. True to size — size up for extra flow.</p>
+        <span class="sg-fit-pill">True to size</span>
       </div>
-      <div class="sg-fit-card">
-        <span class="sg-fit-tag" data-i18n="sg_fit2_tag">Balloon</span>
-        <h4 data-i18n="sg_fit2_title">Relaxed Balloon</h4>
-        <p data-i18n="sg_fit2_desc">High-waisted with a roomy balloon silhouette that tapers slightly at the ankle. Size down if in between.</p>
+
+      <div class="sg-fit-card" data-fit="BAGGY">
+        <span class="sg-fit-tag">Balloon</span>
+        <h4>Relaxed Balloon</h4>
+        <p>High-waisted with a roomy balloon silhouette that tapers slightly at the ankle. Size down if in between.</p>
+        <span class="sg-fit-pill">Size down</span>
       </div>
-      <div class="sg-fit-card">
-        <span class="sg-fit-tag" data-i18n="sg_fit3_tag">High Waist</span>
-        <h4 data-i18n="sg_fit3_title">Slim High Rise</h4>
-        <p data-i18n="sg_fit3_desc">Fitted through the hip with a high waist. Stretchy fabric allows for comfort. True to size.</p>
+
+      <div class="sg-fit-card" data-fit="HIGH">
+        <span class="sg-fit-tag">High Waist</span>
+        <h4>Slim High Rise</h4>
+        <p>Fitted through the hip with a high waist. Stretchy fabric allows for comfort. True to size.</p>
+        <span class="sg-fit-pill">True to size</span>
       </div>
+
     </div>
   </div>
 
   <!-- TIPS -->
   <div class="sg-tips">
-    <div class="sg-tips-heading"><span data-i18n="sg_tips_word1">Sizing</span><br><span data-i18n="sg_tips_word2">Tips</span></div>
-    <ul>
-      <li data-i18n="sg_tip1">Always measure yourself — don't rely on clothing from other brands as sizes vary.</li>
-      <li data-i18n="sg_tip2">Our denim has minimal stretch, so measure carefully and don't round down.</li>
-      <li data-i18n="sg_tip3">If your waist and hip measurements fall in different sizes, size up to accommodate the hips.</li>
-      <li data-i18n="sg_tip4">Still unsure? Contact us on WhatsApp — we'll help you pick the right size.</li>
+    <div>
+      <div class="sg-tips-title">Sizing<br><span>Tips</span></div>
+    </div>
+    <ul class="sg-tips-list">
+      <li>Always measure yourself — don't rely on clothing from other brands as sizes vary.</li>
+      <li>Our denim has minimal stretch, so measure carefully and don't round down.</li>
+      <li>If your waist and hip measurements fall in different sizes, size up to accommodate the hips.</li>
+      <li>Still unsure? Contact us on WhatsApp — we'll help you pick the right size.</li>
     </ul>
   </div>
 
   <!-- CTA -->
   <div class="sg-cta">
-    <div>
-      <h3 data-i18n="sg_cta_title">Need Help Choosing Your Size?</h3>
-      <p data-i18n="sg_cta_sub">Our team is happy to help you find the perfect fit.</p>
+    <div class="sg-cta-text">
+      <h3>Still Not Sure About Your Size?</h3>
+      <p>Our team is happy to help you find the perfect fit via WhatsApp.</p>
     </div>
-    <a href="contact.html" class="btn-dark" data-i18n="footer_contact">Contact Us</a>
+    <a href="contact.html" class="btn-dark">Contact Us</a>
   </div>
 
 </div>
@@ -500,6 +638,14 @@
 </footer>
 
 <a href="https://wa.me/212771152186" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
+<script>
+function setUnit(unit) {
+  document.body.className = 'show-' + unit;
+  document.getElementById('btnCm').classList.toggle('active', unit === 'cm');
+  document.getElementById('btnIn').classList.toggle('active', unit === 'in');
+}
+</script>
 <script src="config.js" defer></script>
 <script src="products.js" defer></script>
 <script src="lang.js?v=20260326" defer></script>
