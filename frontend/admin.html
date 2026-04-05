@@ -952,6 +952,26 @@ select.pm-input{cursor:pointer}
       </div>
 
       <div class="panel">
+        <div class="panel-header">
+          <h2>Hero Video Intro</h2>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--gray)">
+            <div id="heroVideoToggle" onclick="toggleHeroVideo()" style="width:36px;height:20px;border-radius:10px;background:var(--gray-light);position:relative;transition:background .2s;cursor:pointer">
+              <div id="heroVideoThumb" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
+            </div>
+            <span id="heroVideoStatus">Inactive</span>
+          </label>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--gray);margin-bottom:14px">When active, the video plays first on the homepage, then the title and buttons fade in. The video loops with a dark overlay.</p>
+          <div class="field-group">
+            <label class="field-label">Video URL (Cloudinary .mp4 or direct link)</label>
+            <input class="field-input" id="heroVideoUrl" placeholder="https://res.cloudinary.com/…/video/upload/…/hero.mp4">
+          </div>
+          <button class="btn btn-primary" style="margin-top:14px" onclick="saveHeroVideo()">Save Hero Video</button>
+        </div>
+      </div>
+
+      <div class="panel">
         <div class="panel-header"><h2>Change Password</h2></div>
         <div class="panel-body">
           <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Min 8 characters · must include a letter and a number.</p>
@@ -3094,8 +3114,36 @@ async function loadSettingsForm() {
       if (document.getElementById('settWa'))       document.getElementById('settWa').value       = s.whatsapp  || '';
       if (document.getElementById('settCurrency')) document.getElementById('settCurrency').value = s.currency  || 'MAD';
       if (document.getElementById('settEmail'))    document.getElementById('settEmail').value    = s.email     || '';
+      // Hero video
+      if (document.getElementById('heroVideoUrl')) document.getElementById('heroVideoUrl').value = s.heroVideoUrl || '';
+      setHeroVideoToggle(!!s.heroVideoActive);
     }
   } catch(e) {}
+}
+
+let _heroVideoActive = false;
+function setHeroVideoToggle(active) {
+  _heroVideoActive = active;
+  const toggle = document.getElementById('heroVideoToggle');
+  const thumb  = document.getElementById('heroVideoThumb');
+  const status = document.getElementById('heroVideoStatus');
+  if (!toggle) return;
+  toggle.style.background = active ? '#22c55e' : 'var(--gray-light)';
+  thumb.style.transform   = active ? 'translateX(16px)' : 'translateX(0)';
+  status.textContent      = active ? 'Active' : 'Inactive';
+}
+function toggleHeroVideo() { setHeroVideoToggle(!_heroVideoActive); }
+async function saveHeroVideo() {
+  const url = document.getElementById('heroVideoUrl')?.value?.trim() || '';
+  try {
+    const res = await authFetch('/api/admin/settings', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ heroVideoUrl: url, heroVideoActive: _heroVideoActive })
+    });
+    if (res.ok) { showToast('Hero video saved'); logActivity('Hero video settings updated'); }
+    else showToast('Failed to save', 'error');
+  } catch(e) { showToast('Error saving', 'error'); }
 }
 
 async function saveSettings() {
