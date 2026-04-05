@@ -468,8 +468,29 @@ function initProductInfo() {
 
   var cartBtn = document.querySelector('.add-to-cart-btn');
   if (cartBtn) { cartBtn.dataset.name = product.name; cartBtn.dataset.price = product.price; }
+
+  // Reveal product info after populating
+  document.body.classList.remove('ss-product-loading');
 }
-initProductInfo();
+
+/* ── Product page skeleton — hide info until API responds ── */
+(function() {
+  if (!document.body.dataset.product) return; // only on product pages
+  document.body.classList.add('ss-product-loading');
+  var s = document.createElement('style');
+  s.textContent = [
+    '.ss-product-loading .product-name,',
+    '.ss-product-loading .product-price-display,',
+    '.ss-product-loading .size-selector,',
+    '.ss-product-loading .product-swatches,',
+    '.ss-product-loading .fit-note',
+    '{color:transparent!important;background:linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%);',
+    'background-size:200% 100%;animation:ssSkelShim 1.4s infinite;',
+    'border-radius:4px;min-width:80px;display:inline-block;transition:none!important}',
+    '.ss-product-loading .product-swatches .product-swatch{opacity:0}'
+  ].join('');
+  document.head.appendChild(s);
+})();
 
 /* ── Auto-populate product page gallery (filmstrip + video) ── */
 function initProductGallery() {
@@ -529,6 +550,7 @@ function syncProductPageUI(productKey) {
   var key = productKey || (document.body && document.body.dataset.product);
   if (!key || !PRODUCTS[key]) return;
   var p = PRODUCTS[key];
+  document.body.classList.remove('ss-product-loading');
 
   /* Name & breadcrumb */
   var nameEl = document.querySelector('.product-name');
