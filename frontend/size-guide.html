@@ -91,9 +91,28 @@
 
     /* ── HOW TO MEASURE ── */
     .sg-measure-section { margin-bottom: 72px; }
+    .sg-measure-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .sg-figure {
+      position: sticky;
+      top: 90px;
+      display: flex;
+      justify-content: center;
+    }
+    .sg-figure img {
+      width: 100%;
+      max-width: 200px;
+      height: auto;
+      display: block;
+      filter: grayscale(100%);
+    }
     .sg-measure-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: 1fr;
       gap: 2px;
     }
     .sg-measure-card {
@@ -345,8 +364,9 @@
       .sg-hero h1 { font-size: 80px; }
       .sg-hero-right { padding-bottom: 0; }
 
-      /* measure cards */
-      .sg-measure-grid { grid-template-columns: 1fr; gap: 2px; }
+      /* measure layout */
+      .sg-measure-layout { grid-template-columns: 1fr; gap: 32px; }
+      .sg-figure { position: static; max-width: 140px; margin: 0 auto; }
       .sg-measure-card { padding: 24px 22px 28px; }
       .sg-measure-num { font-size: 40px; }
 
@@ -445,7 +465,14 @@
   <!-- HOW TO MEASURE -->
   <div class="sg-measure-section">
     <p class="sg-label">How to measure</p>
-    <div class="sg-measure-grid">
+    <div class="sg-measure-layout">
+
+      <!-- Women figure -->
+      <div class="sg-figure">
+        <img src="images/figure-body.svg" alt="Body measurement guide" />
+      </div>
+
+      <div class="sg-measure-grid">
 
       <div class="sg-measure-card">
         <span class="sg-measure-num">01</span>
@@ -471,7 +498,8 @@
         <p>Measure around the fullest part of the thigh, just below the hip joint. Useful for wide-leg and baggy fits.</p>
       </div>
 
-    </div>
+      </div><!-- end sg-measure-grid -->
+    </div><!-- end sg-measure-layout -->
   </div>
 
   <!-- SIZE TABLE -->
