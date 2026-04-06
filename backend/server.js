@@ -940,7 +940,7 @@ app.get('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) =
 /* POST /api/admin/products */
 app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants, videoUrl, color, isFeatured } = req.body;
+    const { name, shortName, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants, videoUrl, color, isFeatured } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'name and price are required' });
     let slug = slugify(name);
     const existing = await prisma.product.findUnique({ where: { slug } });
@@ -949,6 +949,7 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
     const product = await prisma.product.create({
       data: {
         name:         sanitize(name, 200),
+        shortName:    shortName ? sanitize(shortName, 60) : null,
         slug,
         description:  sanitize(description || '', 5000),
         price:        parseFloat(price),
@@ -985,9 +986,10 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
 /* PATCH /api/admin/products/:id */
 app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder, videoUrl, color, isFeatured } = req.body;
+    const { name, shortName, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder, videoUrl, color, isFeatured } = req.body;
     const data = {};
     if (name         !== undefined) { data.name = sanitize(name, 200); data.slug = slugify(name); }
+    if (shortName    !== undefined) data.shortName = shortName ? sanitize(shortName, 60) : null;
     if (description  !== undefined) data.description  = sanitize(description, 5000);
     if (price        !== undefined) data.price         = parseFloat(price);
     if (comparePrice !== undefined) data.comparePrice  = comparePrice ? parseFloat(comparePrice) : null;

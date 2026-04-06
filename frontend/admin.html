@@ -1138,6 +1138,9 @@ select.pm-input{cursor:pointer}
         <div class="pm-card-body">
           <div class="pm-grid-2" style="margin-bottom:14px">
             <div class="pm-field" style="margin:0"><label class="pm-label">Product Name<span class="req">*</span></label><input class="pm-input" id="pmName" placeholder="e.g. Baggy Wide-Leg Jean"></div>
+            <div class="pm-field" style="margin:0"><label class="pm-label">Short Name <span style="font-weight:400;color:var(--gray);font-size:10px">— used in orders (admin only)</span></label><input class="pm-input" id="pmShortName" placeholder="e.g. Baggy Jean" maxlength="60"></div>
+          </div>
+          <div class="pm-grid-2" style="margin-bottom:14px">
             <div class="pm-field" style="margin:0"><label class="pm-label">Status</label>
               <select class="pm-input" id="pmStatus">
                 <option value="active">✅ Active</option>
@@ -2019,25 +2022,28 @@ function formatItems(o, mode) {
   // mode: 'card' (mobile) or 'table' (desktop)
   const raw = Array.isArray(o.items) && o.items.length ? o.items : null;
   if (!raw) return `<span>${escHtml(o.product||'—')}</span>`;
+  // Use shortName if set, otherwise fall back to name
+  const displayName = i => escHtml(i.shortName || i.name || '');
   const total = raw.reduce((s,i)=>s+(i.qty||1),0);
   const full  = raw.map(i=>`${i.name||''}${i.size?' ('+i.size+')':''} ×${i.qty||1}`).join('\n');
   if (raw.length === 1) {
     const i = raw[0];
-    return `<span title="${escHtml(full)}">${escHtml(i.name||'')}${i.size?' <span style="color:var(--gray);font-weight:400">('+escHtml(i.size)+')</span>':''} ×${i.qty||1}</span>`;
+    return `<span title="${escHtml(full)}">${displayName(i)}${i.size?' <span style="color:var(--gray);font-weight:400">('+escHtml(i.size)+')</span>':''} ×${i.qty||1}</span>`;
   }
-  // Multiple items
+  // Multiple items — use short names
   const first = raw[0];
-  const firstName = (first.name||'').length > 18 ? (first.name||'').slice(0,16)+'…' : (first.name||'');
+  const firstName = displayName(first);
+  const firstTrunc = firstName.length > 18 ? firstName.slice(0,16)+'…' : firstName;
   if (mode === 'card') {
     return `<span title="${escHtml(full)}" style="cursor:default">
-      <strong>${escHtml(firstName)}</strong>
+      <strong>${firstTrunc}</strong>
       <span style="display:inline-block;margin-left:4px;background:#e8eaf0;color:#555;border-radius:10px;font-size:10px;font-weight:700;padding:1px 7px">+${raw.length-1} more</span>
       <span style="color:var(--gray);font-size:11px;margin-left:2px">(${total} items)</span>
     </span>`;
   } else {
     return `<span title="${escHtml(full)}" style="cursor:default">
       <span style="font-weight:700;font-size:12px">${total} items</span>
-      <span style="display:block;font-size:10px;color:var(--gray);margin-top:1px">${escHtml(firstName)}${raw.length>1?' +'+( raw.length-1)+' more':''}</span>
+      <span style="display:block;font-size:10px;color:var(--gray);margin-top:1px">${firstTrunc}${raw.length>1?' +'+( raw.length-1)+' more':''}</span>
     </span>`;
   }
 }
@@ -2371,6 +2377,7 @@ async function openProductModal(id) {
   document.getElementById('pmStatus').value = 'active';
   document.getElementById('pmCategory').value = '';
   document.getElementById('pmDesc').value = '';
+  document.getElementById('pmShortName').value = '';
   document.getElementById('pmVideo').value = '';
   document.getElementById('pmFit').value = '';
   document.getElementById('pmFitFilter').value = 'wide';
@@ -2392,6 +2399,7 @@ async function openProductModal(id) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const p = await res.json();
       document.getElementById('pmName').value = p.name || '';
+      document.getElementById('pmShortName').value = p.shortName || '';
       document.getElementById('pmPrice').value = p.price || '';
       document.getElementById('pmOriginal').value = p.comparePrice || '';
       document.getElementById('pmBadge').value = p.badge || '';
@@ -2585,6 +2593,7 @@ async function saveProductModal() {
 
   const payload = {
     name,
+    shortName: document.getElementById('pmShortName').value.trim() || null,
     price,
     comparePrice: parseFloat(document.getElementById('pmOriginal').value) || null,
     badge:        document.getElementById('pmBadge').value || null,
