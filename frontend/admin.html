@@ -162,6 +162,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
 
 /* Status dropdown in orders */
 .status-select{padding:7px 10px;border-radius:6px;border:1.5px solid var(--gray-light);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;background:var(--white);min-width:160px}
+/* Custom status pill dropdown */
+.status-pill-wrap{position:relative;display:inline-block}
+.status-pill{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:700;cursor:pointer;user-select:none;white-space:nowrap;transition:opacity .15s}
+.status-pill:hover{opacity:.85}
+.status-drop-menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid var(--gray-light);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.13);z-index:999;min-width:160px;padding:5px;display:none;flex-direction:column;gap:1px}
+.status-drop-menu.open{display:flex}
+.status-drop-item{display:flex;align-items:center;gap:9px;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:background .1s;color:var(--charcoal)}
+.status-drop-item:hover{background:var(--off)}
+.status-drop-item.active{background:var(--off);font-weight:800}
 
 /* BUTTONS */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;border:none;transition:all .15s;font-family:inherit}
@@ -1964,16 +1973,7 @@ function renderOrderCards(orders) {
       ? o.items.map(i => `${escHtml(i.name||'')} ${i.size?'('+i.size+')':''} ×${i.qty||1}`).join(', ')
       : escHtml(o.product || '—');
     const total = o.total ? Math.round(o.total)+' MAD' : (escHtml(o.price)||'—');
-    const st = `<select class="status-select" onchange="setOrderStatus('${o.id}',this.value)" style="border-color:${statusColors[status]||'#ccc'};color:${statusColors[status]||'#333'};font-size:11px;padding:4px 8px;flex:1">
-      <option value="new"        ${status==='new'        ?'selected':''}>🆕 New</option>
-      <option value="pending"    ${status==='pending'    ?'selected':''}>⏳ Pending</option>
-      <option value="processing" ${status==='processing' ?'selected':''}>⚙️ Processing</option>
-      <option value="confirmed"  ${status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
-      <option value="called"     ${status==='called'     ?'selected':''}>📞 Called</option>
-      <option value="reported"   ${status==='reported'   ?'selected':''}>⚠️ Reported</option>
-      <option value="cancelled"  ${status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
-      <option value="done"       ${status==='done'       ?'selected':''}>🏁 Done</option>
-    </select>`;
+    const st = makeStatusPill(o.id, status);
     return `<div class="order-card order-card-${status} ${selected?'order-card-selected':''}">
       <div class="order-card-top">
         <div>
@@ -2017,6 +2017,50 @@ function mobileOlivSend() {
   sendToOlivraison();
 }
 
+const STATUS_CFG = {
+  new:        { label:'New',        emoji:'🆕', bg:'#f0f0f0', color:'#555555' },
+  pending:    { label:'Pending',    emoji:'⏳', bg:'#fff3cd', color:'#856404' },
+  processing: { label:'Processing', emoji:'⚙️', bg:'#cce5ff', color:'#004085' },
+  confirmed:  { label:'Confirmed',  emoji:'✅', bg:'#d4edda', color:'#155724' },
+  called:     { label:'Called',     emoji:'📞', bg:'#e8f4fd', color:'#1a6fa0' },
+  reported:   { label:'Reported',   emoji:'⚠️', bg:'#fff0e0', color:'#a05a00' },
+  cancelled:  { label:'Cancelled',  emoji:'❌', bg:'#f8d7da', color:'#721c24' },
+  done:       { label:'Done',       emoji:'🏁', bg:'#d4edda', color:'#155724' },
+};
+
+function makeStatusPill(orderId, currentStatus) {
+  const cfg = STATUS_CFG[currentStatus] || STATUS_CFG.pending;
+  const pid = 'sdrop_' + orderId.replace(/[^a-z0-9]/gi,'_');
+  const items = Object.entries(STATUS_CFG).map(([key, v]) =>
+    `<div class="status-drop-item${key===currentStatus?' active':''}" onclick="statusPickItem('${orderId}','${key}');event.stopPropagation()">
+      <span style="font-size:14px">${v.emoji}</span><span>${v.label}</span>
+    </div>`
+  ).join('');
+  return `<div class="status-pill-wrap">
+    <div class="status-pill" id="${pid}" style="background:${cfg.bg};color:${cfg.color}" onclick="toggleStatusDrop('${pid}');event.stopPropagation()">
+      <span style="font-size:13px">${cfg.emoji}</span>
+      <span>${cfg.label}</span>
+      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-left:1px;opacity:.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="status-drop-menu" id="${pid}_menu">${items}</div>
+  </div>`;
+}
+
+function toggleStatusDrop(pid) {
+  document.querySelectorAll('.status-drop-menu.open').forEach(m => { if (m.id !== pid+'_menu') m.classList.remove('open'); });
+  const menu = document.getElementById(pid+'_menu');
+  if (menu) menu.classList.toggle('open');
+}
+
+function statusPickItem(orderId, newStatus) {
+  document.querySelectorAll('.status-drop-menu.open').forEach(m => m.classList.remove('open'));
+  setOrderStatus(orderId, newStatus);
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.status-drop-menu.open').forEach(m => m.classList.remove('open'));
+});
+
 function orderTableRows(orders, compact) {
   if (!orders.length) return '';
   const allConfirmedIds = orders.filter(o=>o.status==='confirmed').map(o=>o.id);
@@ -2039,16 +2083,7 @@ function orderTableRows(orders, compact) {
     const rowClass = `order-row-${status}`;
     const statusColors = { confirmed:'#27ae60', cancelled:'#e74c3c', reported:'#e67e22', called:'#2980b9', processing:'#2980b9', pending:'#f0ad4e', done:'#27ae60', new:'#aaa' };
     const statusEmoji  = { confirmed:'✅', cancelled:'❌', reported:'⚠️', called:'📞', processing:'⚙️', pending:'⏳', done:'🏁', new:'🆕' };
-    const st = `<select class="status-select" onchange="setOrderStatus('${o.id}',this.value)" style="border-color:${statusColors[status]||'#ccc'};color:${statusColors[status]||'#333'};font-size:11px;padding:4px 8px;min-width:130px">
-      <option value="new"        ${status==='new'        ?'selected':''}>🆕 New</option>
-      <option value="pending"    ${status==='pending'    ?'selected':''}>⏳ Pending</option>
-      <option value="processing" ${status==='processing' ?'selected':''}>⚙️ Processing</option>
-      <option value="confirmed"  ${status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
-      <option value="called"     ${status==='called'     ?'selected':''}>📞 Called</option>
-      <option value="reported"   ${status==='reported'   ?'selected':''}>⚠️ Reported</option>
-      <option value="cancelled"  ${status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
-      <option value="done"       ${status==='done'       ?'selected':''}>🏁 Done</option>
-    </select>`;
+    const st = makeStatusPill(o.id, status);
     const act = compact ? '' : `<td><div style="display:flex;gap:4px">
       <button class="btn-icon" onclick="openOrderModal('${o.id}')" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <button class="btn-icon danger" onclick="deleteOrder('${o.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
