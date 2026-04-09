@@ -2104,9 +2104,9 @@ function makeStatusPill(orderId, currentStatus) {
 }
 
 function _closeAllStatusDrops() {
-  document.querySelectorAll('.status-drop-menu.open').forEach(m => {
+  document.querySelectorAll('.status-drop-menu').forEach(m => {
+    m.style.cssText = 'display:none;';
     m.classList.remove('open');
-    m.style.cssText = '';
   });
   document.querySelectorAll('.status-pill-wrap.open').forEach(w => w.classList.remove('open'));
 }
@@ -2135,13 +2135,13 @@ function toggleStatusDrop(e, pid, orderId, currentStatus) {
   let left = rect.left;
   if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
 
+  const base = 'display:flex;flex-direction:column;position:fixed;z-index:9999;min-width:220px;';
   if (window.innerHeight - rect.bottom >= 260) {
-    menu.style.cssText = `position:fixed;top:${rect.bottom + 6}px;left:${left}px;z-index:9999;`;
+    menu.style.cssText = base + `top:${rect.bottom + 6}px;left:${left}px;`;
   } else {
-    menu.style.cssText = `position:fixed;bottom:${window.innerHeight - rect.top + 6}px;left:${left}px;z-index:9999;`;
+    menu.style.cssText = base + `bottom:${window.innerHeight - rect.top + 6}px;left:${left}px;`;
   }
 
-  menu.classList.add('open');
   if (wrap) wrap.classList.add('open');
 }
 
