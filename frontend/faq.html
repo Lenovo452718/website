@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1a1a1a">
+  <meta name="theme-color" content="#111111">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -12,377 +12,315 @@
   <link rel="stylesheet" href="rtl.css" />
   <style>
 
-    /* ─── HERO ─────────────────────────────────────────────── */
-    .faq-hero {
+    /* ─── REVEAL ───────────────────────────────────────────── */
+    .fq-reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .fq-reveal.fq-visible { opacity: 1; transform: none; }
+
+    /* ─── HERO ──────────────────────────────────────────────── */
+    .fq-hero {
       position: relative;
-      background: #060d1a;
+      background: #111;
       overflow: hidden;
-      padding: 110px 24px 90px;
+      padding: 140px 24px 0;
       text-align: center;
     }
-    .faq-hero-bg {
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 70% at 15% 50%, rgba(26,48,96,0.7) 0%, transparent 65%),
-        radial-gradient(ellipse 40% 50% at 85% 20%, rgba(192,57,43,0.12) 0%, transparent 55%),
-        radial-gradient(ellipse 50% 40% at 50% 100%, rgba(224,201,122,0.06) 0%, transparent 60%);
-    }
-    .faq-hero-grid {
+    .fq-hero::before {
+      content: '';
       position: absolute; inset: 0;
       background-image:
-        linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 60px 60px;
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px),
+        repeating-linear-gradient(0deg,  transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px);
+      pointer-events: none;
     }
-    .faq-hero-content { position: relative; z-index: 1; }
-    .faq-hero-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: #e0c97a;
-      background: rgba(224,201,122,0.08);
-      border: 1px solid rgba(224,201,122,0.2);
-      padding: 7px 16px;
-      border-radius: 30px;
-      margin-bottom: 28px;
+    .fq-hero::after {
+      content: 'FAQ';
+      position: absolute;
+      bottom: -20px; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 28vw, 280px);
+      letter-spacing: 0.08em;
+      color: rgba(255,255,255,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 0;
     }
-    .faq-hero h1 {
-      font-size: clamp(36px, 7vw, 64px);
-      font-weight: 900;
-      letter-spacing: -0.03em;
-      color: #fff;
-      line-height: 1.05;
-      margin-bottom: 20px;
+    .fq-hero-content {
+      position: relative; z-index: 1;
+      padding-bottom: 56px;
     }
-    .faq-hero h1 em { font-style: italic; color: #e0c97a; }
-    .faq-hero-sub {
-      font-size: 15px;
-      color: rgba(255,255,255,0.45);
-      max-width: 400px;
-      margin: 0 auto 52px;
-      line-height: 1.75;
+    .fq-eyebrow {
+      display: block;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 16px;
     }
-    /* search bar */
-    .faq-search-wrap {
-      max-width: 480px;
-      margin: 0 auto;
+    .fq-hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(48px, 9vw, 90px);
+      letter-spacing: 0.05em;
+      color: #fff; line-height: 0.92;
+      margin: 0 0 18px;
+    }
+    .fq-hero h1 em { font-style: italic; color: rgba(255,255,255,0.38); }
+    .fq-hero-sub {
+      font-size: 14px; color: rgba(255,255,255,0.42);
+      max-width: 480px; margin: 0 auto 32px;
+      line-height: 1.7; letter-spacing: 0.02em;
+    }
+
+    /* Search bar */
+    .fq-search-wrap {
       position: relative;
+      max-width: 520px; margin: 0 auto;
     }
-    .faq-search {
-      width: 100%;
-      padding: 16px 52px 16px 22px;
-      border-radius: 50px;
-      border: 1.5px solid rgba(255,255,255,0.12);
+    .fq-search {
+      width: 100%; box-sizing: border-box;
+      padding: 16px 20px 16px 50px;
       background: rgba(255,255,255,0.06);
-      color: #fff;
-      font-size: 14px;
+      border: 1px solid rgba(255,255,255,0.12);
+      color: #fff; font-size: 13px;
+      letter-spacing: 0.04em;
       outline: none;
       transition: border-color 0.2s, background 0.2s;
-      box-sizing: border-box;
+      border-radius: 0;
+      -webkit-appearance: none;
     }
-    .faq-search::placeholder { color: rgba(255,255,255,0.3); }
-    .faq-search:focus {
-      border-color: rgba(224,201,122,0.5);
+    .fq-search::placeholder { color: rgba(255,255,255,0.3); }
+    .fq-search:focus {
+      border-color: rgba(255,255,255,0.35);
       background: rgba(255,255,255,0.09);
     }
-    .faq-search-icon {
-      position: absolute;
-      right: 18px; top: 50%;
+    .fq-search-icon {
+      position: absolute; left: 16px; top: 50%;
       transform: translateY(-50%);
-      color: rgba(255,255,255,0.35);
+      color: rgba(255,255,255,0.3);
       pointer-events: none;
     }
 
-    /* ─── STATS BAR ─────────────────────────────────────────── */
-    .faq-stats {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      border-top: 1px solid rgba(255,255,255,0.07);
-      padding-top: 40px;
-      margin-top: 52px;
-      max-width: 560px;
-      margin-left: auto;
-      margin-right: auto;
+    /* Stats row */
+    .fq-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      position: relative; z-index: 1;
     }
-    .faq-stat {
-      flex: 1;
-      text-align: center;
-      border-right: 1px solid rgba(255,255,255,0.07);
-      padding: 0 20px;
+    .fq-stat {
+      padding: 28px 20px 32px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      text-align: center; position: relative;
     }
-    .faq-stat:last-child { border-right: none; }
-    .faq-stat-num {
-      font-size: 30px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.02em;
-      line-height: 1;
-      margin-bottom: 5px;
+    .fq-stat:last-child { border-right: none; }
+    .fq-stat::before {
+      content: ''; position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+      background: #fff;
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.6s ease 0.3s;
     }
-    .faq-stat-num span { color: #e0c97a; }
-    .faq-stat-label {
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
+    .fq-stat.fq-visible::before { transform: scaleX(1); }
+    .fq-stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px; letter-spacing: 0.04em;
+      color: #fff; line-height: 1; margin-bottom: 6px;
+    }
+    .fq-stat-label {
+      font-size: 10px; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase;
       color: rgba(255,255,255,0.35);
     }
 
     /* ─── BODY ──────────────────────────────────────────────── */
-    .faq-body {
-      max-width: 860px;
-      margin: 0 auto;
-      padding: 72px 24px 100px;
+    .fq-body {
+      background: #f5f5f3;
+      padding: 56px 24px 100px;
+    }
+    .fq-body-inner {
+      max-width: 800px; margin: 0 auto;
     }
 
-    /* ─── CATEGORY TABS ─────────────────────────────────────── */
-    .faq-tabs {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 48px;
-      justify-content: center;
+    /* Category tabs */
+    .fq-tabs {
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-bottom: 40px;
     }
-    .faq-tab {
-      padding: 9px 20px;
-      border-radius: 30px;
-      border: 1.5px solid #e0e0e0;
-      background: #fff;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      color: #666;
+    .fq-tab {
+      padding: 9px 18px;
+      font-size: 11px; font-weight: 700;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1.5px solid #d0d0d0;
+      background: #fff; color: #888;
       cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 7px;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+      white-space: nowrap;
     }
-    .faq-tab:hover { border-color: #111; color: #111; }
-    .faq-tab.active {
-      background: #0a1628;
-      border-color: #0a1628;
-      color: #e0c97a;
-    }
-    .faq-tab-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: currentColor;
-      opacity: 0.5;
-    }
+    .fq-tab:hover { border-color: #111; color: #111; }
+    .fq-tab.active { background: #111; color: #fff; border-color: #111; }
 
-    /* ─── FAQ SECTION BLOCK ─────────────────────────────────── */
-    .faq-group {
-      margin-bottom: 56px;
+    /* No results */
+    .fq-no-results {
       display: none;
-    }
-    .faq-group.active { display: block; }
-    .faq-group-head {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      margin-bottom: 20px;
-    }
-    .faq-group-icon {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      background: #0a1628;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
-    .faq-group-title {
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #111;
-    }
-    .faq-group-count {
-      margin-left: auto;
-      font-size: 11px;
-      color: #aaa;
-      font-weight: 600;
+      text-align: center; padding: 48px 0;
+      font-size: 14px; color: #888; letter-spacing: 0.04em;
     }
 
-    /* ─── ACCORDION ─────────────────────────────────────────── */
-    .faq-list { display: flex; flex-direction: column; gap: 10px; }
-    .faq-item {
-      border-radius: 14px;
-      border: 1.5px solid #ebebeb;
-      background: #fff;
-      overflow: hidden;
-      transition: box-shadow 0.25s, border-color 0.25s;
+    /* FAQ group */
+    .fq-group { display: none; margin-bottom: 32px; }
+    .fq-group.active { display: block; }
+
+    .fq-group-head {
+      display: flex; align-items: center; gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #111;
+      margin-bottom: 2px;
     }
-    .faq-item:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.07); }
-    .faq-item.open {
-      border-color: #0a1628;
-      box-shadow: 0 6px 28px rgba(10,22,40,0.1);
-    }
-    .faq-q {
-      width: 100%;
-      text-align: left;
-      background: none;
-      border: none;
-      padding: 20px 22px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 700;
-      color: #111;
-      line-height: 1.4;
-    }
-    .faq-q-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #f5f5f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
+    .fq-group-icon {
+      width: 40px; height: 40px;
+      background: #111;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
+    }
+    .fq-group-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px; letter-spacing: 0.08em; color: #111;
+      flex: 1;
+    }
+    .fq-group-count {
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: #aaa;
+    }
+
+    /* Accordion list */
+    .fq-list { list-style: none; padding: 0; margin: 0; }
+    .fq-item {
+      border-bottom: 1px solid #e8e8e8;
       transition: background 0.2s;
     }
-    .faq-item.open .faq-q-icon { background: #0a1628; }
-    .faq-q-text { flex: 1; }
-    .faq-chevron {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1.5px solid #e0e0e0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: transform 0.3s, background 0.2s, border-color 0.2s;
-      color: #aaa;
+    .fq-item.open { background: #fff; }
+    .fq-q {
+      display: flex; align-items: center; gap: 14px;
+      width: 100%; padding: 18px 0;
+      background: none; border: none; cursor: pointer;
+      text-align: left;
     }
-    .faq-item.open .faq-chevron {
-      transform: rotate(180deg);
-      background: #0a1628;
-      border-color: #0a1628;
-      color: #e0c97a;
+    .fq-q-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px; letter-spacing: 0.08em;
+      color: #ccc; flex-shrink: 0; width: 20px;
+      transition: color 0.2s;
     }
-    .faq-a {
-      display: none;
-      padding: 0 22px 22px 70px;
-      font-size: 14px;
-      color: #555;
-      line-height: 1.75;
+    .fq-item.open .fq-q-num { color: #111; }
+    .fq-q-text {
+      flex: 1; font-size: 14px; font-weight: 600;
+      color: #222; letter-spacing: 0.01em; line-height: 1.4;
+      transition: color 0.2s;
     }
-    .faq-a.open { display: block; }
-    .faq-a strong { color: #111; }
-    .faq-a a { color: #0a1628; text-decoration: underline; }
-    .faq-a p { margin: 0; }
+    .fq-item.open .fq-q-text { color: #111; }
+    .fq-chevron {
+      flex-shrink: 0; color: #bbb;
+      transition: transform 0.3s ease, color 0.2s;
+    }
+    .fq-item.open .fq-chevron { transform: rotate(180deg); color: #111; }
 
-    /* ─── STILL NEED HELP ───────────────────────────────────── */
-    .faq-cta {
-      border-radius: 20px;
-      background: linear-gradient(135deg, #060d1a 0%, #0f2040 50%, #0a1628 100%);
-      padding: 56px 40px;
+    /* Answer */
+    .fq-a {
+      max-height: 0; overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.16,1,0.3,1), padding 0.3s ease;
+      padding: 0 0 0 34px;
+    }
+    .fq-a.open { max-height: 600px; padding: 0 0 20px 34px; }
+    .fq-a-inner {
+      font-size: 13px; color: #555; line-height: 1.75;
+      border-left: 3px solid #111;
+      padding-left: 16px;
+    }
+    .fq-a-inner strong { color: #111; }
+
+    /* ─── CTA SECTION ────────────────────────────────────────── */
+    .fq-cta {
+      background: #111;
+      padding: 64px 40px;
       text-align: center;
       position: relative;
       overflow: hidden;
-      margin-top: 16px;
+      margin-top: 56px;
     }
-    .faq-cta::before {
+    .fq-cta::before {
       content: '';
-      position: absolute;
-      top: -80px; right: -80px;
-      width: 260px; height: 260px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(224,201,122,0.09), transparent 70%);
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px),
+        repeating-linear-gradient(0deg,  transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px);
+      pointer-events: none;
     }
-    .faq-cta::after {
-      content: '';
-      position: absolute;
-      bottom: -60px; left: -60px;
-      width: 200px; height: 200px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(26,48,96,0.5), transparent 70%);
+    .fq-cta-inner { position: relative; z-index: 1; }
+    .fq-cta-eyebrow {
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.24em; text-transform: uppercase;
+      color: rgba(255,255,255,0.35); margin-bottom: 14px;
+      display: block;
     }
-    .faq-cta-inner { position: relative; z-index: 1; }
-    .faq-cta-tag {
-      display: inline-block;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #e0c97a;
-      margin-bottom: 16px;
+    .fq-cta h3 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(40px, 7vw, 72px);
+      letter-spacing: 0.05em; color: #fff;
+      line-height: 0.92; margin: 0 0 14px;
     }
-    .faq-cta h3 {
-      font-size: 30px;
-      font-weight: 900;
-      color: #fff;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
+    .fq-cta-sub {
+      font-size: 13px; color: rgba(255,255,255,0.38);
+      max-width: 400px; margin: 0 auto 36px;
+      line-height: 1.7; letter-spacing: 0.04em;
     }
-    .faq-cta p {
-      font-size: 14px;
-      color: rgba(255,255,255,0.45);
-      max-width: 360px;
-      margin: 0 auto 32px;
-      line-height: 1.7;
+    .fq-cta-btns {
+      display: flex; align-items: center; justify-content: center;
+      gap: 12px; flex-wrap: wrap;
     }
-    .faq-cta-btns {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .btn-wa-green {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+    .fq-btn-wa {
+      display: inline-flex; align-items: center; gap: 9px;
       padding: 14px 28px;
-      background: #25d366;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border-radius: 6px;
+      background: #25d366; color: #fff;
+      font-size: 11px; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
       text-decoration: none;
       transition: opacity 0.2s;
     }
-    .btn-wa-green:hover { opacity: 0.85; }
-    .btn-ghost {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
+    .fq-btn-wa:hover { opacity: 0.88; }
+    .fq-btn-ghost {
+      display: inline-flex; align-items: center;
       padding: 14px 28px;
-      background: transparent;
-      color: #fff;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      border: 1.5px solid rgba(255,255,255,0.18);
-      border-radius: 6px;
+      background: transparent; color: #fff;
+      font-size: 11px; font-weight: 800;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      border: 1.5px solid rgba(255,255,255,0.2);
       text-decoration: none;
       transition: border-color 0.2s, background 0.2s;
     }
-    .btn-ghost:hover { border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.05); }
+    .fq-btn-ghost:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.05); }
 
-    /* ─── NO RESULTS ────────────────────────────────────────── */
-    .faq-no-results {
-      text-align: center;
-      padding: 48px 0;
-      display: none;
+    /* ─── RESPONSIVE ────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .fq-hero { padding: 110px 20px 0; }
+      .fq-hero h1 { font-size: clamp(40px, 11vw, 64px); }
+      .fq-body { padding: 36px 16px 80px; }
+      .fq-tabs { gap: 6px; }
+      .fq-tab { padding: 8px 14px; font-size: 10px; }
+      .fq-cta { padding: 48px 24px; }
     }
-    .faq-no-results p { font-size: 15px; color: #aaa; }
+    @media (max-width: 480px) {
+      .fq-stats { grid-template-columns: 1fr; }
+      .fq-stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .fq-stat:last-child { border-bottom: none; }
+      .fq-cta-btns { flex-direction: column; }
+      .fq-btn-wa, .fq-btn-ghost { width: 100%; justify-content: center; }
+    }
+
   </style>
 </head>
 <body>
@@ -408,9 +346,7 @@
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </a>
       <div class="lang-switcher"><button class="lang-btn active" data-lang="en">EN</button><button class="lang-btn" data-lang="fr">FR</button></div>
-      <button class="hamburger" id="hamburger" aria-label="Menu">
-        <span></span><span></span><span></span>
-      </button>
+      <button class="hamburger" id="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
     </div>
   </div>
   <nav class="mobile-menu" id="mobileMenu">
@@ -422,429 +358,365 @@
 </header>
 
 <!-- ===== BREADCRUMB ===== -->
-<nav class="breadcrumb">
-  <a href="index.html" data-i18n="home">Home</a>
-  <span>/</span>
-  <span class="current">FAQ</span>
-</nav>
+<div class="breadcrumb"><a href="index.html" data-i18n="home">Home</a> <span>›</span> <span class="current">FAQ</span></div>
 
 <!-- ===== HERO ===== -->
-<div class="faq-hero">
-  <div class="faq-hero-bg"></div>
-  <div class="faq-hero-grid"></div>
-  <div class="faq-hero-content">
-    <div class="faq-hero-tag" data-i18n="faq_hero_tag">✦ Help Center</div>
-    <h1>
-      <span data-lang="en">Got a <em>question?</em><br>We've got answers.</span>
-      <span data-lang="fr">Une <em>question ?</em><br>Nous avons les réponses.</span>
-    </h1>
-    <p class="faq-hero-sub" data-i18n="faq_hero_sub">Find answers to the most common questions about orders, sizing, shipping, and more.</p>
-    <div class="faq-search-wrap">
-      <input class="faq-search" id="faqSearch" type="text" data-i18n-ph="faq_search_ph" placeholder="Search questions…" autocomplete="off" />
-      <svg class="faq-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+<div class="fq-hero">
+  <div class="fq-hero-content fq-reveal">
+    <span class="fq-eyebrow" data-i18n="faq_hero_tag">✦ Help Center</span>
+    <h1>Got <em>Questions?</em></h1>
+    <p class="fq-hero-sub" data-i18n="faq_hero_sub">Find answers to the most common questions about orders, sizing, shipping, and more.</p>
+    <div class="fq-search-wrap">
+      <svg class="fq-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input class="fq-search" id="faqSearch" type="search" data-i18n-placeholder="faq_search_ph" placeholder="Search questions…" autocomplete="off">
     </div>
-    <div class="faq-stats">
-      <div class="faq-stat">
-        <div class="faq-stat-num">20<span>+</span></div>
-        <div class="faq-stat-label" data-i18n="faq_stat_questions">Questions answered</div>
-      </div>
-      <div class="faq-stat">
-        <div class="faq-stat-num">4</div>
-        <div class="faq-stat-label" data-i18n="faq_stat_categories">Categories</div>
-      </div>
-      <div class="faq-stat">
-        <div class="faq-stat-num">24<span>h</span></div>
-        <div class="faq-stat-label" data-i18n="stat_response">Response time</div>
-      </div>
+  </div>
+
+  <div class="fq-stats">
+    <div class="fq-stat fq-reveal">
+      <div class="fq-stat-val">20+</div>
+      <div class="fq-stat-label" data-i18n="faq_stat_questions">Questions Answered</div>
+    </div>
+    <div class="fq-stat fq-reveal" style="transition-delay:0.1s">
+      <div class="fq-stat-val">4</div>
+      <div class="fq-stat-label" data-i18n="faq_stat_categories">Categories</div>
+    </div>
+    <div class="fq-stat fq-reveal" style="transition-delay:0.2s">
+      <div class="fq-stat-val">24h</div>
+      <div class="fq-stat-label" data-i18n="stat_response">Response Time</div>
     </div>
   </div>
 </div>
 
-<!-- ===== FAQ BODY ===== -->
-<div class="faq-body">
+<!-- ===== BODY ===== -->
+<div class="fq-body">
+  <div class="fq-body-inner">
 
-  <!-- TABS -->
-  <div class="faq-tabs">
-    <button class="faq-tab active" data-group="all"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_all">All Questions</span></button>
-    <button class="faq-tab" data-group="orders"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_orders">Orders &amp; Payment</span></button>
-    <button class="faq-tab" data-group="shipping"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_shipping">Shipping</span></button>
-    <button class="faq-tab" data-group="sizing"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_sizing">Sizing &amp; Fit</span></button>
-    <button class="faq-tab" data-group="exchange"><span class="faq-tab-dot"></span><span data-i18n="faq_cat_exchanges">Exchanges</span></button>
+    <!-- Category Tabs -->
+    <div class="fq-tabs fq-reveal">
+      <button class="fq-tab active" data-group="all" data-i18n="faq_cat_all">All Questions</button>
+      <button class="fq-tab" data-group="orders" data-i18n="faq_cat_orders">Orders & Payment</button>
+      <button class="fq-tab" data-group="shipping" data-i18n="faq_cat_shipping">Shipping</button>
+      <button class="fq-tab" data-group="sizing" data-i18n="faq_cat_sizing">Sizing & Fit</button>
+      <button class="fq-tab" data-group="exchange" data-i18n="faq_cat_exchanges">Exchanges</button>
+    </div>
+
+    <!-- No results -->
+    <p class="fq-no-results" id="faqNoResults" data-i18n="faq_no_results">No results found. Try a different keyword or contact us.</p>
+
+    <!-- ── ORDERS & PAYMENT ── -->
+    <div class="fq-group active fq-reveal" data-group="orders">
+      <div class="fq-group-head">
+        <div class="fq-group-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        </div>
+        <span class="fq-group-title" data-i18n="faq_cat_orders">Orders & Payment</span>
+        <span class="fq-group-count">5 Questions</span>
+      </div>
+      <ul class="fq-list">
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">01</span>
+            <span class="fq-q-text"><span data-lang="en">How do I place an order?</span><span data-lang="fr">Comment passer une commande ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Browse our collection, select your size and color, then click <strong>Add to Cart</strong>. Once you're ready, open the cart and proceed to checkout. Fill in your delivery details and confirm your order.</span>
+            <span data-lang="fr">Parcourez notre collection, sélectionnez votre taille et couleur, puis cliquez sur <strong>Ajouter au panier</strong>. Une fois prêt(e), ouvrez le panier et passez à la caisse. Remplissez vos coordonnées et confirmez votre commande.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">02</span>
+            <span class="fq-q-text"><span data-lang="en">What payment methods do you accept?</span><span data-lang="fr">Quels modes de paiement acceptez-vous ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">We accept <strong>cash on delivery (COD)</strong> — you pay when your order arrives at your door. No card or online payment required.</span>
+            <span data-lang="fr">Nous acceptons le <strong>paiement à la livraison (COD)</strong> — vous payez en espèces à la réception de votre colis. Aucune carte requise.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">03</span>
+            <span class="fq-q-text"><span data-lang="en">Can I modify or cancel my order after placing it?</span><span data-lang="fr">Puis-je modifier ou annuler ma commande ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">You can modify or cancel your order <strong>within 2 hours</strong> of placing it. Contact us immediately via WhatsApp. Once the order has been dispatched, modifications are no longer possible.</span>
+            <span data-lang="fr">Vous pouvez modifier ou annuler votre commande <strong>dans les 2 heures</strong> suivant la commande. Contactez-nous immédiatement via WhatsApp. Une fois expédié, aucune modification n'est possible.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">04</span>
+            <span class="fq-q-text"><span data-lang="en">Will I receive an order confirmation?</span><span data-lang="fr">Vais-je recevoir une confirmation de commande ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Yes. Once your order is confirmed, you will receive a message via <strong>WhatsApp</strong> with your order details and estimated delivery date.</span>
+            <span data-lang="fr">Oui. Une fois votre commande confirmée, vous recevrez un message <strong>WhatsApp</strong> avec les détails de votre commande et la date de livraison estimée.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">05</span>
+            <span class="fq-q-text"><span data-lang="en">How does the pack deal discount work?</span><span data-lang="fr">Comment fonctionne la réduction pack ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Add any <strong>2 items</strong> to your cart and the price automatically drops to <strong>319 MAD</strong>. Add <strong>3 items</strong> and it becomes <strong>479 MAD</strong>. Mix and match any styles — discount applied automatically.</span>
+            <span data-lang="fr">Ajoutez <strong>2 articles</strong> et le prix baisse automatiquement à <strong>319 MAD</strong>. Ajoutez <strong>3 articles</strong> et c'est <strong>479 MAD</strong>. Mixez les styles — la réduction s'applique automatiquement.</span>
+          </div></div>
+        </li>
+
+      </ul>
+    </div>
+
+    <!-- ── SHIPPING & DELIVERY ── -->
+    <div class="fq-group active fq-reveal" data-group="shipping" style="transition-delay:0.1s">
+      <div class="fq-group-head">
+        <div class="fq-group-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </div>
+        <span class="fq-group-title" data-i18n="faq_grp_shipping">Shipping & Delivery</span>
+        <span class="fq-group-count">5 Questions</span>
+      </div>
+      <ul class="fq-list">
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">01</span>
+            <span class="fq-q-text"><span data-lang="en">How long does delivery take?</span><span data-lang="fr">Combien de temps prend la livraison ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Standard delivery takes <strong>2–5 business days</strong>. Express delivery takes <strong>1–2 business days</strong> for an extra 15 MAD. Orders placed before 3 PM are processed the same day.</span>
+            <span data-lang="fr">La livraison standard prend <strong>2–5 jours ouvrables</strong>. La livraison express prend <strong>1–2 jours ouvrables</strong> avec un supplément de 15 MAD. Les commandes avant 15h sont traitées le jour même.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">02</span>
+            <span class="fq-q-text"><span data-lang="en">Is shipping free?</span><span data-lang="fr">La livraison est-elle gratuite ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en"><strong>Yes — standard shipping is completely free</strong> on all orders across Morocco. Express shipping is available for 15 MAD if you need your order faster.</span>
+            <span data-lang="fr"><strong>Oui — la livraison standard est entièrement gratuite</strong> sur toutes les commandes au Maroc. La livraison express est disponible pour 15 MAD.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">03</span>
+            <span class="fq-q-text"><span data-lang="en">Do you deliver everywhere in Morocco?</span><span data-lang="fr">Livrez-vous partout au Maroc ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Yes, we deliver to <strong>all regions of Morocco</strong>. Whether you're in Casablanca, Marrakech, Fes, Rabat, or any other city — we've got you covered.</span>
+            <span data-lang="fr">Oui, nous livrons dans <strong>toutes les régions du Maroc</strong>. Que vous soyez à Casablanca, Marrakech, Fès, Rabat ou toute autre ville — nous livrons chez vous.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">04</span>
+            <span class="fq-q-text"><span data-lang="en">How can I track my order?</span><span data-lang="fr">Comment suivre ma commande ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Once your order is dispatched, we'll send you a tracking update via <strong>WhatsApp</strong>. You can also contact us directly at any time for a status update.</span>
+            <span data-lang="fr">Une fois expédiée, nous vous enverrons une mise à jour via <strong>WhatsApp</strong>. Vous pouvez aussi nous contacter à tout moment pour connaître l'état de votre livraison.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">05</span>
+            <span class="fq-q-text"><span data-lang="en">What if I'm not home when the delivery arrives?</span><span data-lang="fr">Et si je suis absent à la livraison ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">The delivery agent will attempt to contact you. If unavailable, a second delivery attempt will be made the following business day. Please make sure someone is available to receive the package.</span>
+            <span data-lang="fr">Le livreur essaiera de vous contacter. Si vous n'êtes pas disponible, une deuxième tentative sera faite le prochain jour ouvrable. Assurez-vous que quelqu'un est disponible pour recevoir le colis.</span>
+          </div></div>
+        </li>
+
+      </ul>
+    </div>
+
+    <!-- ── SIZING & FIT ── -->
+    <div class="fq-group active fq-reveal" data-group="sizing" style="transition-delay:0.15s">
+      <div class="fq-group-head">
+        <div class="fq-group-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
+        </div>
+        <span class="fq-group-title" data-i18n="faq_cat_sizing">Sizing & Fit</span>
+        <span class="fq-group-count">5 Questions</span>
+      </div>
+      <ul class="fq-list">
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">01</span>
+            <span class="fq-q-text"><span data-lang="en">How do I find my correct size?</span><span data-lang="fr">Comment trouver ma taille ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Use the <strong>Size Guide</strong> available on each product page. Measure your waist and hips in inches, then match to the size chart. When in doubt, size up for a more relaxed fit.</span>
+            <span data-lang="fr">Utilisez le <strong>Guide des tailles</strong> disponible sur chaque page produit. Mesurez votre tour de taille et de hanches, puis comparez avec le tableau. En cas de doute, prenez la taille au-dessus.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">02</span>
+            <span class="fq-q-text"><span data-lang="en">Do the jeans run true to size?</span><span data-lang="fr">Les jeans sont-ils fidèles aux tailles ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Most styles run <strong>true to size</strong>. High-rise and skinny styles have a slight stretch. For baggy and wide-leg styles, you can size down for a relaxed look.</span>
+            <span data-lang="fr">La plupart des modèles sont <strong>fidèles aux tailles</strong>. Les modèles taille haute et slim ont un léger stretch. Pour les modèles baggy et jambe large, vous pouvez prendre une taille en dessous.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">03</span>
+            <span class="fq-q-text"><span data-lang="en">Will the jeans shrink after washing?</span><span data-lang="fr">Les jeans rétrécissent-ils au lavage ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Minimal shrinkage may occur after the first wash. We recommend washing at <strong>30°C</strong> and air drying to preserve the shape and color.</span>
+            <span data-lang="fr">Un léger rétrécissement peut survenir après le premier lavage. Nous recommandons de laver à <strong>30°C</strong> et de sécher à l'air pour préserver la forme et la couleur.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">04</span>
+            <span class="fq-q-text"><span data-lang="en">What is the inseam length for each size?</span><span data-lang="fr">Quelle est la longueur d'entrejambe ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Our standard inseam is approximately <strong>30–32 inches</strong> depending on the style. Wide-leg and flare styles tend to have a longer inseam. Exact measurements are on each product page.</span>
+            <span data-lang="fr">Notre longueur d'entrejambe standard est d'environ <strong>76–81 cm</strong> selon le modèle. Les modèles jambe large ont un entrejambe plus long. Les mesures exactes sont sur chaque page produit.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">05</span>
+            <span class="fq-q-text"><span data-lang="en">I'm between two sizes — which should I choose?</span><span data-lang="fr">Je suis entre deux tailles — laquelle choisir ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">For fitted styles (high-rise, skinny), go with the <strong>smaller size</strong>. For relaxed styles (baggy, wide-leg), choose the <strong>larger size</strong>. Still unsure? Message us on WhatsApp and we'll help.</span>
+            <span data-lang="fr">Pour les modèles ajustés (taille haute, slim), prenez la <strong>taille inférieure</strong>. Pour les modèles relaxed (baggy, jambe large), choisissez la <strong>taille supérieure</strong>. Encore incertain(e) ? Écrivez-nous sur WhatsApp.</span>
+          </div></div>
+        </li>
+
+      </ul>
+    </div>
+
+    <!-- ── EXCHANGES & POLICY ── -->
+    <div class="fq-group active fq-reveal" data-group="exchange" style="transition-delay:0.2s">
+      <div class="fq-group-head">
+        <div class="fq-group-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M3 21v-5h5"/></svg>
+        </div>
+        <span class="fq-group-title" data-i18n="faq_grp_exchanges">Exchanges & Policy</span>
+        <span class="fq-group-count">5 Questions</span>
+      </div>
+      <ul class="fq-list">
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">01</span>
+            <span class="fq-q-text"><span data-lang="en">Can I return my order for a refund?</span><span data-lang="fr">Puis-je retourner ma commande pour un remboursement ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en"><strong>No.</strong> All sales are final. We do not accept returns or issue refunds once your order has been delivered. Please review your size carefully before ordering.</span>
+            <span data-lang="fr"><strong>Non.</strong> Toutes les ventes sont définitives. Nous n'acceptons pas les retours ni les remboursements une fois votre commande livrée. Vérifiez bien votre taille avant de commander.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">02</span>
+            <span class="fq-q-text"><span data-lang="en">Can I exchange my jeans for a different size?</span><span data-lang="fr">Puis-je échanger contre une autre taille ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Yes — you can request a <strong>size exchange within 3 business days</strong> of receiving your order. The item must be unworn, unwashed, and with tags attached. A <strong>30 MAD re-shipping fee</strong> applies.</span>
+            <span data-lang="fr">Oui — vous pouvez demander un <strong>échange dans les 3 jours ouvrables</strong> suivant la réception. L'article doit être non porté, non lavé, avec étiquettes. Des <strong>frais de 30 MAD</strong> s'appliquent.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">03</span>
+            <span class="fq-q-text"><span data-lang="en">How long do I have to request an exchange?</span><span data-lang="fr">Combien de temps ai-je pour demander un échange ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">You have <strong>3 business days</strong> from the date of delivery to contact us and request a size exchange. Requests made after this window cannot be accepted.</span>
+            <span data-lang="fr">Vous avez <strong>3 jours ouvrables</strong> à compter de la livraison pour nous contacter. Les demandes au-delà de ce délai ne peuvent être acceptées.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">04</span>
+            <span class="fq-q-text"><span data-lang="en">Why is there a 30 MAD exchange fee?</span><span data-lang="fr">Pourquoi des frais d'échange de 30 MAD ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">The <strong>30 MAD</strong> fee covers the cost of re-shipping your new size. It must be paid before we dispatch the replacement. This fee is non-refundable.</span>
+            <span data-lang="fr">Les <strong>30 MAD</strong> couvrent les frais de réexpédition. Ils doivent être payés avant l'expédition de la nouvelle taille. Ces frais ne sont pas remboursables.</span>
+          </div></div>
+        </li>
+
+        <li class="fq-item">
+          <button class="fq-q">
+            <span class="fq-q-num">05</span>
+            <span class="fq-q-text"><span data-lang="en">How do I start an exchange request?</span><span data-lang="fr">Comment initier une demande d'échange ?</span></span>
+            <svg class="fq-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="fq-a"><div class="fq-a-inner">
+            <span data-lang="en">Message us on <strong>WhatsApp</strong> with your order number and the size you need. Send a photo of the item (unworn, tags attached). Once approved, pay the 30 MAD and your new size ships immediately.</span>
+            <span data-lang="fr">Envoyez-nous un message sur <strong>WhatsApp</strong> avec votre numéro de commande et la taille souhaitée. Joignez une photo (non porté, étiquettes attachées). Une fois approuvé, payez les 30 MAD et votre nouvelle taille est expédiée.</span>
+          </div></div>
+        </li>
+
+      </ul>
+    </div>
+
+    <!-- CTA -->
+    <div class="fq-cta fq-reveal">
+      <div class="fq-cta-inner">
+        <span class="fq-cta-eyebrow" data-i18n="still_help">Still need help?</span>
+        <h3 data-i18n="still_here">We're Always Here.</h3>
+        <p class="fq-cta-sub" data-i18n="still_help_sub">Can't find your answer? Our team responds within 24 hours — reach us directly.</p>
+        <div class="fq-cta-btns">
+          <a href="https://wa.me/212771152186" class="fq-btn-wa" target="_blank">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            <span data-i18n="chat_whatsapp">Chat on WhatsApp</span>
+          </a>
+          <a href="contact.html" class="fq-btn-ghost" data-i18n="contact_us_arrow">Contact Us →</a>
+        </div>
+      </div>
+    </div>
+
   </div>
-
-  <div id="faqNoResults" class="faq-no-results">
-    <p>
-      <span data-lang="en">No results found. Try a different keyword or <a href="contact.html" style="color:#0a1628;">contact us</a>.</span>
-      <span data-lang="fr">Aucun résultat. Essayez un autre mot-clé ou <a href="contact.html" style="color:#0a1628;">contactez-nous</a>.</span>
-    </p>
-  </div>
-
-  <!-- ── ORDERS & PAYMENT ── -->
-  <div class="faq-group active" data-group="orders">
-    <div class="faq-group-head">
-      <div class="faq-group-icon">💳</div>
-      <span class="faq-group-title" data-i18n="faq_cat_orders">Orders &amp; Payment</span>
-      <span class="faq-group-count">5 questions</span>
-    </div>
-    <div class="faq-list">
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🛍</span>
-          <span class="faq-q-text">
-            <span data-lang="en">How do I place an order?</span>
-            <span data-lang="fr">Comment passer une commande ?</span>
-          </span>
-          <span class="faq-chevron">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Browse our collection, select your size and color, then click <strong>Add to Cart</strong>. Once you're ready, open the cart and proceed to checkout. Fill in your delivery details and confirm your order.</p>
-          <p data-lang="fr">Parcourez notre collection, sélectionnez votre taille et couleur, puis cliquez sur <strong>Ajouter au panier</strong>. Une fois prêt(e), ouvrez le panier et passez à la caisse. Remplissez vos coordonnées de livraison et confirmez votre commande.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">💰</span>
-          <span class="faq-q-text">
-            <span data-lang="en">What payment methods do you accept?</span>
-            <span data-lang="fr">Quels modes de paiement acceptez-vous ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">We accept <strong>cash on delivery (COD)</strong> — you pay when your order arrives at your door. No card or online payment required.</p>
-          <p data-lang="fr">Nous acceptons le <strong>paiement à la livraison (COD)</strong> — vous payez en espèces à la réception de votre colis. Aucune carte requise.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">✏️</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Can I modify or cancel my order after placing it?</span>
-            <span data-lang="fr">Puis-je modifier ou annuler ma commande ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">You can modify or cancel your order <strong>within 2 hours</strong> of placing it. Contact us immediately via WhatsApp. Once the order has been dispatched, modifications are no longer possible.</p>
-          <p data-lang="fr">Vous pouvez modifier ou annuler votre commande <strong>dans les 2 heures</strong> suivant la commande. Contactez-nous immédiatement via WhatsApp. Une fois expédié, aucune modification n'est possible.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">📩</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Will I receive an order confirmation?</span>
-            <span data-lang="fr">Vais-je recevoir une confirmation de commande ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Yes. Once your order is confirmed, you will receive a message via WhatsApp with your order details and estimated delivery date.</p>
-          <p data-lang="fr">Oui. Une fois votre commande confirmée, vous recevrez un message WhatsApp avec les détails de votre commande et la date de livraison estimée.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🎁</span>
-          <span class="faq-q-text">
-            <span data-lang="en">How does the pack deal discount work?</span>
-            <span data-lang="fr">Comment fonctionne la réduction pack duo ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Add any <strong>2 items</strong> to your cart and the price automatically drops to <strong>319 MAD</strong>. Add <strong>3 items</strong> and it becomes <strong>479 MAD</strong>. You can mix and match any styles — no need to buy the same product twice.</p>
-          <p data-lang="fr">Ajoutez <strong>2 articles</strong> à votre panier et le prix baisse automatiquement à <strong>319 MAD</strong>. Ajoutez <strong>3 articles</strong> et c'est <strong>479 MAD</strong>. Vous pouvez mixer tous les styles — pas besoin d'acheter le même produit deux fois.</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── SHIPPING ── -->
-  <div class="faq-group active" data-group="shipping">
-    <div class="faq-group-head">
-      <div class="faq-group-icon">🚚</div>
-      <span class="faq-group-title" data-i18n="faq_grp_shipping">Shipping &amp; Delivery</span>
-      <span class="faq-group-count">5 questions</span>
-    </div>
-    <div class="faq-list">
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">📦</span>
-          <span class="faq-q-text">
-            <span data-lang="en">How long does delivery take?</span>
-            <span data-lang="fr">Combien de temps prend la livraison ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Standard delivery takes <strong>2–5 business days</strong>. Express delivery takes <strong>1–2 business days</strong> for an extra 15 MAD. Orders placed before 3 PM are processed the same day.</p>
-          <p data-lang="fr">La livraison standard prend <strong>2–5 jours ouvrables</strong>. La livraison express prend <strong>1–2 jours ouvrables</strong> avec un supplément de 15 MAD. Les commandes passées avant 15h sont traitées le jour même.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🆓</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Is shipping free?</span>
-            <span data-lang="fr">La livraison est-elle gratuite ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en"><strong>Yes — standard shipping is completely free</strong> on all orders across Morocco. Express shipping is available for 15 MAD if you need your order faster.</p>
-          <p data-lang="fr"><strong>Oui — la livraison standard est entièrement gratuite</strong> sur toutes les commandes au Maroc. La livraison express est disponible pour 15 MAD si vous avez besoin de votre commande plus vite.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">📍</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Do you deliver everywhere in Morocco?</span>
-            <span data-lang="fr">Livrez-vous partout au Maroc ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Yes, we deliver to <strong>all regions of Morocco</strong>. Whether you're in Casablanca, Marrakech, Fes, Rabat, or any other city — we've got you covered.</p>
-          <p data-lang="fr">Oui, nous livrons dans <strong>toutes les régions du Maroc</strong>. Que vous soyez à Casablanca, Marrakech, Fès, Rabat ou toute autre ville — nous livrons chez vous.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🔍</span>
-          <span class="faq-q-text">
-            <span data-lang="en">How can I track my order?</span>
-            <span data-lang="fr">Comment suivre ma commande ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Once your order is dispatched, we'll send you a tracking update via WhatsApp. You can also contact us directly at any time for a status update on your delivery.</p>
-          <p data-lang="fr">Une fois votre commande expédiée, nous vous enverrons une mise à jour de suivi via WhatsApp. Vous pouvez aussi nous contacter à tout moment pour connaître l'état de votre livraison.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🚪</span>
-          <span class="faq-q-text">
-            <span data-lang="en">What if I'm not home when the delivery arrives?</span>
-            <span data-lang="fr">Et si je ne suis pas chez moi lors de la livraison ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">The delivery agent will attempt to contact you. If you're unavailable, a second delivery attempt will be made the following business day. Please make sure someone is available to receive the package.</p>
-          <p data-lang="fr">Le livreur essaiera de vous contacter. Si vous n'êtes pas disponible, une deuxième tentative sera faite le prochain jour ouvrable. Assurez-vous que quelqu'un est disponible pour recevoir le colis.</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── SIZING ── -->
-  <div class="faq-group active" data-group="sizing">
-    <div class="faq-group-head">
-      <div class="faq-group-icon">📐</div>
-      <span class="faq-group-title" data-i18n="faq_cat_sizing">Sizing &amp; Fit</span>
-      <span class="faq-group-count">5 questions</span>
-    </div>
-    <div class="faq-list">
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">📏</span>
-          <span class="faq-q-text">
-            <span data-lang="en">How do I find my correct size?</span>
-            <span data-lang="fr">Comment trouver ma bonne taille ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Use the <strong>Size Guide</strong> available on each product page. Measure your waist and hips in inches, then match to the size chart. When in doubt, size up for a more relaxed fit.</p>
-          <p data-lang="fr">Utilisez le <strong>Guide des tailles</strong> disponible sur chaque page produit. Mesurez votre tour de taille et de hanches, puis comparez avec le tableau. En cas de doute, prenez la taille au-dessus pour une coupe plus relax.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">✅</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Do the jeans run true to size?</span>
-            <span data-lang="fr">Les jeans correspondent-ils bien aux tailles ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Most of our styles run <strong>true to size</strong>. Our high-rise and skinny styles have a slight stretch due to the elastane blend. For baggy and wide-leg styles, you can size down for a relaxed look.</p>
-          <p data-lang="fr">La plupart de nos modèles sont <strong>fidèles aux tailles</strong>. Nos modèles taille haute et slim ont un léger stretch grâce à l'élasthanne. Pour les modèles baggy et jambe large, vous pouvez prendre une taille en dessous.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🧺</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Will the jeans shrink after washing?</span>
-            <span data-lang="fr">Les jeans rétrécissent-ils au lavage ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Minimal shrinkage may occur after the first wash. We recommend washing at <strong>30°C</strong> and air drying rather than tumble drying to preserve the shape and color of your jeans.</p>
-          <p data-lang="fr">Un léger rétrécissement peut survenir après le premier lavage. Nous recommandons de laver à <strong>30°C</strong> et de sécher à l'air plutôt qu'au sèche-linge pour préserver la forme et la couleur.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">👗</span>
-          <span class="faq-q-text">
-            <span data-lang="en">What is the inseam length for each size?</span>
-            <span data-lang="fr">Quelle est la longueur d'entrejambe selon la taille ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Our standard inseam is approximately <strong>30–32 inches</strong> depending on the style. Wide-leg and flare styles tend to have a longer inseam to complement the silhouette. Exact measurements are on each product page.</p>
-          <p data-lang="fr">Notre longueur d'entrejambe standard est d'environ <strong>76–81 cm</strong> selon le modèle. Les modèles jambe large et évasés ont un entrejambe plus long. Les mesures exactes sont sur chaque page produit.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🤔</span>
-          <span class="faq-q-text">
-            <span data-lang="en">I'm between two sizes — which should I choose?</span>
-            <span data-lang="fr">Je suis entre deux tailles — laquelle choisir ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">For fitted styles (high-rise, skinny), go with the <strong>smaller size</strong> — the fabric has stretch. For relaxed styles (baggy, wide-leg), choose the <strong>larger size</strong> for comfort. Still unsure? Message us on WhatsApp and we'll help you decide.</p>
-          <p data-lang="fr">Pour les modèles ajustés (taille haute, slim), prenez la <strong>taille inférieure</strong> — le tissu est extensible. Pour les modèles relaxed (baggy, jambe large), choisissez la <strong>taille supérieure</strong>. Encore incertain(e) ? Écrivez-nous sur WhatsApp.</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ── EXCHANGES ── -->
-  <div class="faq-group active" data-group="exchange">
-    <div class="faq-group-head">
-      <div class="faq-group-icon">🔄</div>
-      <span class="faq-group-title" data-i18n="faq_grp_exchanges">Exchanges &amp; Policy</span>
-      <span class="faq-group-count">5 questions</span>
-    </div>
-    <div class="faq-list">
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">🔁</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Can I return my order for a refund?</span>
-            <span data-lang="fr">Puis-je retourner ma commande pour un remboursement ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en"><strong>No.</strong> All sales are final. We do not accept returns or issue refunds once your order has been delivered. Please review your size carefully before placing your order. See our <a href="shipping.html">Shipping &amp; Exchanges</a> page for full details.</p>
-          <p data-lang="fr"><strong>Non.</strong> Toutes les ventes sont définitives. Nous n'acceptons pas les retours ni les remboursements une fois votre commande livrée. Vérifiez bien votre taille avant de commander. Consultez notre page <a href="shipping.html">Livraison &amp; Échanges</a> pour plus de détails.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">📐</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Can I exchange my jeans for a different size?</span>
-            <span data-lang="fr">Puis-je échanger mon jean pour une autre taille ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Yes — you can request a <strong>size exchange within 3 business days</strong> of receiving your order. The item must be unworn, unwashed, and with tags still attached. A <strong>30 MAD re-shipping fee</strong> applies.</p>
-          <p data-lang="fr">Oui — vous pouvez demander un <strong>échange de taille dans les 3 jours ouvrables</strong> suivant la réception. L'article doit être non porté, non lavé, avec les étiquettes. Des <strong>frais de réexpédition de 30 MAD</strong> s'appliquent.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">⏱</span>
-          <span class="faq-q-text">
-            <span data-lang="en">How long do I have to request an exchange?</span>
-            <span data-lang="fr">Combien de temps ai-je pour demander un échange ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">You have <strong>3 business days</strong> from the date of delivery to contact us and request a size exchange. Requests made after this window cannot be accepted.</p>
-          <p data-lang="fr">Vous avez <strong>3 jours ouvrables</strong> à compter de la livraison pour nous contacter et demander un échange. Les demandes au-delà de ce délai ne peuvent être acceptées.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">💸</span>
-          <span class="faq-q-text">
-            <span data-lang="en">Why is there a 30 MAD exchange fee?</span>
-            <span data-lang="fr">Pourquoi y a-t-il des frais d'échange de 30 MAD ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">The <strong>30 MAD</strong> fee covers the cost of re-shipping your new size. It must be paid before we dispatch the replacement. This fee is non-refundable.</p>
-          <p data-lang="fr">Les <strong>30 MAD</strong> couvrent les frais de réexpédition de la nouvelle taille. Ils doivent être payés avant l'expédition. Ces frais ne sont pas remboursables.</p>
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-q">
-          <span class="faq-q-icon">📲</span>
-          <span class="faq-q-text">
-            <span data-lang="en">How do I start an exchange request?</span>
-            <span data-lang="fr">Comment initier une demande d'échange ?</span>
-          </span>
-          <span class="faq-chevron"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></span>
-        </button>
-        <div class="faq-a">
-          <p data-lang="en">Message us on <strong>WhatsApp</strong> with your order number and the size you need. Send a photo of the item (unworn, tags attached) so we can confirm eligibility. Once approved, pay the 30 MAD and your new size ships immediately.</p>
-          <p data-lang="fr">Envoyez-nous un message sur <strong>WhatsApp</strong> avec votre numéro de commande et la taille souhaitée. Joignez une photo de l'article (non porté, étiquettes attachées). Une fois approuvé, payez les 30 MAD et votre nouvelle taille est expédiée immédiatement.</p>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- CTA -->
-  <div class="faq-cta reveal">
-    <div class="faq-cta-inner">
-      <p class="faq-cta-tag" data-i18n="still_help">Still need help?</p>
-      <h3 data-i18n="still_here">We're always here.</h3>
-      <p data-i18n="still_help_sub">Can't find your answer? Our team responds within 24 hours — reach us directly.</p>
-      <div class="faq-cta-btns">
-        <a href="https://wa.me/212771152186" class="btn-wa-green" target="_blank">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          <span data-i18n="chat_whatsapp">Chat on WhatsApp</span>
-        </a>
-        <a href="contact.html" class="btn-ghost" data-i18n="contact_us_arrow">Contact Us →</a>
-      </div>
-    </div>
-  </div>
-
 </div>
 
 <!-- ===== FOOTER ===== -->
@@ -872,9 +744,7 @@
     </div>
     <div class="footer-col">
       <h4 data-i18n="footer_follow">Follow</h4>
-      <ul>
-        <li><a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a></li>
-      </ul>
+      <ul><li><a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a></li></ul>
     </div>
   </div>
   <div class="footer-bottom">
@@ -886,9 +756,8 @@
   </div>
 </footer>
 
-<a href="https://wa.me/212771152186" class="whatsapp-float" target="_blank" title="Chat on WhatsApp">
-  <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-</a>
+<a href="https://wa.me/212771152186" class="whatsapp-float" target="_blank" title="Chat on WhatsApp"><svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>
+
 <script src="config.js" defer></script>
 <script src="products.js" defer></script>
 <script src="lang.js" defer></script>
@@ -896,62 +765,71 @@
 <script src="script.js" defer></script>
 <script src="mobile.js" defer></script>
 <script>
-  /* ── ACCORDION ── */
-  document.querySelectorAll('.faq-q').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const item = btn.closest('.faq-item');
-      const answer = item.querySelector('.faq-a');
-      const isOpen = item.classList.contains('open');
-      // close all in same list
-      btn.closest('.faq-list').querySelectorAll('.faq-item').forEach(i => {
-        i.classList.remove('open');
-        i.querySelector('.faq-a').classList.remove('open');
+  /* ── Scroll reveal ── */
+  (function() {
+    var els = document.querySelectorAll('.fq-reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function(el) { el.classList.add('fq-visible'); }); return;
+    }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('fq-visible'); io.unobserve(e.target); }
       });
-      if (!isOpen) {
-        item.classList.add('open');
-        answer.classList.add('open');
-      }
+    }, { threshold: 0.08 });
+    els.forEach(function(el) { io.observe(el); });
+  })();
+
+  /* ── Accordion ── */
+  document.querySelectorAll('.fq-q').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var item = btn.closest('.fq-item');
+      var answer = item.querySelector('.fq-a');
+      var isOpen = item.classList.contains('open');
+      btn.closest('.fq-list').querySelectorAll('.fq-item').forEach(function(i) {
+        i.classList.remove('open');
+        i.querySelector('.fq-a').classList.remove('open');
+      });
+      if (!isOpen) { item.classList.add('open'); answer.classList.add('open'); }
     });
   });
 
-  /* ── TABS ── */
-  const tabs = document.querySelectorAll('.faq-tab');
-  const groups = document.querySelectorAll('.faq-group');
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
+  /* ── Category tabs ── */
+  var tabs   = document.querySelectorAll('.fq-tab');
+  var groups = document.querySelectorAll('.fq-group');
+  tabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      tabs.forEach(function(t) { t.classList.remove('active'); });
       tab.classList.add('active');
-      const group = tab.dataset.group;
-      groups.forEach(g => {
+      var group = tab.dataset.group;
+      groups.forEach(function(g) {
         g.classList.toggle('active', group === 'all' || g.dataset.group === group);
+        g.querySelectorAll('.fq-item').forEach(function(i) { i.style.display = ''; });
       });
       document.getElementById('faqSearch').value = '';
       document.getElementById('faqNoResults').style.display = 'none';
     });
   });
 
-  /* ── SEARCH ── */
-  document.getElementById('faqSearch').addEventListener('input', function () {
-    const q = this.value.toLowerCase().trim();
+  /* ── Search ── */
+  document.getElementById('faqSearch').addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
     if (!q) {
-      // restore current tab state
-      const activeTab = document.querySelector('.faq-tab.active');
-      const group = activeTab ? activeTab.dataset.group : 'all';
-      groups.forEach(g => {
+      var activeTab = document.querySelector('.fq-tab.active');
+      var group = activeTab ? activeTab.dataset.group : 'all';
+      groups.forEach(function(g) {
         g.classList.toggle('active', group === 'all' || g.dataset.group === group);
-        g.querySelectorAll('.faq-item').forEach(i => i.style.display = '');
+        g.style.display = '';
+        g.querySelectorAll('.fq-item').forEach(function(i) { i.style.display = ''; });
       });
       document.getElementById('faqNoResults').style.display = 'none';
       return;
     }
-    let anyVisible = false;
-    groups.forEach(g => {
-      g.classList.add('active');
-      let groupHas = false;
-      g.querySelectorAll('.faq-item').forEach(item => {
-        const text = item.textContent.toLowerCase();
-        const match = text.includes(q);
+    var anyVisible = false;
+    groups.forEach(function(g) {
+      g.classList.add('active'); g.style.display = '';
+      var groupHas = false;
+      g.querySelectorAll('.fq-item').forEach(function(item) {
+        var match = item.textContent.toLowerCase().includes(q);
         item.style.display = match ? '' : 'none';
         if (match) { groupHas = true; anyVisible = true; }
       });
