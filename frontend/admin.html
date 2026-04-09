@@ -2087,7 +2087,7 @@ function makeStatusPill(orderId, currentStatus) {
   const cfg = STATUS_CFG[currentStatus] || STATUS_CFG.pending;
   const pid = 'sdrop_' + orderId.replace(/[^a-z0-9]/gi,'_');
   const items = Object.entries(STATUS_CFG).map(([key, v]) =>
-    `<button class="status-drop-item${key===currentStatus?' active':''}" onclick="statusPickItem('${orderId}','${key}');event.stopPropagation()">
+    `<button class="status-drop-item${key===currentStatus?' active':''}" onclick="statusPickItem(event,'${orderId}','${key}')">
       <span class="status-drop-item-dot" style="background:${v.dot}"></span>
       <span class="status-drop-item-emoji">${v.emoji}</span>
       <span>${v.label}</span>
@@ -2095,7 +2095,7 @@ function makeStatusPill(orderId, currentStatus) {
     </button>`
   ).join('');
   return `<div class="status-pill-wrap" id="${pid}_wrap">
-    <div class="status-pill" id="${pid}" style="background:${cfg.bg};color:${cfg.color}" onclick="toggleStatusDrop('${pid}','${orderId}','${currentStatus}');event.stopPropagation()">
+    <div class="status-pill" id="${pid}" style="background:${cfg.bg};color:${cfg.color}" onclick="toggleStatusDrop(event,'${pid}','${orderId}','${currentStatus}')">
       <span class="status-pill-dot" style="background:${cfg.dot}"></span>
       <span>${cfg.label}</span>
       <svg class="status-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -2104,7 +2104,8 @@ function makeStatusPill(orderId, currentStatus) {
   </div>`;
 }
 
-function toggleStatusDrop(pid, orderId, currentStatus) {
+function toggleStatusDrop(e, pid, orderId, currentStatus) {
+  e.stopPropagation();
   if (window.innerWidth <= 768) {
     showStatusSheet(orderId, currentStatus);
     return;
@@ -2117,7 +2118,6 @@ function toggleStatusDrop(pid, orderId, currentStatus) {
   if (!menu) return;
   const willOpen = !menu.classList.contains('open');
   if (willOpen) {
-    // Flip upward if not enough space below
     const rect = menu.parentElement.getBoundingClientRect();
     if (window.innerHeight - rect.bottom < 280) menu.classList.add('drop-up');
     else menu.classList.remove('drop-up');
@@ -2126,7 +2126,8 @@ function toggleStatusDrop(pid, orderId, currentStatus) {
   if (wrap) wrap.classList.toggle('open');
 }
 
-function statusPickItem(orderId, newStatus) {
+function statusPickItem(e, orderId, newStatus) {
+  e.stopPropagation();
   document.querySelectorAll('.status-drop-menu.open').forEach(m => m.classList.remove('open'));
   document.querySelectorAll('.status-pill-wrap.open').forEach(w => w.classList.remove('open'));
   setOrderStatus(orderId, newStatus);
