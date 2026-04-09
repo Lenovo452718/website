@@ -136,10 +136,6 @@
 [dir="rtl"] .value-card           { text-align: right; }
 [dir="rtl"] .about-cta            { text-align: center; }
 
-/* LOOKBOOK */
-[dir="rtl"] .lookbook-hero        { text-align: center; }
-[dir="rtl"] .lookbook-cta         { text-align: center; }
-
 /* CONTACT */
 [dir="rtl"] .contact-layout       { direction: rtl; }
 [dir="rtl"] .contact-left         { text-align: right; }

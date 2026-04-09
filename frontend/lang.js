@@ -4,13 +4,13 @@
 const TRANSLATIONS = {
   en: {
     // Nav
-    nav_shop:"Shop", nav_lookbook:"Lookbook", nav_about:"About",
+    nav_shop:"Shop", nav_about:"About",
     nav_contact:"Contact", nav_account:"Account",
     // Hero
     hero_tag:"New Collection — Spring 2026",
     hero_h1_1:"TIMELESS DENIM.", hero_h1_2:"MODERN FIT.",
     hero_sub:"Premium Moroccan denim fashion. Crafted for bold, modern women.",
-    hero_shop:"Shop Now", hero_lookbook:"View Lookbook",
+    hero_shop:"Shop Now",
     // Benefits
     benefit_quality:"Best Quality Fabrics", benefit_quality_sub:"Durable, comfy, perfect for daily wear",
     benefit_delivery:"Fast Delivery",       benefit_delivery_sub:"Get your favorite jeans delivered quickly",
@@ -76,11 +76,6 @@ const TRANSLATIONS = {
     shop_collection_cta:"Shop the Collection",
     stat_styles:"Styles", stat_quality:"Quality", stat_payment:"Payment", stat_shipping_label:"Shipping",
     about_manifesto_label:"Our Manifesto",
-    // Lookbook
-    lookbook_subtitle:"Spring / Summer 2026",
-    shop_the_look:"Shop the Look", ready_to_shop:"Ready to Shop?",
-    lookbook_ready_sub:"Explore the full collection and find your perfect fit.",
-    shop_all_jeans:"Shop All Jeans",
     // Contact
     reach_out:"Reach Out", get_in_touch:"Get in Touch",
     send_message_title:"Send a Message",
@@ -163,9 +158,6 @@ const TRANSLATIONS = {
     still_help:"Still need help?",
     still_help_sub:"Can't find your answer? Our team responds within 24 hours — reach us directly.",
     contact_us_arrow:"Contact Us →",
-    // Lookbook
-    lookbook_series1:"Urban Series", lookbook_series2:"Dark Edit",
-    lookbook_series3:"Sky Wash", lookbook_grey:"The Grey Scale",
     // About
     about_hero_sub:"WE ARE STREETSTORE",
     about_story_p:"StreetStore was born from a passion for premium denim fashion. Based in Morocco, we bring you the latest in women's denim — from wide-leg classics to modern baggy fits — at prices that make sense. Every piece is carefully selected for quality, comfort, and style.",
@@ -183,8 +175,6 @@ const TRANSLATIONS = {
     faq_grp_shipping:"Shipping & Delivery", faq_grp_exchanges:"Exchanges & Policy",
     // About
     about_est:"Est. — Morocco",
-    // Lookbook
-    lookbook_title:"THE LOOKBOOK",
     // Shipping page
     sp_eyebrow:"✦ Our Policies",
     sp_hero_sub:"Clear, simple, and honest — everything you need to know before and after your order.",
@@ -246,12 +236,12 @@ const TRANSLATIONS = {
   },
 
   fr: {
-    nav_shop:"Boutique", nav_lookbook:"Lookbook", nav_about:"À propos",
+    nav_shop:"Boutique", nav_about:"À propos",
     nav_contact:"Contact", nav_account:"Compte",
     hero_tag:"Nouvelle Collection — Printemps 2026",
     hero_h1_1:"DENIM INTEMPOREL.", hero_h1_2:"COUPE MODERNE.",
     hero_sub:"Mode denim marocaine premium. Conçue pour les femmes audacieuses et modernes.",
-    hero_shop:"Acheter maintenant", hero_lookbook:"Voir le Lookbook",
+    hero_shop:"Acheter maintenant",
     benefit_quality:"Meilleure Qualité", benefit_quality_sub:"Durable, confortable, parfait pour le quotidien",
     benefit_delivery:"Livraison Rapide",  benefit_delivery_sub:"Recevez votre jean préféré rapidement",
     benefit_price:"Prix Abordables",     benefit_price_sub:"La mode qui s'adapte à votre budget",
@@ -306,10 +296,6 @@ const TRANSLATIONS = {
     shop_collection_cta:"Découvrir la Collection",
     stat_styles:"Styles", stat_quality:"Qualité", stat_payment:"Paiement", stat_shipping_label:"Livraison",
     about_manifesto_label:"Notre Manifeste",
-    lookbook_subtitle:"Printemps / Été 2026",
-    shop_the_look:"Acheter le look", ready_to_shop:"Prête à faire du shopping?",
-    lookbook_ready_sub:"Explorez la collection complète et trouvez votre style parfait.",
-    shop_all_jeans:"Voir tous les jeans",
     reach_out:"Contactez-nous", get_in_touch:"Prendre contact",
     send_message_title:"Envoyer un message",
     subject_label:"Sujet", message_label:"Message", send_message:"Envoyer",
@@ -387,9 +373,6 @@ const TRANSLATIONS = {
     still_help:"Besoin d'aide ?",
     still_help_sub:"Vous ne trouvez pas votre réponse ? Notre équipe répond en 24h — contactez-nous directement.",
     contact_us_arrow:"Nous contacter →",
-    // Lookbook
-    lookbook_series1:"Série Urbaine", lookbook_series2:"Édition Sombre",
-    lookbook_series3:"Lavage Ciel", lookbook_grey:"L'Échelle des Gris",
     // About
     about_hero_sub:"NOUS SOMMES STREETSTORE",
     about_story_p:"StreetStore est né d'une passion pour la mode denim premium. Basé au Maroc, nous vous proposons le meilleur du denim féminin — des classiques jambe large aux coupes baggy modernes — à des prix accessibles. Chaque pièce est soigneusement sélectionnée pour sa qualité, son confort et son style.",
@@ -407,8 +390,6 @@ const TRANSLATIONS = {
     faq_grp_shipping:"Livraison & Expédition", faq_grp_exchanges:"Échanges & Politique",
     // About
     about_est:"Fondé au Maroc",
-    // Lookbook
-    lookbook_title:"LE LOOKBOOK",
     // Shipping page
     sp_eyebrow:"✦ Nos politiques",
     sp_hero_sub:"Clair, simple et honnête — tout ce que vous devez savoir avant et après votre commande.",
