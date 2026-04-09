@@ -626,14 +626,49 @@ function initShopFilters() {
 
   // Expose so renderShopGrid() can re-apply after async backend updates
   window._shopApplyFilters = applyFilters;
+  window._buildColorSwatches = buildColorSwatches;
 
   // Initial render pass — sets count, load-more, and hides any out-of-range cards
   applyFilters();
 }
 
 /* ============================================================
-   8. COLOR SWATCH SELECTION (sidebar)
+   8. COLOR SWATCH SELECTION (sidebar) — dynamic from products
    ============================================================ */
+function buildColorSwatches() {
+  const wrap = document.querySelector('.color-swatches');
+  if (!wrap || typeof PRODUCTS === 'undefined') return;
+
+  // Collect unique colors from all loaded products
+  const seen = {};
+  Object.values(PRODUCTS).forEach(p => {
+    if (!p.color) return;
+    const name = (typeof normalizeColorToName === 'function') ? normalizeColorToName(p.color) : p.color.split(',')[0].trim().toLowerCase();
+    if (!name || seen[name]) return;
+    // Get display hex: use raw color if hex, else fall back to existing swatch or a grey
+    const hex = p.color.trim().startsWith('#') ? p.color.split(',')[0].trim() : null;
+    seen[name] = hex || '#888888';
+  });
+
+  if (!Object.keys(seen).length) return;
+
+  // Preserve currently active selections
+  const activeColors = new Set(
+    Array.from(wrap.querySelectorAll('.color-swatch.active')).map(s => s.dataset.color)
+  );
+
+  wrap.innerHTML = Object.entries(seen).map(([name, hex]) => {
+    const label = name.charAt(0).toUpperCase() + name.slice(1);
+    const isActive = activeColors.has(name) ? ' active' : '';
+    const border = hex === '#ffffff' || hex === '#f0ede8' || hex === '#e8e8e8' ? 'border:1px solid #ccc;' : '';
+    return `<div class="color-swatch${isActive}" style="background:${hex};${border}" title="${label}" data-color="${name}">` +
+      `<input type="checkbox" class="filter-color" value="${name}" style="display:none;"${isActive ? ' checked' : ''} /></div>`;
+  }).join('');
+
+  // Re-attach click listeners
+  initColorSwatches();
+}
+
 function initColorSwatches() {
   document.querySelectorAll('.color-swatch[data-color]').forEach(swatch => {
     swatch.addEventListener('click', () => {
@@ -1311,7 +1346,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeaderScroll();
   initMobileMenu();
   initCartIcon();
-  initColorSwatches();
+  buildColorSwatches();
   initShopFilters();
   initGallery();
   initSizeSelector();

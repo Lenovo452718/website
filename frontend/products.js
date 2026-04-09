@@ -264,6 +264,7 @@ function renderShopGrid() {
 
   grid.innerHTML = html || '<p style="padding:40px;text-align:center;color:#888">No products available.</p>';
 
+  if (typeof window._buildColorSwatches === 'function') window._buildColorSwatches();
   if (typeof window._shopApplyFilters === 'function') window._shopApplyFilters();
   if (typeof window.reObserveReveal === 'function') window.reObserveReveal();
 }
