@@ -627,9 +627,47 @@ function initShopFilters() {
   // Expose so renderShopGrid() can re-apply after async backend updates
   window._shopApplyFilters = applyFilters;
   window._buildColorSwatches = buildColorSwatches;
+  window._buildSizeCheckboxes = buildSizeCheckboxes;
 
   // Initial render pass — sets count, load-more, and hides any out-of-range cards
   applyFilters();
+}
+
+/* ============================================================
+   8a. SIZE CHECKBOXES (sidebar) — dynamic from products
+   ============================================================ */
+function buildSizeCheckboxes() {
+  const wrap = document.querySelector('.filter-section .filter-checkboxes:has(.filter-size)') ||
+    Array.from(document.querySelectorAll('.filter-checkboxes')).find(el => el.querySelector('.filter-size'));
+  if (!wrap || typeof PRODUCTS === 'undefined') return;
+
+  // Collect all unique sizes across all products, sorted numerically
+  const sizeSet = new Set();
+  Object.values(PRODUCTS).forEach(p => {
+    if (!p.sizes) return;
+    p.sizes.split(',').forEach(s => { s = s.trim(); if (s) sizeSet.add(s); });
+  });
+
+  if (!sizeSet.size) return;
+
+  const sorted = Array.from(sizeSet).sort((a, b) => parseFloat(a) - parseFloat(b));
+
+  // Preserve currently checked sizes
+  const checked = new Set(
+    Array.from(wrap.querySelectorAll('.filter-size:checked')).map(i => i.value)
+  );
+
+  wrap.innerHTML = sorted.map(s =>
+    `<label><input type="checkbox" class="filter-size" value="${s}"${checked.has(s) ? ' checked' : ''} /> ${s}</label>`
+  ).join('');
+
+  // Re-attach change listeners (filter is already listening via event delegation in initShopFilters,
+  // but new elements need explicit binding if initShopFilters already ran)
+  wrap.querySelectorAll('.filter-size').forEach(cb =>
+    cb.addEventListener('change', () => {
+      if (typeof window._shopApplyFilters === 'function') window._shopApplyFilters();
+    })
+  );
 }
 
 /* ============================================================
@@ -1346,6 +1384,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initHeaderScroll();
   initMobileMenu();
   initCartIcon();
+  buildSizeCheckboxes();
   buildColorSwatches();
   initShopFilters();
   initGallery();
