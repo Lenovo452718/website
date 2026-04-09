@@ -900,10 +900,10 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 /* Brand Statement */
 .brand-statement {
-  background: var(--off);
+  background: var(--charcoal);
   padding: 100px 80px;
-  border-top: 1px solid var(--gray-light);
-  border-bottom: 1px solid var(--gray-light);
+  border-top: 1px solid #2a2a2a;
+  border-bottom: 1px solid #2a2a2a;
 }
 .brand-statement-inner {
   max-width: 1280px;
@@ -2792,21 +2792,18 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   /* Brand statement: stack on mobile */
   .brand-statement {
     padding: 60px 24px;
-    background-image: url('images/lookbook/light-denim-full.jpg');
-    background-size: cover;
-    background-position: center 15%;
-    position: relative;
+    background: #fff;
+    background-image: none;
+    border-top: 1px solid var(--gray-light);
+    border-bottom: 1px solid var(--gray-light);
+    position: static;
   }
-  .brand-statement::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.65);
-  }
-  .brand-statement-inner { position: relative; z-index: 1; flex-direction: column; align-items: flex-start; gap: 20px; }
-  .brand-statement-sep { width: 48px; height: 1px; }
-  .brand-statement h2 { font-size: clamp(48px, 13vw, 72px); }
-  .brand-statement-text p { font-size: 14px; }
+  .brand-statement::before { display: none; }
+  .brand-statement h2 { font-size: clamp(48px, 13vw, 72px); color: var(--charcoal); }
+  .brand-statement-sep { width: 48px; height: 1px; background: var(--gray-light); }
+  .brand-statement-text p { font-size: 14px; color: #555; }
+  .brand-statement .btn-text { color: var(--charcoal); }
+  .brand-statement-inner { flex-direction: column; align-items: flex-start; gap: 20px; }
 
   .lookbook-grid { padding: 32px 20px 60px; }
   .lookbook-row-2, .lookbook-row-3 { grid-template-columns: 1fr; }
