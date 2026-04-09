@@ -245,7 +245,7 @@ function renderShopGrid() {
     var name = (p.name || '').replace(/&/g, '&amp;');
     var compareHtml = p.originalPrice ? '<span class="original">' + p.originalPrice + ' MAD</span>' : '';
     return (
-      '<div class="product-card" data-price="' + p.price + '" data-fit="' + (p.fitFilter || 'wide') + '" data-color="' + (p.color || '') + '" data-size="' + (p.sizes || '') + '">' +
+      '<div class="product-card" data-price="' + p.price + '" data-fit="' + (p.fitFilter || 'wide') + '" data-color="' + normalizeColorToName(p.color) + '" data-size="' + (p.sizes || '') + '">' +
         '<a href="' + href + '">' +
           '<div class="product-card-img">' +
             imgHtml + badgeHtml + stockHtml +
@@ -303,6 +303,22 @@ initProductImages();
     document.body.dataset.product = slug;
   }
 })();
+
+/* ── Map a product color (hex or name) to a canonical filter name ── */
+var _hexToName = {
+  '#1a1a1a':'black','#111111':'black','#000000':'black','#111':'black',
+  '#1e3a5f':'navy','#1a2f6b':'navy','#0f1f3d':'navy','#003366':'navy',
+  '#2980b9':'blue','#5b8db8':'blue','#1e90ff':'blue','#4a90d9':'blue','#1565c0':'blue',
+  '#6b4e30':'brown','#8b6347':'caramel','#c4956a':'caramel','#a0522d':'brown',
+  '#888888':'grey','#8a8a8a':'grey','#999999':'grey','#aaaaaa':'grey',
+  '#ffffff':'white','#f0ede8':'white','#e8e8e8':'white','#f5f5f5':'white'
+};
+function normalizeColorToName(colorStr) {
+  if (!colorStr) return '';
+  var first = colorStr.split(',')[0].trim().toLowerCase();
+  if (!first.startsWith('#')) return first; // already a name
+  return _hexToName[first] || first;
+}
 
 /* ── Parse color string into [{label, hex}] array ── */
 var _colorNameMap = { navy:'#0f1f3d', blue:'#1e3a5f', caramel:'#8b6347', black:'#1a1a1a', white:'#f0ede8', gray:'#888888', brown:'#6b4e30', red:'#8b2020', green:'#1e4a2e', beige:'#c8b99a', cream:'#f5f0e8' };
