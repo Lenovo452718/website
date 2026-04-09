@@ -407,7 +407,17 @@ function showTab(tab) {
 function saveAndRedirect(data) {
   localStorage.setItem('ss_customer_token', data.token);
   localStorage.setItem('ss_customer', JSON.stringify(data.customer));
-  window.location.href = 'account.html';
+  var claimId = sessionStorage.getItem('ss_claim_order');
+  if (claimId) {
+    sessionStorage.removeItem('ss_claim_order');
+    fetch((typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : '') + '/api/auth/claim-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.token },
+      body: JSON.stringify({ orderId: claimId })
+    }).finally(function() { window.location.href = 'account.html'; });
+  } else {
+    window.location.href = 'account.html';
+  }
 }
 
 /* ── Loading overlay ── */

@@ -1694,6 +1694,24 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
   }
 });
 
+/* POST /api/auth/claim-order — link a guest order to a logged-in customer */
+app.post('/api/auth/claim-order', requireCustomerAuth, async (req, res) => {
+  const { orderId } = req.body;
+  if (!orderId) return res.status(400).json({ error: 'orderId required' });
+  try {
+    const [order] = await prisma.$queryRaw`SELECT id, customerId FROM \`Order\` WHERE id = ${orderId} LIMIT 1`;
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    if (order.customerId && order.customerId !== req.customerId) {
+      return res.status(403).json({ error: 'Order already linked to another account' });
+    }
+    await prisma.$executeRawUnsafe('UPDATE `Order` SET customerId = ? WHERE id = ?', req.customerId, orderId);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('claim-order error:', err.message);
+    res.status(500).json({ error: 'Failed to claim order' });
+  }
+});
+
 /* GET /api/customer/me */
 app.get('/api/customer/me', requireCustomerAuth, async (req, res) => {
   try {

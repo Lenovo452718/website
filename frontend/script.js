@@ -1284,8 +1284,10 @@ function initPlaceOrder() {
       }
 
       if (resp.ok) {
+        const orderData = await resp.json().catch(() => ({}));
         localStorage.setItem('streetstore_last_order', JSON.stringify(cart));
         if (couponCode) localStorage.setItem('streetstore_last_coupon', couponCode);
+        if (orderData.orderId) localStorage.setItem('ss_guest_order_id', orderData.orderId);
         saveCart([]);
         updateCartBadge();
         window.location.href = 'thankyou.html';

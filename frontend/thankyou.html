@@ -469,6 +469,109 @@
       .ty-stat:last-child { border-bottom: none; }
     }
 
+    /* ─── CLAIM POPUP ───────────────────────────────────────── */
+    .ty-popup-backdrop {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .ty-popup-backdrop.show { opacity: 1; pointer-events: all; }
+    .ty-popup {
+      background: #fff;
+      max-width: 420px; width: 100%;
+      overflow: hidden;
+      transform: translateY(20px);
+      transition: transform 0.35s cubic-bezier(0.16,1,0.3,1);
+    }
+    .ty-popup-backdrop.show .ty-popup { transform: translateY(0); }
+    .ty-popup-head {
+      background: #111; padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .ty-popup-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px; letter-spacing: 0.12em; color: #fff;
+    }
+    .ty-popup-close {
+      background: none; border: none; cursor: pointer;
+      color: rgba(255,255,255,0.5); font-size: 20px; line-height: 1;
+      padding: 0; transition: color 0.2s;
+    }
+    .ty-popup-close:hover { color: #fff; }
+    .ty-popup-body { padding: 24px; }
+    .ty-popup-icon {
+      width: 52px; height: 52px; border-radius: 50%;
+      background: rgba(39,174,96,0.1);
+      border: 1.5px solid rgba(39,174,96,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px; font-size: 22px;
+    }
+    .ty-popup-sub {
+      text-align: center; font-size: 13px; color: #555;
+      line-height: 1.6; margin-bottom: 20px;
+    }
+    .ty-popup-sub strong { color: #111; }
+
+    /* Google button */
+    .ty-popup-google {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      width: 100%; padding: 13px 16px;
+      background: #fff; border: 1.5px solid #e0e0e0;
+      font-size: 13px; font-weight: 600; color: #333;
+      cursor: pointer; transition: background 0.2s, border-color 0.2s;
+      margin-bottom: 16px;
+      text-decoration: none;
+    }
+    .ty-popup-google:hover { background: #f8f8f8; border-color: #bbb; }
+
+    /* Divider */
+    .ty-popup-divider {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 16px;
+    }
+    .ty-popup-divider::before, .ty-popup-divider::after {
+      content: ''; flex: 1; height: 1px; background: #e8e8e8;
+    }
+    .ty-popup-divider span {
+      font-size: 11px; color: #aaa; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap;
+    }
+
+    /* Form fields */
+    .ty-popup-field {
+      width: 100%; box-sizing: border-box;
+      padding: 12px 14px; margin-bottom: 10px;
+      border: 1.5px solid #e0e0e0; font-size: 13px; color: #111;
+      outline: none; transition: border-color 0.2s;
+      -webkit-appearance: none; border-radius: 0;
+    }
+    .ty-popup-field:focus { border-color: #111; }
+    .ty-popup-submit {
+      width: 100%; padding: 14px;
+      background: #111; color: #fff;
+      font-size: 11px; font-weight: 800;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      border: none; cursor: pointer;
+      transition: opacity 0.2s; margin-top: 4px;
+    }
+    .ty-popup-submit:hover { opacity: 0.85; }
+    .ty-popup-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+    .ty-popup-error {
+      font-size: 12px; color: #c0392b;
+      text-align: center; margin-top: 10px; display: none;
+    }
+    .ty-popup-skip {
+      display: block; text-align: center; margin-top: 14px;
+      font-size: 11px; color: #aaa; cursor: pointer;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .ty-popup-skip:hover { color: #555; }
+
   </style>
 </head>
 <body>
@@ -582,6 +685,35 @@
   <a href="faq.html" data-i18n="footer_faq">FAQ</a>
 </div>
 
+<!-- ===== CLAIM ACCOUNT POPUP ===== -->
+<div class="ty-popup-backdrop" id="claimPopup">
+  <div class="ty-popup">
+    <div class="ty-popup-head">
+      <span class="ty-popup-title">Track Your Order</span>
+      <button class="ty-popup-close" id="claimClose">✕</button>
+    </div>
+    <div class="ty-popup-body">
+      <div class="ty-popup-icon">📦</div>
+      <p class="ty-popup-sub">Create a free account to <strong>track your order</strong> and manage future purchases.</p>
+
+      <!-- Google -->
+      <button class="ty-popup-google" id="claimGoogleBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+
+      <div class="ty-popup-divider"><span>or create with email</span></div>
+
+      <input class="ty-popup-field" id="claimName" type="text" placeholder="Full name" autocomplete="name">
+      <input class="ty-popup-field" id="claimEmail" type="email" placeholder="Email address" autocomplete="email">
+      <input class="ty-popup-field" id="claimPass" type="password" placeholder="Password (min. 8 characters)">
+      <button class="ty-popup-submit" id="claimSubmit">Create Account & Track Order</button>
+      <p class="ty-popup-error" id="claimError"></p>
+      <span class="ty-popup-skip" id="claimSkip">Skip for now</span>
+    </div>
+  </div>
+</div>
+
 <script src="config.js" defer></script>
 <script src="products.js" defer></script>
 <script src="lang.js" defer></script>
@@ -645,6 +777,89 @@
         '<span class="ty-total-price">' + total + ' MAD</span>' +
       '</div>';
   })();
+</script>
+
+<script>
+/* ── Claim order popup ── */
+(function() {
+  var API = (typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : '');
+  var orderId = localStorage.getItem('ss_guest_order_id');
+  var backdrop = document.getElementById('claimPopup');
+
+  // If already logged in → auto-claim silently and skip popup
+  var token = localStorage.getItem('ss_customer_token');
+  if (token && orderId) {
+    fetch(API + '/api/auth/claim-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ orderId: orderId })
+    }).finally(function() { localStorage.removeItem('ss_guest_order_id'); });
+    return;
+  }
+
+  // Only show popup if there's a guest order and user is not logged in
+  if (!orderId) return;
+
+  function show() { backdrop.classList.add('show'); }
+  function hide() { backdrop.classList.remove('show'); }
+
+  // Show after 2 seconds
+  setTimeout(show, 2000);
+
+  // Close / skip
+  document.getElementById('claimClose').addEventListener('click', hide);
+  document.getElementById('claimSkip').addEventListener('click', hide);
+  backdrop.addEventListener('click', function(e) { if (e.target === backdrop) hide(); });
+
+  // Google button → save orderId to sessionStorage then go to signup.html
+  document.getElementById('claimGoogleBtn').addEventListener('click', function() {
+    sessionStorage.setItem('ss_claim_order', orderId);
+    window.location.href = 'signup.html';
+  });
+
+  // Email signup
+  document.getElementById('claimSubmit').addEventListener('click', async function() {
+    var btn    = this;
+    var errEl  = document.getElementById('claimError');
+    var name   = document.getElementById('claimName').value.trim();
+    var email  = document.getElementById('claimEmail').value.trim();
+    var pass   = document.getElementById('claimPass').value;
+
+    errEl.style.display = 'none';
+    if (!name || !email || !pass) { errEl.textContent = 'Please fill in all fields.'; errEl.style.display = 'block'; return; }
+
+    btn.disabled = true; btn.textContent = 'Creating account…';
+
+    try {
+      // Register
+      var regResp = await fetch(API + '/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password: pass })
+      });
+      var regData = await regResp.json();
+      if (!regResp.ok) { errEl.textContent = regData.error || 'Registration failed.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account & Track Order'; return; }
+
+      // Save auth
+      localStorage.setItem('ss_customer_token', regData.token);
+      localStorage.setItem('ss_customer', JSON.stringify(regData.customer));
+
+      // Claim order
+      await fetch(API + '/api/auth/claim-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + regData.token },
+        body: JSON.stringify({ orderId: orderId })
+      });
+
+      localStorage.removeItem('ss_guest_order_id');
+      window.location.href = 'account.html';
+    } catch(err) {
+      errEl.textContent = 'Something went wrong. Please try again.';
+      errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = 'Create Account & Track Order';
+    }
+  });
+})();
 </script>
 </body>
 </html>
