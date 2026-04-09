@@ -170,9 +170,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
 .status-pill-chevron{width:13px;height:13px;flex-shrink:0;opacity:.55;transition:transform .2s;margin-left:1px}
 .status-pill-wrap.open .status-pill-chevron{transform:rotate(180deg)}
 /* ── Dropdown ── */
-.status-drop-menu{position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.06);z-index:1200;min-width:210px;padding:6px;display:none;flex-direction:column;gap:2px;animation:dropIn .15s ease}
+.status-drop-menu{background:#fff;border:1px solid rgba(0,0,0,.09);border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.16),0 2px 8px rgba(0,0,0,.06);min-width:220px;padding:6px;display:none;flex-direction:column;gap:2px;animation:dropIn .15s ease}
 .status-drop-menu.open{display:flex}
-.status-drop-menu.drop-up{top:auto;bottom:calc(100% + 8px)}
 @keyframes dropIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .status-drop-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:background .1s;color:var(--charcoal);min-height:44px;border:none;background:none;width:100%;text-align:left;font-family:inherit}
 .status-drop-item:hover{background:var(--off)}
@@ -2104,39 +2103,55 @@ function makeStatusPill(orderId, currentStatus) {
   </div>`;
 }
 
+function _closeAllStatusDrops() {
+  document.querySelectorAll('.status-drop-menu.open').forEach(m => {
+    m.classList.remove('open');
+    m.style.cssText = '';
+  });
+  document.querySelectorAll('.status-pill-wrap.open').forEach(w => w.classList.remove('open'));
+}
+
 function toggleStatusDrop(e, pid, orderId, currentStatus) {
   e.stopPropagation();
   if (window.innerWidth <= 768) {
     showStatusSheet(orderId, currentStatus);
     return;
   }
-  // Close any other open menus
-  document.querySelectorAll('.status-drop-menu.open').forEach(m => { if (m.id !== pid+'_menu') m.classList.remove('open'); });
-  document.querySelectorAll('.status-pill-wrap.open').forEach(w => { if (w.id !== pid+'_wrap') w.classList.remove('open'); });
-  const menu = document.getElementById(pid+'_menu');
-  const wrap = document.getElementById(pid+'_wrap');
-  if (!menu) return;
-  const willOpen = !menu.classList.contains('open');
-  if (willOpen) {
-    const rect = menu.parentElement.getBoundingClientRect();
-    if (window.innerHeight - rect.bottom < 280) menu.classList.add('drop-up');
-    else menu.classList.remove('drop-up');
+  const menu = document.getElementById(pid + '_menu');
+  const pill = document.getElementById(pid);
+  const wrap = document.getElementById(pid + '_wrap');
+  if (!menu || !pill) return;
+
+  const isOpen = menu.classList.contains('open');
+
+  // Close all first
+  _closeAllStatusDrops();
+
+  if (isOpen) return; // was open → just close
+
+  // Position with fixed coords to escape overflow:hidden on .panel
+  const rect = pill.getBoundingClientRect();
+  const menuW = 220;
+  let left = rect.left;
+  if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+
+  if (window.innerHeight - rect.bottom >= 260) {
+    menu.style.cssText = `position:fixed;top:${rect.bottom + 6}px;left:${left}px;z-index:9999;`;
+  } else {
+    menu.style.cssText = `position:fixed;bottom:${window.innerHeight - rect.top + 6}px;left:${left}px;z-index:9999;`;
   }
-  menu.classList.toggle('open');
-  if (wrap) wrap.classList.toggle('open');
+
+  menu.classList.add('open');
+  if (wrap) wrap.classList.add('open');
 }
 
 function statusPickItem(e, orderId, newStatus) {
   e.stopPropagation();
-  document.querySelectorAll('.status-drop-menu.open').forEach(m => m.classList.remove('open'));
-  document.querySelectorAll('.status-pill-wrap.open').forEach(w => w.classList.remove('open'));
+  _closeAllStatusDrops();
   setOrderStatus(orderId, newStatus);
 }
 
-document.addEventListener('click', () => {
-  document.querySelectorAll('.status-drop-menu.open').forEach(m => m.classList.remove('open'));
-  document.querySelectorAll('.status-pill-wrap.open').forEach(w => w.classList.remove('open'));
-});
+document.addEventListener('click', _closeAllStatusDrops);
 
 /* ── Mobile status bottom sheet ── */
 var _statusSheetOrderId = null;
