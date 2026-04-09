@@ -2085,73 +2085,86 @@ const STATUS_CFG = {
 function makeStatusPill(orderId, currentStatus) {
   const cfg = STATUS_CFG[currentStatus] || STATUS_CFG.pending;
   const pid = 'sdrop_' + orderId.replace(/[^a-z0-9]/gi,'_');
-  const items = Object.entries(STATUS_CFG).map(([key, v]) =>
-    `<button class="status-drop-item${key===currentStatus?' active':''}" onclick="statusPickItem(event,'${orderId}','${key}')">
-      <span class="status-drop-item-dot" style="background:${v.dot}"></span>
-      <span class="status-drop-item-emoji">${v.emoji}</span>
-      <span>${v.label}</span>
-      ${key===currentStatus ? '<span class="status-drop-item-check">✓</span>' : ''}
-    </button>`
-  ).join('');
+  // No dropdown HTML inside the pill — portal is used instead
   return `<div class="status-pill-wrap" id="${pid}_wrap">
     <div class="status-pill" id="${pid}" style="background:${cfg.bg};color:${cfg.color}" onclick="toggleStatusDrop(event,'${pid}','${orderId}','${currentStatus}')">
       <span class="status-pill-dot" style="background:${cfg.dot}"></span>
       <span>${cfg.label}</span>
       <svg class="status-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
     </div>
-    <div class="status-drop-menu" id="${pid}_menu">${items}</div>
   </div>`;
 }
 
-function _closeAllStatusDrops() {
-  document.querySelectorAll('.status-drop-menu').forEach(m => {
-    m.style.cssText = 'display:none;';
-    m.classList.remove('open');
-  });
-  document.querySelectorAll('.status-pill-wrap.open').forEach(w => w.classList.remove('open'));
+/* ── Single global dropdown portal — appended to body, never clipped ── */
+var _dropPortalOrderId = null;
+function _getPortal() {
+  var p = document.getElementById('statusDropPortal');
+  if (!p) {
+    p = document.createElement('div');
+    p.id = 'statusDropPortal';
+    p.className = 'status-drop-menu';
+    p.style.cssText = 'display:none;position:fixed;z-index:99999;';
+    p.addEventListener('click', function(e){ e.stopPropagation(); });
+    document.body.appendChild(p);
+  }
+  return p;
+}
+
+function _closePortal() {
+  var p = document.getElementById('statusDropPortal');
+  if (p) p.style.display = 'none';
+  document.querySelectorAll('.status-pill-wrap.open').forEach(function(w){ w.classList.remove('open'); });
+  _dropPortalOrderId = null;
 }
 
 function toggleStatusDrop(e, pid, orderId, currentStatus) {
   e.stopPropagation();
-  if (window.innerWidth <= 768) {
-    showStatusSheet(orderId, currentStatus);
-    return;
+  if (window.innerWidth <= 768) { showStatusSheet(orderId, currentStatus); return; }
+
+  const portal = _getPortal();
+  const pill   = document.getElementById(pid);
+  const wrap   = document.getElementById(pid + '_wrap');
+
+  // Toggle off if same pill clicked again
+  if (_dropPortalOrderId === orderId && portal.style.display !== 'none') {
+    _closePortal(); return;
   }
-  const menu = document.getElementById(pid + '_menu');
-  const pill = document.getElementById(pid);
-  const wrap = document.getElementById(pid + '_wrap');
-  if (!menu || !pill) return;
+  _closePortal();
 
-  const isOpen = menu.classList.contains('open');
+  // Build items
+  portal.innerHTML = Object.entries(STATUS_CFG).map(([key, v]) =>
+    `<button class="status-drop-item${key===currentStatus?' active':''}" onclick="statusPickItem(event,'${orderId}','${key}')">
+      <span class="status-drop-item-dot" style="background:${v.dot}"></span>
+      <span class="status-drop-item-emoji">${v.emoji}</span>
+      <span>${v.label}</span>
+      ${key===currentStatus?'<span class="status-drop-item-check">✓</span>':''}
+    </button>`
+  ).join('');
 
-  // Close all first
-  _closeAllStatusDrops();
-
-  if (isOpen) return; // was open → just close
-
-  // Position with fixed coords to escape overflow:hidden on .panel
+  // Position relative to pill
   const rect = pill.getBoundingClientRect();
-  const menuW = 220;
+  const menuW = 224;
   let left = rect.left;
   if (left + menuW > window.innerWidth - 8) left = window.innerWidth - menuW - 8;
+  if (left < 8) left = 8;
 
-  const base = 'display:flex;flex-direction:column;position:fixed;z-index:9999;min-width:220px;';
   if (window.innerHeight - rect.bottom >= 260) {
-    menu.style.cssText = base + `top:${rect.bottom + 6}px;left:${left}px;`;
+    portal.style.cssText = `display:flex;flex-direction:column;position:fixed;z-index:99999;min-width:${menuW}px;top:${rect.bottom + 6}px;left:${left}px;`;
   } else {
-    menu.style.cssText = base + `bottom:${window.innerHeight - rect.top + 6}px;left:${left}px;`;
+    portal.style.cssText = `display:flex;flex-direction:column;position:fixed;z-index:99999;min-width:${menuW}px;bottom:${window.innerHeight - rect.top + 6}px;left:${left}px;`;
   }
 
+  _dropPortalOrderId = orderId;
   if (wrap) wrap.classList.add('open');
 }
 
 function statusPickItem(e, orderId, newStatus) {
   e.stopPropagation();
-  _closeAllStatusDrops();
+  _closePortal();
   setOrderStatus(orderId, newStatus);
 }
 
-document.addEventListener('click', _closeAllStatusDrops);
+document.addEventListener('click', _closePortal);
 
 /* ── Mobile status bottom sheet ── */
 var _statusSheetOrderId = null;
@@ -4241,6 +4254,9 @@ if (_storedSession) {
 <button class="mobile-oliv-fab" id="mobileFab" onclick="mobileOlivSend()" style="display:none">
   🚚 <span id="mobileFabText">Send Confirmed</span>
 </button>
+
+<!-- STATUS DROPDOWN PORTAL (desktop) — lives on body, never clipped -->
+<div id="statusDropPortal" class="status-drop-menu" style="display:none;position:fixed;z-index:99999;"></div>
 
 <!-- STATUS BOTTOM SHEET (mobile) -->
 <div id="statusSheetBg" onclick="closeStatusSheet()"></div>
