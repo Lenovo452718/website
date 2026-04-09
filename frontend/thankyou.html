@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1a1a1a">
+  <meta name="theme-color" content="#111111">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -11,60 +11,574 @@
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="rtl.css" />
   <style>
+
+    /* ─── REVEAL ───────────────────────────────────────────── */
+    .ty-reveal {
+      opacity: 0;
+      transform: translateY(28px);
+      transition: opacity 0.65s ease, transform 0.65s ease;
+    }
+    .ty-reveal.ty-visible { opacity: 1; transform: none; }
+
+    /* ─── PAGE ──────────────────────────────────────────────── */
+    body { background: #111; margin: 0; }
+
+    /* ─── HEADER ────────────────────────────────────────────── */
+    .ty-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(17,17,17,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 64px;
+    }
+    .ty-header-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.14em;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    /* ─── HERO ──────────────────────────────────────────────── */
+    .ty-hero {
+      position: relative;
+      background: #111;
+      overflow: hidden;
+      padding: 120px 24px 0;
+      text-align: center;
+    }
+    /* grid texture */
+    .ty-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px),
+        repeating-linear-gradient(0deg,  transparent, transparent 79px, rgba(255,255,255,0.03) 79px, rgba(255,255,255,0.03) 80px);
+      pointer-events: none;
+    }
+    /* watermark */
+    .ty-hero::after {
+      content: 'CONFIRMED';
+      position: absolute;
+      bottom: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(80px, 18vw, 200px);
+      letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      line-height: 1;
+      z-index: 0;
+    }
+    .ty-hero-content {
+      position: relative;
+      z-index: 1;
+      padding-bottom: 56px;
+    }
+    /* animated check */
+    .ty-check-wrap {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(39,174,96,0.12);
+      border: 1.5px solid rgba(39,174,96,0.35);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      animation: ty-pop 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes ty-pop {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .ty-check-icon {
+      color: #27ae60;
+      font-size: 30px;
+      line-height: 1;
+    }
+    .ty-eyebrow {
+      display: block;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 16px;
+    }
+    .ty-hero h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 10vw, 96px);
+      letter-spacing: 0.05em;
+      color: #fff;
+      line-height: 0.92;
+      margin: 0 0 20px;
+    }
+    .ty-hero h1 em {
+      font-style: italic;
+      color: rgba(255,255,255,0.38);
+    }
+    .ty-hero-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.04em;
+      max-width: 480px;
+      margin: 0 auto 10px;
+      line-height: 1.7;
+    }
+    .ty-greeting {
+      font-size: 13px;
+      color: rgba(255,255,255,0.28);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0;
+    }
+
+    /* ─── STATS ROW ─────────────────────────────────────────── */
+    .ty-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+      z-index: 1;
+    }
+    .ty-stat {
+      padding: 28px 20px 32px;
+      border-right: 1px solid rgba(255,255,255,0.08);
+      position: relative;
+      text-align: center;
+    }
+    .ty-stat:last-child { border-right: none; }
+    .ty-stat::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: #27ae60;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.6s ease 0.3s;
+    }
+    .ty-stat.ty-visible::before { transform: scaleX(1); }
+    .ty-stat-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 0.04em;
+      color: #fff;
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .ty-stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ─── BODY ──────────────────────────────────────────────── */
+    .ty-body {
+      background: #f5f5f3;
+      padding: 64px 24px 100px;
+    }
+    .ty-body-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* ─── ORDER SUMMARY CARD ────────────────────────────────── */
+    .ty-card {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      overflow: hidden;
+    }
+    .ty-card-head {
+      background: #111;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .ty-card-head-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 0.14em;
+      color: #fff;
+    }
+    .ty-card-head-badge {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #27ae60;
+      background: rgba(39,174,96,0.12);
+      border: 1px solid rgba(39,174,96,0.3);
+      padding: 4px 10px;
+    }
+    .ty-card-body { padding: 24px; }
+
+    /* items */
+    .ty-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+      color: #444;
+      gap: 12px;
+    }
+    .ty-item:last-of-type { border-bottom: none; }
+    .ty-item-name { flex: 1; font-weight: 500; }
+    .ty-item-price { font-weight: 700; color: #111; white-space: nowrap; }
+
+    /* deal badge */
+    .ty-deal-badge {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(39,174,96,0.06);
+      border: 1px solid rgba(39,174,96,0.2);
+      padding: 10px 16px;
+      margin: 12px 0 4px;
+      font-size: 13px;
+      color: #1a7a42;
+    }
+    .ty-deal-check {
+      width: 20px; height: 20px;
+      background: #27ae60;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    /* totals */
+    .ty-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: #666;
+      padding: 5px 0;
+    }
+    .ty-row.discount { color: #27ae60; font-weight: 600; }
+    .ty-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 2px solid #111;
+      margin-top: 12px;
+      padding-top: 14px;
+    }
+    .ty-total-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 0.1em;
+      color: #111;
+    }
+    .ty-total-price {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 0.04em;
+      color: #111;
+    }
+
+    /* ─── DELIVERY CARD ─────────────────────────────────────── */
+    .ty-delivery-card {
+      background: #111;
+      padding: 28px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .ty-delivery-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(-45deg, transparent, transparent 18px, rgba(255,255,255,0.015) 18px, rgba(255,255,255,0.015) 19px);
+    }
+    .ty-delivery-icon {
+      width: 52px; height: 52px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      position: relative; z-index: 1;
+    }
+    .ty-delivery-text { position: relative; z-index: 1; }
+    .ty-delivery-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 4px;
+    }
+    .ty-delivery-val {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 0.08em;
+      color: #fff;
+    }
+
+    /* ─── WHAT NEXT CARD ────────────────────────────────────── */
+    .ty-next-card {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      overflow: hidden;
+    }
+    .ty-next-head {
+      background: #f7f7f7;
+      border-bottom: 1px solid #e8e8e8;
+      padding: 14px 24px;
+    }
+    .ty-next-head-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 0.14em;
+      color: #111;
+    }
+    .ty-next-steps {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+    .ty-next-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 18px 24px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .ty-next-step:last-child { border-bottom: none; }
+    .ty-step-num {
+      width: 28px; height: 28px;
+      background: #111;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .ty-step-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111;
+      margin-bottom: 3px;
+      letter-spacing: 0.02em;
+    }
+    .ty-step-desc {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    /* ─── CTA BUTTONS ───────────────────────────────────────── */
+    .ty-cta-row {
+      display: flex;
+      gap: 12px;
+    }
+    .ty-btn-dark {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px 24px;
+      background: #111;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: opacity 0.2s;
+      text-align: center;
+    }
+    .ty-btn-dark:hover { opacity: 0.85; }
+    .ty-btn-outline {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px 24px;
+      background: transparent;
+      color: #111;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      border: 1.5px solid #111;
+      text-decoration: none;
+      transition: background 0.2s, color 0.2s;
+      text-align: center;
+    }
+    .ty-btn-outline:hover { background: #111; color: #fff; }
+
+    /* ─── FOOTER BAR ────────────────────────────────────────── */
+    .ty-footer {
+      background: #0d0d0d;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .ty-footer a {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .ty-footer a:hover { color: #fff; }
+    .ty-footer-sep {
+      width: 1px; height: 14px;
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* ─── RESPONSIVE ────────────────────────────────────────── */
     @media (max-width: 768px) {
-      .thankyou-wrap { padding: 40px 20px; align-items: flex-start; }
-      .thankyou-inner { padding-bottom: 80px; }
-      .thankyou-inner h1 { font-size: clamp(36px, 10vw, 64px); margin-bottom: 10px; }
-      .thankyou-inner .subheading { font-size: 16px; margin-bottom: 14px; }
-      .thankyou-inner .order-msg { font-size: 14px; }
-      .thankyou-inner .delivery-msg { font-size: 13px; margin-bottom: 28px; }
-      .thankyou-check { width: 68px; height: 68px; font-size: 30px; margin-bottom: 24px; }
-      .thankyou-summary { padding: 20px; margin-bottom: 24px; }
-      .thankyou-item { font-size: 13px; gap: 8px; flex-wrap: wrap; }
-      .thankyou-item span:last-child { font-weight: 600; color: var(--charcoal); }
-      .thankyou-total { font-size: 15px; }
-      .thankyou-btns { flex-direction: column; gap: 10px; }
-      .thankyou-btns a { width: 100%; text-align: center; padding: 14px 20px; }
-      .thankyou-footer { padding: 16px 20px; gap: 12px; justify-content: center; }
-      .thankyou-footer a { font-size: 12px; }
+      .ty-hero { padding: 100px 20px 0; }
+      .ty-hero h1 { font-size: clamp(44px, 12vw, 72px); }
+      .ty-hero-sub { font-size: 13px; }
+      .ty-stat-val { font-size: 28px; }
+      .ty-body { padding: 40px 16px 80px; }
+      .ty-card-body { padding: 18px; }
+      .ty-delivery-card { flex-direction: column; align-items: flex-start; gap: 14px; padding: 22px 18px; }
+      .ty-cta-row { flex-direction: column; }
+      .ty-footer { gap: 16px; padding: 16px; }
     }
-    @media (max-width: 360px) {
-      .thankyou-wrap { padding: 28px 14px; }
-      .thankyou-check { width: 56px; height: 56px; font-size: 24px; }
-      .thankyou-inner h1 { font-size: clamp(28px, 9vw, 48px); }
+    @media (max-width: 380px) {
+      .ty-stats { grid-template-columns: 1fr; }
+      .ty-stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
+      .ty-stat:last-child { border-bottom: none; }
     }
+
   </style>
 </head>
 <body>
 
-<!-- ===== MINIMAL HEADER ===== -->
-<header class="checkout-header">
-  <a href="index.html" class="checkout-logo">STREETSTORE</a>
+<!-- ===== HEADER ===== -->
+<header class="ty-header">
+  <a href="index.html" class="ty-header-logo">STREETSTORE</a>
 </header>
 
-<!-- ===== THANK YOU CONTENT ===== -->
-<div class="thankyou-wrap">
-  <div class="thankyou-inner">
-    <div class="thankyou-check">✓</div>
-    <h1 data-i18n="order_confirmed">Order Confirmed!</h1>
-    <p class="subheading" id="tyGreeting" data-i18n="order_confirmed"></p>
-    <p class="order-msg" data-i18n="order_confirmed_sub">Your order has been placed successfully. Our team will contact you before delivery.</p>
-    <p class="delivery-msg" data-i18n="order_est_delivery">Estimated delivery: 3–5 business days</p>
+<!-- ===== HERO ===== -->
+<div class="ty-hero">
+  <div class="ty-hero-content ty-reveal">
+    <div class="ty-check-wrap">
+      <span class="ty-check-icon">✓</span>
+    </div>
+    <span class="ty-eyebrow">✦ Order Placed Successfully</span>
+    <h1 data-i18n="order_confirmed">Order <em>Confirmed.</em></h1>
+    <p class="ty-hero-sub" data-i18n="order_confirmed_sub">Your order has been placed successfully. Our team will contact you before delivery.</p>
+    <p class="ty-greeting" id="tyGreeting"></p>
+  </div>
 
-    <div class="thankyou-summary" id="tySummary"></div>
-
-    <div class="thankyou-btns">
-      <a href="shipping.html" class="btn-outline-dark" data-i18n="shipping_info">Shipping Info</a>
-      <a href="shop.html" class="btn-dark" data-i18n="continue_shopping_btn">Continue Shopping</a>
+  <div class="ty-stats">
+    <div class="ty-stat ty-reveal">
+      <div class="ty-stat-val">FREE</div>
+      <div class="ty-stat-label" data-i18n="shipping_label">Shipping</div>
+    </div>
+    <div class="ty-stat ty-reveal" style="transition-delay:0.1s">
+      <div class="ty-stat-val">3–5</div>
+      <div class="ty-stat-label">Days Delivery</div>
+    </div>
+    <div class="ty-stat ty-reveal" style="transition-delay:0.2s">
+      <div class="ty-stat-val">COD</div>
+      <div class="ty-stat-label" data-i18n="stat_cod_label">Cash on Delivery</div>
     </div>
   </div>
 </div>
 
-<!-- ===== FOOTER BAR ===== -->
-<div class="thankyou-footer">
+<!-- ===== BODY ===== -->
+<div class="ty-body">
+  <div class="ty-body-inner">
+
+    <!-- Order Summary -->
+    <div class="ty-card ty-reveal" id="tySummaryCard">
+      <div class="ty-card-head">
+        <span class="ty-card-head-title" data-i18n="order_summary">Order Summary</span>
+        <span class="ty-card-head-badge">✓ Confirmed</span>
+      </div>
+      <div class="ty-card-body" id="tySummary">
+        <!-- filled by JS -->
+      </div>
+    </div>
+
+    <!-- Delivery Info -->
+    <div class="ty-delivery-card ty-reveal">
+      <div class="ty-delivery-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+      </div>
+      <div class="ty-delivery-text">
+        <div class="ty-delivery-label" data-i18n="order_est_delivery">Estimated Delivery</div>
+        <div class="ty-delivery-val">3 – 5 Business Days</div>
+      </div>
+    </div>
+
+    <!-- What happens next -->
+    <div class="ty-next-card ty-reveal">
+      <div class="ty-next-head">
+        <div class="ty-next-head-title">What Happens Next</div>
+      </div>
+      <ul class="ty-next-steps">
+        <li class="ty-next-step">
+          <div class="ty-step-num">1</div>
+          <div>
+            <div class="ty-step-title">Order Processing</div>
+            <div class="ty-step-desc">Our team reviews and prepares your order within 24 hours.</div>
+          </div>
+        </li>
+        <li class="ty-next-step">
+          <div class="ty-step-num">2</div>
+          <div>
+            <div class="ty-step-title">Delivery Confirmation Call</div>
+            <div class="ty-step-desc">We will call you before your delivery to confirm address and timing.</div>
+          </div>
+        </li>
+        <li class="ty-next-step">
+          <div class="ty-step-num">3</div>
+          <div>
+            <div class="ty-step-title">Delivered to Your Door</div>
+            <div class="ty-step-desc">Pay cash on delivery — no card needed. Available across Morocco.</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- CTA -->
+    <div class="ty-cta-row ty-reveal">
+      <a href="shipping.html" class="ty-btn-outline" data-i18n="shipping_info">Shipping Info</a>
+      <a href="shop.html" class="ty-btn-dark" data-i18n="continue_shopping_btn">Continue Shopping</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="ty-footer">
   <a href="https://www.instagram.com/streetstore1994?igsh=MW5kaW9mZ2VreThhcg%3D%3D&utm_source=qr" target="_blank">Instagram</a>
+  <div class="ty-footer-sep"></div>
   <a href="https://www.tiktok.com/@streetstore04" target="_blank">TikTok</a>
+  <div class="ty-footer-sep"></div>
   <a href="contact.html" data-i18n="footer_contact">Contact Us</a>
+  <div class="ty-footer-sep"></div>
   <a href="faq.html" data-i18n="footer_faq">FAQ</a>
 </div>
 
@@ -75,54 +589,61 @@
 <script src="script.js" defer></script>
 <script src="mobile.js" defer></script>
 <script>
-  // Read last order from localStorage and render
+  /* ── Scroll reveal ── */
   (function() {
-    const order = JSON.parse(localStorage.getItem('streetstore_last_order') || '[]');
-    const container = document.getElementById('tySummary');
-    if (!container) return;
-
-    if (!order.length) {
-      container.style.display = 'none';
+    var els = document.querySelectorAll('.ty-reveal');
+    if (!('IntersectionObserver' in window)) {
+      els.forEach(function(el) { el.classList.add('ty-visible'); });
       return;
     }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (e.isIntersecting) { e.target.classList.add('ty-visible'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.1 });
+    els.forEach(function(el) { io.observe(el); });
+  })();
 
-    const subtotal = order.reduce((s, i) => s + i.price * i.qty, 0);
-    const totalQty = order.reduce((s, i) => s + i.qty, 0);
-    const discount = totalQty >= 2 ? Math.round(subtotal * 39 / 358) : 0;
-    const total = subtotal - discount;
+  /* ── Order summary ── */
+  (function() {
+    var order = JSON.parse(localStorage.getItem('streetstore_last_order') || '[]');
+    var card  = document.getElementById('tySummaryCard');
+    var container = document.getElementById('tySummary');
+    if (!container) return;
 
-    const itemsHtml = order.map(item => `
-      <div class="thankyou-item">
-        <span>${item.name} × ${item.qty} (Size ${item.size})</span>
-        <span>${item.price * item.qty} MAD</span>
-      </div>
-    `).join('');
+    if (!order.length) { card.style.display = 'none'; return; }
 
-    const discountHtml = discount > 0 ? `
-      <div class="thankyou-deal-badge">
-        <span class="thankyou-deal-check">✓</span>
-        <span>${t('deal_applied_pre')} <strong>${discount} MAD</strong>${t('deal_applied_suf')}</span>
-      </div>
-      <div class="thankyou-row thankyou-discount-row">
-        <span>${t('discount_label')}</span><span>−${discount} MAD</span>
-      </div>
-    ` : '';
+    var subtotal = order.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
+    var totalQty = order.reduce(function(s, i) { return s + i.qty; }, 0);
+    var discount = totalQty >= 2 ? Math.round(subtotal * 39 / 358) : 0;
+    var total    = subtotal - discount;
 
-    container.innerHTML = `
-      <h3>${t('order_summary')}</h3>
-      ${itemsHtml}
-      <div class="thankyou-row" style="border-top:1px solid var(--gray-light);margin-top:8px;padding-top:10px;">
-        <span>${t('subtotal')}</span><span>${subtotal} MAD</span>
-      </div>
-      ${discountHtml}
-      <div class="thankyou-row">
-        <span>${t('shipping_label')}</span><span>${t('free')}</span>
-      </div>
-      <div class="thankyou-total">
-        <span>${t('total_label')}</span>
-        <span>${total} MAD</span>
-      </div>
-    `;
+    var itemsHtml = order.map(function(item) {
+      return '<div class="ty-item">' +
+        '<span class="ty-item-name">' + item.name + ' &times; ' + item.qty + ' <span style="color:#aaa;font-weight:400">(Size ' + item.size + ')</span></span>' +
+        '<span class="ty-item-price">' + (item.price * item.qty) + ' MAD</span>' +
+      '</div>';
+    }).join('');
+
+    var discountHtml = discount > 0 ? (
+      '<div class="ty-deal-badge">' +
+        '<div class="ty-deal-check">✓</div>' +
+        '<span>' + t('deal_applied_pre') + ' <strong>' + discount + ' MAD</strong>' + t('deal_applied_suf') + '</span>' +
+      '</div>' +
+      '<div class="ty-row discount"><span>' + t('discount_label') + '</span><span>−' + discount + ' MAD</span></div>'
+    ) : '';
+
+    container.innerHTML =
+      itemsHtml +
+      '<div style="margin-top:12px">' +
+        '<div class="ty-row"><span>' + t('subtotal') + '</span><span>' + subtotal + ' MAD</span></div>' +
+        discountHtml +
+        '<div class="ty-row"><span>' + t('shipping_label') + '</span><span style="color:#27ae60;font-weight:700">' + t('free') + '</span></div>' +
+      '</div>' +
+      '<div class="ty-total-row">' +
+        '<span class="ty-total-label">' + t('total_label') + '</span>' +
+        '<span class="ty-total-price">' + total + ' MAD</span>' +
+      '</div>';
   })();
 </script>
 </body>
