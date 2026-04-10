@@ -1079,30 +1079,21 @@ select.pm-input{cursor:pointer}
           </div>
           <button class="btn btn-primary btn-sm" onclick="saveBusinessCosts()">Save Costs</button>
         </div>
-        <!-- Monthly ad spend -->
+        <!-- Daily ad spend -->
         <div class="panel" style="padding:20px">
-          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Monthly Ad Spend (MAD)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Daily Ad Spend (MAD)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:12px">
             <div>
-              <label class="field-label" style="font-size:11px">Month</label>
-              <select class="field-input" id="adMonth" style="margin-top:4px">
-                <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
-                <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
-                <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
-                <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
-              </select>
+              <label class="field-label" style="font-size:11px">Date</label>
+              <input class="field-input" id="adDate" type="date" style="margin-top:4px">
             </div>
             <div>
-              <label class="field-label" style="font-size:11px">Year</label>
-              <input class="field-input" id="adYear" type="number" placeholder="2026" style="margin-top:4px">
-            </div>
-            <div>
-              <label class="field-label" style="font-size:11px">Amount</label>
-              <input class="field-input" id="adAmount" type="number" placeholder="500" style="margin-top:4px">
+              <label class="field-label" style="font-size:11px">Amount (MAD)</label>
+              <input class="field-input" id="adAmount" type="number" placeholder="100" style="margin-top:4px">
             </div>
             <button class="btn btn-primary btn-sm" onclick="saveAdSpend()" style="white-space:nowrap">Add</button>
           </div>
-          <div id="adSpendList" style="max-height:80px;overflow-y:auto;font-size:12px;color:var(--gray)">Loading…</div>
+          <div id="adSpendList" style="max-height:100px;overflow-y:auto;font-size:12px;color:var(--gray)">Loading…</div>
         </div>
       </div>
 
@@ -4715,13 +4706,13 @@ async function saveBusinessCosts() {
 }
 
 async function saveAdSpend() {
-  const month  = parseInt(document.getElementById('adMonth').value);
-  const year   = parseInt(document.getElementById('adYear').value);
+  const date   = document.getElementById('adDate').value;
   const amount = parseFloat(document.getElementById('adAmount').value) || 0;
+  if (!date) { showToast('Select a date', 'error'); return; }
   const res = await authFetch('/api/admin/ad-spend', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ month, year, amount }),
+    body: JSON.stringify({ date, amount }),
   });
   if (res.ok) { showToast('Ad spend saved'); document.getElementById('adAmount').value = ''; loadRevenue(); }
   else showToast('Failed to save ad spend', 'error');
@@ -4756,17 +4747,14 @@ async function loadRevenue() {
 
     // Render ad spend list
     const adSpendList = document.getElementById('adSpendList');
-    const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     if (adSpendList) {
       adSpendList.innerHTML = costs.adSpend.length
-        ? costs.adSpend.map(s => `<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;background:var(--off);border-radius:4px">${monthNames[s.month]} ${s.year}: <b>${Math.round(s.amount).toLocaleString()} MAD</b></span>`).join('')
+        ? costs.adSpend.map(s => `<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;background:var(--off);border-radius:4px">${s.date}: <b>${Math.round(s.amount).toLocaleString()} MAD</b></span>`).join('')
         : '<span style="color:var(--gray)">No ad spend entered yet.</span>';
     }
-    // Pre-fill year in ad spend form
-    const adYearEl = document.getElementById('adYear');
-    if (adYearEl && !adYearEl.value) adYearEl.value = new Date().getFullYear();
-    const adMonthEl = document.getElementById('adMonth');
-    if (adMonthEl && !adMonthEl.value) adMonthEl.value = new Date().getMonth() + 1;
+    // Pre-fill date input with today
+    const adDateEl = document.getElementById('adDate');
+    if (adDateEl && !adDateEl.value) adDateEl.value = new Date().toISOString().slice(0,10);
 
     // Build costPrice map: product name → costPrice
     const costPriceMap = {};
@@ -4806,11 +4794,8 @@ async function loadRevenue() {
     if (_revPeriod === 0) {
       adSpendTotal = costs.adSpend.reduce((s,r) => s + r.amount, 0);
     } else {
-      const cutoff = new Date(now - _revPeriod * msDay);
-      adSpendTotal = costs.adSpend.filter(r => {
-        const d = new Date(r.year, r.month - 1, 1);
-        return d >= cutoff;
-      }).reduce((s,r) => s + r.amount, 0);
+      const cutoff = new Date(now - _revPeriod * msDay).toISOString().slice(0,10);
+      adSpendTotal = costs.adSpend.filter(r => r.date >= cutoff).reduce((s,r) => s + r.amount, 0);
     }
 
     const totalCosts = cogs + packagingCost + deliveryCost + adSpendTotal;
