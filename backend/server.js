@@ -2125,7 +2125,12 @@ async function syncTikTokAdSpend(days = 7) {
         page:          1,
       }),
     });
-    const json = await resp.json();
+    const text = await resp.text();
+    let json;
+    try { json = JSON.parse(text); } catch (_) {
+      console.error('[TikTok Ads] Non-JSON response (HTTP ' + resp.status + '):', text.slice(0, 200));
+      return { error: 'Invalid credentials or TikTok API unreachable (HTTP ' + resp.status + ')' };
+    }
     if (json.code !== 0) {
       console.error('[TikTok Ads] API error:', json.message);
       return { error: json.message };
