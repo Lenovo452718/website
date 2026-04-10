@@ -1501,7 +1501,10 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     if (window.fillDetectedCity) window.fillDetectedCity();
-    setTimeout(() => document.getElementById('bnName').focus(), 350);
+    setTimeout(() => {
+      if (window._initCityInput) window._initCityInput(document.getElementById('bnCity'));
+      document.getElementById('bnName').focus();
+    }, 100);
   }
 
   function closeModal() {
@@ -1867,6 +1870,9 @@ function openBundleCheckout() {
   document.body.appendChild(checkoutEl);
   requestAnimationFrame(function() { checkoutEl.classList.add('active'); });
   if (window.fillDetectedCity) window.fillDetectedCity();
+  setTimeout(function() {
+    if (window._initCityInput) window._initCityInput(document.getElementById('bcoCity'));
+  }, 100);
 }
 
 function closeBundleCheckout() {

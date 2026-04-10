@@ -189,6 +189,9 @@ async function autoDetectCity() {
 }
 
 /* Called after dynamic forms (buy-now, bundle) open */
+/* Expose so dynamic forms can init a specific input directly */
+window._initCityInput = _initCityInput;
+
 window.fillDetectedCity = async function() {
   if (_detectionPromise) await _detectionPromise;
   if (window._detectedCity) _applyCity(window._detectedCity);
