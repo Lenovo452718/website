@@ -1403,40 +1403,141 @@ async function autoSendToOlivraison(order) {
   console.log(`[Olivraison] Shipment created for order ${order.id} — tracking: ${trackingCode}`);
 }
 
-/* Query Olivraison GraphQL for driver phone after assignment */
-async function fetchOlivraisonDriverPhone(trackingCode) {
+/* ════════════════════════════════════════
+   OLIVRAISON POLLING SYNC
+════════════════════════════════════════ */
+
+/* Get a fresh Bearer token from Olivraison REST API */
+async function getOlivraisonToken(cfg) {
+  const resp = await fetch('https://partners.olivraison.com/auth/login', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ apiKey: cfg.apiKey, secretKey: cfg.apiSecret }),
+  });
+  const json = await resp.json();
+  if (!json.token) throw new Error(json.message || 'Olivraison login failed');
+  return json.token;
+}
+
+/* Fetch full package details from Olivraison REST — returns raw JSON */
+async function fetchOlivraisonPackage(trackingCode, token) {
+  const resp = await fetch(`https://partners.olivraison.com/package/${trackingCode}`, {
+    method:  'GET',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+  });
+  const json = await resp.json();
+  // Log full raw response so we can discover ALL available fields (incl. driver)
+  console.log(`[Olivraison RAW] ${trackingCode}:`, JSON.stringify(json));
+  return { ok: resp.ok, status: resp.status, data: json };
+}
+
+/* Extract driver phone from Olivraison response — tries every known field name */
+function extractDriverPhone(data) {
+  if (!data) return null;
+  return (
+    data.driverPhone        ||
+    data.courierPhone       ||
+    data.agentPhone         ||
+    data.deliveryPhone      ||
+    data.driver?.phone      ||
+    data.courier?.phone     ||
+    data.livreur?.phone     ||
+    data.livreur?.telephone ||
+    data.agent?.phone       ||
+    data.deliveryman?.phone ||
+    null
+  );
+}
+
+/* Core sync: polls Olivraison for all in-progress orders and updates DB */
+async function syncOlivraisonOrders() {
   try {
     const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
-    if (!cfg || !cfg.apiKey || !cfg.apiSecret) return null;
+    if (!cfg || !cfg.isActive || !cfg.apiKey || !cfg.apiSecret) return;
 
-    const query = `query GetShipment($trackingCode: String!) {
-      shipment(trackingCode: $trackingCode) {
-        trackingCode
-        status
-        driver { name phone code }
+    // Find all orders that have a trackingCode and are not yet finished
+    const activeOrders = await prisma.$queryRawUnsafe(
+      `SELECT id, trackingCode, status FROM \`Order\`
+       WHERE trackingCode IS NOT NULL AND trackingCode != ''
+       AND status NOT IN ('done','delivered','cancelled')
+       LIMIT 100`
+    );
+
+    if (!activeOrders.length) {
+      console.log('[Olivraison Sync] No active tracked orders to poll.');
+      return;
+    }
+
+    console.log(`[Olivraison Sync] Polling ${activeOrders.length} orders…`);
+    const token = await getOlivraisonToken(cfg);
+
+    let updated = 0;
+    for (const order of activeOrders) {
+      try {
+        const { ok, data } = await fetchOlivraisonPackage(order.trackingCode, token);
+        if (!ok || !data) continue;
+
+        const olivStatus = (data.status || '').toLowerCase().replace(/\s+/g, '_');
+        const newStatus  = OLIVRAISON_STATUS_MAP[olivStatus];
+        const driverPhone = extractDriverPhone(data);
+
+        // Build update only if something changed
+        const statusChanged = newStatus && newStatus !== order.status;
+        const phoneFound    = driverPhone && driverPhone.length > 4;
+
+        if (statusChanged || phoneFound) {
+          const setParts = [];
+          const vals     = [];
+          if (statusChanged)  { setParts.push('`status` = ?');        vals.push(newStatus); }
+          if (phoneFound)     { setParts.push('`deliveryPhone` = ?'); vals.push(driverPhone); }
+          vals.push(order.id);
+          await prisma.$executeRawUnsafe(
+            `UPDATE \`Order\` SET ${setParts.join(', ')} WHERE id = ?`, ...vals
+          );
+          emit('order:statusChanged', {
+            orderId: order.id,
+            newStatus: statusChanged ? newStatus : order.status,
+            trackingCode: order.trackingCode,
+            deliveryPhone: driverPhone
+          });
+          console.log(`[Olivraison Sync] Order ${order.id} → status:${newStatus || '(unchanged)'} driver:${driverPhone || 'none'}`);
+          updated++;
+        }
+      } catch (err) {
+        console.error(`[Olivraison Sync] Error on order ${order.id}:`, err.message);
       }
-    }`;
-
-    const resp = await fetch('https://api.olivraison.com/graphql', {
-      method:  'POST',
-      headers: {
-        'Content-Type':  'application/json',
-        'x-public-key':  cfg.apiKey,
-        'x-private-key': cfg.apiSecret,
-      },
-      body: JSON.stringify({ query, variables: { trackingCode } }),
-    });
-
-    const json = await resp.json();
-    const driver = json?.data?.shipment?.driver;
-    // Phone comes as "casafark823 - omarfarkil - 0648150286" or a plain phone field
-    if (driver?.phone) return driver.phone;
-    return null;
+    }
+    console.log(`[Olivraison Sync] Done — ${updated}/${activeOrders.length} orders updated.`);
   } catch (err) {
-    console.error('[Olivraison] Failed to fetch driver phone:', err.message);
-    return null;
+    console.error('[Olivraison Sync] Fatal error:', err.message);
   }
 }
+
+/* Run sync on startup (after 10s) then every 2 hours */
+setTimeout(syncOlivraisonOrders, 10000);
+setInterval(syncOlivraisonOrders, 2 * 60 * 60 * 1000);
+
+/* Admin — manual trigger + raw response test */
+app.post('/api/admin/olivraison/sync', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+    if (!cfg || !cfg.apiKey || !cfg.apiSecret) return res.status(400).json({ error: 'Olivraison not configured' });
+
+    // If a specific trackingCode is passed → return raw response for inspection
+    const { trackingCode } = req.body || {};
+    if (trackingCode) {
+      const token = await getOlivraisonToken(cfg);
+      const { ok, status, data } = await fetchOlivraisonPackage(trackingCode, token);
+      return res.json({ trackingCode, httpStatus: status, raw: data, driverPhone: extractDriverPhone(data) });
+    }
+
+    // Otherwise run full sync and return summary
+    await syncOlivraisonOrders();
+    res.json({ ok: true, message: 'Sync completed — check server logs for details' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
 
 /* POST /api/delivery/webhook — Olivraison pushes status updates here */
 app.post('/api/delivery/webhook', async (req, res) => {
@@ -1451,19 +1552,19 @@ app.post('/api/delivery/webhook', async (req, res) => {
   const newStatus  = OLIVRAISON_STATUS_MAP[olivStatus];
   if (!newStatus) return;
 
-  // Try to get driver phone from webhook payload first (various field names)
-  let deliveryPhone =
-    req.body.courierPhone        ||
-    req.body.driverPhone         ||
-    req.body.agentPhone          ||
-    req.body.deliveryPhone       ||
-    req.body.driver?.phone       ||
-    req.body.courier?.phone      ||
-    null;
+  // Try to get driver phone from webhook payload
+  let deliveryPhone = extractDriverPhone(req.body);
 
-  // If not in payload but driver is now assigned, query Olivraison for it
-  if (!deliveryPhone && ['assigned', 'transit', 'out_for_delivery'].includes(olivStatus)) {
-    deliveryPhone = await fetchOlivraisonDriverPhone(code);
+  // If not in payload but driver is now assigned, poll Olivraison REST for it
+  if (!deliveryPhone && ['assigned', 'in_transit', 'out_for_delivery'].includes(olivStatus)) {
+    try {
+      const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+      if (cfg?.apiKey && cfg?.apiSecret) {
+        const token = await getOlivraisonToken(cfg);
+        const { data } = await fetchOlivraisonPackage(code, token);
+        deliveryPhone = extractDriverPhone(data);
+      }
+    } catch(e) { console.error('[Webhook] driver fetch error:', e.message); }
   }
 
   try {

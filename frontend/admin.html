@@ -1000,6 +1000,24 @@ select.pm-input{cursor:pointer}
         </div>
       </div>
 
+      <!-- Sync Panel -->
+      <div class="panel">
+        <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between">
+          <h2>Auto-Sync Status</h2>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="olivraisonRawTest()">🔍 Test Single Order</button>
+            <button class="btn btn-primary btn-sm" onclick="olivraisonManualSync()">↻ Sync Now</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--gray);margin-bottom:14px">
+            The server automatically polls Olivraison every <strong>2 hours</strong> and updates all in-progress order statuses.<br>
+            Use <em>Sync Now</em> to trigger it immediately. Use <em>Test Single Order</em> to inspect the raw Olivraison response for a specific tracking code.
+          </p>
+          <div id="olivSyncResult" style="display:none;margin-top:10px;padding:14px;background:var(--off);border-radius:8px;font-size:12px;font-family:monospace;white-space:pre-wrap;word-break:break-all;max-height:320px;overflow-y:auto;border:1px solid var(--gray-light)"></div>
+        </div>
+      </div>
+
       <!-- Connection Status -->
       <div class="panel" id="integStatusPanel" style="display:none">
         <div class="panel-header"><h2>Connection Status</h2></div>
@@ -4734,6 +4752,50 @@ async function savePixels() {
     if (res.ok) showToast('Pixel settings saved');
     else showToast('Failed to save', 'error');
   } catch(e) { showToast('Server error', 'error'); }
+}
+
+/* ═══════════════════════════════════════════
+   OLIVRAISON SYNC
+═══════════════════════════════════════════ */
+async function olivraisonManualSync() {
+  const el = document.getElementById('olivSyncResult');
+  el.style.display = 'block';
+  el.textContent = '⏳ Running sync…';
+  try {
+    const res  = await authFetch('/api/admin/olivraison/sync', { method:'POST', headers:{'Content-Type':'application/json'}, body:'{}' });
+    const data = await res.json();
+    if (res.ok) {
+      el.textContent = '✅ ' + (data.message || 'Sync completed. Check server logs for full details.');
+      showToast('Sync completed');
+    } else {
+      el.textContent = '❌ Error: ' + (data.error || 'Unknown error');
+      showToast(data.error || 'Sync failed', 'error');
+    }
+  } catch(e) { el.textContent = '❌ ' + e.message; showToast('Sync failed','error'); }
+}
+
+async function olivraisonRawTest() {
+  const code = prompt('Enter Olivraison Tracking Code (e.g. OLV-XXXXX):');
+  if (!code || !code.trim()) return;
+  const el = document.getElementById('olivSyncResult');
+  el.style.display = 'block';
+  el.textContent = '⏳ Fetching raw response from Olivraison…';
+  try {
+    const res  = await authFetch('/api/admin/olivraison/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trackingCode: code.trim() })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      el.textContent = JSON.stringify(data, null, 2);
+      if (data.driverPhone) showToast('Driver phone found: ' + data.driverPhone);
+      else showToast('No driver phone in response yet');
+    } else {
+      el.textContent = '❌ Error: ' + (data.error || JSON.stringify(data));
+      showToast(data.error || 'Failed', 'error');
+    }
+  } catch(e) { el.textContent = '❌ ' + e.message; showToast('Request failed','error'); }
 }
 
 /* Auto-login if session exists */
