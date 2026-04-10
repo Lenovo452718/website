@@ -2098,6 +2098,115 @@ app.patch('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
   } catch(e){ res.status(500).json({error:e.message}); }
 });
 
+/* ═══════════════════════════════════════════
+   TIKTOK ADS AUTO-SYNC
+═══════════════════════════════════════════ */
+async function syncTikTokAdSpend(days = 7) {
+  try {
+    const [cfg] = await prisma.$queryRawUnsafe('SELECT accessToken, advertiserId, isActive FROM `TikTokAdsConfig` WHERE id = \'singleton\' LIMIT 1');
+    if (!cfg || !cfg.isActive || !cfg.accessToken || !cfg.advertiserId) return { skipped: true };
+
+    const now       = new Date();
+    const endDate   = new Date(now - 86400000); // yesterday
+    const startDate = new Date(now - days * 86400000);
+    const fmt       = d => d.toISOString().slice(0, 10);
+
+    const resp = await fetch('https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/', {
+      method: 'POST',
+      headers: { 'Access-Token': cfg.accessToken, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        advertiser_id: cfg.advertiserId,
+        report_type:   'BASIC',
+        dimensions:    ['stat_time_day'],
+        metrics:       ['spend'],
+        start_date:    fmt(startDate),
+        end_date:      fmt(endDate),
+        page_size:     100,
+        page:          1,
+      }),
+    });
+    const json = await resp.json();
+    if (json.code !== 0) {
+      console.error('[TikTok Ads] API error:', json.message);
+      return { error: json.message };
+    }
+
+    const rows = json.data?.list || [];
+    let synced = 0;
+    for (const row of rows) {
+      const date   = (row.dimensions?.stat_time_day || '').slice(0, 10);
+      const amount = parseFloat(row.metrics?.spend || 0);
+      if (!date || !amount) continue;
+      await prisma.$queryRawUnsafe(
+        'INSERT INTO `AdSpend` (date, amount) VALUES (?, ?) ON DUPLICATE KEY UPDATE amount = VALUES(amount)',
+        date, amount
+      );
+      synced++;
+    }
+
+    await prisma.$queryRawUnsafe('UPDATE `TikTokAdsConfig` SET lastSyncAt = NOW() WHERE id = \'singleton\'');
+    console.log(`[TikTok Ads] Synced ${synced} days of ad spend`);
+    return { synced, rows: rows.length };
+  } catch (err) {
+    console.error('[TikTok Ads] Sync error:', err.message);
+    return { error: err.message };
+  }
+}
+
+// Run daily at midnight
+(function scheduleTikTokSync() {
+  const now    = new Date();
+  const msToMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 5, 0) - now;
+  setTimeout(() => {
+    syncTikTokAdSpend(2);
+    setInterval(() => syncTikTokAdSpend(2), 24 * 60 * 60 * 1000);
+  }, msToMidnight);
+  console.log(`[TikTok Ads] Next sync in ${Math.round(msToMidnight/60000)} min`);
+})();
+
+/* GET /api/admin/tiktok-ads/config */
+app.get('/api/admin/tiktok-ads/config', requireAuth, async (req, res) => {
+  try {
+    const [cfg] = await prisma.$queryRawUnsafe('SELECT advertiserId, isActive, lastSyncAt, LENGTH(accessToken) > 0 as hasToken FROM `TikTokAdsConfig` WHERE id = \'singleton\' LIMIT 1');
+    res.json(cfg || { advertiserId: '', isActive: false, hasToken: false, lastSyncAt: null });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load TikTok config' });
+  }
+});
+
+/* PATCH /api/admin/tiktok-ads/config */
+app.patch('/api/admin/tiktok-ads/config', requireAuth, async (req, res) => {
+  try {
+    const advertiserId = sanitize(req.body.advertiserId || '', 100);
+    const isActive     = req.body.isActive ? 1 : 0;
+    const updates      = { advertiserId, isActive };
+    if (req.body.accessToken) updates.accessToken = sanitize(req.body.accessToken, 500);
+    const setClauses = Object.keys(updates).map(k => `\`${k}\` = ?`).join(', ');
+    const vals = [...Object.values(updates), advertiserId, isActive];
+    const insertCols = Object.keys(updates).map(k => `\`${k}\``).join(', ');
+    const insertVals = Object.values(updates);
+    await prisma.$queryRawUnsafe(
+      `INSERT INTO \`TikTokAdsConfig\` (id, ${insertCols}) VALUES ('singleton', ${insertVals.map(()=>'?').join(',')}) ON DUPLICATE KEY UPDATE ${setClauses}`,
+      ...insertVals, ...Object.values(updates)
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to save TikTok config' });
+  }
+});
+
+/* POST /api/admin/tiktok-ads/sync */
+app.post('/api/admin/tiktok-ads/sync', requireAuth, async (req, res) => {
+  try {
+    const days = parseInt(req.body.days) || 30;
+    const result = await syncTikTokAdSpend(days);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 /* GET /api/admin/business-costs */
 app.get('/api/admin/business-costs', requireAuth, async (req, res) => {
   try {
@@ -2185,6 +2294,7 @@ async function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `AdSpend` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `date` DATE NOT NULL, `amount` DECIMAL(10,2) NOT NULL DEFAULT 0, UNIQUE KEY `date_unique` (`date`))",
     "ALTER TABLE `AdSpend` ADD COLUMN IF NOT EXISTS `date` DATE NULL",
     "ALTER TABLE `AdSpend` DROP INDEX IF EXISTS `month_year`",
+    "CREATE TABLE IF NOT EXISTS `TikTokAdsConfig` (`id` VARCHAR(10) NOT NULL PRIMARY KEY DEFAULT 'singleton', `accessToken` VARCHAR(500) NOT NULL DEFAULT '', `advertiserId` VARCHAR(100) NOT NULL DEFAULT '', `isActive` TINYINT(1) NOT NULL DEFAULT 0, `lastSyncAt` DATETIME NULL)",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
