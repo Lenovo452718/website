@@ -1492,6 +1492,40 @@ app.post('/api/delivery/webhook', async (req, res) => {
 });
 
 /* ════════════════════════════════════════
+   CITIES LIST
+════════════════════════════════════════ */
+const CITIES_FILE = path.join(__dirname, 'cities.json');
+
+function loadCities() {
+  try {
+    if (fs.existsSync(CITIES_FILE)) {
+      return JSON.parse(fs.readFileSync(CITIES_FILE, 'utf8'));
+    }
+  } catch (e) {}
+  return null;
+}
+
+/* Public — used by cities.js on every page */
+app.get('/api/cities', (req, res) => {
+  const saved = loadCities();
+  if (saved) return res.json({ cities: saved });
+  res.json({ cities: [] }); // fallback to hardcoded list in cities.js
+});
+
+/* Admin — save edited list */
+app.put('/api/admin/cities', adminLimiter, requireAuth, (req, res) => {
+  const { cities } = req.body;
+  if (!Array.isArray(cities) || !cities.length) return res.status(400).json({ error: 'Invalid city list' });
+  try {
+    const clean = cities.map(c => String(c).trim()).filter(Boolean);
+    fs.writeFileSync(CITIES_FILE, JSON.stringify(clean, null, 2), 'utf8');
+    res.json({ ok: true, count: clean.length });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save cities' });
+  }
+});
+
+/* ════════════════════════════════════════
    OLIVRAISON
 ════════════════════════════════════════ */
 app.get('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req, res) => {

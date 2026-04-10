@@ -638,6 +638,9 @@ select.pm-input{cursor:pointer}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Integrations
         <span id="integBadge" style="display:none;margin-left:auto;background:#25D366;color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px">ON</span>
       </a>
+      <a class="nav-item" onclick="showSection('cities',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Cities
+      </a>
       <a class="nav-item" onclick="showSection('settings',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
       </a>
@@ -986,6 +989,25 @@ select.pm-input{cursor:pointer}
       <div class="panel" id="integHelpPanel" style="display:none">
         <div class="panel-header"><h2>How to get your API key</h2></div>
         <div class="panel-body" id="integHelpBody" style="font-size:13px;line-height:1.7;color:var(--charcoal)"></div>
+      </div>
+    </section>
+
+    <!-- ── CITIES ── -->
+    <section class="admin-section" id="secCities">
+      <div class="page-header"><h1>Delivery Cities</h1><p>Manage the city list shown in checkout forms and sent to Olivraison.</p></div>
+      <div class="panel">
+        <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+          <h2>City List</h2>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="resetCitiesToDefault()">Reset to Default</button>
+            <button class="btn btn-primary btn-sm" onclick="saveCities()">Save Changes</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <p style="font-size:12px;color:var(--gray);margin-bottom:12px">One city per line. Use the exact spelling Olivraison accepts (no accents like é, ï, â, etc.).</p>
+          <textarea id="citiesTextarea" spellcheck="false" style="width:100%;min-height:400px;font-family:monospace;font-size:13px;line-height:1.7;border:1.5px solid var(--gray-light);border-radius:8px;padding:12px;resize:vertical;box-sizing:border-box;outline:none" placeholder="Loading..."></textarea>
+          <div id="citiesSaveMsg" style="margin-top:10px;font-size:13px;display:none"></div>
+        </div>
       </div>
     </section>
 
@@ -1730,6 +1752,7 @@ function showSection(id, el) {
   if (id==='integrations')  loadIntegrations();
   if (id==='suspicious')    loadSuspiciousCustomers();
   if (id==='reviews')       loadAdminReviews('all');
+  if (id==='cities')        loadCitiesEditor();
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
@@ -3852,6 +3875,93 @@ const DELIVERY_PROVIDERS = [
     <p style="margin-top:12px;font-size:12px;color:var(--gray)">Need help? Contact Olivraison support directly from your dashboard.</p>`
   },
 ];
+
+/* ══════════════════════════════════════
+   CITIES EDITOR
+══════════════════════════════════════ */
+const _DEFAULT_CITIES = [
+  "Casablanca","Tangier","Marrakech","Sale","Rabat","Kenitra","Agadir",
+  "Temara","Safi","Mohammedia","Ait Melloul","Nador","Settat","Guelmim",
+  "Bouskoura","Errachidia","Guercif","Ben Guerir","Sefrou","Essaouira",
+  "Tiznit","Youssoufia","Martil","Meknes","Beni Mellal","Khenifra",
+  "Benslimane","Sidi Bennour","Azrou","Jerada","Mrirt","Azemmour",
+  "Zoumi","Laouamra","Zagora","Ait Ourir","Sidi Bibi","Biougra",
+  "Bouznika","Aguelmous","Mediouna","Asilah","Lalla Mimouna","Arfoud",
+  "Imzourne","Chichaoua","Tahla","Moulay Bousselham","Sabaa Aiyoun",
+  "Skoura","Tighsaline","Tata","Imintanout","Sidi Bouknadel",
+  "Ben Ahmed","Targuist - Hoceima","Boukidarne","Sidi Bouaatman",
+  "Tamslouht","Tamnsourt","Tahnaout","Ksar Seghir","Ighrem","Agdez",
+  "Boumalne Dades","Kelaat Mgouna","Sidi Allal Bahraoui","Bouarfa",
+  "Boujdour","Taounat","Beni Drar - Oujda","Es-Semara",
+  "Mechrouaa Belksiri","Souk Larbaa","Sidi Yahya El Gharb","Midelt",
+  "Rich","Tinghir","Tinjdad","Goulmima","Rissani","Aoufous",
+  "Had Soualem","Ahfir","Imouzzar","Tifelt","Demnate","Ouazzane",
+  "Bouizakarne","Sidi Ifni","Tantan","Souiria","Chemaaiya",
+  "Tlat Bogdra","Jamaat Shaim","Oualidia","Had Hrara","Sebt Gzoula",
+  "Skhirat","Tamesna","Ain Aouda","Ain Attiq","Harhoura","Saidia",
+  "Attaouia","Khemisset","Belfaa","Oued Amlil","Houara","Taroudant",
+  "Sidi Bouzid","Rahma","Deroua","Ain Harouda","Tamariss","Dar Bouaaza",
+  "Tit Melil","Hajeb","Mhaya","Oued Jdida","Boufakrane","Ain Taoujdate",
+  "Kasbat Tadla","Taourirte","Ifrane","Souk Sebt","Bir Jdid",
+  "Khmis Zemmamra","Sidi Sliman","Sidi Kacem","Azilal","Fkih Ben Saleh",
+  "Khouribga","Berkan","Kelaat Sraghna","Ouarzazate","Oujda","Dakhla",
+  "Berrechid","Eljadida","Laarache","Ksar Kebir","Mdiq","Fnideq",
+  "Chefchaouen","El Houcima","Taza","Figuig","Massa","Tarfaya",
+  "Tafraout","Afourar","Oulad Zidouh","Zaouiat Cheikh","El Ksiba",
+  "Aghbalo","El Kbab","Ait Ishak","Kariat Bamohamed","Ghafsai",
+  "Boulemane","Cabo Negro","Nouaceur","Moulay Abdellah","Sidi Rahal",
+  "Sebaa Ayoun","Moulay Driss Zarhoun","Bab Bard","Laayoun Port",
+  "Keliaa","Skhour El Rhamna","Mehdia","Mhamid El Ghizlane","Chellalate",
+  "El Mansouria","Oulmes","Rommani Ville","Laayoun Cherkia","Sidi Hejaj Sbit",
+  "Moulay Yaacoub","Sidi Harazem","Ras El Ma Fes","Ain Cheggag",
+  "Bni Bouayach","Aghbal","Tafoughalt","Kamouni","Maaziz","Louizia",
+  "Jorf Sefar","Agouray","Bouderbala","Gfifat","Oulad Berhil","Dlalha",
+  "El Gara","Outat El Haj","Ourika-Ville","Sidi Allal Tazi","Khenichet",
+  "Guisser","El Borouj","Oued Laou","Issaguen","Fes","Tetouan",
+  "Laayoune","Oulad Teima","Zaio","Inezgane","Tamelelt","Driouch",
+  "Sidi Ghanem","Aourir","Targuist","Beni Nsar","Taznakht","Bejaad",
+  "Assa","Ait Aiaaza","Kassita","Missour","Oued Zem","Amizmiz","Bentiyeb",
+];
+
+async function loadCitiesEditor() {
+  const ta = document.getElementById('citiesTextarea');
+  if (!ta) return;
+  ta.value = 'Loading...';
+  try {
+    const res = await authFetch('/api/cities');
+    const data = await res.json();
+    const list = (data.cities && data.cities.length) ? data.cities : _DEFAULT_CITIES;
+    ta.value = list.join('\n');
+  } catch(e) {
+    ta.value = _DEFAULT_CITIES.join('\n');
+  }
+}
+
+async function saveCities() {
+  const ta  = document.getElementById('citiesTextarea');
+  const msg = document.getElementById('citiesSaveMsg');
+  if (!ta) return;
+  const cities = ta.value.split('\n').map(c => c.trim()).filter(Boolean);
+  if (!cities.length) { showToast('City list is empty', 'error'); return; }
+  try {
+    const res  = await authFetch('/api/admin/cities', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cities }) });
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error || 'Save failed', 'error'); return; }
+    msg.style.display = 'block';
+    msg.style.color = '#1e7e34';
+    msg.textContent = `✅ Saved ${data.count} cities successfully.`;
+    setTimeout(() => { msg.style.display = 'none'; }, 3000);
+    showToast('Cities saved');
+  } catch(e) {
+    showToast('Save failed: ' + e.message, 'error');
+  }
+}
+
+function resetCitiesToDefault() {
+  if (!confirm('Reset to the default city list? Your edits will be lost.')) return;
+  const ta = document.getElementById('citiesTextarea');
+  if (ta) ta.value = _DEFAULT_CITIES.join('\n');
+}
 
 let _selectedProvider = null;
 
