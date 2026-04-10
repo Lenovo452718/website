@@ -1870,6 +1870,102 @@ app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
 });
 
 /* ════════════════════════════════════════
+   ANALYTICS TRACKING
+════════════════════════════════════════ */
+const ANALYTICS_FILE = path.join(__dirname, 'analytics.json');
+function readAnalytics() {
+  try { if (fs.existsSync(ANALYTICS_FILE)) return JSON.parse(fs.readFileSync(ANALYTICS_FILE,'utf8')); } catch(e){}
+  return {};
+}
+function writeAnalytics(d) { try { fs.writeFileSync(ANALYTICS_FILE, JSON.stringify(d),'utf8'); } catch(e){} }
+
+/* Public — tracker.js calls this on every page load */
+app.post('/api/track', (req, res) => {
+  res.sendStatus(200);
+  try {
+    const { page='/', vid='' } = req.body || {};
+    const today = new Date().toISOString().slice(0,10);
+    const hour  = String(new Date().getHours());
+    const data  = readAnalytics();
+    if (!data[today]) data[today] = { views:0, uniques:[], pages:{}, hours:{} };
+    const day = data[today];
+    day.views++;
+    if (vid && !day.uniques.includes(vid)) day.uniques.push(vid);
+    day.pages[page]  = (day.pages[page]  || 0) + 1;
+    day.hours[hour]  = (day.hours[hour]  || 0) + 1;
+    writeAnalytics(data);
+  } catch(e){}
+});
+
+/* Admin — aggregated analytics */
+app.get('/api/admin/analytics', adminLimiter, requireAuth, (req, res) => {
+  try {
+    const raw   = readAnalytics();
+    const today = new Date().toISOString().slice(0,10);
+    const sorted = Object.keys(raw).sort();
+    const last30 = sorted.slice(-30).map(d => ({
+      date:    d,
+      views:   raw[d].views   || 0,
+      uniques: Array.isArray(raw[d].uniques) ? raw[d].uniques.length : 0,
+    }));
+    const todayD   = raw[today] || {};
+    const todayViews   = todayD.views   || 0;
+    const todayUniques = Array.isArray(todayD.uniques) ? todayD.uniques.length : 0;
+    const last7  = last30.slice(-7);
+    const week7Views   = last7.reduce((s,d)=>s+d.views,  0);
+    const week7Uniques = last7.reduce((s,d)=>s+d.uniques,0);
+    /* peak hours (all-time aggregate) */
+    const hoursAll = {};
+    for (let h=0;h<24;h++) hoursAll[h]=0;
+    for (const d of Object.values(raw)) {
+      for (const [h,v] of Object.entries(d.hours||{})) hoursAll[h]=(hoursAll[h]||0)+v;
+    }
+    /* top pages */
+    const pagesAll = {};
+    for (const d of Object.values(raw)) {
+      for (const [p,v] of Object.entries(d.pages||{})) pagesAll[p]=(pagesAll[p]||0)+v;
+    }
+    const topPages = Object.entries(pagesAll).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    res.json({ days:last30, todayViews, todayUniques, week7Views, week7Uniques, hoursAll, topPages });
+  } catch(e){ res.status(500).json({error:e.message}); }
+});
+
+/* ════════════════════════════════════════
+   PIXELS
+════════════════════════════════════════ */
+/* Public — pixels.js fetches this on every customer page */
+app.get('/api/settings/pixels', async (req, res) => {
+  try {
+    const s = await prisma.siteSettings.findUnique({ where:{ id:'singleton' } });
+    let px = {};
+    try { px = JSON.parse(s?.pixelsJson || '{}'); } catch(e){}
+    res.json(px);
+  } catch(e){ res.json({}); }
+});
+
+/* Admin — save pixel IDs */
+app.get('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const s = await prisma.siteSettings.findUnique({ where:{ id:'singleton' } });
+    let px = {};
+    try { px = JSON.parse(s?.pixelsJson || '{}'); } catch(e){}
+    res.json(px);
+  } catch(e){ res.json({}); }
+});
+
+app.patch('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { facebook='', tiktok='', google='', fbActive=false, ttActive=false, gaActive=false } = req.body;
+    const pixelsJson = JSON.stringify({
+      facebook: sanitize(facebook,50), tiktok: sanitize(tiktok,50), google: sanitize(google,50),
+      fbActive: Boolean(fbActive), ttActive: Boolean(ttActive), gaActive: Boolean(gaActive),
+    });
+    await prisma.$executeRawUnsafe('UPDATE `SiteSettings` SET `pixelsJson`=? WHERE `id`=?', pixelsJson,'singleton');
+    res.json({ ok:true });
+  } catch(e){ res.status(500).json({error:e.message}); }
+});
+
+/* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */
 /* Run DB migrations FIRST, then bootstrap, then start listening.
@@ -1899,6 +1995,7 @@ async function runMigrations() {
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `bundle3Price` DOUBLE NOT NULL DEFAULT 499",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `bundle3Enabled` TINYINT(1) NOT NULL DEFAULT 1",
     "CREATE TABLE IF NOT EXISTS `Review` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `productSlug` VARCHAR(255) NOT NULL, `customerId` VARCHAR(30) NULL, `name` VARCHAR(255) NOT NULL, `rating` INT NOT NULL, `text` TEXT NOT NULL, `approved` TINYINT(1) NOT NULL DEFAULT 0, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
+    "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `pixelsJson` TEXT NOT NULL DEFAULT ''",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}

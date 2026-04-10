@@ -590,6 +590,7 @@ select.pm-input{cursor:pointer}
       </div>
     </div>
     <div class="sidebar-nav">
+
       <div class="nav-section-label">Overview</div>
       <a class="nav-item active" onclick="showSection('dashboard',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
@@ -609,16 +610,27 @@ select.pm-input{cursor:pointer}
       </a>
       <a class="nav-item" onclick="showSection('customers',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customers
-      </a>
-      <a class="nav-item" onclick="showSection('suspicious',this)" id="navSuspicious">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Suspicious
         <span class="nav-badge" id="suspiciousBadge" style="display:none;background:#e67e22">0</span>
       </a>
+
+      <div class="nav-section-label">Marketing</div>
       <a class="nav-item" onclick="showSection('discounts',this)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Discount Codes
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Discounts
       </a>
       <a class="nav-item" onclick="showSection('deals',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Deals
+      </a>
+      <a class="nav-item" onclick="showSection('notifications',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
+        <span class="nav-notif-badge" id="sideNotifBadge" style="display:none">0</span>
+      </a>
+
+      <div class="nav-section-label">Management</div>
+      <a class="nav-item" onclick="showSection('analytics',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics
+      </a>
+      <a class="nav-item" onclick="showSection('revenue',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Revenue
       </a>
 
       <div class="nav-section-label">Content</div>
@@ -630,9 +642,8 @@ select.pm-input{cursor:pointer}
       </a>
 
       <div class="nav-section-label">System</div>
-      <a class="nav-item" onclick="showSection('notifications',this)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
-        <span class="nav-notif-badge" id="sideNotifBadge" style="display:none">0</span>
+      <a class="nav-item" onclick="showSection('pixels',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Pixels
       </a>
       <a class="nav-item" onclick="showSection('integrations',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Integrations
@@ -644,6 +655,7 @@ select.pm-input{cursor:pointer}
       <a class="nav-item" onclick="showSection('settings',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
       </a>
+
     </div>
     <div class="sidebar-footer">
       <button class="logout-btn" onclick="logout()">
@@ -797,26 +809,35 @@ select.pm-input{cursor:pointer}
     </section>
 
     <section class="admin-section" id="secCustomers">
-      <div class="page-header"><h1>Customers</h1><p>All customers derived from order history.</p></div>
-      <div class="search-wrap">
-        <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="search-input" id="customerSearch" placeholder="Search by name or phone..." oninput="loadCustomersTable()">
+      <div class="page-header"><h1>Customers</h1><p>All customers and flagged accounts.</p></div>
+      <div class="filter-tabs" style="margin-bottom:16px">
+        <button class="filter-tab active" onclick="switchCustomerTab('all',this)">All Customers</button>
+        <button class="filter-tab" onclick="switchCustomerTab('suspicious',this)">
+          Suspicious <span id="suspiciousBadgeTab" style="display:none;background:#e67e22;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px">0</span>
+        </button>
+        <button class="filter-tab" onclick="switchCustomerTab('blocked',this)">Blocked IPs</button>
       </div>
-      <div class="panel">
-        <div class="table-wrap"><table class="admin-table" id="customersTable"></table></div>
+      <!-- All customers -->
+      <div id="custTabAll">
+        <div class="search-wrap">
+          <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" id="customerSearch" placeholder="Search by name or phone..." oninput="loadCustomersTable()">
+        </div>
+        <div class="panel"><div class="table-wrap"><table class="admin-table" id="customersTable"></table></div></div>
       </div>
-    </section>
-
-    <!-- ── SUSPICIOUS CUSTOMERS ── -->
-    <section class="admin-section" id="secSuspicious">
-      <div class="page-header"><h1>Suspicious Customers</h1><p>Customers with 3+ cancelled or undelivered orders. You can block their IP to prevent future orders.</p></div>
-      <div class="panel" id="suspiciousPanel">
-        <div class="panel-header"><h2>Flagged Customers</h2><button class="btn btn-outline btn-sm" onclick="loadSuspiciousCustomers()">↻ Refresh</button></div>
-        <div class="table-wrap"><table class="admin-table" id="suspiciousTable"></table></div>
+      <!-- Suspicious -->
+      <div id="custTabSuspicious" style="display:none">
+        <div class="panel" id="suspiciousPanel">
+          <div class="panel-header"><h2>Flagged Customers</h2><button class="btn btn-outline btn-sm" onclick="loadSuspiciousCustomers()">↻ Refresh</button></div>
+          <div class="table-wrap"><table class="admin-table" id="suspiciousTable"></table></div>
+        </div>
       </div>
-      <div class="panel" id="blockedIpsPanel">
-        <div class="panel-header"><h2>Blocked IPs</h2></div>
-        <div id="blockedIpsList" style="padding:16px 20px"></div>
+      <!-- Blocked IPs -->
+      <div id="custTabBlocked" style="display:none">
+        <div class="panel" id="blockedIpsPanel">
+          <div class="panel-header"><h2>Blocked IPs</h2></div>
+          <div id="blockedIpsList" style="padding:16px 20px"></div>
+        </div>
       </div>
     </section>
 
@@ -990,6 +1011,138 @@ select.pm-input{cursor:pointer}
         <div class="panel-header"><h2>How to get your API key</h2></div>
         <div class="panel-body" id="integHelpBody" style="font-size:13px;line-height:1.7;color:var(--charcoal)"></div>
       </div>
+    </section>
+
+    <!-- ── ANALYTICS ── -->
+    <section class="admin-section" id="secAnalytics">
+      <div class="page-header"><h1>Analytics</h1><p>Visitor traffic and behaviour on your store.</p></div>
+      <!-- KPI row -->
+      <div id="analyticsKpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px"></div>
+      <!-- Charts row -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="panel" style="padding:20px">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Visitors — Last 30 Days</div>
+          <canvas id="analyticsVisitorsChart" height="90"></canvas>
+        </div>
+        <div class="panel" style="padding:20px">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Peak Hours</div>
+          <canvas id="analyticsPeakChart" height="170"></canvas>
+        </div>
+      </div>
+      <!-- Top pages -->
+      <div class="panel">
+        <div class="panel-header"><h2>Top Pages</h2></div>
+        <div class="table-wrap"><table class="admin-table" id="analyticsTopPages"></table></div>
+      </div>
+    </section>
+
+    <!-- ── REVENUE ── -->
+    <section class="admin-section" id="secRevenue">
+      <div class="page-header"><h1>Revenue</h1><p>Financial performance and order insights.</p></div>
+      <!-- Period selector -->
+      <div class="filter-tabs" style="margin-bottom:20px">
+        <button class="filter-tab active" onclick="switchRevenuePeriod(7,this)">7 Days</button>
+        <button class="filter-tab" onclick="switchRevenuePeriod(30,this)">30 Days</button>
+        <button class="filter-tab" onclick="switchRevenuePeriod(90,this)">90 Days</button>
+        <button class="filter-tab" onclick="switchRevenuePeriod(0,this)">All Time</button>
+      </div>
+      <!-- KPI row -->
+      <div id="revenueKpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px"></div>
+      <!-- Revenue chart -->
+      <div class="panel" style="padding:20px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Revenue Over Time</div>
+        <canvas id="revRevenueChart" height="80"></canvas>
+      </div>
+      <!-- Bottom row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div class="panel">
+          <div class="panel-header"><h2>Revenue by City</h2></div>
+          <div id="revenueCityList" style="padding:0 20px 16px"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><h2>Top Products by Revenue</h2></div>
+          <div id="revenueProductList" style="padding:0 20px 16px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── PIXELS ── -->
+    <section class="admin-section" id="secPixels">
+      <div class="page-header"><h1>Pixels &amp; Tracking</h1><p>Connect Facebook, TikTok and Google Analytics to track and optimise your ads.</p></div>
+
+      <!-- Facebook -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;background:#1877F2;border-radius:8px;display:flex;align-items:center;justify-content:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </div>
+            <div><h2 style="margin:0">Facebook Pixel</h2><div style="font-size:11px;color:var(--gray)">Meta Ads · Conversions API</div></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600">
+            <input type="checkbox" id="pxFbActive" style="width:16px;height:16px;cursor:pointer"> Active
+          </label>
+        </div>
+        <div class="panel-body">
+          <div class="field-group">
+            <label class="field-label">Pixel ID</label>
+            <input class="field-input" id="pxFacebook" placeholder="e.g. 1234567890123456" style="max-width:360px">
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button class="btn btn-outline btn-sm" onclick="window.open('https://business.facebook.com/events_manager','_blank')">Open Events Manager ↗</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TikTok -->
+      <div class="panel" style="margin-bottom:16px">
+        <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;background:#010101;border-radius:8px;display:flex;align-items:center;justify-content:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.32 6.32 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.77a4.85 4.85 0 0 1-1.01-.08z"/></svg>
+            </div>
+            <div><h2 style="margin:0">TikTok Pixel</h2><div style="font-size:11px;color:var(--gray)">TikTok Ads · Events</div></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600">
+            <input type="checkbox" id="pxTtActive" style="width:16px;height:16px;cursor:pointer"> Active
+          </label>
+        </div>
+        <div class="panel-body">
+          <div class="field-group">
+            <label class="field-label">Pixel ID</label>
+            <input class="field-input" id="pxTiktok" placeholder="e.g. CBXXXXXXXXXXXXXX" style="max-width:360px">
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-outline btn-sm" onclick="window.open('https://ads.tiktok.com/i18n/events_manager','_blank')">Open Events Manager ↗</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Google Analytics -->
+      <div class="panel" style="margin-bottom:24px">
+        <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:36px;height:36px;background:#E37400;border-radius:8px;display:flex;align-items:center;justify-content:center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            </div>
+            <div><h2 style="margin:0">Google Analytics 4</h2><div style="font-size:11px;color:var(--gray)">GA4 · Measurement ID</div></div>
+          </div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600">
+            <input type="checkbox" id="pxGaActive" style="width:16px;height:16px;cursor:pointer"> Active
+          </label>
+        </div>
+        <div class="panel-body">
+          <div class="field-group">
+            <label class="field-label">Measurement ID</label>
+            <input class="field-input" id="pxGoogle" placeholder="e.g. G-XXXXXXXXXX" style="max-width:360px">
+          </div>
+          <div style="margin-top:10px">
+            <button class="btn btn-outline btn-sm" onclick="window.open('https://analytics.google.com','_blank')">Open Google Analytics ↗</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" onclick="savePixels()">Save Pixels</button>
     </section>
 
     <!-- ── CITIES ── -->
@@ -1754,6 +1907,9 @@ function showSection(id, el) {
   if (id==='suspicious')    loadSuspiciousCustomers();
   if (id==='reviews')       loadAdminReviews('all');
   if (id==='cities')        loadCitiesEditor();
+  if (id==='analytics')     loadAnalytics();
+  if (id==='revenue')       loadRevenue();
+  if (id==='pixels')        loadPixels();
 }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
@@ -4350,6 +4506,237 @@ async function loadReviewsPendingBadge() {
       else { badge.style.display = 'none'; }
     }
   } catch(_) {}
+}
+
+/* ═══════════════════════════════════════════
+   CUSTOMER TABS
+═══════════════════════════════════════════ */
+function switchCustomerTab(tab, el) {
+  ['all','suspicious','blocked'].forEach(t => {
+    const div = document.getElementById('custTab'+t.charAt(0).toUpperCase()+t.slice(1));
+    if (div) div.style.display = (t === tab) ? '' : 'none';
+  });
+  document.querySelectorAll('#secCustomers .filter-tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  if (tab === 'suspicious') loadSuspiciousCustomers();
+  if (tab === 'blocked') loadBlockedIpsCustomersTab();
+}
+
+async function loadBlockedIpsCustomersTab() {
+  const el = document.getElementById('blockedIpsList');
+  if (!el) return;
+  try {
+    const res = await authFetch('/api/admin/blocked-ips');
+    const ips = await res.json();
+    if (!ips.length) { el.innerHTML = '<p style="color:var(--gray);font-size:13px">No blocked IPs.</p>'; return; }
+    el.innerHTML = ips.map(ip => `
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--gray-light)">
+        <span style="font-size:13px;font-weight:600;font-family:monospace">${ip}</span>
+        <button class="btn btn-outline btn-sm" style="color:var(--red)" onclick="unblockIpTab('${ip}',this)">Unblock</button>
+      </div>`).join('');
+  } catch(e) { el.innerHTML = '<p style="color:var(--red);font-size:13px">Failed to load.</p>'; }
+}
+
+async function unblockIpTab(ip, btn) {
+  try {
+    const res = await authFetch('/api/admin/blocked-ips/'+encodeURIComponent(ip), { method:'DELETE' });
+    if (res.ok) { btn.closest('div').remove(); showToast('IP unblocked'); }
+    else showToast('Failed to unblock','error');
+  } catch(e) { showToast('Server error','error'); }
+}
+
+/* ═══════════════════════════════════════════
+   ANALYTICS
+═══════════════════════════════════════════ */
+let _analyticsVisitorsChart = null, _analyticsPeakChart = null;
+
+async function loadAnalytics() {
+  document.getElementById('analyticsKpis').innerHTML = '<div style="grid-column:1/-1;color:var(--gray);font-size:13px;padding:8px 0">Loading…</div>';
+  try {
+    const res  = await authFetch('/api/admin/analytics');
+    const data = await res.json();
+    const { days=[], todayViews=0, todayUniques=0, week7Views=0, week7Uniques=0, hoursAll={}, topPages=[] } = data;
+
+    // KPI cards
+    const totalViews   = days.reduce((s,d)=>s+d.views,0);
+    const totalUniques = days.reduce((s,d)=>s+d.uniques,0);
+    document.getElementById('analyticsKpis').innerHTML = [
+      { label:'Today Views',      value: todayViews,    sub:'Page views today' },
+      { label:'Today Visitors',   value: todayUniques,  sub:'Unique visitors today' },
+      { label:'7-Day Views',      value: week7Views,    sub:'Last 7 days' },
+      { label:'30-Day Visitors',  value: totalUniques,  sub:'Unique visitors (30d)' },
+    ].map(k=>`<div class="stat-card"><div class="stat-card-label">${k.label}</div><div class="stat-card-value">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
+
+    // Visitors trend chart
+    const labels30 = days.map(d => d.date.slice(5)); // MM-DD
+    const views30  = days.map(d => d.views);
+    if (_analyticsVisitorsChart) _analyticsVisitorsChart.destroy();
+    _analyticsVisitorsChart = new Chart(document.getElementById('analyticsVisitorsChart'), {
+      type: 'line',
+      data: { labels: labels30, datasets: [{
+        label: 'Views', data: views30,
+        borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,.1)',
+        borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true
+      }]},
+      options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:8,maxRotation:0}} } }
+    });
+
+    // Peak hours bar chart
+    const hourLabels = Array.from({length:24},(_,i)=>i+'h');
+    const hourData   = Array.from({length:24},(_,i)=>hoursAll[i]||0);
+    if (_analyticsPeakChart) _analyticsPeakChart.destroy();
+    _analyticsPeakChart = new Chart(document.getElementById('analyticsPeakChart'), {
+      type: 'bar',
+      data: { labels: hourLabels, datasets: [{
+        label: 'Visits', data: hourData,
+        backgroundColor: 'rgba(41,128,185,.7)', borderRadius: 3
+      }]},
+      options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:12}} } }
+    });
+
+    // Top pages table
+    const tp = document.getElementById('analyticsTopPages');
+    if (!topPages.length) {
+      tp.innerHTML = '<tbody><tr class="empty-row"><td colspan="2">No data yet.</td></tr></tbody>';
+    } else {
+      tp.innerHTML = `<thead><tr><th>Page</th><th>Views</th></tr></thead><tbody>`
+        + topPages.map(([page,cnt])=>`<tr><td style="font-family:monospace;font-size:12px">${escHtml(page)}</td><td><strong>${cnt}</strong></td></tr>`).join('')
+        + '</tbody>';
+    }
+  } catch(e) {
+    document.getElementById('analyticsKpis').innerHTML = `<div style="grid-column:1/-1;color:var(--red);font-size:13px">Failed to load analytics: ${e.message}</div>`;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   REVENUE
+═══════════════════════════════════════════ */
+let _revPeriod = 7, _revRevenueChart = null;
+
+function switchRevenuePeriod(days, el) {
+  _revPeriod = days;
+  document.querySelectorAll('#secRevenue .filter-tab').forEach(b => b.classList.remove('active'));
+  if (el) el.classList.add('active');
+  loadRevenue();
+}
+
+async function loadRevenue() {
+  document.getElementById('revenueKpis').innerHTML = '<div style="grid-column:1/-1;color:var(--gray);font-size:13px;padding:8px 0">Loading…</div>';
+  try {
+    // Use already-fetched orders from cache
+    const all   = getOrders();
+    const now   = Date.now();
+    const msDay = 86400000;
+    const filtered = _revPeriod === 0 ? all
+      : all.filter(o => (now - new Date(o.date||o.createdAt).getTime()) <= _revPeriod * msDay);
+
+    const done   = filtered.filter(o => ['done','delivered','confirmed'].includes(o.status));
+    const total  = done.reduce((s,o) => s + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,'')), 0);
+    const aov    = done.length ? total / done.length : 0;
+    const conv   = filtered.length ? (done.length / filtered.length * 100).toFixed(1) : '0.0';
+    const cancelled = filtered.filter(o => o.status === 'cancelled').length;
+
+    document.getElementById('revenueKpis').innerHTML = [
+      { label:'Revenue',        value: Math.round(total).toLocaleString()+' MAD', sub:'Confirmed & delivered', cls:'accent' },
+      { label:'Orders',         value: filtered.length, sub:'In period' },
+      { label:'Avg Order Value',value: Math.round(aov)+' MAD', sub:'Confirmed orders' },
+      { label:'Conversion',     value: conv+'%', sub:'Orders completed vs total' },
+    ].map(k=>`<div class="stat-card ${k.cls||''}"><div class="stat-card-label">${k.label}</div><div class="stat-card-value">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
+
+    // Revenue over time chart
+    const dayBuckets = {};
+    done.forEach(o => {
+      const d = new Date(o.date||o.createdAt).toISOString().slice(0,10);
+      dayBuckets[d] = (dayBuckets[d]||0) + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+    });
+    const sortedDays = Object.keys(dayBuckets).sort().slice(-(_revPeriod||90));
+    if (_revRevenueChart) _revRevenueChart.destroy();
+    _revRevenueChart = new Chart(document.getElementById('revRevenueChart'), {
+      type: 'bar',
+      data: { labels: sortedDays.map(d=>d.slice(5)), datasets:[{
+        label:'Revenue (MAD)', data: sortedDays.map(d=>Math.round(dayBuckets[d]||0)),
+        backgroundColor:'rgba(17,17,17,.75)', borderRadius:4
+      }]},
+      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:10}} } }
+    });
+
+    // Revenue by city
+    const cityMap = {};
+    done.forEach(o => {
+      const city = o.city || (o.address||'').split(',').pop().trim() || 'Unknown';
+      cityMap[city] = (cityMap[city]||0) + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+    });
+    const topCities = Object.entries(cityMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    const cityEl = document.getElementById('revenueCityList');
+    cityEl.innerHTML = topCities.length ? topCities.map(([c,v])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-light)">
+        <span style="font-size:13px;font-weight:600">${escHtml(c)}</span>
+        <span style="font-size:13px;font-weight:700;color:var(--charcoal)">${Math.round(v).toLocaleString()} MAD</span>
+      </div>`).join('')
+      : '<p style="color:var(--gray);font-size:13px;padding:12px 0">No data.</p>';
+
+    // Top products by revenue
+    const prodMap = {};
+    done.forEach(o => {
+      (o.items||[]).forEach(it => {
+        const name = it.name||it.product||'Unknown';
+        const price = parseFloat(String(it.price||0).replace(/[^0-9.]/g,'')) || parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+        prodMap[name] = (prodMap[name]||0) + price * (it.qty||1);
+      });
+      if (!(o.items||[]).length) {
+        const name = o.product || o.items?.[0]?.name || 'Order';
+        prodMap[name] = (prodMap[name]||0) + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+      }
+    });
+    const topProds = Object.entries(prodMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const prodEl = document.getElementById('revenueProductList');
+    prodEl.innerHTML = topProds.length ? topProds.map(([n,v])=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-light)">
+        <span style="font-size:13px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px">${escHtml(n)}</span>
+        <span style="font-size:13px;font-weight:700;white-space:nowrap">${Math.round(v).toLocaleString()} MAD</span>
+      </div>`).join('')
+      : '<p style="color:var(--gray);font-size:13px;padding:12px 0">No data.</p>';
+
+  } catch(e) {
+    document.getElementById('revenueKpis').innerHTML = `<div style="grid-column:1/-1;color:var(--red);font-size:13px">Failed to load revenue: ${e.message}</div>`;
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PIXELS
+═══════════════════════════════════════════ */
+async function loadPixels() {
+  try {
+    const res = await authFetch('/api/admin/pixels');
+    if (!res.ok) return;
+    const px = await res.json();
+    if (px.facebook !== undefined) document.getElementById('pxFacebook').value = px.facebook || '';
+    if (px.tiktok   !== undefined) document.getElementById('pxTiktok').value   = px.tiktok   || '';
+    if (px.google   !== undefined) document.getElementById('pxGoogle').value   = px.google   || '';
+    document.getElementById('pxFbActive').checked = !!px.fbActive;
+    document.getElementById('pxTtActive').checked = !!px.ttActive;
+    document.getElementById('pxGaActive').checked = !!px.gaActive;
+  } catch(e) { showToast('Failed to load pixel settings', 'error'); }
+}
+
+async function savePixels() {
+  const body = {
+    facebook: document.getElementById('pxFacebook').value.trim(),
+    tiktok:   document.getElementById('pxTiktok').value.trim(),
+    google:   document.getElementById('pxGoogle').value.trim(),
+    fbActive: document.getElementById('pxFbActive').checked,
+    ttActive: document.getElementById('pxTtActive').checked,
+    gaActive: document.getElementById('pxGaActive').checked,
+  };
+  try {
+    const res = await authFetch('/api/admin/pixels', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) showToast('Pixel settings saved');
+    else showToast('Failed to save', 'error');
+  } catch(e) { showToast('Server error', 'error'); }
 }
 
 /* Auto-login if session exists */
