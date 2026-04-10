@@ -1968,7 +1968,7 @@ app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
     const orders = normPhone
       ? await prisma.$queryRawUnsafe(
           `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,
-                  trackingCode, deliveryPhone
+                  trackingCode, deliveryPhone, deliveryName
            FROM \`Order\`
            WHERE customerId = ?
               OR REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'.','') = ?
@@ -1977,7 +1977,7 @@ app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
         )
       : await prisma.$queryRawUnsafe(
           `SELECT id, status, city, address, total, couponCode, discount, notes, createdAt, updatedAt,
-                  trackingCode, deliveryPhone
+                  trackingCode, deliveryPhone, deliveryName
            FROM \`Order\` WHERE customerId = ? ORDER BY createdAt DESC LIMIT 50`,
           req.customerId
         );
