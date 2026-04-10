@@ -1056,7 +1056,52 @@ select.pm-input{cursor:pointer}
 
     <!-- ── REVENUE ── -->
     <section class="admin-section" id="secRevenue">
-      <div class="page-header"><h1>Revenue</h1><p>Financial performance and order insights.</p></div>
+      <div class="page-header"><h1>Revenue &amp; Profit</h1><p>Real financial performance after all costs.</p></div>
+
+      <!-- Cost Settings row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <!-- Fixed costs per order -->
+        <div class="panel" style="padding:20px">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Fixed Costs Per Order (MAD)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label class="field-label" style="font-size:11px">Packaging / Emballage</label>
+              <input class="field-input" id="costPackaging" type="number" placeholder="5" style="margin-top:4px">
+            </div>
+            <div>
+              <label class="field-label" style="font-size:11px">Delivery (Olivraison fee)</label>
+              <input class="field-input" id="costDelivery" type="number" placeholder="25" style="margin-top:4px">
+            </div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveBusinessCosts()">Save Costs</button>
+        </div>
+        <!-- Monthly ad spend -->
+        <div class="panel" style="padding:20px">
+          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Monthly Ad Spend (MAD)</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:12px">
+            <div>
+              <label class="field-label" style="font-size:11px">Month</label>
+              <select class="field-input" id="adMonth" style="margin-top:4px">
+                <option value="1">Jan</option><option value="2">Feb</option><option value="3">Mar</option>
+                <option value="4">Apr</option><option value="5">May</option><option value="6">Jun</option>
+                <option value="7">Jul</option><option value="8">Aug</option><option value="9">Sep</option>
+                <option value="10">Oct</option><option value="11">Nov</option><option value="12">Dec</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" style="font-size:11px">Year</label>
+              <input class="field-input" id="adYear" type="number" placeholder="2026" style="margin-top:4px">
+            </div>
+            <div>
+              <label class="field-label" style="font-size:11px">Amount</label>
+              <input class="field-input" id="adAmount" type="number" placeholder="500" style="margin-top:4px">
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="saveAdSpend()" style="white-space:nowrap">Add</button>
+          </div>
+          <div id="adSpendList" style="max-height:80px;overflow-y:auto;font-size:12px;color:var(--gray)">Loading…</div>
+        </div>
+      </div>
+
       <!-- Period selector -->
       <div class="filter-tabs" style="margin-bottom:20px">
         <button class="filter-tab active" onclick="switchRevenuePeriod(7,this)">7 Days</button>
@@ -1064,11 +1109,15 @@ select.pm-input{cursor:pointer}
         <button class="filter-tab" onclick="switchRevenuePeriod(90,this)">90 Days</button>
         <button class="filter-tab" onclick="switchRevenuePeriod(0,this)">All Time</button>
       </div>
+
       <!-- KPI row -->
-      <div id="revenueKpis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px"></div>
+      <div id="revenueKpis" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px"></div>
+      <!-- Cost breakdown row -->
+      <div id="revenueCostRow" style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px"></div>
+
       <!-- Revenue chart -->
       <div class="panel" style="padding:20px;margin-bottom:16px">
-        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Revenue Over Time</div>
+        <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Gross Revenue vs Net Profit Over Time</div>
         <canvas id="revRevenueChart" height="80"></canvas>
       </div>
       <!-- Bottom row -->
@@ -1366,8 +1415,11 @@ select.pm-input{cursor:pointer}
             </div>
           </div>
           <div class="pm-grid-3" style="margin-bottom:14px">
-            <div class="pm-field" style="margin:0"><label class="pm-label">Price (MAD)<span class="req">*</span></label><input class="pm-input" id="pmPrice" type="number" placeholder="179"></div>
+            <div class="pm-field" style="margin:0"><label class="pm-label">Selling Price (MAD)<span class="req">*</span></label><input class="pm-input" id="pmPrice" type="number" placeholder="179"></div>
+            <div class="pm-field" style="margin:0"><label class="pm-label">Cost Price (MAD)</label><input class="pm-input" id="pmCostPrice" type="number" placeholder="80"></div>
             <div class="pm-field" style="margin:0"><label class="pm-label">Compare Price</label><input class="pm-input" id="pmOriginal" type="number" placeholder="249"></div>
+          </div>
+          <div class="pm-grid-3" style="margin-bottom:14px">
             <div class="pm-field" style="margin:0"><label class="pm-label">Badge</label>
               <select class="pm-input" id="pmBadge">
                 <option value="">None</option>
@@ -2677,6 +2729,7 @@ async function openProductModal(id) {
   document.getElementById('pmEditId').value = id || '';
   document.getElementById('pmName').value = '';
   document.getElementById('pmPrice').value = '';
+  document.getElementById('pmCostPrice').value = '';
   document.getElementById('pmOriginal').value = '';
   document.getElementById('pmBadge').value = '';
   document.getElementById('pmStatus').value = 'active';
@@ -2706,6 +2759,7 @@ async function openProductModal(id) {
       document.getElementById('pmName').value = p.name || '';
       document.getElementById('pmShortName').value = p.shortName || '';
       document.getElementById('pmPrice').value = p.price || '';
+      document.getElementById('pmCostPrice').value = p.costPrice || '';
       document.getElementById('pmOriginal').value = p.comparePrice || '';
       document.getElementById('pmBadge').value = p.badge || '';
       document.getElementById('pmStatus').value = (p.status || 'active').toLowerCase();
@@ -2900,6 +2954,7 @@ async function saveProductModal() {
     name,
     shortName: document.getElementById('pmShortName').value.trim() || null,
     price,
+    costPrice: parseFloat(document.getElementById('pmCostPrice').value) || null,
     comparePrice: parseFloat(document.getElementById('pmOriginal').value) || null,
     badge:        document.getElementById('pmBadge').value || null,
     status:       document.getElementById('pmStatus').value,
@@ -4642,6 +4697,31 @@ async function loadAnalytics() {
 ═══════════════════════════════════════════ */
 let _revPeriod = 7, _revRevenueChart = null;
 
+async function saveBusinessCosts() {
+  const packaging = parseFloat(document.getElementById('costPackaging').value) || 0;
+  const delivery  = parseFloat(document.getElementById('costDelivery').value)  || 0;
+  const res = await authFetch('/api/admin/business-costs', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ packagingPerOrder: packaging, deliveryPerOrder: delivery }),
+  });
+  if (res.ok) { showToast('Costs saved'); loadRevenue(); }
+  else showToast('Failed to save costs', 'error');
+}
+
+async function saveAdSpend() {
+  const month  = parseInt(document.getElementById('adMonth').value);
+  const year   = parseInt(document.getElementById('adYear').value);
+  const amount = parseFloat(document.getElementById('adAmount').value) || 0;
+  const res = await authFetch('/api/admin/ad-spend', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ month, year, amount }),
+  });
+  if (res.ok) { showToast('Ad spend saved'); document.getElementById('adAmount').value = ''; loadRevenue(); }
+  else showToast('Failed to save ad spend', 'error');
+}
+
 function switchRevenuePeriod(days, el) {
   _revPeriod = days;
   document.querySelectorAll('#secRevenue .filter-tab').forEach(b => b.classList.remove('active'));
@@ -4652,52 +4732,132 @@ function switchRevenuePeriod(days, el) {
 async function loadRevenue() {
   document.getElementById('revenueKpis').innerHTML = '<div style="grid-column:1/-1;color:var(--gray);font-size:13px;padding:8px 0">Loading…</div>';
   try {
-    // Use already-fetched orders from cache
+    // Fetch costs config + products (for costPrice lookup)
+    const [costsRes, prodsRes] = await Promise.all([
+      authFetch('/api/admin/business-costs'),
+      authFetch('/api/admin/products?limit=500'),
+    ]);
+    const costs = costsRes.ok ? await costsRes.json() : { packagingPerOrder: 0, deliveryPerOrder: 0, adSpend: [] };
+    const prodsData = prodsRes.ok ? await prodsRes.json() : { products: [] };
+    const products  = prodsData.products || prodsData || [];
+
+    // Populate cost settings inputs (only if empty to avoid overwriting in-progress edits)
+    const pkgEl = document.getElementById('costPackaging');
+    const dlvEl = document.getElementById('costDelivery');
+    if (pkgEl && !pkgEl.dataset.dirty) pkgEl.value = costs.packagingPerOrder || '';
+    if (dlvEl && !dlvEl.dataset.dirty) dlvEl.value = costs.deliveryPerOrder  || '';
+
+    // Render ad spend list
+    const adSpendList = document.getElementById('adSpendList');
+    const monthNames = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    if (adSpendList) {
+      adSpendList.innerHTML = costs.adSpend.length
+        ? costs.adSpend.map(s => `<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;background:var(--off);border-radius:4px">${monthNames[s.month]} ${s.year}: <b>${Math.round(s.amount).toLocaleString()} MAD</b></span>`).join('')
+        : '<span style="color:var(--gray)">No ad spend entered yet.</span>';
+    }
+    // Pre-fill year in ad spend form
+    const adYearEl = document.getElementById('adYear');
+    if (adYearEl && !adYearEl.value) adYearEl.value = new Date().getFullYear();
+    const adMonthEl = document.getElementById('adMonth');
+    if (adMonthEl && !adMonthEl.value) adMonthEl.value = new Date().getMonth() + 1;
+
+    // Build costPrice map: product name → costPrice
+    const costPriceMap = {};
+    products.forEach(p => { if (p.costPrice) costPriceMap[p.name] = parseFloat(p.costPrice); });
+
+    // Filter orders by period
     const all   = getOrders();
     const now   = Date.now();
     const msDay = 86400000;
     const filtered = _revPeriod === 0 ? all
       : all.filter(o => (now - new Date(o.date||o.createdAt).getTime()) <= _revPeriod * msDay);
 
-    const done   = filtered.filter(o => ['done','delivered','confirmed'].includes(o.status));
-    const total  = done.reduce((s,o) => s + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,'')), 0);
-    const aov    = done.length ? total / done.length : 0;
-    const conv   = filtered.length ? (done.length / filtered.length * 100).toFixed(1) : '0.0';
-    const cancelled = filtered.filter(o => o.status === 'cancelled').length;
+    const done      = filtered.filter(o => ['done','delivered','confirmed','transit'].includes(o.status));
+    const returned  = filtered.filter(o => ['cancelled','returned'].includes(o.status));
+    const gross     = done.reduce((s,o) => s + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,'')), 0);
+    const aov       = done.length ? gross / done.length : 0;
+    const returnRate = filtered.length ? (returned.length / filtered.length * 100).toFixed(1) : '0.0';
 
+    // Cost of goods sold
+    let cogs = 0;
+    done.forEach(o => {
+      (o.items||[]).forEach(it => {
+        const cp = costPriceMap[it.name||it.product||''] || 0;
+        cogs += cp * (it.qty||1);
+      });
+    });
+
+    // Fixed costs
+    const packagingCost = done.length * (costs.packagingPerOrder || 0);
+    const deliveryCost  = done.length * (costs.deliveryPerOrder  || 0);
+
+    // Ad spend for the period
+    let adSpendTotal = 0;
+    if (_revPeriod === 0) {
+      adSpendTotal = costs.adSpend.reduce((s,r) => s + r.amount, 0);
+    } else {
+      const cutoff = new Date(now - _revPeriod * msDay);
+      adSpendTotal = costs.adSpend.filter(r => {
+        const d = new Date(r.year, r.month - 1, 1);
+        return d >= cutoff;
+      }).reduce((s,r) => s + r.amount, 0);
+    }
+
+    const totalCosts = cogs + packagingCost + deliveryCost + adSpendTotal;
+    const netProfit  = gross - totalCosts;
+    const margin     = gross > 0 ? (netProfit / gross * 100).toFixed(1) : '0.0';
+
+    // KPI row — 3 main cards
+    const netCls = netProfit >= 0 ? 'accent' : '';
+    const netStyle = netProfit < 0 ? 'color:var(--red)' : '';
     document.getElementById('revenueKpis').innerHTML = [
-      { label:'Revenue',        value: Math.round(total).toLocaleString()+' MAD', sub:'Confirmed & delivered', cls:'accent' },
-      { label:'Orders',         value: filtered.length, sub:'In period' },
-      { label:'Avg Order Value',value: Math.round(aov)+' MAD', sub:'Confirmed orders' },
-      { label:'Conversion',     value: conv+'%', sub:'Orders completed vs total' },
-    ].map(k=>`<div class="stat-card ${k.cls||''}"><div class="stat-card-label">${k.label}</div><div class="stat-card-value">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
+      { label:'Gross Revenue',  value: Math.round(gross).toLocaleString()+' MAD',  sub: done.length+' delivered orders',    cls:'accent' },
+      { label:'Net Profit',     value: Math.round(netProfit).toLocaleString()+' MAD', sub:'After all costs', style: netStyle },
+      { label:'Profit Margin',  value: margin+'%', sub:'Net / Gross', style: netStyle },
+    ].map(k=>`<div class="stat-card ${k.cls||''}"><div class="stat-card-label">${k.label}</div><div class="stat-card-value" style="${k.style||''}">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
 
-    // Revenue over time chart
-    const dayBuckets = {};
+    // Cost breakdown row — 4 smaller cards
+    document.getElementById('revenueCostRow').innerHTML = [
+      { label:'Product Cost (COGS)', value: Math.round(cogs).toLocaleString()+' MAD',          sub: cogs > 0 ? '' : 'Set cost prices on products' },
+      { label:'Packaging',           value: Math.round(packagingCost).toLocaleString()+' MAD', sub: costs.packagingPerOrder ? costs.packagingPerOrder+' MAD × '+done.length+' orders' : 'Not set' },
+      { label:'Delivery Fees',       value: Math.round(deliveryCost).toLocaleString()+' MAD',  sub: costs.deliveryPerOrder  ? costs.deliveryPerOrder+' MAD × '+done.length+' orders'  : 'Not set' },
+      { label:'Ad Spend',            value: Math.round(adSpendTotal).toLocaleString()+' MAD',  sub: adSpendTotal > 0 ? 'Return rate: '+returnRate+'%' : 'Not entered' },
+    ].map(k=>`<div class="stat-card"><div class="stat-card-label" style="font-size:10px">${k.label}</div><div class="stat-card-value" style="font-size:18px">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
+
+    // Revenue over time chart — gross vs net
+    const dayGross = {};
+    const dayCost  = {};
     done.forEach(o => {
       const d = new Date(o.date||o.createdAt).toISOString().slice(0,10);
-      dayBuckets[d] = (dayBuckets[d]||0) + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+      const oGross = parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+      let oCogs = 0;
+      (o.items||[]).forEach(it => { oCogs += (costPriceMap[it.name||it.product||''] || 0) * (it.qty||1); });
+      const oFixed = (costs.packagingPerOrder||0) + (costs.deliveryPerOrder||0);
+      dayGross[d] = (dayGross[d]||0) + oGross;
+      dayCost[d]  = (dayCost[d]||0)  + oCogs + oFixed;
     });
-    const sortedDays = Object.keys(dayBuckets).sort().slice(-(_revPeriod||90));
+    const sortedDays = Object.keys(dayGross).sort().slice(-(_revPeriod||90));
     if (_revRevenueChart) _revRevenueChart.destroy();
     _revRevenueChart = new Chart(document.getElementById('revRevenueChart'), {
       type: 'bar',
-      data: { labels: sortedDays.map(d=>d.slice(5)), datasets:[{
-        label:'Revenue (MAD)', data: sortedDays.map(d=>Math.round(dayBuckets[d]||0)),
-        backgroundColor:'rgba(17,17,17,.75)', borderRadius:4
-      }]},
-      options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:10}} } }
+      data: {
+        labels: sortedDays.map(d=>d.slice(5)),
+        datasets: [
+          { label:'Gross (MAD)', data: sortedDays.map(d=>Math.round(dayGross[d]||0)), backgroundColor:'rgba(17,17,17,.25)', borderRadius:4 },
+          { label:'Net Profit (MAD)', data: sortedDays.map(d=>Math.round((dayGross[d]||0)-(dayCost[d]||0))), backgroundColor:'rgba(17,17,17,.8)', borderRadius:4 },
+        ]
+      },
+      options:{ responsive:true, plugins:{legend:{display:true,position:'top'}}, scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:12}} } }
     });
 
     // Revenue by city
     const cityMap = {};
     done.forEach(o => {
-      const city = o.city || (o.address||'').split(',').pop().trim() || 'Unknown';
+      const city = o.city || 'Unknown';
       cityMap[city] = (cityMap[city]||0) + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
     });
     const topCities = Object.entries(cityMap).sort((a,b)=>b[1]-a[1]).slice(0,8);
-    const cityEl = document.getElementById('revenueCityList');
-    cityEl.innerHTML = topCities.length ? topCities.map(([c,v])=>`
+    document.getElementById('revenueCityList').innerHTML = topCities.length ? topCities.map(([c,v])=>`
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-light)">
         <span style="font-size:13px;font-weight:600">${escHtml(c)}</span>
         <span style="font-size:13px;font-weight:700;color:var(--charcoal)">${Math.round(v).toLocaleString()} MAD</span>
@@ -4708,18 +4868,17 @@ async function loadRevenue() {
     const prodMap = {};
     done.forEach(o => {
       (o.items||[]).forEach(it => {
-        const name = it.name||it.product||'Unknown';
-        const price = parseFloat(String(it.price||0).replace(/[^0-9.]/g,'')) || parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
-        prodMap[name] = (prodMap[name]||0) + price * (it.qty||1);
+        const nm = it.name||it.product||'Unknown';
+        const prc = parseFloat(String(it.price||0).replace(/[^0-9.]/g,'')) || parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+        prodMap[nm] = (prodMap[nm]||0) + prc * (it.qty||1);
       });
       if (!(o.items||[]).length) {
-        const name = o.product || o.items?.[0]?.name || 'Order';
-        prodMap[name] = (prodMap[name]||0) + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
+        const nm = o.product || 'Order';
+        prodMap[nm] = (prodMap[nm]||0) + parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
       }
     });
     const topProds = Object.entries(prodMap).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    const prodEl = document.getElementById('revenueProductList');
-    prodEl.innerHTML = topProds.length ? topProds.map(([n,v])=>`
+    document.getElementById('revenueProductList').innerHTML = topProds.length ? topProds.map(([n,v])=>`
       <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--gray-light)">
         <span style="font-size:13px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:10px">${escHtml(n)}</span>
         <span style="font-size:13px;font-weight:700;white-space:nowrap">${Math.round(v).toLocaleString()} MAD</span>

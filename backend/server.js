@@ -940,7 +940,7 @@ app.get('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) =
 /* POST /api/admin/products */
 app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, shortName, description, price, comparePrice, badge, fit, fitFilter, category, href, status, variants, videoUrl, color, isFeatured } = req.body;
+    const { name, shortName, description, price, costPrice, comparePrice, badge, fit, fitFilter, category, href, status, variants, videoUrl, color, isFeatured } = req.body;
     if (!name || !price) return res.status(400).json({ error: 'name and price are required' });
     let slug = slugify(name);
     const existing = await prisma.product.findUnique({ where: { slug } });
@@ -954,6 +954,7 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
         description:  sanitize(description || '', 5000),
         price:        parseFloat(price),
         comparePrice: comparePrice ? parseFloat(comparePrice) : null,
+        costPrice:    costPrice ? parseFloat(costPrice) : null,
         badge:        badge || null,
         fit:          fit || null,
         fitFilter:    fitFilter || null,
@@ -986,13 +987,14 @@ app.post('/api/admin/products', adminLimiter, requireAuth, async (req, res) => {
 /* PATCH /api/admin/products/:id */
 app.patch('/api/admin/products/:id', adminLimiter, requireAuth, async (req, res) => {
   try {
-    const { name, shortName, description, price, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder, videoUrl, color, isFeatured } = req.body;
+    const { name, shortName, description, price, costPrice, comparePrice, badge, fit, fitFilter, category, href, status, sortOrder, videoUrl, color, isFeatured } = req.body;
     const data = {};
     if (name         !== undefined) { data.name = sanitize(name, 200); data.slug = slugify(name); }
     if (shortName    !== undefined) data.shortName = shortName ? sanitize(shortName, 60) : null;
     if (description  !== undefined) data.description  = sanitize(description, 5000);
     if (price        !== undefined) data.price         = parseFloat(price);
     if (comparePrice !== undefined) data.comparePrice  = comparePrice ? parseFloat(comparePrice) : null;
+    if (costPrice    !== undefined) data.costPrice     = costPrice ? parseFloat(costPrice) : null;
     if (badge        !== undefined) data.badge         = badge || null;
     if (fit          !== undefined) data.fit           = fit || null;
     if (fitFilter    !== undefined) data.fitFilter     = fitFilter || null;
@@ -2096,6 +2098,53 @@ app.patch('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
   } catch(e){ res.status(500).json({error:e.message}); }
 });
 
+/* GET /api/admin/business-costs */
+app.get('/api/admin/business-costs', requireAuth, async (req, res) => {
+  try {
+    const [row] = await prisma.$queryRawUnsafe('SELECT packagingPerOrder, deliveryPerOrder FROM `BusinessCosts` WHERE id = 1 LIMIT 1');
+    const adSpend = await prisma.$queryRawUnsafe('SELECT month, year, amount FROM `AdSpend` ORDER BY year DESC, month DESC');
+    res.json({
+      packagingPerOrder: row ? parseFloat(row.packagingPerOrder) : 0,
+      deliveryPerOrder:  row ? parseFloat(row.deliveryPerOrder)  : 0,
+      adSpend: adSpend.map(r => ({ month: r.month, year: r.year, amount: parseFloat(r.amount) })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load business costs' });
+  }
+});
+
+/* PATCH /api/admin/business-costs */
+app.patch('/api/admin/business-costs', requireAuth, async (req, res) => {
+  try {
+    const packaging = parseFloat(req.body.packagingPerOrder) || 0;
+    const delivery  = parseFloat(req.body.deliveryPerOrder)  || 0;
+    await prisma.$queryRawUnsafe(
+      'INSERT INTO `BusinessCosts` (id, packagingPerOrder, deliveryPerOrder) VALUES (1, ?, ?) ON DUPLICATE KEY UPDATE packagingPerOrder = ?, deliveryPerOrder = ?',
+      packaging, delivery, packaging, delivery
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save business costs' });
+  }
+});
+
+/* POST /api/admin/ad-spend — upsert monthly ad spend */
+app.post('/api/admin/ad-spend', requireAuth, async (req, res) => {
+  try {
+    const month  = parseInt(req.body.month);
+    const year   = parseInt(req.body.year);
+    const amount = parseFloat(req.body.amount) || 0;
+    if (!month || month < 1 || month > 12 || !year) return res.status(400).json({ error: 'Invalid month/year' });
+    await prisma.$queryRawUnsafe(
+      'INSERT INTO `AdSpend` (month, year, amount) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE amount = ?',
+      month, year, amount, amount
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save ad spend' });
+  }
+});
+
 /* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */
@@ -2128,6 +2177,9 @@ async function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `Review` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `productSlug` VARCHAR(255) NOT NULL, `customerId` VARCHAR(30) NULL, `name` VARCHAR(255) NOT NULL, `rating` INT NOT NULL, `text` TEXT NOT NULL, `approved` TINYINT(1) NOT NULL DEFAULT 0, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `pixelsJson` TEXT NOT NULL DEFAULT ''",
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `deliveryName` VARCHAR(255) NULL",
+    "ALTER TABLE `Product` ADD COLUMN IF NOT EXISTS `costPrice` DECIMAL(10,2) NULL",
+    "CREATE TABLE IF NOT EXISTS `BusinessCosts` (`id` INT NOT NULL DEFAULT 1 PRIMARY KEY, `packagingPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `deliveryPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3))",
+    "CREATE TABLE IF NOT EXISTS `AdSpend` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `month` TINYINT NOT NULL, `year` SMALLINT NOT NULL, `amount` DECIMAL(10,2) NOT NULL DEFAULT 0, UNIQUE KEY `month_year` (`month`, `year`))",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
