@@ -638,7 +638,7 @@ app.get('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => 
 
 app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
-  const { status, city, address, notes, msgSent } = req.body;
+  const { status, city, address, notes, msgSent, phone } = req.body;
   const allowed = ['new','pending','confirmed','cancelled','edited','processing','called','reported','done'];
   if (status && !allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
   const data = {};
@@ -647,6 +647,7 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
   if (address  !== undefined) data.address = sanitize(address, 200);
   if (notes    !== undefined) data.notes   = sanitize(notes, 1000);
   if (msgSent  !== undefined) data.msgSent = Boolean(msgSent);
+  if (phone    !== undefined) data.phone   = sanitize(String(phone).replace(/^\+212/, '0').replace(/\s+/g,''), 30);
   try {
     const order = await prisma.order.update({
       where:   { id: req.params.id },

@@ -1685,6 +1685,11 @@ const BLOCKED_KEY   = 'ss_blocked_customers';
 /* ═══════════════════════════════════════════
    XSS PROTECTION — escape all user data before innerHTML
 ═══════════════════════════════════════════ */
+function normPhone(p) {
+  if (!p) return '';
+  return String(p).trim().replace(/^\+212/, '0').replace(/\s+/g, '');
+}
+
 function escHtml(str) {
   if (str == null) return '';
   return String(str)
@@ -2260,7 +2265,7 @@ function renderOrderCards(orders) {
         </div>
       </div>
       <div class="order-card-items">${itemsList}</div>
-      ${o.phone ? `<a class="order-card-phone" href="tel:${escHtml(o.phone)}">📞 ${escHtml(o.phone)}</a>` : ''}
+      ${o.phone ? `<a class="order-card-phone" href="tel:${escHtml(normPhone(o.phone))}">📞 ${escHtml(normPhone(o.phone))}</a>` : ''}
       ${o.trackingCode ? `<div style="font-size:12px;color:var(--gray)">📦 Tracking: <strong>${escHtml(o.trackingCode)}</strong></div>` : ''}
       <div class="order-card-footer">
         ${st}
@@ -2477,7 +2482,7 @@ function orderTableRows(orders, compact) {
       <td style="font-size:12px">${ds}</td>
       <td style="max-width:160px;font-size:12px;line-height:1.6">${formatItems(o,'table')}</td><td style="font-weight:700">${o.total ? Math.round(o.total)+' MAD' : (escHtml(o.price)||'—')}</td>
       <td><div style="font-weight:600;font-size:13px">${escHtml(o.customer)||'—'}</div><div style="font-size:11px;color:var(--gray)">${escHtml(o.city)||''}</div></td>
-      ${compact?'':'<td style="font-size:12px">'+escHtml(o.phone||'—')+'</td>'}
+      ${compact?'':'<td style="font-size:12px">'+escHtml(normPhone(o.phone)||'—')+'</td>'}
       <td>${st}</td>
       ${act}
     </tr>`;
@@ -2530,7 +2535,7 @@ function openOrderModal(id) {
   document.getElementById('omBody').innerHTML = `
     <div class="detail-grid">
       <div class="detail-item"><label>Customer</label><span>${order.customer||'—'}</span></div>
-      <div class="detail-item"><label>Phone</label><span>${order.phone||'—'}</span></div>
+      <div class="detail-item"><label>Phone</label><input class="field-input" id="omPhone" value="${escHtml(normPhone(order.phone||''))}" placeholder="06XXXXXXXX" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>Product</label><span>${order.product||'—'}</span></div>
       <div class="detail-item"><label>Size / Qty</label><span>${order.size||'—'} / ${order.qty||1}</span></div>
       <div class="detail-item"><label>Price</label><span style="color:var(--navy);font-size:16px">${order.price||'—'}</span></div>
@@ -2586,9 +2591,11 @@ async function saveOrderModal(id) {
   const orders = getOrders();
   const idx = orders.findIndex(o=>o.id===id||String(o.id)===String(id));
   if (idx>-1) {
+    const rawPhone = (document.getElementById('omPhone')?.value || '').trim();
     const updates = {
       status: document.getElementById('omStatus').value,
       city: (document.getElementById('omCity')?.value || '').trim(),
+      phone: normPhone(rawPhone),
       trackingNumber: document.getElementById('omTracking').value,
       deliveryCompany: document.getElementById('omCompany').value,
       deliveryStatus: document.getElementById('omDeliveryStatus').value,
@@ -2601,7 +2608,7 @@ async function saveOrderModal(id) {
       await authFetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: updates.status, city: updates.city })
+        body: JSON.stringify({ status: updates.status, city: updates.city, phone: updates.phone })
       });
     } catch(e) {}
     logActivity('Order updated', id);
