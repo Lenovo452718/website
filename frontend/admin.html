@@ -1018,48 +1018,6 @@ select.pm-input{cursor:pointer}
         </div>
       </div>
 
-      <!-- TikTok Ads API -->
-      <div class="panel" style="margin-top:16px">
-        <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between">
-          <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:36px;height:36px;background:#000;border-radius:8px;display:flex;align-items:center;justify-content:center">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.75a8.27 8.27 0 0 0 4.83 1.54V6.84a4.85 4.85 0 0 1-1.06-.15z"/></svg>
-            </div>
-            <div><h2 style="margin:0">TikTok Ads</h2><div style="font-size:11px;color:var(--gray)">Auto-sync daily ad spend</div></div>
-          </div>
-          <div id="ttAdsStatus" style="font-size:12px;color:var(--gray)">Loading…</div>
-        </div>
-        <div class="panel-body">
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px">
-            <div class="field-group" style="margin:0">
-              <label class="field-label">Advertiser ID</label>
-              <input class="field-input" id="ttAdvertiserId" placeholder="e.g. 7123456789012345678" style="margin-top:6px">
-            </div>
-            <div class="field-group" style="margin:0">
-              <label class="field-label">Access Token</label>
-              <input class="field-input" id="ttAccessToken" type="password" placeholder="Paste your long-lived token" style="margin-top:6px">
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;cursor:pointer">
-              <input type="checkbox" id="ttIsActive" style="width:16px;height:16px"> Active (auto-sync daily at midnight)
-            </label>
-          </div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button class="btn btn-primary btn-sm" onclick="saveTikTokAdsConfig()">Save</button>
-            <button class="btn btn-outline btn-sm" onclick="syncTikTokNow(30)">↻ Sync Last 30 Days</button>
-            <button class="btn btn-outline btn-sm" onclick="syncTikTokNow(7)">↻ Sync Last 7 Days</button>
-          </div>
-          <div id="ttSyncResult" style="display:none;margin-top:12px;padding:10px 14px;background:var(--off);border-radius:8px;font-size:12px;color:var(--charcoal)"></div>
-          <div style="margin-top:14px;padding:12px 14px;background:#fffbea;border-radius:8px;border:1px solid #f5e69c;font-size:12px;color:#7a6000;line-height:1.6">
-            <b>How to get your token:</b><br>
-            1. Go to <b>TikTok Ads Manager</b> → Tools → API<br>
-            2. Click <b>Generate Access Token</b> (long-term token, valid ~1 year)<br>
-            3. Copy your <b>Advertiser ID</b> from the top-right of Ads Manager<br>
-            4. Paste both above and click Save
-          </div>
-        </div>
-      </div>
 
       <!-- Connection Status -->
       <div class="panel" id="integStatusPanel" style="display:none">
@@ -2015,7 +1973,7 @@ function showSection(id, el) {
   if (id==='media')         loadMediaGrid();
   if (id==='notifications') loadNotifFullList();
   if (id==='settings')      { loadSettingsForm(); loadActivityLog(); loadBlockedIpsSettings(); load2faStatus(); loadBackupsList(); }
-  if (id==='integrations')  { loadIntegrations(); loadTikTokAdsConfig(); }
+  if (id==='integrations')  loadIntegrations();
   if (id==='suspicious')    loadSuspiciousCustomers();
   if (id==='reviews')       loadAdminReviews('all');
   if (id==='cities')        loadCitiesEditor();
@@ -4739,68 +4697,6 @@ async function loadAnalytics() {
 ═══════════════════════════════════════════ */
 let _revPeriod = 7, _revRevenueChart = null;
 
-async function loadTikTokAdsConfig() {
-  try {
-    const res = await authFetch('/api/admin/tiktok-ads/config');
-    if (!res.ok) return;
-    const cfg = await res.json();
-    const el = document.getElementById('ttAdvertiserId');
-    if (el) el.value = cfg.advertiserId || '';
-    const activeEl = document.getElementById('ttIsActive');
-    if (activeEl) activeEl.checked = !!cfg.isActive;
-    const statusEl = document.getElementById('ttAdsStatus');
-    if (statusEl) {
-      if (cfg.isActive && cfg.hasToken) {
-        statusEl.innerHTML = '<span style="color:#16a34a;font-weight:600">● Connected</span>' +
-          (cfg.lastSyncAt ? ' · Last sync: ' + new Date(cfg.lastSyncAt).toLocaleDateString() : '');
-      } else if (cfg.hasToken) {
-        statusEl.innerHTML = '<span style="color:#d97706;font-weight:600">● Inactive</span>';
-      } else {
-        statusEl.innerHTML = '<span style="color:var(--gray)">Not configured</span>';
-      }
-    }
-  } catch(e) {}
-}
-
-async function saveTikTokAdsConfig() {
-  const advertiserId = document.getElementById('ttAdvertiserId').value.trim();
-  const accessToken  = document.getElementById('ttAccessToken').value.trim();
-  const isActive     = document.getElementById('ttIsActive').checked;
-  const body = { advertiserId, isActive };
-  if (accessToken) body.accessToken = accessToken;
-  const res = await authFetch('/api/admin/tiktok-ads/config', {
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
-  });
-  if (res.ok) {
-    showToast('TikTok Ads config saved');
-    document.getElementById('ttAccessToken').value = '';
-    loadTikTokAdsConfig();
-  } else showToast('Failed to save', 'error');
-}
-
-async function syncTikTokNow(days) {
-  const resultEl = document.getElementById('ttSyncResult');
-  resultEl.style.display = 'block';
-  resultEl.textContent = 'Syncing…';
-  const res = await authFetch('/api/admin/tiktok-ads/sync', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ days }),
-  });
-  const json = await res.json();
-  if (json.skipped) {
-    resultEl.textContent = 'Skipped — configure and activate TikTok Ads first.';
-  } else if (json.error) {
-    resultEl.style.color = 'var(--red)';
-    resultEl.textContent = 'Error: ' + json.error;
-  } else {
-    resultEl.style.color = '#16a34a';
-    resultEl.textContent = `Done — synced ${json.synced} day(s) of ad spend.`;
-    loadRevenue();
-  }
-}
 
 async function saveBusinessCosts() {
   const packaging     = parseFloat(document.getElementById('costPackaging').value)     || 0;
