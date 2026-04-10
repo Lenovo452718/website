@@ -1592,12 +1592,9 @@ document.addEventListener('DOMContentLoaded', () => {
           return; // hard stop — no WhatsApp fallback
         }
         if (resp.ok) {
-          closeModal();
-          // Show success message
-          const submitBtn = document.getElementById('buyNowForm').querySelector('.buynow-submit');
-          submitBtn.textContent = '✅ Order placed!';
-          submitBtn.style.background = '#155724';
-          setTimeout(closeModal, 2500);
+          const data = await resp.json().catch(() => ({}));
+          if (data.id) localStorage.setItem('ss_guest_order_id', data.id);
+          window.location.href = 'thankyou.html';
           return;
         }
       } catch (_) { /* fall through to WhatsApp fallback */ }
@@ -1610,11 +1607,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     localStorage.setItem('ss_orders', JSON.stringify(orders));
 
-    const submitBtn = document.getElementById('buyNowForm').querySelector('.buynow-submit');
-    submitBtn.innerHTML = '✅ Order placed!';
-    submitBtn.style.background = '#155724';
-    submitBtn.disabled = true;
-    setTimeout(closeModal, 2500);
+    const fallbackId = Date.now();
+    localStorage.setItem('ss_guest_order_id', fallbackId);
+    window.location.href = 'thankyou.html';
   });
 })();
 
@@ -1907,9 +1902,9 @@ async function placeBundleOrder() {
       body: JSON.stringify({ customer: customer, phone: phone, city: city, address: address, items: items, total: _bundleSettings.bundle3Price, discount: 0 })
     });
     if (resp.ok) {
-      closeBundleCheckout();
-      closeBundlePicker();
-      setTimeout(function() { alert('\uD83C\uDF89 Bundle order placed! We will contact you shortly.'); }, 350);
+      var data = await resp.json().catch(function() { return {}; });
+      if (data.id) localStorage.setItem('ss_guest_order_id', data.id);
+      window.location.href = 'thankyou.html';
     } else if (resp.status === 403) {
       var d = await resp.json().catch(function() { return {}; });
       alert(d.message || 'Your access has been blocked.');

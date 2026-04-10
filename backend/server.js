@@ -61,6 +61,7 @@ const { Server }   = require('socket.io');
 const prisma       = require('./prisma');
 const compression  = require('compression');
 const cloudinary   = require('cloudinary').v2;
+const webpush      = require('web-push');
 
 /* ── Cloudinary — always required ── */
 cloudinary.config({
@@ -73,6 +74,16 @@ if (!process.env.CLOUDINARY_API_KEY) {
   console.error('WARNING: CLOUDINARY_API_KEY not set — uploads will fail');
 } else {
   console.log('Cloudinary enabled');
+}
+
+/* ── Web Push (VAPID) ── */
+if (process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
+  webpush.setVapidDetails(
+    'mailto:admin@streetstore.ma',
+    process.env.VAPID_PUBLIC_KEY,
+    process.env.VAPID_PRIVATE_KEY
+  );
+  console.log('Web Push enabled');
 }
 
 /* ════════════════════════════════════════
@@ -649,6 +660,11 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
   if (msgSent  !== undefined) data.msgSent = Boolean(msgSent);
   if (phone    !== undefined) data.phone   = sanitize(String(phone).replace(/^\+212/, '0').replace(/\s+/g,''), 30);
   try {
+    // Fetch existing order (need pushEndpoint + customerId for push notifications)
+    const existing = await prisma.$queryRawUnsafe(
+      'SELECT pushEndpoint, customerId FROM `Order` WHERE id = ? LIMIT 1', req.params.id
+    ).then(r => r[0] || {});
+
     const order = await prisma.order.update({
       where:   { id: req.params.id },
       data,
@@ -661,6 +677,12 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
       autoSendToOlivraison(order).catch(err =>
         console.error('[Olivraison auto-send error]', order.id, err.message)
       );
+    }
+    // ───────────────────────────────────────────────────────────────────
+
+    // ── Push notification on status change ─────────────────────────────
+    if (status && status !== order.status) {
+      sendOrderStatusPush({ ...existing, id: order.id }, status).catch(() => {});
     }
     // ───────────────────────────────────────────────────────────────────
 
@@ -1486,7 +1508,7 @@ async function syncOlivraisonOrders() {
 
     // Find all orders that have a trackingCode and are not yet finished
     const activeOrders = await prisma.$queryRawUnsafe(
-      `SELECT id, trackingCode, status FROM \`Order\`
+      `SELECT id, trackingCode, status, pushEndpoint, customerId FROM \`Order\`
        WHERE trackingCode IS NOT NULL AND trackingCode != ''
        AND status NOT IN ('done','delivered','cancelled')
        LIMIT 100`
@@ -1533,6 +1555,9 @@ async function syncOlivraisonOrders() {
             deliveryPhone: driverPhone,
             deliveryName: driverName
           });
+          if (statusChanged) {
+            sendOrderStatusPush(order, newStatus).catch(() => {});
+          }
           console.log(`[Olivraison Sync] Order ${order.id} → status:${newStatus || '(unchanged)'} driver:${driverName || '?'} phone:${driverPhone || 'none'}`);
           updated++;
         }
@@ -2149,6 +2174,194 @@ app.post('/api/admin/ad-spend', requireAuth, async (req, res) => {
 });
 
 /* ════════════════════════════════════════
+   CUSTOMER NOTIFICATIONS
+════════════════════════════════════════ */
+
+/* GET /api/push/vapid-public-key — client needs this to subscribe */
+app.get('/api/push/vapid-public-key', (req, res) => {
+  res.json({ publicKey: process.env.VAPID_PUBLIC_KEY || '' });
+});
+
+/* POST /api/push/subscribe — save a push subscription */
+app.post('/api/push/subscribe', async (req, res) => {
+  try {
+    const { endpoint, keys } = req.body;
+    if (!endpoint || !keys?.p256dh || !keys?.auth) return res.status(400).json({ error: 'Invalid subscription' });
+    // Optionally link to customer if logged in
+    let customerId = null;
+    const header = req.headers['authorization'] || '';
+    const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
+    if (token) {
+      try { const d = require('jsonwebtoken').verify(token, process.env.JWT_SECRET || 'change-me-in-production'); customerId = d.customerId || null; } catch (_) {}
+    }
+    await prisma.$executeRawUnsafe(
+      'INSERT INTO `PushSubscription` (customerId, endpoint, p256dh, auth) VALUES (?,?,?,?) ON DUPLICATE KEY UPDATE customerId=VALUES(customerId), p256dh=VALUES(p256dh), auth=VALUES(auth)',
+      customerId, endpoint, keys.p256dh, keys.auth
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save subscription' });
+  }
+});
+
+/* DELETE /api/push/unsubscribe */
+app.delete('/api/push/unsubscribe', async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    if (endpoint) await prisma.$executeRawUnsafe('DELETE FROM `PushSubscription` WHERE endpoint = ?', endpoint);
+    res.json({ ok: true });
+  } catch (_) { res.json({ ok: true }); }
+});
+
+/* POST /api/orders/:id/push-link — link a push endpoint to an order */
+app.post('/api/orders/:id/push-link', async (req, res) => {
+  try {
+    const { endpoint } = req.body;
+    if (!endpoint) return res.status(400).json({ error: 'endpoint required' });
+    await prisma.$executeRawUnsafe('UPDATE `Order` SET pushEndpoint = ? WHERE id = ?', endpoint, req.params.id);
+    res.json({ ok: true });
+  } catch (_) { res.json({ ok: true }); }
+});
+
+/* Helper: send push for order status change */
+async function sendOrderStatusPush(order, newStatus) {
+  const messages = {
+    confirmed:   { title: 'Order Confirmed ✅',  body: 'Your order is confirmed! We\'re preparing it now.' },
+    processing:  { title: 'Order Processing ⚙️', body: 'Your order is being processed and will ship soon.' },
+    transit:     { title: 'Order Shipped 🚚',    body: 'Your order is on its way! It will arrive soon.' },
+    done:        { title: 'Order Delivered 🎉',  body: 'Your order has been delivered. Enjoy your purchase!' },
+    delivered:   { title: 'Order Delivered 🎉',  body: 'Your order has been delivered. Enjoy your purchase!' },
+    cancelled:   { title: 'Order Cancelled ❌',   body: 'Your order has been cancelled. Contact us if you need help.' },
+  };
+  const msg = messages[newStatus];
+  if (!msg) return;
+  const payload = JSON.stringify({ title: msg.title, body: msg.body });
+
+  const endpoints = new Set();
+
+  // 1. Order's own linked push endpoint
+  if (order.pushEndpoint) endpoints.add(order.pushEndpoint);
+
+  // 2. Customer's registered subscriptions
+  if (order.customerId) {
+    try {
+      const subs = await prisma.$queryRawUnsafe('SELECT endpoint FROM `PushSubscription` WHERE customerId = ?', order.customerId);
+      subs.forEach(s => endpoints.add(s.endpoint));
+    } catch (_) {}
+  }
+
+  if (!endpoints.size) return;
+
+  for (const ep of endpoints) {
+    try {
+      const [row] = await prisma.$queryRawUnsafe('SELECT p256dh, auth FROM `PushSubscription` WHERE endpoint = ?', ep);
+      if (!row) continue;
+      await webpush.sendNotification({ endpoint: ep, keys: { p256dh: row.p256dh, auth: row.auth } }, payload);
+    } catch (e) {
+      if (e.statusCode === 410 || e.statusCode === 404) {
+        await prisma.$executeRawUnsafe('DELETE FROM `PushSubscription` WHERE endpoint = ?', ep).catch(() => {});
+      }
+    }
+  }
+}
+
+/* GET /api/admin/registered-customers — list customers with accounts */
+app.get('/api/admin/registered-customers', requireAuth, async (req, res) => {
+  try {
+    const rows = await prisma.$queryRawUnsafe('SELECT id, name, email, phone FROM `Customer` ORDER BY createdAt DESC LIMIT 500');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch customers' });
+  }
+});
+
+/* POST /api/admin/notifications — send to one customer or all */
+app.post('/api/admin/notifications', requireAuth, async (req, res) => {
+  try {
+    const title      = sanitize(String(req.body.title   || '').trim(), 255);
+    const message    = sanitize(String(req.body.message || '').trim(), 2000);
+    const customerId = req.body.customerId || null; // null = broadcast
+    if (!title || !message) return res.status(400).json({ error: 'title and message required' });
+    // Save to DB
+    await prisma.$executeRawUnsafe(
+      'INSERT INTO `CustomerNotification` (customerId, title, message) VALUES (?, ?, ?)',
+      customerId, title, message
+    );
+    // Send Web Push to matching subscriptions
+    try {
+      let subs;
+      if (customerId) {
+        subs = await prisma.$queryRawUnsafe('SELECT endpoint, p256dh, auth FROM `PushSubscription` WHERE customerId = ?', customerId);
+      } else {
+        subs = await prisma.$queryRawUnsafe('SELECT endpoint, p256dh, auth FROM `PushSubscription`');
+      }
+      const payload = JSON.stringify({ title, body: message });
+      await Promise.allSettled(subs.map(sub =>
+        webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload)
+          .catch(async e => {
+            if (e.statusCode === 410 || e.statusCode === 404) {
+              // Expired subscription — remove it
+              await prisma.$executeRawUnsafe('DELETE FROM `PushSubscription` WHERE endpoint = ?', sub.endpoint).catch(() => {});
+            }
+          })
+      ));
+    } catch (_) {}
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to send notification' });
+  }
+});
+
+/* GET /api/admin/notifications — list all sent notifications */
+app.get('/api/admin/notifications', requireAuth, async (req, res) => {
+  try {
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT n.id, n.customerId, n.title, n.message, n.createdAt,
+              c.name AS customerName, c.email AS customerEmail,
+              (SELECT COUNT(*) FROM \`CustomerNotification\` cn WHERE cn.customerId = n.customerId OR cn.customerId IS NULL) AS sentCount
+       FROM \`CustomerNotification\` n
+       LEFT JOIN \`Customer\` c ON c.id = n.customerId
+       ORDER BY n.createdAt DESC LIMIT 100`
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+/* GET /api/customer/notifications — get notifications for logged-in customer */
+app.get('/api/customer/notifications', requireCustomerAuth, async (req, res) => {
+  try {
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT id, title, message, isRead, createdAt
+       FROM \`CustomerNotification\`
+       WHERE customerId = ? OR customerId IS NULL
+       ORDER BY createdAt DESC LIMIT 50`,
+      req.customerId
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch notifications' });
+  }
+});
+
+/* POST /api/customer/notifications/read — mark all as read for customer */
+app.post('/api/customer/notifications/read', requireCustomerAuth, async (req, res) => {
+  try {
+    // For broadcast (customerId IS NULL) we can't mark per-customer easily
+    // so we duplicate-insert the notification into the customer's own read record
+    // Simple approach: mark personal ones as read
+    await prisma.$executeRawUnsafe(
+      'UPDATE `CustomerNotification` SET isRead = 1 WHERE customerId = ?',
+      req.customerId
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to mark read' });
+  }
+});
+
+/* ════════════════════════════════════════
    START
 ════════════════════════════════════════ */
 /* Run DB migrations FIRST, then bootstrap, then start listening.
@@ -2187,6 +2400,10 @@ async function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `AdSpend` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `date` DATE NOT NULL, `amount` DECIMAL(10,2) NOT NULL DEFAULT 0, UNIQUE KEY `date_unique` (`date`))",
     "ALTER TABLE `AdSpend` ADD COLUMN IF NOT EXISTS `date` DATE NULL",
     "ALTER TABLE `AdSpend` DROP INDEX IF EXISTS `month_year`",
+    "CREATE TABLE IF NOT EXISTS `CustomerNotification` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `customerId` VARCHAR(30) NULL COMMENT 'NULL = broadcast to all', `title` VARCHAR(255) NOT NULL, `message` TEXT NOT NULL, `isRead` TINYINT(1) NOT NULL DEFAULT 0, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
+    "CREATE INDEX IF NOT EXISTS idx_cn_customer ON `CustomerNotification` (customerId)",
+    "CREATE TABLE IF NOT EXISTS `PushSubscription` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `customerId` VARCHAR(30) NULL, `endpoint` TEXT NOT NULL, `p256dh` VARCHAR(500) NOT NULL, `auth` VARCHAR(200) NOT NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), UNIQUE KEY `endpoint_unique` (endpoint(255)))",
+    "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `pushEndpoint` TEXT NULL",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}

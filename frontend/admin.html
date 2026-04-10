@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin — StreetStore</title>
@@ -968,13 +970,42 @@ select.pm-input{cursor:pointer}
 
     <!-- ── NOTIFICATIONS ── -->
     <section class="admin-section" id="secNotifications">
-      <div class="page-header"><h1>Notifications</h1><p>All system alerts and events.</p></div>
-      <div style="display:flex;gap:10px;margin-bottom:20px">
-        <button class="btn btn-outline btn-sm" onclick="markAllNotificationsRead()">Mark All Read</button>
-        <button class="btn btn-outline btn-sm" onclick="clearNotifications()">Clear All</button>
+      <div class="page-header"><h1>Notifications</h1><p>Send messages to your customers.</p></div>
+
+      <!-- Send Notification -->
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header"><h2>Send Notification</h2></div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:14px">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">SEND TO</label>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="notifTarget" value="all" checked onchange="toggleNotifCustomerPicker(this)"> All Customers
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
+                <input type="radio" name="notifTarget" value="one" onchange="toggleNotifCustomerPicker(this)"> Specific Customer
+              </label>
+              <select id="notifCustomerSelect" style="display:none;padding:6px 10px;border:1px solid var(--gray-light);border-radius:6px;font-size:13px;min-width:200px"></select>
+            </div>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">TITLE</label>
+            <input id="notifTitle" type="text" placeholder="e.g. Your order has been shipped!" style="width:100%;padding:8px 12px;border:1px solid var(--gray-light);border-radius:6px;font-size:13px;box-sizing:border-box">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">MESSAGE</label>
+            <textarea id="notifMessage" rows="3" placeholder="Write your message here..." style="width:100%;padding:8px 12px;border:1px solid var(--gray-light);border-radius:6px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit"></textarea>
+          </div>
+          <div>
+            <button class="btn btn-primary btn-sm" onclick="sendCustomerNotification()">Send Notification</button>
+          </div>
+        </div>
       </div>
+
+      <!-- Sent History -->
       <div class="panel">
-        <div id="notifFullList" style="padding:0"></div>
+        <div class="panel-header"><h2>Sent History</h2></div>
+        <div id="notifSentHistory" style="padding:0"></div>
       </div>
     </section>
 
@@ -3609,17 +3640,88 @@ function copyMediaUrl(url) {
 }
 
 /* ═══════════════════════════════════════════
-   NOTIFICATIONS
+   NOTIFICATIONS (admin internal)
 ═══════════════════════════════════════════ */
 function loadNotifFullList() {
-  const notifs = getNotifications();
-  document.getElementById('notifFullList').innerHTML = notifs.length
-    ? notifs.map(n=>`
-      <div class="notif-item ${n.read?'':'unread'}">
-        <div class="notif-item-msg">${n.read?'':' <span class="notif-dot"></span>'}${n.msg}</div>
-        <div class="notif-item-time">${new Date(n.ts).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
-      </div>`).join('')
-    : '<div class="notif-empty">No notifications</div>';
+  loadNotifSentHistory();
+}
+
+/* ── Customer notification sending ── */
+async function loadNotifCustomerList() {
+  const sel = document.getElementById('notifCustomerSelect');
+  if (!sel) return;
+  // Use registered customers from DB (those with accounts)
+  try {
+    const r = await fetch(API + '/api/admin/registered-customers', { headers: { Authorization: 'Bearer ' + adminToken() } });
+    if (r.ok) {
+      const customers = await r.json();
+      sel.innerHTML = '<option value="">— Select customer —</option>' +
+        customers.map(c => `<option value="${c.id}">${c.name || c.email} (${c.phone || c.email})</option>`).join('');
+      return;
+    }
+  } catch (_) {}
+  // Fallback: use order-based customer list (phone only — no customerId)
+  const customers = getCustomers();
+  sel.innerHTML = '<option value="">— Select customer —</option>' +
+    customers.map(c => `<option value="">${c.name} (${c.phone})</option>`).join('');
+}
+
+function toggleNotifCustomerPicker(radio) {
+  const sel = document.getElementById('notifCustomerSelect');
+  if (radio.value === 'one') {
+    sel.style.display = 'block';
+    loadNotifCustomerList();
+  } else {
+    sel.style.display = 'none';
+  }
+}
+
+async function sendCustomerNotification() {
+  const title   = document.getElementById('notifTitle').value.trim();
+  const message = document.getElementById('notifMessage').value.trim();
+  const target  = document.querySelector('input[name="notifTarget"]:checked')?.value;
+  const custId  = target === 'one' ? document.getElementById('notifCustomerSelect').value : null;
+  if (!title || !message) { showToast('Title and message are required', 'error'); return; }
+  if (target === 'one' && !custId) { showToast('Please select a customer', 'error'); return; }
+  try {
+    const r = await fetch(API + '/api/admin/notifications', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+      body: JSON.stringify({ title, message, customerId: custId || null })
+    });
+    if (!r.ok) throw new Error();
+    document.getElementById('notifTitle').value = '';
+    document.getElementById('notifMessage').value = '';
+    showToast('Notification sent!');
+    loadNotifSentHistory();
+  } catch (_) {
+    showToast('Failed to send notification', 'error');
+  }
+}
+
+async function loadNotifSentHistory() {
+  const el = document.getElementById('notifSentHistory');
+  if (!el) return;
+  try {
+    const r = await fetch(API + '/api/admin/notifications', { headers: { Authorization: 'Bearer ' + adminToken() } });
+    const rows = await r.json();
+    if (!rows.length) { el.innerHTML = '<div class="notif-empty" style="padding:20px">No notifications sent yet</div>'; return; }
+    el.innerHTML = rows.map(n => `
+      <div class="notif-item">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+          <div>
+            <div style="font-weight:600;font-size:13px;margin-bottom:2px">${n.title}</div>
+            <div style="font-size:13px;color:var(--gray-dark);margin-bottom:4px">${n.message}</div>
+            <div style="font-size:11px;color:var(--gray)">
+              ${n.customerId ? `To: <strong>${n.customerName || n.customerEmail || n.customerId}</strong>` : '<strong>All customers</strong>'}
+              &nbsp;·&nbsp; ${new Date(n.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
+            </div>
+          </div>
+        </div>
+      </div>`).join('');
+  } catch (_) {
+    el.innerHTML = '<div class="notif-empty" style="padding:20px;color:var(--red)">Failed to load history</div>';
+  }
 }
 
 function loadNotifPanel() {

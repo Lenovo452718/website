@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
   <meta charset="UTF-8" />
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#111111">
@@ -665,6 +667,15 @@
       </ul>
     </div>
 
+    <!-- Notification opt-in -->
+    <div id="notifOptIn" class="ty-reveal" style="display:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px 22px;margin-bottom:18px;text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">🔔</div>
+      <div style="color:#fff;font-weight:600;font-size:15px;margin-bottom:6px">Track your order live</div>
+      <div style="color:rgba(255,255,255,0.55);font-size:13px;margin-bottom:16px">Get notified the moment your order status changes</div>
+      <button id="notifOptInBtn" onclick="enableOrderNotifications()" style="background:#fff;color:#111;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:600;cursor:pointer;width:100%">Enable Notifications</button>
+      <div id="notifOptInDone" style="display:none;color:#6fcf97;font-size:13px;margin-top:10px">✓ You'll be notified of every update</div>
+    </div>
+
     <!-- CTA -->
     <div class="ty-cta-row ty-reveal">
       <a href="shipping.html" class="ty-btn-outline" data-i18n="shipping_info">Shipping Info</a>
@@ -859,6 +870,79 @@
       btn.disabled = false; btn.textContent = 'Create Account & Track Order';
     }
   });
+})();
+</script>
+
+<script>
+/* ── Order status push notifications ── */
+(function() {
+  var API = (typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : '');
+  var orderId = localStorage.getItem('ss_guest_order_id') || sessionStorage.getItem('ss_last_order_id');
+
+  // Show opt-in card if push is supported and permission not yet decided
+  if ('serviceWorker' in navigator && 'PushManager' in window && orderId) {
+    if (Notification.permission === 'default') {
+      document.getElementById('notifOptIn').style.display = 'block';
+    } else if (Notification.permission === 'granted') {
+      // Already granted — silently subscribe
+      linkPushToOrder(orderId);
+    }
+  }
+
+  window.enableOrderNotifications = async function() {
+    var btn = document.getElementById('notifOptInBtn');
+    btn.disabled = true;
+    btn.textContent = 'Enabling…';
+    try {
+      var perm = await Notification.requestPermission();
+      if (perm !== 'granted') { btn.textContent = 'Notifications blocked'; return; }
+      await linkPushToOrder(orderId);
+      btn.style.display = 'none';
+      document.getElementById('notifOptInDone').style.display = 'block';
+    } catch (_) {
+      btn.disabled = false;
+      btn.textContent = 'Enable Notifications';
+    }
+  };
+
+  async function linkPushToOrder(oid) {
+    if (!oid) return;
+    try {
+      var keyRes = await fetch(API + '/api/push/vapid-public-key');
+      var keyData = await keyRes.json();
+      if (!keyData.publicKey) return;
+      var reg = await navigator.serviceWorker.ready;
+      var sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(keyData.publicKey)
+        });
+      }
+      // Save subscription + link to this order
+      var tok = localStorage.getItem('ss_customer_token');
+      var headers = { 'Content-Type': 'application/json' };
+      if (tok) headers['Authorization'] = 'Bearer ' + tok;
+      await fetch(API + '/api/push/subscribe', {
+        method: 'POST', headers: headers,
+        body: JSON.stringify(sub.toJSON())
+      });
+      // Link push endpoint to order so status changes can reach it
+      await fetch(API + '/api/orders/' + oid + '/push-link', {
+        method: 'POST', headers: headers,
+        body: JSON.stringify({ endpoint: sub.endpoint })
+      });
+    } catch (_) {}
+  }
+
+  function urlBase64ToUint8Array(b64) {
+    var padding = '='.repeat((4 - b64.length % 4) % 4);
+    var base64 = (b64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+    var raw = atob(base64);
+    var arr = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) arr[i] = raw.charCodeAt(i);
+    return arr;
+  }
 })();
 </script>
 </body>

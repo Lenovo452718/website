@@ -1,4 +1,4 @@
-const CACHE = 'streetstore-v12';
+const CACHE = 'streetstore-v13';
 const ASSETS = [
   '/', '/index.html', '/shop.html', '/style.css', '/script.js',
   '/lang.js', '/i18n.js', '/products.js',
@@ -16,6 +16,34 @@ self.addEventListener('activate', e => {
     Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
   ));
   self.clients.claim();
+});
+
+/* ── Web Push ── */
+self.addEventListener('push', function(event) {
+  let data = { title: 'StreetStore', body: 'You have a new notification.' };
+  try { data = event.data ? JSON.parse(event.data.text()) : data; } catch (_) {}
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: data.body,
+      icon: '/favicon.svg',
+      badge: '/favicon.svg',
+      vibrate: [200, 100, 200],
+      data: { url: '/account.html' }
+    })
+  );
+});
+
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  const url = (event.notification.data && event.notification.data.url) ? event.notification.data.url : '/account.html';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function(list) {
+      for (const c of list) {
+        if (c.url.includes('account') && 'focus' in c) return c.focus();
+      }
+      if (clients.openWindow) return clients.openWindow(url);
+    })
+  );
 });
 
 self.addEventListener('fetch', e => {
