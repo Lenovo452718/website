@@ -2101,11 +2101,12 @@ app.patch('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
 /* GET /api/admin/business-costs */
 app.get('/api/admin/business-costs', requireAuth, async (req, res) => {
   try {
-    const [row] = await prisma.$queryRawUnsafe('SELECT packagingPerOrder, deliveryPerOrder FROM `BusinessCosts` WHERE id = 1 LIMIT 1');
+    const [row] = await prisma.$queryRawUnsafe('SELECT packagingPerOrder, deliveryCasa, deliveryOther FROM `BusinessCosts` WHERE id = 1 LIMIT 1');
     const adSpend = await prisma.$queryRawUnsafe('SELECT month, year, amount FROM `AdSpend` ORDER BY year DESC, month DESC');
     res.json({
       packagingPerOrder: row ? parseFloat(row.packagingPerOrder) : 0,
-      deliveryPerOrder:  row ? parseFloat(row.deliveryPerOrder)  : 0,
+      deliveryCasa:      row ? parseFloat(row.deliveryCasa)      : 25,
+      deliveryOther:     row ? parseFloat(row.deliveryOther)     : 35,
       adSpend: adSpend.map(r => ({ month: r.month, year: r.year, amount: parseFloat(r.amount) })),
     });
   } catch (err) {
@@ -2116,11 +2117,12 @@ app.get('/api/admin/business-costs', requireAuth, async (req, res) => {
 /* PATCH /api/admin/business-costs */
 app.patch('/api/admin/business-costs', requireAuth, async (req, res) => {
   try {
-    const packaging = parseFloat(req.body.packagingPerOrder) || 0;
-    const delivery  = parseFloat(req.body.deliveryPerOrder)  || 0;
+    const packaging     = parseFloat(req.body.packagingPerOrder) || 0;
+    const deliveryCasa  = parseFloat(req.body.deliveryCasa)      || 25;
+    const deliveryOther = parseFloat(req.body.deliveryOther)     || 35;
     await prisma.$queryRawUnsafe(
-      'INSERT INTO `BusinessCosts` (id, packagingPerOrder, deliveryPerOrder) VALUES (1, ?, ?) ON DUPLICATE KEY UPDATE packagingPerOrder = ?, deliveryPerOrder = ?',
-      packaging, delivery, packaging, delivery
+      'INSERT INTO `BusinessCosts` (id, packagingPerOrder, deliveryCasa, deliveryOther) VALUES (1, ?, ?, ?) ON DUPLICATE KEY UPDATE packagingPerOrder = ?, deliveryCasa = ?, deliveryOther = ?',
+      packaging, deliveryCasa, deliveryOther, packaging, deliveryCasa, deliveryOther
     );
     res.json({ ok: true });
   } catch (err) {
@@ -2178,7 +2180,9 @@ async function runMigrations() {
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `pixelsJson` TEXT NOT NULL DEFAULT ''",
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `deliveryName` VARCHAR(255) NULL",
     "ALTER TABLE `Product` ADD COLUMN IF NOT EXISTS `costPrice` DECIMAL(10,2) NULL",
-    "CREATE TABLE IF NOT EXISTS `BusinessCosts` (`id` INT NOT NULL DEFAULT 1 PRIMARY KEY, `packagingPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `deliveryPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3))",
+    "CREATE TABLE IF NOT EXISTS `BusinessCosts` (`id` INT NOT NULL DEFAULT 1 PRIMARY KEY, `packagingPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `deliveryPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `deliveryCasa` DECIMAL(10,2) NOT NULL DEFAULT 25, `deliveryOther` DECIMAL(10,2) NOT NULL DEFAULT 35, `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3))",
+    "ALTER TABLE `BusinessCosts` ADD COLUMN IF NOT EXISTS `deliveryCasa` DECIMAL(10,2) NOT NULL DEFAULT 25",
+    "ALTER TABLE `BusinessCosts` ADD COLUMN IF NOT EXISTS `deliveryOther` DECIMAL(10,2) NOT NULL DEFAULT 35",
     "CREATE TABLE IF NOT EXISTS `AdSpend` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `month` TINYINT NOT NULL, `year` SMALLINT NOT NULL, `amount` DECIMAL(10,2) NOT NULL DEFAULT 0, UNIQUE KEY `month_year` (`month`, `year`))",
   ];
   for (const sql of migrations) {

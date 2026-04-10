@@ -1063,14 +1063,18 @@ select.pm-input{cursor:pointer}
         <!-- Fixed costs per order -->
         <div class="panel" style="padding:20px">
           <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Fixed Costs Per Order (MAD)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
             <div>
               <label class="field-label" style="font-size:11px">Packaging / Emballage</label>
               <input class="field-input" id="costPackaging" type="number" placeholder="5" style="margin-top:4px">
             </div>
             <div>
-              <label class="field-label" style="font-size:11px">Delivery (Olivraison fee)</label>
-              <input class="field-input" id="costDelivery" type="number" placeholder="25" style="margin-top:4px">
+              <label class="field-label" style="font-size:11px">Delivery — Casablanca</label>
+              <input class="field-input" id="costDeliveryCasa" type="number" placeholder="25" style="margin-top:4px">
+            </div>
+            <div>
+              <label class="field-label" style="font-size:11px">Delivery — Other Cities</label>
+              <input class="field-input" id="costDeliveryOther" type="number" placeholder="35" style="margin-top:4px">
             </div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="saveBusinessCosts()">Save Costs</button>
@@ -4698,12 +4702,13 @@ async function loadAnalytics() {
 let _revPeriod = 7, _revRevenueChart = null;
 
 async function saveBusinessCosts() {
-  const packaging = parseFloat(document.getElementById('costPackaging').value) || 0;
-  const delivery  = parseFloat(document.getElementById('costDelivery').value)  || 0;
+  const packaging     = parseFloat(document.getElementById('costPackaging').value)     || 0;
+  const deliveryCasa  = parseFloat(document.getElementById('costDeliveryCasa').value)  || 25;
+  const deliveryOther = parseFloat(document.getElementById('costDeliveryOther').value) || 35;
   const res = await authFetch('/api/admin/business-costs', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ packagingPerOrder: packaging, deliveryPerOrder: delivery }),
+    body: JSON.stringify({ packagingPerOrder: packaging, deliveryCasa, deliveryOther }),
   });
   if (res.ok) { showToast('Costs saved'); loadRevenue(); }
   else showToast('Failed to save costs', 'error');
@@ -4737,15 +4742,17 @@ async function loadRevenue() {
       authFetch('/api/admin/business-costs'),
       authFetch('/api/admin/products?limit=500'),
     ]);
-    const costs = costsRes.ok ? await costsRes.json() : { packagingPerOrder: 0, deliveryPerOrder: 0, adSpend: [] };
+    const costs = costsRes.ok ? await costsRes.json() : { packagingPerOrder: 0, deliveryCasa: 25, deliveryOther: 35, adSpend: [] };
     const prodsData = prodsRes.ok ? await prodsRes.json() : { products: [] };
     const products  = prodsData.products || prodsData || [];
 
     // Populate cost settings inputs (only if empty to avoid overwriting in-progress edits)
-    const pkgEl = document.getElementById('costPackaging');
-    const dlvEl = document.getElementById('costDelivery');
-    if (pkgEl && !pkgEl.dataset.dirty) pkgEl.value = costs.packagingPerOrder || '';
-    if (dlvEl && !dlvEl.dataset.dirty) dlvEl.value = costs.deliveryPerOrder  || '';
+    const pkgEl  = document.getElementById('costPackaging');
+    const casaEl = document.getElementById('costDeliveryCasa');
+    const othEl  = document.getElementById('costDeliveryOther');
+    if (pkgEl  && !pkgEl.dataset.dirty)  pkgEl.value  = costs.packagingPerOrder || '';
+    if (casaEl && !casaEl.dataset.dirty) casaEl.value = costs.deliveryCasa      || 25;
+    if (othEl  && !othEl.dataset.dirty)  othEl.value  = costs.deliveryOther     || 35;
 
     // Render ad spend list
     const adSpendList = document.getElementById('adSpendList');
@@ -4789,7 +4796,10 @@ async function loadRevenue() {
 
     // Fixed costs
     const packagingCost = done.length * (costs.packagingPerOrder || 0);
-    const deliveryCost  = done.length * (costs.deliveryPerOrder  || 0);
+    const deliveryCost  = done.reduce((s, o) => {
+      const isCasa = (o.city || '').toLowerCase().includes('casablanca');
+      return s + (isCasa ? (costs.deliveryCasa || 25) : (costs.deliveryOther || 35));
+    }, 0);
 
     // Ad spend for the period
     let adSpendTotal = 0;
@@ -4820,7 +4830,7 @@ async function loadRevenue() {
     document.getElementById('revenueCostRow').innerHTML = [
       { label:'Product Cost (COGS)', value: Math.round(cogs).toLocaleString()+' MAD',          sub: cogs > 0 ? '' : 'Set cost prices on products' },
       { label:'Packaging',           value: Math.round(packagingCost).toLocaleString()+' MAD', sub: costs.packagingPerOrder ? costs.packagingPerOrder+' MAD × '+done.length+' orders' : 'Not set' },
-      { label:'Delivery Fees',       value: Math.round(deliveryCost).toLocaleString()+' MAD',  sub: costs.deliveryPerOrder  ? costs.deliveryPerOrder+' MAD × '+done.length+' orders'  : 'Not set' },
+      { label:'Delivery Fees',       value: Math.round(deliveryCost).toLocaleString()+' MAD',  sub: 'Casa: '+(costs.deliveryCasa||25)+' / Other: '+(costs.deliveryOther||35)+' MAD' },
       { label:'Ad Spend',            value: Math.round(adSpendTotal).toLocaleString()+' MAD',  sub: adSpendTotal > 0 ? 'Return rate: '+returnRate+'%' : 'Not entered' },
     ].map(k=>`<div class="stat-card"><div class="stat-card-label" style="font-size:10px">${k.label}</div><div class="stat-card-value" style="font-size:18px">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
 
@@ -4832,7 +4842,8 @@ async function loadRevenue() {
       const oGross = parseFloat(String(o.price||o.total||0).replace(/[^0-9.]/g,''));
       let oCogs = 0;
       (o.items||[]).forEach(it => { oCogs += (costPriceMap[it.name||it.product||''] || 0) * (it.qty||1); });
-      const oFixed = (costs.packagingPerOrder||0) + (costs.deliveryPerOrder||0);
+      const isCasa = (o.city||'').toLowerCase().includes('casablanca');
+      const oFixed = (costs.packagingPerOrder||0) + (isCasa ? (costs.deliveryCasa||25) : (costs.deliveryOther||35));
       dayGross[d] = (dayGross[d]||0) + oGross;
       dayCost[d]  = (dayCost[d]||0)  + oCogs + oFixed;
     });
