@@ -1338,16 +1338,25 @@ app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => 
 
 /* Map Olivraison shipment statuses → StreetStore order statuses */
 const OLIVRAISON_STATUS_MAP = {
+  // Olivraison REST statuses (uppercase, trimmed to lowercase)
   created:          'processing',
+  confirmed:        'processing',
+  pickup:           'processing',
   assigned:         'processing',
-  picked_up:        'processing',
-  in_transit:       'processing',
-  out_for_delivery: 'processing',
+  pickedup:         'processing',
+  inhouse:          'processing',
+  enroute:          'transit',
+  transit:          'transit',
+  in_transit:       'transit',
+  out_for_delivery: 'transit',
   delivered:        'done',
   returned:         'cancelled',
   failed:           'reported',
   exception:        'reported',
+  reported:         'reported',
   cancelled:        'cancelled',
+  // webhook variants
+  picked_up:        'processing',
 };
 
 /* Internal helper — called automatically after admin confirms an order */
@@ -1435,18 +1444,35 @@ async function fetchOlivraisonPackage(trackingCode, token) {
 function extractDriverPhone(data) {
   if (!data) return null;
   return (
-    data.driverPhone        ||
-    data.courierPhone       ||
-    data.agentPhone         ||
-    data.deliveryPhone      ||
-    data.driver?.phone      ||
-    data.courier?.phone     ||
-    data.livreur?.phone     ||
-    data.livreur?.telephone ||
-    data.agent?.phone       ||
-    data.deliveryman?.phone ||
+    data.transport?.currentDriverPhone ||   // confirmed field from real API test
+    data.transport?.driverPhone        ||
+    data.driverPhone                   ||
+    data.courierPhone                  ||
+    data.agentPhone                    ||
+    data.deliveryPhone                 ||
+    data.driver?.phone                 ||
+    data.courier?.phone                ||
+    data.livreur?.phone                ||
+    data.livreur?.telephone            ||
+    data.agent?.phone                  ||
+    data.deliveryman?.phone            ||
     null
   );
+}
+
+/* Extract driver name from Olivraison response */
+function extractDriverName(data) {
+  if (!data) return null;
+  const raw =
+    data.transport?.currentDriverName ||
+    data.transport?.driverName        ||
+    data.driver?.name                 ||
+    data.courier?.name                ||
+    null;
+  if (!raw) return null;
+  // Clean up "username - real name nv" format → take part after " - "
+  const parts = raw.split(' - ');
+  return (parts[1] || parts[0]).replace(/\s*nv\s*$/i, '').trim();
 }
 
 /* Core sync: polls Olivraison for all in-progress orders and updates DB */
@@ -1477,19 +1503,22 @@ async function syncOlivraisonOrders() {
         const { ok, data } = await fetchOlivraisonPackage(order.trackingCode, token);
         if (!ok || !data) continue;
 
-        const olivStatus = (data.status || '').toLowerCase().replace(/\s+/g, '_');
-        const newStatus  = OLIVRAISON_STATUS_MAP[olivStatus];
+        const olivStatus  = (data.status || '').trim().toLowerCase().replace(/\s+/g, '_');
+        const newStatus   = OLIVRAISON_STATUS_MAP[olivStatus];
         const driverPhone = extractDriverPhone(data);
+        const driverName  = extractDriverName(data);
 
         // Build update only if something changed
         const statusChanged = newStatus && newStatus !== order.status;
         const phoneFound    = driverPhone && driverPhone.length > 4;
+        const nameFound     = driverName  && driverName.length  > 1;
 
-        if (statusChanged || phoneFound) {
+        if (statusChanged || phoneFound || nameFound) {
           const setParts = [];
           const vals     = [];
-          if (statusChanged)  { setParts.push('`status` = ?');        vals.push(newStatus); }
-          if (phoneFound)     { setParts.push('`deliveryPhone` = ?'); vals.push(driverPhone); }
+          if (statusChanged) { setParts.push('`status` = ?');        vals.push(newStatus); }
+          if (phoneFound)    { setParts.push('`deliveryPhone` = ?'); vals.push(driverPhone); }
+          if (nameFound)     { setParts.push('`deliveryName` = ?');  vals.push(driverName); }
           vals.push(order.id);
           await prisma.$executeRawUnsafe(
             `UPDATE \`Order\` SET ${setParts.join(', ')} WHERE id = ?`, ...vals
@@ -1498,9 +1527,10 @@ async function syncOlivraisonOrders() {
             orderId: order.id,
             newStatus: statusChanged ? newStatus : order.status,
             trackingCode: order.trackingCode,
-            deliveryPhone: driverPhone
+            deliveryPhone: driverPhone,
+            deliveryName: driverName
           });
-          console.log(`[Olivraison Sync] Order ${order.id} → status:${newStatus || '(unchanged)'} driver:${driverPhone || 'none'}`);
+          console.log(`[Olivraison Sync] Order ${order.id} → status:${newStatus || '(unchanged)'} driver:${driverName || '?'} phone:${driverPhone || 'none'}`);
           updated++;
         }
       } catch (err) {
@@ -1548,7 +1578,7 @@ app.post('/api/delivery/webhook', async (req, res) => {
   const code = trackingCode || tracking_number;
   if (!code || !status) return;
 
-  const olivStatus = (status || '').toLowerCase();
+  const olivStatus = (status || '').trim().toLowerCase().replace(/\s+/g, '_');
   const newStatus  = OLIVRAISON_STATUS_MAP[olivStatus];
   if (!newStatus) return;
 
@@ -2097,6 +2127,7 @@ async function runMigrations() {
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `bundle3Enabled` TINYINT(1) NOT NULL DEFAULT 1",
     "CREATE TABLE IF NOT EXISTS `Review` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `productSlug` VARCHAR(255) NOT NULL, `customerId` VARCHAR(30) NULL, `name` VARCHAR(255) NOT NULL, `rating` INT NOT NULL, `text` TEXT NOT NULL, `approved` TINYINT(1) NOT NULL DEFAULT 0, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `pixelsJson` TEXT NOT NULL DEFAULT ''",
+    "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `deliveryName` VARCHAR(255) NULL",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
