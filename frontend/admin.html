@@ -1082,13 +1082,17 @@ select.pm-input{cursor:pointer}
         <!-- Daily ad spend -->
         <div class="panel" style="padding:20px">
           <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Daily Ad Spend (MAD)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:12px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:flex-end;margin-bottom:12px">
             <div>
-              <label class="field-label" style="font-size:11px">Date</label>
+              <label class="field-label" style="font-size:11px">From Date</label>
               <input class="field-input" id="adDate" type="date" style="margin-top:4px">
             </div>
             <div>
-              <label class="field-label" style="font-size:11px">Amount (MAD)</label>
+              <label class="field-label" style="font-size:11px">Days</label>
+              <input class="field-input" id="adDays" type="number" placeholder="1" min="1" max="365" value="1" style="margin-top:4px">
+            </div>
+            <div>
+              <label class="field-label" style="font-size:11px">Amount / Day (MAD)</label>
               <input class="field-input" id="adAmount" type="number" placeholder="100" style="margin-top:4px">
             </div>
             <button class="btn btn-primary btn-sm" onclick="saveAdSpend()" style="white-space:nowrap">Add</button>
@@ -4706,16 +4710,23 @@ async function saveBusinessCosts() {
 }
 
 async function saveAdSpend() {
-  const date   = document.getElementById('adDate').value;
-  const amount = parseFloat(document.getElementById('adAmount').value) || 0;
-  if (!date) { showToast('Select a date', 'error'); return; }
-  const res = await authFetch('/api/admin/ad-spend', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ date, amount }),
-  });
-  if (res.ok) { showToast('Ad spend saved'); document.getElementById('adAmount').value = ''; loadRevenue(); }
-  else showToast('Failed to save ad spend', 'error');
+  const startDate = document.getElementById('adDate').value;
+  const days      = Math.max(1, parseInt(document.getElementById('adDays').value) || 1);
+  const amount    = parseFloat(document.getElementById('adAmount').value) || 0;
+  if (!startDate) { showToast('Select a date', 'error'); return; }
+  const d = new Date(startDate);
+  for (let i = 0; i < days; i++) {
+    const date = new Date(d.getTime() + i * 86400000).toISOString().slice(0,10);
+    await authFetch('/api/admin/ad-spend', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date, amount }),
+    });
+  }
+  showToast(days > 1 ? days + ' days saved' : 'Ad spend saved');
+  document.getElementById('adAmount').value = '';
+  document.getElementById('adDays').value = '1';
+  loadRevenue();
 }
 
 function switchRevenuePeriod(days, el) {
