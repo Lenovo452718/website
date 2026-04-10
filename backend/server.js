@@ -1672,12 +1672,12 @@ app.patch('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req,
     const config = await prisma.olivraisonConfig.upsert({
       where:  { id: 'singleton' },
       update: {
-        ...(apiKey    !== undefined && { apiKey:    sanitize(apiKey, 200) }),
-        ...(apiSecret !== undefined && { apiSecret: sanitize(apiSecret, 200) }),
+        ...(apiKey    !== undefined && { apiKey:    sanitize(apiKey, 500) }),
+        ...(apiSecret !== undefined && { apiSecret: sanitize(apiSecret, 500) }),
         ...(storeId   !== undefined && { storeId:   sanitize(storeId, 100) }),
         ...(isActive  !== undefined && { isActive:  Boolean(isActive) }),
       },
-      create: { id: 'singleton', apiKey: apiKey || '', apiSecret: apiSecret || '', storeId: storeId || '', isActive: false },
+      create: { id: 'singleton', apiKey: sanitize(apiKey||'',500), apiSecret: sanitize(apiSecret||'',500), storeId: storeId || '', isActive: false },
     });
     res.json(config);
   } catch { res.status(500).json({ error: 'Failed to save config' }); }
