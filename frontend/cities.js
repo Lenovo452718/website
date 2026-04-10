@@ -93,7 +93,7 @@ async function autoDetectCity() {
     if (!matched) return;
 
     // Fill every city input that is still empty
-    ['info-city', 'bnCity', 'bcoCity'].forEach(function(id) {
+    ['info-city', 'bnCity', 'bcoCity', 'af-city'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el && !el.value) el.value = matched;
     });
@@ -117,7 +117,7 @@ function _attachCityDatalist() {
     document.body.appendChild(dl);
   }
 
-  ['info-city', 'bnCity', 'bcoCity'].forEach(function(id) {
+  ['info-city', 'bnCity', 'bcoCity', 'af-city'].forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.setAttribute('list', '_moroccoDatalist');
   });
