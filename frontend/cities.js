@@ -82,31 +82,10 @@ function matchMoroccoCity(detected) {
   return null;
 }
 
-/* Silently detect city via IP and pre-fill all city inputs */
-async function autoDetectCity() {
-  try {
-    const res  = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
-    const data = await res.json();
-    if (!data.city) return;
-
-    const matched = matchMoroccoCity(data.city);
-    if (!matched) return;
-
-    window._detectedCity = matched;
-
-    // Fill every city input that is still empty
-    ['info-city', 'bnCity', 'bcoCity', 'af-city'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el && !el.value) el.value = matched;
-    });
-  } catch (e) {
-    // Silent — never block checkout on geolocation failure
-  }
-}
+var _cityIds = ['info-city', 'bnCity', 'bcoCity', 'af-city'];
 
 /* Also add a <datalist> to every city input so the user can correct if wrong */
 function _attachCityDatalist() {
-  // Build datalist once
   var dl = document.getElementById('_moroccoDatalist');
   if (!dl) {
     dl = document.createElement('datalist');
@@ -118,20 +97,42 @@ function _attachCityDatalist() {
     });
     document.body.appendChild(dl);
   }
-
-  ['info-city', 'bnCity', 'bcoCity', 'af-city'].forEach(function(id) {
+  _cityIds.forEach(function(id) {
     var el = document.getElementById(id);
     if (el) el.setAttribute('list', '_moroccoDatalist');
   });
 }
 
-/* Fill city inputs — callable after dynamic forms are injected */
-window.fillDetectedCity = function() {
-  if (!window._detectedCity) return;
-  ['info-city', 'bnCity', 'bcoCity', 'af-city'].forEach(function(id) {
+function _applyCity(city) {
+  _cityIds.forEach(function(id) {
     var el = document.getElementById(id);
-    if (el && !el.value) el.value = window._detectedCity;
+    if (el && !el.value) el.value = city;
   });
+  _attachCityDatalist();
+}
+
+/* Store promise so dynamic forms can await detection that may still be in flight */
+var _detectionPromise = null;
+
+async function autoDetectCity() {
+  try {
+    const res  = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
+    const data = await res.json();
+    if (!data.city) return;
+    const matched = matchMoroccoCity(data.city);
+    if (!matched) return;
+    window._detectedCity = matched;
+    _applyCity(matched);
+  } catch (e) {
+    // Silent — never block checkout on geolocation failure
+  }
+}
+
+/* Called after dynamic forms (buy-now, bundle) are injected into DOM */
+window.fillDetectedCity = async function() {
+  // If detection is still running, wait for it
+  if (_detectionPromise) await _detectionPromise;
+  if (window._detectedCity) _applyCity(window._detectedCity);
   _attachCityDatalist();
 };
 
@@ -139,9 +140,9 @@ window.fillDetectedCity = function() {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', function() {
     _attachCityDatalist();
-    autoDetectCity();
+    _detectionPromise = autoDetectCity();
   });
 } else {
   _attachCityDatalist();
-  autoDetectCity();
+  _detectionPromise = autoDetectCity();
 }
