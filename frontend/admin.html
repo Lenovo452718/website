@@ -4217,7 +4217,7 @@ function renderIntegForm(id, saved) {
   if (helpBody) helpBody.innerHTML = provider.help;
 }
 
-function saveIntegration() {
+async function saveIntegration() {
   const provider = DELIVERY_PROVIDERS.find(p => p.id === _selectedProvider);
   if (!provider) return;
   const creds = {};
@@ -4226,8 +4226,22 @@ function saveIntegration() {
   });
   const allFilled = provider.fields.filter(f => f.type !== 'text' || f.id !== 'note').every(f => creds[f.id]);
   if (!allFilled) { showToast('Please fill in all required fields', 'error'); return; }
+
+  // Save to localStorage (used by manual send)
   const saved = { provider: _selectedProvider, credentials: creds, connectedAt: new Date().toISOString() };
   localStorage.setItem('ss_integrations', JSON.stringify(saved));
+
+  // Also save to backend DB (used by auto-sync and auto-send)
+  if (_selectedProvider === 'olivraison') {
+    try {
+      await authFetch('/api/admin/olivraison/config', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiKey: creds.apiKey, apiSecret: creds.secretKey, isActive: true })
+      });
+    } catch(e) { console.warn('Could not save to backend:', e.message); }
+  }
+
   updateIntegBadge(true);
   showIntegStatus(provider, creds);
   showToast(`${provider.name} integration saved`);
