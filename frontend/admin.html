@@ -1910,7 +1910,7 @@ async function sendToOlivraison() {
 
   const saved = JSON.parse(localStorage.getItem('ss_integrations') || '{}');
   const creds = saved.credentials || {};
-  if (!creds.publicKey || !creds.privateKey) {
+  if (!creds.apiKey || !creds.secretKey) {
     showToast('Please save your Olivraison credentials in Integrations first', 'error');
     return;
   }
@@ -1924,7 +1924,7 @@ async function sendToOlivraison() {
     const res = await authFetch('/api/admin/olivraison/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderIds: ids, publicKey: creds.publicKey, privateKey: creds.privateKey })
+      body: JSON.stringify({ orderIds: ids, apiKey: creds.apiKey, secretKey: creds.secretKey })
     });
     const data = await res.json();
 
@@ -3835,8 +3835,8 @@ const DELIVERY_PROVIDERS = [
     color: '#2ecc71',
     website: 'https://www.olivraison.com',
     fields: [
-      { id: 'publicKey',  label: 'Public Key',  type: 'text',     placeholder: 'Your Olivraison public key' },
-      { id: 'privateKey', label: 'Private Key', type: 'password', placeholder: 'Your Olivraison private key' },
+      { id: 'apiKey',    label: 'API Key',    type: 'text',     placeholder: 'Your Olivraison API key' },
+      { id: 'secretKey', label: 'Secret Key', type: 'password', placeholder: 'Your Olivraison secret key' },
     ],
     help: `<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
       <img src="https://olivraison.com/logo.png" style="height:36px;object-fit:contain">
@@ -3846,7 +3846,7 @@ const DELIVERY_PROVIDERS = [
     <ol style="margin:10px 0 0 18px;line-height:2">
       <li>Log in to your Olivraison merchant account at <a href="https://www.olivraison.com" target="_blank" style="color:var(--blue)">olivraison.com</a></li>
       <li>Go to <b>Profile Settings → API</b></li>
-      <li>Copy your <b>Public Key</b> and <b>Private Key</b></li>
+      <li>Copy your <b>API Key</b> and <b>Secret Key</b></li>
       <li>Paste them in the fields above and click <b>Save & Connect</b></li>
     </ol>
     <p style="margin-top:12px;font-size:12px;color:var(--gray)">Need help? Contact Olivraison support directly from your dashboard.</p>`
@@ -3948,7 +3948,7 @@ function testIntegration() {
   if (!resultEl) return;
   const provider = DELIVERY_PROVIDERS.find(p => p.id === _selectedProvider);
   if (!provider) return;
-  const key = (document.getElementById('integ_publicKey') || document.getElementById('integ_apiKey'))?.value.trim();
+  const key = document.getElementById('integ_apiKey')?.value.trim();
   if (!key) { showToast('Enter your credentials first', 'error'); return; }
 
   resultEl.style.display = 'block';

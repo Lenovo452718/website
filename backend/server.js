@@ -1355,41 +1355,43 @@ async function autoSendToOlivraison(order) {
   const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
   if (!cfg || !cfg.isActive || !cfg.apiKey || !cfg.apiSecret) return; // not configured — skip silently
 
-  const GRAPHQL_URL = 'https://api.olivraison.com/graphql';
-  const firstItem   = (order.items || [])[0] || {};
+  const BASE_URL  = 'https://partners.olivraison.com';
+  const firstItem = (order.items || [])[0] || {};
 
-  const mutation = `mutation CreateShipment($input: ShipmentInput!) {
-    createShipment(input: $input) { id trackingCode status }
-  }`;
-  const variables = {
-    input: {
-      recipientName:    order.customer  || 'Unknown',
-      recipientPhone:   order.phone     || '',
-      recipientAddress: order.address   || '',
-      recipientCity:    order.city      || '',
-      description:      firstItem.name  || '',
-      weight:           1,
-      price:            order.total     || 0,
-      codAmount:        order.total     || 0,
-      externalId:       order.id,
-    }
+  // Step 1: login to get bearer token
+  const loginResp = await fetch(`${BASE_URL}/auth/login`, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ apiKey: cfg.apiKey, secretKey: cfg.apiSecret }),
+  });
+  const loginJson = await loginResp.json();
+  const token = loginJson.token;
+  if (!token) throw new Error(loginJson.message || 'Olivraison login failed');
+
+  // Step 2: create shipment
+  const payload = {
+    price:       String(order.total || 0),
+    comment:     order.notes        || '',
+    description: firstItem.name     || '',
+    inventory:   'true',
+    name:        order.customer     || 'Unknown',
+    destination: {
+      name:          order.customer || 'Unknown',
+      phone:         order.phone    || '',
+      city:          order.city     || '',
+      streetAddress: order.address  || '',
+    },
   };
 
-  const resp = await fetch(GRAPHQL_URL, {
+  const resp = await fetch(`${BASE_URL}/package`, {
     method:  'POST',
-    headers: {
-      'Content-Type':  'application/json',
-      'x-public-key':  cfg.apiKey,
-      'x-private-key': cfg.apiSecret,
-    },
-    body: JSON.stringify({ query: mutation, variables }),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+    body:    JSON.stringify(payload),
   });
-
   const json = await resp.json();
-  if (json.errors?.length) throw new Error(json.errors[0].message);
+  if (!resp.ok) throw new Error(json.message || `Olivraison error ${resp.status}`);
 
-  const shipment = json.data?.createShipment;
-  const trackingCode = shipment?.trackingCode || null;
+  const trackingCode = json.trackingID || null;
 
   // Save tracking code + advance status to processing
   await prisma.$executeRawUnsafe(
@@ -1517,11 +1519,27 @@ app.patch('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req,
 });
 
 app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, res) => {
-  const { orderIds, publicKey, privateKey } = req.body;
+  const { orderIds, apiKey, secretKey } = req.body;
   if (!Array.isArray(orderIds) || !orderIds.length) return res.status(400).json({ error: 'No order IDs provided' });
-  if (!publicKey || !privateKey) return res.status(400).json({ error: 'Olivraison credentials required' });
+  if (!apiKey || !secretKey) return res.status(400).json({ error: 'Olivraison credentials required' });
 
-  const GRAPHQL_URL = 'https://api.olivraison.com/graphql';
+  const BASE_URL = 'https://partners.olivraison.com';
+
+  // Login once for all orders in this batch
+  let token;
+  try {
+    const loginResp = await fetch(`${BASE_URL}/auth/login`, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ apiKey, secretKey }),
+    });
+    const loginJson = await loginResp.json();
+    token = loginJson.token;
+    if (!token) return res.status(401).json({ error: loginJson.message || 'Olivraison login failed' });
+  } catch (err) {
+    return res.status(502).json({ error: 'Could not reach Olivraison: ' + err.message });
+  }
+
   const results = [];
 
   for (const id of orderIds.slice(0, 100)) {
@@ -1535,39 +1553,36 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
     if (!order) { results.push({ orderId: id, success: false, error: 'Order not found' }); continue; }
 
     const firstItem = order.items[0] || {};
-    const mutation = `mutation CreateShipment($input: ShipmentInput!) {
-      createShipment(input: $input) { id trackingCode status }
-    }`;
-    const variables = {
-      input: {
-        recipientName:    order.customer  || 'Unknown',
-        recipientPhone:   order.phone     || '',
-        recipientAddress: order.address   || '',
-        recipientCity:    order.city      || '',
-        description:      firstItem.name  || '',
-        weight:           1,
-        price:            order.total     || 0,
-        codAmount:        order.total     || 0,
-        externalId:       order.id,
-      }
+    const payload = {
+      price:       String(order.total || 0),
+      comment:     order.notes        || '',
+      description: firstItem.name     || '',
+      inventory:   'true',
+      name:        order.customer     || 'Unknown',
+      destination: {
+        name:          order.customer || 'Unknown',
+        phone:         order.phone    || '',
+        city:          order.city     || '',
+        streetAddress: order.address  || '',
+      },
     };
 
     try {
-      const resp = await fetch(GRAPHQL_URL, {
+      const resp = await fetch(`${BASE_URL}/package`, {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json', 'x-public-key': publicKey, 'x-private-key': privateKey },
-        body:    JSON.stringify({ query: mutation, variables }),
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body:    JSON.stringify(payload),
       });
       const json = await resp.json();
-      if (json.errors?.length) {
-        results.push({ orderId: id, customer: order.customer, success: false, error: json.errors[0].message });
+      if (!resp.ok) {
+        results.push({ orderId: id, customer: order.customer, success: false, error: json.message || `Error ${resp.status}` });
       } else {
-        const shipment = json.data?.createShipment;
-        await prisma.order.update({
-          where: { id },
-          data:  { status: 'processing', notes: `trackingCode:${shipment?.trackingCode || ''}` },
-        });
-        results.push({ orderId: id, customer: order.customer, success: true, trackingCode: shipment?.trackingCode || null });
+        const trackingCode = json.trackingID || null;
+        await prisma.$executeRawUnsafe(
+          'UPDATE `Order` SET `status` = ?, `trackingCode` = ? WHERE `id` = ?',
+          'processing', trackingCode, id
+        );
+        results.push({ orderId: id, customer: order.customer, success: true, trackingCode });
       }
     } catch (err) {
       results.push({ orderId: id, customer: order.customer, success: false, error: err.message });
