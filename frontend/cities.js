@@ -92,6 +92,8 @@ async function autoDetectCity() {
     const matched = matchMoroccoCity(data.city);
     if (!matched) return;
 
+    window._detectedCity = matched;
+
     // Fill every city input that is still empty
     ['info-city', 'bnCity', 'bcoCity', 'af-city'].forEach(function(id) {
       var el = document.getElementById(id);
@@ -122,6 +124,16 @@ function _attachCityDatalist() {
     if (el) el.setAttribute('list', '_moroccoDatalist');
   });
 }
+
+/* Fill city inputs — callable after dynamic forms are injected */
+window.fillDetectedCity = function() {
+  if (!window._detectedCity) return;
+  ['info-city', 'bnCity', 'bcoCity', 'af-city'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el && !el.value) el.value = window._detectedCity;
+  });
+  _attachCityDatalist();
+};
 
 /* Run on DOM ready */
 if (document.readyState === 'loading') {

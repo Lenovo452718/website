@@ -1465,8 +1465,8 @@ document.addEventListener('DOMContentLoaded', () => {
           <input type="text" id="bnCity" placeholder="Your city" required autocomplete="address-level2">
         </div>
         <div class="buynow-field">
-          <label for="bnAddress">Address <span class="buynow-optional">(optional)</span></label>
-          <input type="text" id="bnAddress" placeholder="Street / neighbourhood" autocomplete="street-address">
+          <label for="bnAddress">Address</label>
+          <input type="text" id="bnAddress" placeholder="Street / neighbourhood" required autocomplete="street-address">
         </div>
         <button type="submit" class="buynow-submit"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg> Confirm Order</button>
       </form>
@@ -1500,6 +1500,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('buyNowUpsell').style.display = qty === 1 ? 'flex' : 'none';
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    if (window.fillDetectedCity) window.fillDetectedCity();
     setTimeout(() => document.getElementById('bnName').focus(), 350);
   }
 
@@ -1543,7 +1544,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cCity   = document.getElementById('bnCity').value.trim();
     const cAddr   = document.getElementById('bnAddress').value.trim();
 
-    if (!cName || !cPhone || !cCity) return;
+    if (!cName || !cPhone || !cCity || !cAddr) return;
 
     // Parse size and qty from summary meta ("Size: S  ·  Qty: 2")
     const metaParts = meta.split('·');
@@ -1853,13 +1854,10 @@ function openBundleCheckout() {
         <div class="bco-total-row"><span>Bundle Total</span><strong>${_bundleSettings.bundle3Price} MAD</strong></div>
         <div class="bco-form">
           <p class="bco-form-title">Your details</p>
-          <div class="bco-field-row">
-            <input class="bco-input" id="bcoFirst" placeholder="First name" autocomplete="given-name">
-            <input class="bco-input" id="bcoLast" placeholder="Last name" autocomplete="family-name">
-          </div>
+          <input class="bco-input" id="bcoName" placeholder="Full name" autocomplete="name">
           <input class="bco-input" id="bcoPhone" placeholder="Phone number" type="tel" autocomplete="tel">
           <input class="bco-input" id="bcoCity" placeholder="City" autocomplete="address-level2">
-          <input class="bco-input" id="bcoAddress" placeholder="Address (optional)" autocomplete="street-address">
+          <input class="bco-input" id="bcoAddress" placeholder="Address" autocomplete="street-address">
         </div>
       </div>
       <div class="bco-footer">
@@ -1868,6 +1866,7 @@ function openBundleCheckout() {
     </div>`;
   document.body.appendChild(checkoutEl);
   requestAnimationFrame(function() { checkoutEl.classList.add('active'); });
+  if (window.fillDetectedCity) window.fillDetectedCity();
 }
 
 function closeBundleCheckout() {
@@ -1876,15 +1875,14 @@ function closeBundleCheckout() {
 }
 
 async function placeBundleOrder() {
-  var firstName = (document.getElementById('bcoFirst') ? document.getElementById('bcoFirst').value : '').trim();
-  var lastName  = (document.getElementById('bcoLast')  ? document.getElementById('bcoLast').value  : '').trim();
-  var customer  = (firstName + ' ' + lastName).trim();
+  var customer  = (document.getElementById('bcoName')    ? document.getElementById('bcoName').value    : '').trim();
   var phone     = (document.getElementById('bcoPhone')   ? document.getElementById('bcoPhone').value   : '').trim();
   var city      = (document.getElementById('bcoCity')    ? document.getElementById('bcoCity').value    : '').trim();
   var address   = (document.getElementById('bcoAddress') ? document.getElementById('bcoAddress').value : '').trim();
-  if (!customer) { alert('Please enter your name.'); return; }
+  if (!customer) { alert('Please enter your full name.'); return; }
   if (!phone || phone.replace(/\D/g,'').length < 9) { alert('Please enter a valid phone number.'); return; }
   if (!city) { alert('Please enter your city.'); return; }
+  if (!address) { alert('Please enter your address.'); return; }
   var btn = document.getElementById('bcoSubmitBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Placing order\u2026'; }
   var base = Math.floor(_bundleSettings.bundle3Price / 3);
