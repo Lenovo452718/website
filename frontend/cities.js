@@ -48,7 +48,7 @@ var MOROCCO_CITIES_DEFAULT = [
 ];
 
 var MOROCCO_CITIES = MOROCCO_CITIES_DEFAULT.slice();
-var _cityIds = ['info-city', 'bnCity', 'bcoCity', 'af-city'];
+var _cityIds = ['info-city', 'bnCity', 'bcoCity', 'af-city', 'omCity'];
 
 /* Load custom list from backend if available */
 (function() {

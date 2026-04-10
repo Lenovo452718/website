@@ -1418,6 +1418,7 @@ select.pm-input{cursor:pointer}
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="config.js"></script>
+<script src="cities.js" defer></script>
 <script>
 /* ═══════════════════════════════════════════
    CONFIG
@@ -2307,7 +2308,7 @@ function openOrderModal(id) {
       <div class="detail-item"><label>Product</label><span>${order.product||'—'}</span></div>
       <div class="detail-item"><label>Size / Qty</label><span>${order.size||'—'} / ${order.qty||1}</span></div>
       <div class="detail-item"><label>Price</label><span style="color:var(--navy);font-size:16px">${order.price||'—'}</span></div>
-      <div class="detail-item"><label>City</label><span>${order.city||'—'}</span></div>
+      <div class="detail-item"><label>City</label><input class="field-input" id="omCity" value="${escHtml(order.city||'')}" placeholder="City" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>Address</label><span>${order.address||'—'}</span></div>
       <div class="detail-item"><label>Status</label><span class="status-badge status-${order.status}">${order.status||'pending'}</span></div>
       <div class="detail-item"><label>Date</label><span>${new Date(order.date||order.createdAt||Date.now()).toLocaleString('en-GB')}</span></div>
@@ -2348,6 +2349,11 @@ function openOrderModal(id) {
     </div>`;
   document.getElementById('orderModal').classList.add('open');
   document.body.style.overflow='hidden';
+  // Init city dropdown on the editable city field
+  setTimeout(function() {
+    var cityEl = document.getElementById('omCity');
+    if (cityEl && typeof _initCityInput === 'function') _initCityInput(cityEl);
+  }, 50);
 }
 
 async function saveOrderModal(id) {
@@ -2356,6 +2362,7 @@ async function saveOrderModal(id) {
   if (idx>-1) {
     const updates = {
       status: document.getElementById('omStatus').value,
+      city: (document.getElementById('omCity')?.value || '').trim(),
       trackingNumber: document.getElementById('omTracking').value,
       deliveryCompany: document.getElementById('omCompany').value,
       deliveryStatus: document.getElementById('omDeliveryStatus').value,
@@ -2368,7 +2375,7 @@ async function saveOrderModal(id) {
       await authFetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: updates.status })
+        body: JSON.stringify({ status: updates.status, city: updates.city })
       });
     } catch(e) {}
     logActivity('Order updated', id);
