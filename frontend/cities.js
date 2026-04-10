@@ -85,9 +85,9 @@ function matchMoroccoCity(detected) {
 /* Silently detect city via IP and pre-fill all city inputs */
 async function autoDetectCity() {
   try {
-    const res  = await fetch('https://ip-api.com/json?fields=status,city', { cache: 'no-store' });
+    const res  = await fetch('https://ipapi.co/json/', { cache: 'no-store' });
     const data = await res.json();
-    if (data.status !== 'success' || !data.city) return;
+    if (!data.city) return;
 
     const matched = matchMoroccoCity(data.city);
     if (!matched) return;
