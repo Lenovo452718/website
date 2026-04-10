@@ -2111,19 +2111,19 @@ async function syncTikTokAdSpend(days = 7) {
     const startDate = new Date(now - days * 86400000);
     const fmt       = d => d.toISOString().slice(0, 10);
 
-    const resp = await fetch('https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/', {
-      method: 'POST',
-      headers: { 'Access-Token': cfg.accessToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        advertiser_id: cfg.advertiserId,
-        report_type:   'BASIC',
-        dimensions:    ['stat_time_day'],
-        metrics:       ['spend'],
-        start_date:    fmt(startDate),
-        end_date:      fmt(endDate),
-        page_size:     100,
-        page:          1,
-      }),
+    const params = new URLSearchParams({
+      advertiser_id: cfg.advertiserId,
+      report_type:   'BASIC',
+      dimensions:    JSON.stringify(['stat_time_day']),
+      metrics:       JSON.stringify(['spend']),
+      start_date:    fmt(startDate),
+      end_date:      fmt(endDate),
+      page_size:     '100',
+      page:          '1',
+    });
+    const resp = await fetch('https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/?' + params.toString(), {
+      method: 'GET',
+      headers: { 'Access-Token': cfg.accessToken },
     });
     const text = await resp.text();
     let json;
