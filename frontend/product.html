@@ -147,7 +147,7 @@
         <span class="bundle-offer-price">499 MAD</span>
       </div>
       <p class="bundle-offer-sub">Mix any styles, colors &amp; sizes — your pick.</p>
-      <button class="bundle-offer-btn" onclick="openBundlePicker()">Build My Bundle →</button>
+      <button class="bundle-offer-btn" id="bundleOfferBtn">Build My Bundle →</button>
     </div>
 
     <button class="add-to-cart-btn" data-i18n="add_to_cart">Add to Cart</button>
@@ -293,7 +293,7 @@
           </div>
         </div>
       </div>
-      <button class="write-review-btn" onclick="toggleReviewForm()">✦ Write a Review</button>
+      <button class="write-review-btn" id="writeReviewBtn">✦ Write a Review</button>
     </div>
 
     <!-- Review Form -->
@@ -310,7 +310,7 @@
         <p class="review-star-label" id="reviewStarLabel">Tap to rate</p>
         <input class="review-input" id="reviewName" placeholder="Your name" autocomplete="name">
         <textarea class="review-input review-textarea" id="reviewText" placeholder="Tell us about your experience…" rows="4"></textarea>
-        <button class="review-submit-btn" id="reviewSubmitBtn" onclick="submitReview()">Submit Review</button>
+        <button class="review-submit-btn" id="reviewSubmitBtn">Submit Review</button>
         <p class="review-form-note">Reviews appear after approval.</p>
       </div>
     </div>
@@ -371,5 +371,17 @@
 <script src="i18n.js" defer></script>
 <script src="script.js" defer></script>
 <script src="mobile.js" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  var bundleOfferBtn = document.getElementById('bundleOfferBtn');
+  if (bundleOfferBtn) bundleOfferBtn.addEventListener('click', function() { if (typeof openBundlePicker === 'function') openBundlePicker(); });
+
+  var writeReviewBtn = document.getElementById('writeReviewBtn');
+  if (writeReviewBtn) writeReviewBtn.addEventListener('click', function() { if (typeof toggleReviewForm === 'function') toggleReviewForm(); });
+
+  var reviewSubmitBtn = document.getElementById('reviewSubmitBtn');
+  if (reviewSubmitBtn) reviewSubmitBtn.addEventListener('click', function() { if (typeof submitReview === 'function') submitReview(); });
+});
+</script>
 </body>
 </html>

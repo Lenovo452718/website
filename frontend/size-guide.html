@@ -467,8 +467,8 @@
     <div class="sg-hero-right">
       <p>All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
       <div class="sg-unit-toggle">
-        <button class="sg-unit-btn active" id="btnCm" onclick="setUnit('cm')">CM</button>
-        <button class="sg-unit-btn" id="btnIn" onclick="setUnit('in')">INCHES</button>
+        <button class="sg-unit-btn active" id="btnCm">CM</button>
+        <button class="sg-unit-btn" id="btnIn">INCHES</button>
       </div>
     </div>
   </div>
@@ -696,6 +696,8 @@ function setUnit(unit) {
   document.getElementById('btnCm').classList.toggle('active', unit === 'cm');
   document.getElementById('btnIn').classList.toggle('active', unit === 'in');
 }
+document.getElementById('btnCm').addEventListener('click', function() { setUnit('cm'); });
+document.getElementById('btnIn').addEventListener('click', function() { setUnit('in'); });
 </script>
 <script src="config.js" defer></script>
 <script src="products.js" defer></script>

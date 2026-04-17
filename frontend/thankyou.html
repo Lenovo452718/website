@@ -672,7 +672,7 @@
       <div style="font-size:28px;margin-bottom:8px">🔔</div>
       <div style="color:#fff;font-weight:600;font-size:15px;margin-bottom:6px">Track your order live</div>
       <div style="color:rgba(255,255,255,0.55);font-size:13px;margin-bottom:16px">Get notified the moment your order status changes</div>
-      <button id="notifOptInBtn" onclick="enableOrderNotifications()" style="background:#fff;color:#111;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:600;cursor:pointer;width:100%">Enable Notifications</button>
+      <button id="notifOptInBtn" style="background:#fff;color:#111;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:600;cursor:pointer;width:100%">Enable Notifications</button>
       <div id="notifOptInDone" style="display:none;color:#6fcf97;font-size:13px;margin-top:10px">✓ You'll be notified of every update</div>
     </div>
 
@@ -888,6 +888,9 @@
       linkPushToOrder(orderId);
     }
   }
+
+  var _notifBtn = document.getElementById('notifOptInBtn');
+  if (_notifBtn) _notifBtn.addEventListener('click', function() { window.enableOrderNotifications(); });
 
   window.enableOrderNotifications = async function() {
     var btn = document.getElementById('notifOptInBtn');
