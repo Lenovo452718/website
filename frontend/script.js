@@ -282,12 +282,12 @@ function renderCartItems() {
           <p class="cart-item-name">${escapeHtml(item.name)}</p>
           <p class="cart-item-price">${item.price} MAD &middot; ${escapeHtml(item.size)}</p>
           <div class="cart-item-qty">
-            <button data-qty-id='${item.id}' data-qty-delta='-1'>−</button>
+            <button onclick='updateQty(${JSON.stringify(item.id)}, -1)'>−</button>
             <span>${item.qty}</span>
-            <button data-qty-id='${item.id}' data-qty-delta='1'>+</button>
+            <button onclick='updateQty(${JSON.stringify(item.id)}, 1)'>+</button>
           </div>
         </div>
-        <button class="cart-item-remove" data-remove-id='${item.id}'>✕</button>
+        <button class="cart-item-remove" onclick='removeFromCart(${JSON.stringify(item.id)})'>✕</button>
       </div>
     `).join('');
   }
@@ -429,20 +429,6 @@ function injectCartDrawer() {
   document.getElementById('checkoutBtn').addEventListener('click', () => {
     if (getCart().length === 0) return;
     window.location.href = 'checkout.html';
-  });
-
-  // Event delegation for cart item qty/remove buttons
-  document.getElementById('cartItems').addEventListener('click', function(e) {
-    var qtyBtn = e.target.closest('[data-qty-id]');
-    if (qtyBtn) {
-      updateQty(qtyBtn.dataset.qtyId, parseInt(qtyBtn.dataset.qtyDelta));
-      return;
-    }
-    var removeBtn = e.target.closest('[data-remove-id]');
-    if (removeBtn) {
-      removeFromCart(removeBtn.dataset.removeId);
-      return;
-    }
   });
 }
 
@@ -979,14 +965,14 @@ function initCheckout() {
               <p class="summary-item-name">${escapeHtml(item.name)}</p>
               <p class="summary-item-variant">Size: ${escapeHtml(item.size)}</p>
               <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-                <button data-checkout-qty-id='${item.id}' data-checkout-qty-delta='-1' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
+                <button onclick='updateQty(${JSON.stringify(item.id)},-1)' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">−</button>
                 <span style="font-size:13px;min-width:16px;text-align:center;">${item.qty}</span>
-                <button data-checkout-qty-id='${item.id}' data-checkout-qty-delta='1' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
+                <button onclick='updateQty(${JSON.stringify(item.id)},1)' style="width:22px;height:22px;border:1px solid #ddd;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;">+</button>
               </div>
             </div>
             <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
               <span class="summary-item-price">${item.price * item.qty} MAD</span>
-              <button data-checkout-remove-id='${item.id}' style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
+              <button onclick='removeFromCartCheckout(${JSON.stringify(item.id)})' style="font-size:11px;color:#999;background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;">Remove</button>
             </div>
           </div>
         `).join('');
@@ -999,22 +985,6 @@ function initCheckout() {
         renderCheckoutSummary();
         updateCartBadge();
       };
-
-      // Event delegation for checkout summary qty/remove buttons
-      summaryItems.addEventListener('click', function(e) {
-        var qtyBtn = e.target.closest('[data-checkout-qty-id]');
-        if (qtyBtn) {
-          updateQty(qtyBtn.dataset.checkoutQtyId, parseInt(qtyBtn.dataset.checkoutQtyDelta));
-          renderCheckoutSummary();
-          updateCartBadge();
-          return;
-        }
-        var removeBtn = e.target.closest('[data-checkout-remove-id]');
-        if (removeBtn) {
-          window.removeFromCartCheckout(removeBtn.dataset.checkoutRemoveId);
-          return;
-        }
-      });
 
       renderCheckoutSummary();
     }
@@ -1673,7 +1643,7 @@ function openBundlePicker() {
   overlay.innerHTML = `
     <div id="bundlePicker">
       <div class="bundle-header">
-        <button class="bundle-close" data-bundle-action="closePicker">✕</button>
+        <button class="bundle-close" onclick="closeBundlePicker()">✕</button>
         <div>
           <h2 class="bundle-title">Build Your Bundle</h2>
           <p class="bundle-subtitle">Pick any 3 — <strong>${_bundleSettings.bundle3Price} MAD</strong></p>
@@ -1691,42 +1661,20 @@ function openBundlePicker() {
       <div class="bundle-options-sheet" id="bundleOptionsSheet">
         <div class="bos-header">
           <p class="bos-product-name" id="bosProductName"></p>
-          <button class="bos-close" data-bundle-action="closeOptions">✕</button>
+          <button class="bos-close" onclick="closeBundleOptions()">✕</button>
         </div>
         <div id="bosColorSection"></div>
         <div id="bosSizeSection"></div>
-        <button class="bos-add-btn" data-bundle-action="confirmAdd">Add to Bundle \u2192</button>
+        <button class="bos-add-btn" onclick="confirmBundleAdd()">Add to Bundle \u2192</button>
       </div>
       <div class="bundle-footer">
         <div class="bundle-footer-info"><span id="bundleSelectedCount">0</span> of 3 selected</div>
-        <button class="bundle-checkout-btn" id="bundleCheckoutBtn" disabled data-bundle-action="openCheckout">Checkout \u2014 ${_bundleSettings.bundle3Price} MAD</button>
+        <button class="bundle-checkout-btn" id="bundleCheckoutBtn" disabled onclick="openBundleCheckout()">Checkout \u2014 ${_bundleSettings.bundle3Price} MAD</button>
       </div>
     </div>`;
   document.body.appendChild(overlay);
   document.body.style.overflow = 'hidden';
-  overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) { closeBundlePicker(); return; }
-    var actionEl = e.target.closest('[data-bundle-action]');
-    if (actionEl) {
-      var action = actionEl.dataset.bundleAction;
-      if (action === 'closePicker') { closeBundlePicker(); return; }
-      if (action === 'closeOptions') { closeBundleOptions(); return; }
-      if (action === 'confirmAdd') { confirmBundleAdd(); return; }
-      if (action === 'openCheckout') { openBundleCheckout(); return; }
-    }
-    var colorSwatch = e.target.closest('[data-bundle-swatch]');
-    if (colorSwatch) { bosPickColor(colorSwatch); return; }
-    var sizeBtn = e.target.closest('[data-bundle-size]');
-    if (sizeBtn) { bosPickSize(sizeBtn); return; }
-    var cardEl = e.target.closest('[data-bundle-product]');
-    if (cardEl) { showBundleOptions(cardEl.dataset.bundleProduct); return; }
-    var slotRemoveBtn = e.target.closest('[data-bundle-slot-remove]');
-    if (slotRemoveBtn) {
-      e.stopPropagation();
-      bundleSlotClick(parseInt(slotRemoveBtn.dataset.bundleSlotRemove));
-      return;
-    }
-  });
+  overlay.addEventListener('click', function(e) { if (e.target === overlay) closeBundlePicker(); });
   requestAnimationFrame(function() { overlay.classList.add('active'); });
   loadBundleProducts();
 }
@@ -1767,7 +1715,7 @@ function renderBundleGrid(products) {
     var imgEl = mainImg
       ? '<img src="' + mainImg.url + '" alt="" class="bundle-card-img" onerror="this.style.display=\'none\'">'
       : '<div class="bundle-card-img-placeholder">\uD83D\uDC56</div>';
-    return '<div class="bundle-product-card" data-bundle-product="' + p.id + '">'
+    return '<div class="bundle-product-card" onclick="showBundleOptions(\'' + p.id + '\')">'
       + '<div class="bundle-card-img-wrap">' + imgEl + '</div>'
       + '<div class="bundle-card-info"><p class="bundle-card-name">' + p.name + '</p>'
       + '<p class="bundle-card-price">' + p.price + ' MAD each</p></div></div>';
@@ -1789,7 +1737,7 @@ function showBundleOptions(productId) {
   if (colors.length) {
     cs.innerHTML = '<div class="bos-section"><p class="bos-label">Color: <span id="bosColorLabel">' + bundleColorName(colors[0]) + '</span></p>'
       + '<div class="bos-colors">' + colors.map(function(hex, i) {
-          return '<div class="bos-swatch' + (i===0?' selected':'') + '" data-hex="' + hex + '" data-bundle-swatch style="background:' + hex + '" title="' + bundleColorName(hex) + '"></div>';
+          return '<div class="bos-swatch' + (i===0?' selected':'') + '" data-hex="' + hex + '" style="background:' + hex + '" title="' + bundleColorName(hex) + '" onclick="bosPickColor(this)"></div>';
         }).join('') + '</div></div>';
     cs.style.display = '';
   } else { cs.innerHTML = ''; cs.style.display = 'none'; }
@@ -1797,7 +1745,7 @@ function showBundleOptions(productId) {
   if (sizes.length) {
     ss.innerHTML = '<div class="bos-section"><p class="bos-label">Size</p>'
       + '<div class="bos-sizes">' + sizes.map(function(sz, i) {
-          return '<button class="bos-size' + (i===0?' selected':'') + '" data-bundle-size>' + sz + '</button>';
+          return '<button class="bos-size' + (i===0?' selected':'') + '" onclick="bosPickSize(this)">' + sz + '</button>';
         }).join('') + '</div></div>';
     ss.style.display = '';
   } else { ss.innerHTML = ''; ss.style.display = 'none'; }
@@ -1855,7 +1803,7 @@ function updateBundleSlots() {
       (function(idx) { el.onclick = function() { bundleSlotClick(idx); }; })(i);
       el.innerHTML = (slot.image ? '<img src="' + slot.image + '" alt="" class="bundle-slot-img">' : '<div class="bundle-slot-placeholder">\uD83D\uDC56</div>')
         + '<div class="bundle-slot-overlay"><p class="bundle-slot-name">' + slot.name + '</p>' + (meta ? '<p class="bundle-slot-meta">' + meta + '</p>' : '') + '</div>'
-        + '<button class="bundle-slot-remove" data-bundle-slot-remove="' + i + '">\u2715</button>'
+        + '<button class="bundle-slot-remove" onclick="event.stopPropagation();bundleSlotClick(' + i + ')">\u2715</button>'
         + '<span class="bundle-slot-num">' + (i+1) + '</span>';
     } else {
       el.className = 'bundle-slot empty';
@@ -1896,7 +1844,7 @@ function openBundleCheckout() {
   checkoutEl.innerHTML = `
     <div id="bundleCheckoutModal">
       <div class="bco-header">
-        <button class="bco-back" data-bco-action="back">\u2190 Back</button>
+        <button class="bco-back" onclick="closeBundleCheckout()">\u2190 Back</button>
         <h2 class="bco-title">Bundle Checkout</h2>
       </div>
       <div class="bco-body">
@@ -1911,17 +1859,10 @@ function openBundleCheckout() {
         </div>
       </div>
       <div class="bco-footer">
-        <button class="bco-submit-btn" id="bcoSubmitBtn" data-bco-action="submit">Place Bundle Order \u2014 ${_bundleSettings.bundle3Price} MAD</button>
+        <button class="bco-submit-btn" id="bcoSubmitBtn" onclick="placeBundleOrder()">Place Bundle Order \u2014 ${_bundleSettings.bundle3Price} MAD</button>
       </div>
     </div>`;
   document.body.appendChild(checkoutEl);
-  checkoutEl.addEventListener('click', function(e) {
-    var actionEl = e.target.closest('[data-bco-action]');
-    if (!actionEl) return;
-    var action = actionEl.dataset.bcoAction;
-    if (action === 'back') { closeBundleCheckout(); }
-    else if (action === 'submit') { placeBundleOrder(); }
-  });
   requestAnimationFrame(function() { checkoutEl.classList.add('active'); });
   if (window.fillDetectedCity) window.fillDetectedCity();
   setTimeout(function() {

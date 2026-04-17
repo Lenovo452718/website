@@ -524,7 +524,7 @@ select.pm-input{cursor:pointer}
         <label>Password</label>
         <input type="password" id="loginPwd" placeholder="Enter admin password" autocomplete="current-password">
       </div>
-      <button class="login-btn" id="loginBtn">Sign In</button>
+      <button class="login-btn" onclick="attemptLogin()">Sign In</button>
     </div>
 
     <!-- Step 2: 2FA (shown only if enabled) -->
@@ -535,15 +535,15 @@ select.pm-input{cursor:pointer}
         <input type="text" id="loginTotp" placeholder="000000" maxlength="6" autocomplete="one-time-code"
           style="font-size:22px;letter-spacing:6px;text-align:center">
       </div>
-      <button class="login-btn" id="totpBtn">Verify</button>
-      <button style="width:100%;background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-top:8px" id="totpBackBtn">← Back</button>
+      <button class="login-btn" onclick="submitTotp()">Verify</button>
+      <button style="width:100%;background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-top:8px" onclick="resetLoginSteps()">← Back</button>
     </div>
 
     <p class="login-error" id="loginError"></p>
 
     <!-- Forgot password -->
     <p style="text-align:center;margin-top:10px">
-      <a href="#" id="forgotPwLink" style="font-size:12px;color:var(--gray);text-decoration:underline">Forgot password?</a>
+      <a href="#" onclick="toggleResetForm();return false;" style="font-size:12px;color:var(--gray);text-decoration:underline">Forgot password?</a>
     </p>
 
     <!-- Reset password form -->
@@ -561,7 +561,7 @@ select.pm-input{cursor:pointer}
         <label>Confirm New Password</label>
         <input type="password" id="resetConfirmPwd" placeholder="Repeat new password">
       </div>
-      <button class="login-btn" id="resetPwBtn">Reset Password</button>
+      <button class="login-btn" onclick="resetPassword()">Reset Password</button>
       <p class="login-error" id="resetError" style="display:none"></p>
     </div>
   </div>
@@ -572,11 +572,11 @@ select.pm-input{cursor:pointer}
 
   <!-- MOBILE TOP BAR -->
   <div class="top-bar">
-    <button class="top-bar-btn" id="topSidebarToggle">
+    <button class="top-bar-btn" onclick="toggleSidebar()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <span class="top-bar-logo">StreetStore Admin</span>
-    <button class="top-bar-btn" id="topNotifBtn">
+    <button class="top-bar-btn" onclick="toggleNotifPanel()" id="topNotifBtn">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
       <span id="topNotifCount" style="position:absolute;top:2px;right:2px;background:var(--red);color:white;font-size:9px;font-weight:700;width:16px;height:16px;border-radius:50%;display:none;align-items:center;justify-content:center">0</span>
     </button>
@@ -594,73 +594,73 @@ select.pm-input{cursor:pointer}
     <div class="sidebar-nav">
 
       <div class="nav-section-label">Overview</div>
-      <a class="nav-item active" data-section="dashboard">
+      <a class="nav-item active" onclick="showSection('dashboard',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
       </a>
 
       <div class="nav-section-label">Store</div>
-      <a class="nav-item" data-section="orders">
+      <a class="nav-item" onclick="showSection('orders',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/></svg>Orders
         <span class="nav-badge" id="newOrdersBadge" style="display:none">0</span>
       </a>
-      <a class="nav-item" data-section="products">
+      <a class="nav-item" onclick="showSection('products',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor"/></svg>Products
       </a>
-      <a class="nav-item" data-section="reviews" id="navReviews">
+      <a class="nav-item" onclick="showSection('reviews',this)" id="navReviews">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Reviews
         <span class="nav-badge" id="reviewsPendingBadge" style="display:none">0</span>
       </a>
-      <a class="nav-item" data-section="customers">
+      <a class="nav-item" onclick="showSection('customers',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Customers
         <span class="nav-badge" id="suspiciousBadge" style="display:none;background:#e67e22">0</span>
       </a>
 
       <div class="nav-section-label">Marketing</div>
-      <a class="nav-item" data-section="discounts">
+      <a class="nav-item" onclick="showSection('discounts',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Discounts
       </a>
-      <a class="nav-item" data-section="deals">
+      <a class="nav-item" onclick="showSection('deals',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Deals
       </a>
-      <a class="nav-item" data-section="notifications">
+      <a class="nav-item" onclick="showSection('notifications',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
         <span class="nav-notif-badge" id="sideNotifBadge" style="display:none">0</span>
       </a>
 
       <div class="nav-section-label">Management</div>
-      <a class="nav-item" data-section="analytics">
+      <a class="nav-item" onclick="showSection('analytics',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics
       </a>
-      <a class="nav-item" data-section="revenue">
+      <a class="nav-item" onclick="showSection('revenue',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>Revenue
       </a>
 
       <div class="nav-section-label">Content</div>
-      <a class="nav-item" data-section="content">
+      <a class="nav-item" onclick="showSection('content',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Site Content
       </a>
-      <a class="nav-item" data-section="media">
+      <a class="nav-item" onclick="showSection('media',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Media Library
       </a>
 
       <div class="nav-section-label">System</div>
-      <a class="nav-item" data-section="pixels">
+      <a class="nav-item" onclick="showSection('pixels',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>Pixels
       </a>
-      <a class="nav-item" data-section="integrations">
+      <a class="nav-item" onclick="showSection('integrations',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Integrations
         <span id="integBadge" style="display:none;margin-left:auto;background:#25D366;color:white;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px">ON</span>
       </a>
-      <a class="nav-item" data-section="cities">
+      <a class="nav-item" onclick="showSection('cities',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Cities
       </a>
-      <a class="nav-item" data-section="settings">
+      <a class="nav-item" onclick="showSection('settings',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Settings
       </a>
 
     </div>
     <div class="sidebar-footer">
-      <button class="logout-btn" id="adminLogoutBtn">
+      <button class="logout-btn" onclick="logout()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out
       </button>
     </div>
@@ -675,7 +675,7 @@ select.pm-input{cursor:pointer}
       <div id="suspiciousAlert" style="display:none;background:#fff8f0;border:1px solid #f0a500;border-radius:8px;padding:14px 18px;margin-bottom:20px;display:none;align-items:center;gap:12px">
         <span style="font-size:20px">⚠️</span>
         <div style="flex:1"><strong style="font-size:13px">Suspicious Customers Detected</strong><p style="font-size:12px;color:var(--gray);margin-top:2px" id="suspiciousAlertText">Some customers have placed 3+ failed orders.</p></div>
-        <button class="btn btn-outline btn-sm" id="suspiciousAlertViewBtn">View</button>
+        <button class="btn btn-outline btn-sm" onclick="showSection('customers',document.querySelector('.nav-item[onclick*=customers]'));setTimeout(()=>switchCustomerTab('suspicious',document.querySelector('#secCustomers .filter-tab:nth-child(2)')),100)">View</button>
       </div>
       <div class="stat-grid" id="dashStats"></div>
       <div class="chart-grid">
@@ -696,7 +696,7 @@ select.pm-input{cursor:pointer}
         <div class="panel" style="margin-bottom:0">
           <div class="panel-header">
             <h2>Recent Orders</h2>
-            <button class="btn btn-outline btn-sm" data-admin-fn="showOrders">View All</button>
+            <button class="btn btn-outline btn-sm" onclick="showSection('orders',null)">View All</button>
           </div>
           <div class="table-wrap"><table class="admin-table" id="dashRecentOrders"></table></div>
         </div>
@@ -708,7 +708,7 @@ select.pm-input{cursor:pointer}
       <div class="page-header"><h1>Orders</h1><p>Manage all customer orders.</p></div>
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <select class="status-select" id="orderStatusFilter">
+          <select class="status-select" id="orderStatusFilter" onchange="filterOrders(this.value)">
             <option value="all">📋 All Orders</option>
             <option value="new">🆕 New</option>
             <option value="pending">⏳ Pending</option>
@@ -721,7 +721,7 @@ select.pm-input{cursor:pointer}
           </select>
           <span id="orderCountBadge" style="font-size:12px;color:var(--gray);font-weight:600"></span>
         </div>
-        <button class="btn btn-outline btn-sm" data-admin-fn="exportOrders">Export CSV</button>
+        <button class="btn btn-outline btn-sm" onclick="exportOrders()">Export CSV</button>
       </div>
 
       <!-- Olivraison action bar — shows when confirmed orders are selected -->
@@ -729,9 +729,9 @@ select.pm-input{cursor:pointer}
         <img src="https://olivraison.com/logo.png" alt="Olivraison" style="height:24px;object-fit:contain" onerror="this.style.display='none'">
         <span id="olivraisonSelCount" style="font-size:13px;font-weight:600;color:#155724">0 orders selected</span>
         <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn btn-outline btn-sm" data-admin-fn="selectAllConfirmed">Select All Confirmed</button>
-          <button class="btn btn-outline btn-sm" data-admin-fn="clearOrderSelection">Clear Selection</button>
-          <button class="btn btn-primary" style="background:#27ae60;border-color:#27ae60" data-admin-fn="sendToOlivraison">
+          <button class="btn btn-outline btn-sm" onclick="selectAllConfirmed()">Select All Confirmed</button>
+          <button class="btn btn-outline btn-sm" onclick="clearOrderSelection()">Clear Selection</button>
+          <button class="btn btn-primary" style="background:#27ae60;border-color:#27ae60" onclick="sendToOlivraison()">
             🚚 Send to Olivraison
           </button>
         </div>
@@ -739,7 +739,7 @@ select.pm-input{cursor:pointer}
 
       <div class="search-wrap">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input class="search-input" id="orderSearch" placeholder="Search by customer, product, phone...">
+        <input class="search-input" id="orderSearch" placeholder="Search by customer, product, phone..." oninput="loadOrdersTable()">
       </div>
       <div class="panel">
         <div id="ordersTableWrap" class="table-wrap"><table class="admin-table" id="ordersTable"></table></div>
@@ -750,11 +750,11 @@ select.pm-input{cursor:pointer}
     <!-- ── OLIVRAISON RESULTS MODAL ── -->
     <div class="modal-overlay" id="olivraisonModal">
       <div class="modal-box" style="max-width:560px">
-        <button class="modal-close" id="olivraisonModalClose">×</button>
+        <button class="modal-close" onclick="document.getElementById('olivraisonModal').classList.remove('open')">×</button>
         <h2 class="modal-title">Olivraison — Send Results</h2>
         <div id="olivraisonResults" style="margin-top:16px;max-height:420px;overflow-y:auto"></div>
         <div style="margin-top:20px;text-align:right">
-          <button class="btn btn-outline" id="olivraisonModalCloseBtn">Close</button>
+          <button class="btn btn-outline" onclick="document.getElementById('olivraisonModal').classList.remove('open')">Close</button>
         </div>
       </div>
     </div>
@@ -769,16 +769,16 @@ select.pm-input{cursor:pointer}
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex:1;min-width:0">
           <div class="search-wrap" style="margin-bottom:0;flex:1;min-width:200px;max-width:360px">
             <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input class="search-input" id="productSearch" placeholder="Search products...">
+            <input class="search-input" id="productSearch" placeholder="Search products..." oninput="filterProductsTable()">
           </div>
-          <select class="status-select" id="productStatusFilter" style="min-width:130px">
+          <select class="status-select" id="productStatusFilter" onchange="filterProductsTable()" style="min-width:130px">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="hidden">Hidden</option>
             <option value="archived">Archived</option>
           </select>
         </div>
-        <button class="btn btn-primary" data-admin-fn="addProduct">+ Add Product</button>
+        <button class="btn btn-primary" onclick="openProductModal(null)">+ Add Product</button>
       </div>
       <div class="panel">
         <div id="productsListWrap" class="table-wrap">
@@ -803,9 +803,9 @@ select.pm-input{cursor:pointer}
     <section class="admin-section" id="secReviews">
       <div class="page-header"><h1>Reviews</h1><p>Approve or reject customer reviews before they appear on the site.</p></div>
       <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap">
-        <button class="btn btn-primary" data-admin-fn="reviewsAll" id="rvFilterAll">All</button>
-        <button class="btn btn-outline" data-admin-fn="reviewsPending" id="rvFilterPending">Pending</button>
-        <button class="btn btn-outline" data-admin-fn="reviewsApproved" id="rvFilterApproved">Approved</button>
+        <button class="btn btn-primary" onclick="loadAdminReviews('all')" id="rvFilterAll">All</button>
+        <button class="btn btn-outline" onclick="loadAdminReviews('pending')" id="rvFilterPending">Pending</button>
+        <button class="btn btn-outline" onclick="loadAdminReviews('approved')" id="rvFilterApproved">Approved</button>
       </div>
       <div id="adminReviewsTable"><p style="color:#888;padding:20px">Loading…</p></div>
     </section>
@@ -813,24 +813,24 @@ select.pm-input{cursor:pointer}
     <section class="admin-section" id="secCustomers">
       <div class="page-header"><h1>Customers</h1><p>All customers and flagged accounts.</p></div>
       <div class="filter-tabs" style="margin-bottom:16px">
-        <button class="filter-tab active" data-customer-tab="all">All Customers</button>
-        <button class="filter-tab" data-customer-tab="suspicious">
+        <button class="filter-tab active" onclick="switchCustomerTab('all',this)">All Customers</button>
+        <button class="filter-tab" onclick="switchCustomerTab('suspicious',this)">
           Suspicious <span id="suspiciousBadgeTab" style="display:none;background:#e67e22;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:4px">0</span>
         </button>
-        <button class="filter-tab" data-customer-tab="blocked">Blocked IPs</button>
+        <button class="filter-tab" onclick="switchCustomerTab('blocked',this)">Blocked IPs</button>
       </div>
       <!-- All customers -->
       <div id="custTabAll">
         <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="customerSearch" placeholder="Search by name or phone...">
+          <input class="search-input" id="customerSearch" placeholder="Search by name or phone..." oninput="loadCustomersTable()">
         </div>
         <div class="panel"><div class="table-wrap"><table class="admin-table" id="customersTable"></table></div></div>
       </div>
       <!-- Suspicious -->
       <div id="custTabSuspicious" style="display:none">
         <div class="panel" id="suspiciousPanel">
-          <div class="panel-header"><h2>Flagged Customers</h2><button class="btn btn-outline btn-sm" data-admin-fn="loadSuspiciousCustomers">↻ Refresh</button></div>
+          <div class="panel-header"><h2>Flagged Customers</h2><button class="btn btn-outline btn-sm" onclick="loadSuspiciousCustomers()">↻ Refresh</button></div>
           <div class="table-wrap"><table class="admin-table" id="suspiciousTable"></table></div>
         </div>
       </div>
@@ -846,7 +846,7 @@ select.pm-input{cursor:pointer}
     <!-- ── DEALS ── -->
     <section class="admin-section" id="secDeals">
       <div class="page-header"><h1>Deals</h1><p>Create special discount deals linked to products.</p></div>
-      <div style="margin-bottom:20px"><button class="btn btn-primary" data-admin-fn="addDeal">+ Create Deal</button></div>
+      <div style="margin-bottom:20px"><button class="btn btn-primary" onclick="openDealModal(null)">+ Create Deal</button></div>
       <div class="panel">
         <div class="table-wrap"><table class="admin-table" id="dealsTable"></table></div>
       </div>
@@ -855,7 +855,7 @@ select.pm-input{cursor:pointer}
     <!-- ── DISCOUNTS ── -->
     <section class="admin-section" id="secDiscounts">
       <div class="page-header"><h1>Discount Codes</h1><p>Create and manage promo codes for customers.</p></div>
-      <div style="margin-bottom:20px"><button class="btn btn-primary" data-admin-fn="addDiscount">+ Create Code</button></div>
+      <div style="margin-bottom:20px"><button class="btn btn-primary" onclick="openDiscountModal(null)">+ Create Code</button></div>
       <div class="panel">
         <div class="table-wrap"><table class="admin-table" id="discountsTable"></table></div>
       </div>
@@ -878,7 +878,7 @@ select.pm-input{cursor:pointer}
             <span class="toggle-label">Announcement bar visible</span>
           </div>
           <div class="preview-bar" id="annPreview">✦ Free shipping on all orders</div>
-          <div style="margin-top:16px"><button class="btn btn-primary" data-admin-fn="saveAnnouncement">Save Announcement</button></div>
+          <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveAnnouncement()">Save Announcement</button></div>
         </div>
       </div>
 
@@ -889,7 +889,7 @@ select.pm-input{cursor:pointer}
             <div class="field-group"><label class="field-label">Bundle Price (MAD)</label><input class="field-input" id="bundle3Price" type="number" placeholder="499"></div>
             <div class="field-group"><label class="field-label">Status</label><select class="field-input" id="bundle3Enabled"><option value="true">Active ✓</option><option value="false">Inactive</option></select></div>
           </div>
-          <div style="margin-top:16px"><button class="btn btn-primary" data-admin-fn="saveBundle3">Save Bundle Settings</button></div>
+          <div style="margin-top:16px"><button class="btn btn-primary" onclick="saveBundle3()">Save Bundle Settings</button></div>
         </div>
       </div>
 
@@ -910,7 +910,7 @@ select.pm-input{cursor:pointer}
             <p class="pack-preview-sub" id="pvSub">Mix & match any styles — discount applied automatically in cart</p>
             <span class="pack-preview-badge" id="pvBadge">Save up to 10% off</span>
           </div>
-          <div style="margin-top:16px"><button class="btn btn-primary" data-admin-fn="savePackDeal">Save Pack Deal</button></div>
+          <div style="margin-top:16px"><button class="btn btn-primary" onclick="savePackDeal()">Save Pack Deal</button></div>
         </div>
       </div>
 
@@ -925,7 +925,7 @@ select.pm-input{cursor:pointer}
             <div class="field-group"><label class="field-label">CTA Button Text</label><input class="field-input" id="bannerCta" placeholder="Shop Now"></div>
             <div class="field-group"><label class="field-label">CTA Link</label><input class="field-input" id="bannerCtaLink" placeholder="shop.html"></div>
           </div>
-          <div style="margin-top:4px"><button class="btn btn-primary" data-admin-fn="saveBanner">Save Banner</button></div>
+          <div style="margin-top:4px"><button class="btn btn-primary" onclick="saveBanner()">Save Banner</button></div>
         </div>
       </div>
     </section>
@@ -937,14 +937,14 @@ select.pm-input{cursor:pointer}
         <div class="panel-header"><h2>Upload Media</h2></div>
         <div class="panel-body">
           <!-- Drag & Drop Zone -->
-          <div id="mediaDropZone"
+          <div id="mediaDropZone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleMediaDrop(event)"
             style="border:2px dashed var(--gray-light);border-radius:8px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px">
             <div style="font-size:40px;margin-bottom:10px">📁</div>
             <p style="font-size:14px;font-weight:600;margin-bottom:4px">Drag & drop images or videos here</p>
             <p style="font-size:12px;color:var(--gray);margin-bottom:16px">JPG, PNG, GIF, WEBP, MP4, MOV — up to 100 MB</p>
             <label class="btn btn-primary" style="cursor:pointer;display:inline-flex">
               Choose Files from Device
-              <input type="file" accept="image/*,video/*" multiple style="display:none" id="mediaFileInput">
+              <input type="file" accept="image/*,video/*" multiple style="display:none" onchange="handleMediaFiles(this)">
             </label>
           </div>
           <!-- Upload Progress -->
@@ -960,7 +960,7 @@ select.pm-input{cursor:pointer}
                 <div class="field-group"><label class="field-label">URL</label><input class="field-input" id="mediaUrl" placeholder="https://... or images/..."></div>
                 <div class="field-group"><label class="field-label">Name</label><input class="field-input" id="mediaName" placeholder="Product photo 1"></div>
               </div>
-              <button class="btn btn-outline btn-sm" data-admin-fn="addMedia">Add URL</button>
+              <button class="btn btn-outline btn-sm" onclick="addMedia()">Add URL</button>
             </div>
           </details>
         </div>
@@ -980,10 +980,10 @@ select.pm-input{cursor:pointer}
             <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">SEND TO</label>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-                <input type="radio" name="notifTarget" value="all" checked id="notifTargetAll"> All Customers
+                <input type="radio" name="notifTarget" value="all" checked onchange="toggleNotifCustomerPicker(this)"> All Customers
               </label>
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-                <input type="radio" name="notifTarget" value="one" id="notifTargetOne"> Specific Customer
+                <input type="radio" name="notifTarget" value="one" onchange="toggleNotifCustomerPicker(this)"> Specific Customer
               </label>
               <select id="notifCustomerSelect" style="display:none;padding:6px 10px;border:1px solid var(--gray-light);border-radius:6px;font-size:13px;min-width:200px"></select>
             </div>
@@ -997,7 +997,7 @@ select.pm-input{cursor:pointer}
             <textarea id="notifMessage" rows="3" placeholder="Write your message here..." style="width:100%;padding:8px 12px;border:1px solid var(--gray-light);border-radius:6px;font-size:13px;resize:vertical;box-sizing:border-box;font-family:inherit"></textarea>
           </div>
           <div>
-            <button class="btn btn-primary btn-sm" data-admin-fn="sendCustomerNotification">Send Notification</button>
+            <button class="btn btn-primary btn-sm" onclick="sendCustomerNotification()">Send Notification</button>
           </div>
         </div>
       </div>
@@ -1036,8 +1036,8 @@ select.pm-input{cursor:pointer}
         <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between">
           <h2>Auto-Sync Status</h2>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-outline btn-sm" data-admin-fn="olivraisonRawTest">🔍 Test Single Order</button>
-            <button class="btn btn-primary btn-sm" data-admin-fn="olivraisonManualSync">↻ Sync Now</button>
+            <button class="btn btn-outline btn-sm" onclick="olivraisonRawTest()">🔍 Test Single Order</button>
+            <button class="btn btn-primary btn-sm" onclick="olivraisonManualSync()">↻ Sync Now</button>
           </div>
         </div>
         <div class="panel-body">
@@ -1109,7 +1109,7 @@ select.pm-input{cursor:pointer}
               <input class="field-input" id="costDeliveryOther" type="number" placeholder="35" style="margin-top:4px">
             </div>
           </div>
-          <button class="btn btn-primary btn-sm" data-admin-fn="saveBusinessCosts">Save Costs</button>
+          <button class="btn btn-primary btn-sm" onclick="saveBusinessCosts()">Save Costs</button>
         </div>
         <!-- Daily ad spend -->
         <div class="panel" style="padding:20px">
@@ -1127,7 +1127,7 @@ select.pm-input{cursor:pointer}
               <label class="field-label" style="font-size:11px">Amount / Day (MAD)</label>
               <input class="field-input" id="adAmount" type="number" placeholder="100" style="margin-top:4px">
             </div>
-            <button class="btn btn-primary btn-sm" data-admin-fn="saveAdSpend" style="white-space:nowrap">Add</button>
+            <button class="btn btn-primary btn-sm" onclick="saveAdSpend()" style="white-space:nowrap">Add</button>
           </div>
           <div id="adSpendList" style="max-height:100px;overflow-y:auto;font-size:12px;color:var(--gray)">Loading…</div>
         </div>
@@ -1135,10 +1135,10 @@ select.pm-input{cursor:pointer}
 
       <!-- Period selector -->
       <div class="filter-tabs" style="margin-bottom:20px">
-        <button class="filter-tab active" data-revenue-period="7">7 Days</button>
-        <button class="filter-tab" data-revenue-period="30">30 Days</button>
-        <button class="filter-tab" data-revenue-period="90">90 Days</button>
-        <button class="filter-tab" data-revenue-period="0">All Time</button>
+        <button class="filter-tab active" onclick="switchRevenuePeriod(7,this)">7 Days</button>
+        <button class="filter-tab" onclick="switchRevenuePeriod(30,this)">30 Days</button>
+        <button class="filter-tab" onclick="switchRevenuePeriod(90,this)">90 Days</button>
+        <button class="filter-tab" onclick="switchRevenuePeriod(0,this)">All Time</button>
       </div>
 
       <!-- KPI row -->
@@ -1187,7 +1187,7 @@ select.pm-input{cursor:pointer}
             <input class="field-input" id="pxFacebook" placeholder="e.g. 1234567890123456" style="max-width:360px">
           </div>
           <div style="margin-top:10px;display:flex;gap:8px">
-            <button class="btn btn-outline btn-sm" data-open-url="https://business.facebook.com/events_manager">Open Events Manager ↗</button>
+            <button class="btn btn-outline btn-sm" onclick="window.open('https://business.facebook.com/events_manager','_blank')">Open Events Manager ↗</button>
           </div>
         </div>
       </div>
@@ -1211,7 +1211,7 @@ select.pm-input{cursor:pointer}
             <input class="field-input" id="pxTiktok" placeholder="e.g. CBXXXXXXXXXXXXXX" style="max-width:360px">
           </div>
           <div style="margin-top:10px">
-            <button class="btn btn-outline btn-sm" data-open-url="https://ads.tiktok.com/i18n/events_manager">Open Events Manager ↗</button>
+            <button class="btn btn-outline btn-sm" onclick="window.open('https://ads.tiktok.com/i18n/events_manager','_blank')">Open Events Manager ↗</button>
           </div>
         </div>
       </div>
@@ -1235,12 +1235,12 @@ select.pm-input{cursor:pointer}
             <input class="field-input" id="pxGoogle" placeholder="e.g. G-XXXXXXXXXX" style="max-width:360px">
           </div>
           <div style="margin-top:10px">
-            <button class="btn btn-outline btn-sm" data-open-url="https://analytics.google.com">Open Google Analytics ↗</button>
+            <button class="btn btn-outline btn-sm" onclick="window.open('https://analytics.google.com','_blank')">Open Google Analytics ↗</button>
           </div>
         </div>
       </div>
 
-      <button class="btn btn-primary" data-admin-fn="savePixels">Save Pixels</button>
+      <button class="btn btn-primary" onclick="savePixels()">Save Pixels</button>
     </section>
 
     <!-- ── CITIES ── -->
@@ -1250,8 +1250,8 @@ select.pm-input{cursor:pointer}
         <div class="panel-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
           <h2>City List</h2>
           <div style="display:flex;gap:8px">
-            <button class="btn btn-outline btn-sm" data-admin-fn="resetCitiesToDefault">Reset to Default</button>
-            <button class="btn btn-primary btn-sm" data-admin-fn="saveCities">Save Changes</button>
+            <button class="btn btn-outline btn-sm" onclick="resetCitiesToDefault()">Reset to Default</button>
+            <button class="btn btn-primary btn-sm" onclick="saveCities()">Save Changes</button>
           </div>
         </div>
         <div class="panel-body">
@@ -1277,7 +1277,7 @@ select.pm-input{cursor:pointer}
             <div class="field-group"><label class="field-label">Currency</label><input class="field-input" id="settCurrency" placeholder="MAD"></div>
             <div class="field-group"><label class="field-label">Contact Email</label><input class="field-input" id="settEmail" placeholder="contact@streetstore.ma"></div>
           </div>
-          <button class="btn btn-primary" data-admin-fn="saveSettings">Save Settings</button>
+          <button class="btn btn-primary" onclick="saveSettings()">Save Settings</button>
         </div>
       </div>
 
@@ -1285,7 +1285,7 @@ select.pm-input{cursor:pointer}
         <div class="panel-header">
           <h2>Hero Video Intro</h2>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--gray)">
-            <div id="heroVideoToggle" style="width:36px;height:20px;border-radius:10px;background:var(--gray-light);position:relative;transition:background .2s;cursor:pointer">
+            <div id="heroVideoToggle" onclick="toggleHeroVideo()" style="width:36px;height:20px;border-radius:10px;background:var(--gray-light);position:relative;transition:background .2s;cursor:pointer">
               <div id="heroVideoThumb" style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div>
             </div>
             <span id="heroVideoStatus">Inactive</span>
@@ -1300,12 +1300,12 @@ select.pm-input{cursor:pointer}
               <label class="pm-video-upload">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
                 Upload
-                <input type="file" accept="video/*" style="display:none" id="heroVideoFileInput">
+                <input type="file" accept="video/*" style="display:none" onchange="heroVideoUpload(this)">
               </label>
             </div>
             <div id="heroVideoUploadProgress" style="display:none;margin-top:8px;font-size:12px;color:var(--gray)">Uploading video…</div>
           </div>
-          <button class="btn btn-primary" style="margin-top:14px" data-admin-fn="saveHeroVideo">Save Hero Video</button>
+          <button class="btn btn-primary" style="margin-top:14px" onclick="saveHeroVideo()">Save Hero Video</button>
         </div>
       </div>
 
@@ -1317,7 +1317,7 @@ select.pm-input{cursor:pointer}
             <div class="field-group"><label class="field-label">New Password</label><input class="field-input" id="newPwd" type="password" placeholder="New password"></div>
             <div class="field-group"><label class="field-label">Confirm Password</label><input class="field-input" id="confirmPwd" type="password" placeholder="Repeat password"></div>
           </div>
-          <button class="btn btn-outline" data-admin-fn="changePassword">Update Password</button>
+          <button class="btn btn-outline" onclick="changePassword()">Update Password</button>
         </div>
       </div>
 
@@ -1326,7 +1326,7 @@ select.pm-input{cursor:pointer}
         <div class="panel-body">
           <div id="twoFaDisabledView">
             <p style="font-size:13px;color:var(--gray);margin-bottom:16px">Add an extra layer of security. After entering your password, you'll need a 6-digit code from your authenticator app (Google Authenticator, Authy, etc.).</p>
-            <button class="btn btn-primary" data-admin-fn="setup2fa">Enable 2FA</button>
+            <button class="btn btn-primary" onclick="setup2fa()">Enable 2FA</button>
           </div>
           <div id="twoFaSetupView" style="display:none">
             <p style="font-size:13px;margin-bottom:14px">Scan this QR code with your authenticator app, then enter the 6-digit code to confirm.</p>
@@ -1334,36 +1334,36 @@ select.pm-input{cursor:pointer}
             <p style="font-size:11px;color:var(--gray);text-align:center;margin-bottom:16px">Or enter this key manually: <code id="twoFaSecret" style="font-size:11px;word-break:break-all"></code></p>
             <div class="field-row" style="align-items:flex-end">
               <div class="field-group"><label class="field-label">Verification Code</label><input class="field-input" id="twoFaCode" placeholder="000000" maxlength="6" style="letter-spacing:4px;font-size:18px;text-align:center"></div>
-              <button class="btn btn-primary" data-admin-fn="verify2fa">Confirm & Enable</button>
+              <button class="btn btn-primary" onclick="verify2fa()">Confirm & Enable</button>
             </div>
-            <button style="background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-top:8px" data-admin-fn="cancel2faSetup">Cancel</button>
+            <button style="background:none;border:none;color:var(--gray);font-size:12px;cursor:pointer;margin-top:8px" onclick="cancel2faSetup()">Cancel</button>
           </div>
           <div id="twoFaEnabledView" style="display:none">
             <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
               <span style="font-size:32px">🔒</span>
               <div><p style="font-weight:700;font-size:14px">2FA is active</p><p style="font-size:12px;color:var(--gray)">Your account is protected with a second factor.</p></div>
             </div>
-            <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red)" data-admin-fn="disable2fa">Disable 2FA</button>
+            <button class="btn btn-outline btn-sm" style="color:var(--red);border-color:var(--red)" onclick="disable2fa()">Disable 2FA</button>
           </div>
         </div>
       </div>
 
       <div class="panel">
-        <div class="panel-header"><h2>Activity Log</h2><button class="btn btn-outline btn-sm" data-admin-fn="clearActivityLog">Clear Log</button></div>
+        <div class="panel-header"><h2>Activity Log</h2><button class="btn btn-outline btn-sm" onclick="clearActivityLog()">Clear Log</button></div>
         <div class="panel-body" style="padding:0 20px">
           <div class="activity-list" id="activityLog"></div>
         </div>
       </div>
 
       <div class="panel">
-        <div class="panel-header"><h2>Blocked IPs</h2><button class="btn btn-outline btn-sm" data-admin-fn="loadBlockedIpsSettings">↻ Refresh</button></div>
+        <div class="panel-header"><h2>Blocked IPs</h2><button class="btn btn-outline btn-sm" onclick="loadBlockedIpsSettings()">↻ Refresh</button></div>
         <div id="blockedIpsSettings" style="padding:16px 20px">
           <p style="font-size:13px;color:var(--gray)">Loading...</p>
         </div>
       </div>
 
       <div class="panel">
-        <div class="panel-header"><h2>Backups</h2><button class="btn btn-outline btn-sm" data-admin-fn="runManualBackup">Backup Now</button></div>
+        <div class="panel-header"><h2>Backups</h2><button class="btn btn-outline btn-sm" onclick="runManualBackup()">Backup Now</button></div>
         <div class="panel-body">
           <p style="font-size:12px;color:var(--gray);margin-bottom:14px">Orders are backed up automatically every 24 hours. Last 30 backups are kept.</p>
           <div id="backupsList" style="font-size:13px;color:var(--gray)">Loading...</div>
@@ -1373,7 +1373,7 @@ select.pm-input{cursor:pointer}
       <div class="danger-zone">
         <h3>Danger Zone</h3>
         <p>Permanently delete all orders. This cannot be undone.</p>
-        <button class="btn btn-danger btn-sm" data-admin-fn="clearAllOrders">Delete All Orders</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAllOrders()">Delete All Orders</button>
       </div>
     </section>
 
@@ -1385,7 +1385,7 @@ select.pm-input{cursor:pointer}
   <div class="modal-box" style="max-width:480px">
     <div class="modal-head">
       <h2 class="modal-title" id="dealModalTitle">Create Deal</h2>
-      <button class="modal-close" id="dealModalClose">×</button>
+      <button class="modal-close" onclick="closeDealModal()">×</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="dmDealId">
@@ -1401,8 +1401,8 @@ select.pm-input{cursor:pointer}
         </div>
       </div>
       <div style="display:flex;gap:10px;padding-top:4px">
-        <button class="btn btn-primary" id="dealModalSave">Save Deal</button>
-        <button class="btn btn-outline" id="dealModalCancel">Cancel</button>
+        <button class="btn btn-primary" onclick="saveDealModal()">Save Deal</button>
+        <button class="btn btn-outline" onclick="closeDealModal()">Cancel</button>
       </div>
     </div>
   </div>
@@ -1417,7 +1417,7 @@ select.pm-input{cursor:pointer}
         <h2 class="modal-title" id="pmTitle">Add Product</h2>
         <div class="pm-subtitle" id="pmSubtitle">Fill in the details below</div>
       </div>
-      <button class="modal-close" id="productModalClose">×</button>
+      <button class="modal-close" onclick="closeProductModal()">×</button>
     </div>
 
     <!-- Scrollable body -->
@@ -1480,7 +1480,7 @@ select.pm-input{cursor:pointer}
           <label class="pm-upload-btn">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             Add Images
-            <input type="file" accept="image/*" multiple style="display:none" id="pmImageFileInput">
+            <input type="file" accept="image/*" multiple style="display:none" onchange="pmHandleImageFiles(this)">
           </label>
           <p id="pmImagesNote" style="font-size:11px;color:var(--gray);margin-top:10px;display:none">Images will upload after the product is saved.</p>
         </div>
@@ -1499,7 +1499,7 @@ select.pm-input{cursor:pointer}
             <label class="pm-video-upload">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
               Upload
-              <input type="file" accept="video/*" style="display:none" id="pmVideoFileInput">
+              <input type="file" accept="video/*" style="display:none" onchange="pmUploadVideo(this)">
             </label>
           </div>
           <div id="pmVideoUploadProgress" style="display:none;margin-top:8px;font-size:12px;color:var(--gray)">Uploading video…</div>
@@ -1518,7 +1518,7 @@ select.pm-input{cursor:pointer}
             <input class="pm-input" id="pmNewSize" placeholder="Size (e.g. 38)">
             <select class="pm-input" id="pmNewInStock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
             <input class="pm-input pm-input-sm" id="pmNewStock" type="number" placeholder="Qty">
-            <button class="btn btn-outline btn-sm" id="pmAddVariantBtn" style="white-space:nowrap">+ Add Size</button>
+            <button class="btn btn-outline btn-sm" onclick="pmAddVariantRow()" style="white-space:nowrap">+ Add Size</button>
           </div>
         </div>
       </div>
@@ -1532,32 +1532,32 @@ select.pm-input{cursor:pointer}
         <div class="pm-card-body">
           <label class="pm-label" style="margin-bottom:10px">Product Colors <span style="font-size:10px;color:#aaa;font-weight:500">(click to add · first = card background)</span></label>
           <div class="pm-color-swatches" id="pmColorSwatches">
-            <div class="pm-swatch" data-hex="#0f1f3d" style="background:#0f1f3d" title="Navy"></div>
-            <div class="pm-swatch" data-hex="#1e3a5f" style="background:#1e3a5f" title="Dark Blue"></div>
-            <div class="pm-swatch" data-hex="#2980b9" style="background:#2980b9" title="Blue"></div>
-            <div class="pm-swatch" data-hex="#1a1a1a" style="background:#1a1a1a" title="Black"></div>
-            <div class="pm-swatch" data-hex="#333333" style="background:#333333" title="Charcoal"></div>
-            <div class="pm-swatch" data-hex="#8b6347" style="background:#8b6347" title="Caramel"></div>
-            <div class="pm-swatch" data-hex="#6b4e30" style="background:#6b4e30" title="Brown"></div>
-            <div class="pm-swatch" data-hex="#c0392b" style="background:#c0392b" title="Red"></div>
-            <div class="pm-swatch" data-hex="#e67e22" style="background:#e67e22" title="Orange"></div>
-            <div class="pm-swatch" data-hex="#e0c97a" style="background:#e0c97a" title="Gold"></div>
-            <div class="pm-swatch" data-hex="#f5f0e8" style="background:#f5f0e8;border-color:#d0ccc5" title="Cream"></div>
-            <div class="pm-swatch" data-hex="#ffffff" style="background:#fff;border-color:#d0ccc5" title="White"></div>
-            <div class="pm-swatch" data-hex="#dcdfe5" style="background:#dcdfe5;border-color:#bbbfc8" title="Light Gray"></div>
-            <div class="pm-swatch" data-hex="#888888" style="background:#888" title="Gray"></div>
-            <div class="pm-swatch" data-hex="#1e4a2e" style="background:#1e4a2e" title="Dark Green"></div>
-            <div class="pm-swatch" data-hex="#8b0000" style="background:#8b0000" title="Burgundy"></div>
+            <div class="pm-swatch" data-hex="#0f1f3d" onclick="pmToggleColor('#0f1f3d')" style="background:#0f1f3d" title="Navy"></div>
+            <div class="pm-swatch" data-hex="#1e3a5f" onclick="pmToggleColor('#1e3a5f')" style="background:#1e3a5f" title="Dark Blue"></div>
+            <div class="pm-swatch" data-hex="#2980b9" onclick="pmToggleColor('#2980b9')" style="background:#2980b9" title="Blue"></div>
+            <div class="pm-swatch" data-hex="#1a1a1a" onclick="pmToggleColor('#1a1a1a')" style="background:#1a1a1a" title="Black"></div>
+            <div class="pm-swatch" data-hex="#333333" onclick="pmToggleColor('#333333')" style="background:#333333" title="Charcoal"></div>
+            <div class="pm-swatch" data-hex="#8b6347" onclick="pmToggleColor('#8b6347')" style="background:#8b6347" title="Caramel"></div>
+            <div class="pm-swatch" data-hex="#6b4e30" onclick="pmToggleColor('#6b4e30')" style="background:#6b4e30" title="Brown"></div>
+            <div class="pm-swatch" data-hex="#c0392b" onclick="pmToggleColor('#c0392b')" style="background:#c0392b" title="Red"></div>
+            <div class="pm-swatch" data-hex="#e67e22" onclick="pmToggleColor('#e67e22')" style="background:#e67e22" title="Orange"></div>
+            <div class="pm-swatch" data-hex="#e0c97a" onclick="pmToggleColor('#e0c97a')" style="background:#e0c97a" title="Gold"></div>
+            <div class="pm-swatch" data-hex="#f5f0e8" onclick="pmToggleColor('#f5f0e8')" style="background:#f5f0e8;border-color:#d0ccc5" title="Cream"></div>
+            <div class="pm-swatch" data-hex="#ffffff" onclick="pmToggleColor('#ffffff')" style="background:#fff;border-color:#d0ccc5" title="White"></div>
+            <div class="pm-swatch" data-hex="#dcdfe5" onclick="pmToggleColor('#dcdfe5')" style="background:#dcdfe5;border-color:#bbbfc8" title="Light Gray"></div>
+            <div class="pm-swatch" data-hex="#888888" onclick="pmToggleColor('#888888')" style="background:#888" title="Gray"></div>
+            <div class="pm-swatch" data-hex="#1e4a2e" onclick="pmToggleColor('#1e4a2e')" style="background:#1e4a2e" title="Dark Green"></div>
+            <div class="pm-swatch" data-hex="#8b0000" onclick="pmToggleColor('#8b0000')" style="background:#8b0000" title="Burgundy"></div>
           </div>
           <!-- Selected chips -->
           <div class="pm-color-chips" id="pmColorChips"><span class="pm-color-empty">No colors selected</span></div>
           <!-- Custom hex / color picker -->
           <div class="pm-color-hex-row">
-            <button class="pm-color-picker-swatch" id="pmColorPickerSwatch" title="Pick custom color" style="background:#e0e3e8">
-              <input type="color" id="pmColorPickerInput" style="opacity:0;width:100%;height:100%;cursor:pointer;border:none;padding:0">
+            <button class="pm-color-picker-swatch" title="Pick custom color" onclick="document.getElementById('pmColorPickerInput').click()" style="background:#e0e3e8">
+              <input type="color" id="pmColorPickerInput" style="opacity:0;width:100%;height:100%;cursor:pointer;border:none;padding:0" onchange="pmAddCustomColor(this.value)">
             </button>
-            <input type="text" class="pm-input" id="pmColorHexInput" maxlength="7" placeholder="#a1b2c3" style="font-family:monospace;max-width:110px">
-            <button class="btn btn-outline btn-sm" id="pmAddCustomColorBtn">Add</button>
+            <input type="text" class="pm-input" id="pmColorHexInput" maxlength="7" placeholder="#a1b2c3" oninput="pmSyncPickerFromText()" style="font-family:monospace;max-width:110px">
+            <button class="btn btn-outline btn-sm" onclick="pmAddCustomColor(document.getElementById('pmColorHexInput').value)">Add</button>
             <input type="hidden" id="pmColor">
           </div>
 
@@ -1573,7 +1573,7 @@ select.pm-input{cursor:pointer}
             <div></div>
           </div>
 
-          <div class="pm-featured-card" id="pmFeaturedCard">
+          <div class="pm-featured-card" id="pmFeaturedCard" onclick="pmToggleFeaturedCard()">
             <div class="pm-featured-icon-wrap">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="pmFeaturedIcon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
             </div>
@@ -1591,8 +1591,8 @@ select.pm-input{cursor:pointer}
 
     <!-- Sticky footer -->
     <div class="pm-footer">
-      <button class="btn btn-primary" id="pmSaveBtn" style="min-width:140px">Save Product</button>
-      <button class="btn btn-outline" id="pmCancelBtn">Cancel</button>
+      <button class="btn btn-primary" id="pmSaveBtn" onclick="saveProductModal()" style="min-width:140px">Save Product</button>
+      <button class="btn btn-outline" onclick="closeProductModal()">Cancel</button>
     </div>
 
     </div><!-- /modal-body -->
@@ -1604,7 +1604,7 @@ select.pm-input{cursor:pointer}
   <div class="modal-box" style="max-width:640px">
     <div class="modal-head">
       <h2 class="modal-title" id="omTitle">Order Details</h2>
-      <button class="modal-close" id="orderModalClose">×</button>
+      <button class="modal-close" onclick="closeOrderModal()">×</button>
     </div>
     <div class="modal-body" id="omBody"></div>
   </div>
@@ -1615,7 +1615,7 @@ select.pm-input{cursor:pointer}
   <div class="modal-box" style="max-width:560px">
     <div class="modal-head">
       <h2 class="modal-title" id="cmTitle">Customer</h2>
-      <button class="modal-close" id="customerModalClose">×</button>
+      <button class="modal-close" onclick="closeCustomerModal()">×</button>
     </div>
     <div class="modal-body" id="cmBody"></div>
   </div>
@@ -1626,7 +1626,7 @@ select.pm-input{cursor:pointer}
   <div class="modal-box" style="max-width:500px">
     <div class="modal-head">
       <h2 class="modal-title" id="discountModalTitle">Create Discount Code</h2>
-      <button class="modal-close" id="discountModalClose">×</button>
+      <button class="modal-close" onclick="closeDiscountModal()">×</button>
     </div>
     <div class="modal-body">
     <input type="hidden" id="dmEditId">
@@ -1635,7 +1635,7 @@ select.pm-input{cursor:pointer}
         <label class="field-label">Code</label>
         <div style="display:flex;gap:8px">
           <input class="field-input" id="dmCode" placeholder="SUMMER20" style="text-transform:uppercase">
-          <button class="btn btn-outline btn-sm" id="discountGenerateBtn" style="white-space:nowrap;flex-shrink:0">Generate</button>
+          <button class="btn btn-outline btn-sm" onclick="generateCode()" style="white-space:nowrap;flex-shrink:0">Generate</button>
         </div>
       </div>
       <div class="field-group"><label class="field-label">Type</label><select class="field-input" id="dmType"><option value="percent">Percentage (%)</option><option value="fixed">Fixed (MAD)</option></select></div>
@@ -1649,19 +1649,19 @@ select.pm-input{cursor:pointer}
       <div class="field-group"><label class="field-label">Expires (leave blank = never)</label><input class="field-input" id="dmExpiry" type="date"></div>
     </div>
     <div class="toggle-wrap" style="margin-bottom:20px"><label class="toggle"><input type="checkbox" id="dmActive" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label><span class="toggle-label">Active</span></div>
-    <div style="display:flex;gap:10px"><button class="btn btn-primary" id="discountSaveBtn">Save Code</button><button class="btn btn-outline" id="discountCancelBtn">Cancel</button></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-primary" onclick="saveDiscountModal()">Save Code</button><button class="btn btn-outline" onclick="closeDiscountModal()">Cancel</button></div>
     </div><!-- /modal-body -->
   </div>
 </div>
 
 <!-- NOTIFICATION SIDE PANEL -->
-<div class="notif-overlay" id="notifOverlay"></div>
+<div class="notif-overlay" id="notifOverlay" onclick="closeNotifPanel()"></div>
 <div class="notif-panel" id="notifPanel">
   <div class="notif-panel-header">
     <h3>Notifications</h3>
     <div style="display:flex;gap:8px">
-      <button class="btn btn-outline btn-sm" id="notifMarkReadBtn">Mark Read</button>
-      <button class="btn-icon" id="notifPanelClose"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      <button class="btn btn-outline btn-sm" onclick="markAllNotificationsRead()">Mark Read</button>
+      <button class="btn-icon" onclick="closeNotifPanel()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     </div>
   </div>
   <div class="notif-list" id="notifList"></div>
@@ -2292,7 +2292,7 @@ function renderOrderCards(orders) {
         </div>
         <div class="order-card-right">
           <div class="order-card-total">${total}</div>
-          ${isConfirmed ? `<input type="checkbox" ${selected?'checked':''} data-order-select="${o.id}" title="Select for Olivraison">` : ''}
+          ${isConfirmed ? `<input type="checkbox" ${selected?'checked':''} onchange="toggleOrderSelect('${o.id}',this);updateMobileFab()" title="Select for Olivraison">` : ''}
         </div>
       </div>
       <div class="order-card-items">${itemsList}</div>
@@ -2301,8 +2301,8 @@ function renderOrderCards(orders) {
       <div class="order-card-footer">
         ${st}
         <div class="order-card-actions">
-          <button class="btn-icon" data-order-view="${o.id}" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-          <button class="btn-icon danger" data-order-delete="${o.id}" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+          <button class="btn-icon" onclick="openOrderModal('${o.id}')" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          <button class="btn-icon danger" onclick="deleteOrder('${o.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
         </div>
       </div>
     </div>`;
@@ -2373,7 +2373,7 @@ function makeStatusPill(orderId, currentStatus) {
   const pid = 'sdrop_' + orderId.replace(/[^a-z0-9]/gi,'_');
   // No dropdown HTML inside the pill — portal is used instead
   return `<div class="status-pill-wrap" id="${pid}_wrap">
-    <div class="status-pill" id="${pid}" style="background:${cfg.bg};color:${cfg.color}" data-status-pill="${orderId}" data-status-current="${currentStatus}" data-status-pid="${pid}">
+    <div class="status-pill" id="${pid}" style="background:${cfg.bg};color:${cfg.color}" onclick="toggleStatusDrop(event,'${pid}','${orderId}','${currentStatus}')">
       <span class="status-pill-dot" style="background:${cfg.dot}"></span>
       <span>${cfg.label}</span>
       <svg class="status-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
@@ -2390,11 +2390,7 @@ function _getPortal() {
     p.id = 'statusDropPortal';
     p.className = 'status-drop-menu';
     p.style.cssText = 'display:none;position:fixed;z-index:99999;';
-    p.addEventListener('click', function(e){
-      e.stopPropagation();
-      var pickBtn = e.target.closest('[data-status-pick]');
-      if (pickBtn) { statusPickItem(e, pickBtn.dataset.statusPick, pickBtn.dataset.statusKey); }
-    });
+    p.addEventListener('click', function(e){ e.stopPropagation(); });
     document.body.appendChild(p);
   }
   return p;
@@ -2423,7 +2419,7 @@ function toggleStatusDrop(e, pid, orderId, currentStatus) {
 
   // Build items
   portal.innerHTML = Object.entries(STATUS_CFG).map(([key, v]) =>
-    `<button class="status-drop-item${key===currentStatus?' active':''}" data-status-pick="${orderId}" data-status-key="${key}">
+    `<button class="status-drop-item${key===currentStatus?' active':''}" onclick="statusPickItem(event,'${orderId}','${key}')">
       <span class="status-drop-item-dot" style="background:${v.dot}"></span>
       <span class="status-drop-item-emoji">${v.emoji}</span>
       <span>${v.label}</span>
@@ -2454,11 +2450,7 @@ function statusPickItem(e, orderId, newStatus) {
   setOrderStatus(orderId, newStatus);
 }
 
-document.addEventListener('click', function(e) {
-  var pill = e.target.closest('[data-status-pill]');
-  if (pill) { toggleStatusDrop(e, pill.dataset.statusPid, pill.dataset.statusPill, pill.dataset.statusCurrent); return; }
-  _closePortal();
-});
+document.addEventListener('click', _closePortal);
 
 /* ── Mobile status bottom sheet ── */
 var _statusSheetOrderId = null;
@@ -2467,7 +2459,7 @@ function showStatusSheet(orderId, currentStatus) {
   const items = document.getElementById('statusSheetItems');
   if (!items) return;
   items.innerHTML = Object.entries(STATUS_CFG).map(([key, v]) =>
-    `<button class="sheet-item${key===currentStatus?' active':''}" data-sheet-status="${key}">
+    `<button class="sheet-item${key===currentStatus?' active':''}" onclick="sheetPickStatus('${key}')">
       <span class="sheet-item-dot" style="background:${v.dot}"></span>
       <span class="sheet-item-emoji">${v.emoji}</span>
       <span class="sheet-item-label">${v.label}</span>
@@ -2493,7 +2485,7 @@ function orderTableRows(orders, compact) {
   const allChecked = allConfirmedIds.length > 0 && allConfirmedIds.every(id=>_selectedOrders.has(id));
   const checkedAttr = allChecked ? 'checked' : '';
   const idsJson = JSON.stringify(allConfirmedIds).replace(/"/g, "'");
-  const checkboxTh = compact ? '' : `<th style="width:32px"><input type="checkbox" title="Select all confirmed" ${checkedAttr} data-order-select-all="${idsJson}"></th>`;
+  const checkboxTh = compact ? '' : `<th style="width:32px"><input type="checkbox" title="Select all confirmed" ${checkedAttr} onchange="allConfirmedIds=${idsJson};this.checked?allConfirmedIds.forEach(id=>_selectedOrders.add(id)):_selectedOrders.clear();loadOrdersTable();updateOlivraisonBar()"></th>`;
   const phoneTh   = compact ? '' : '<th>Phone</th>';
   const actionsTh = compact ? '' : '<th>Actions</th>';
   const hdr = `<thead><tr>
@@ -2511,12 +2503,12 @@ function orderTableRows(orders, compact) {
     const statusEmoji  = { confirmed:'✅', cancelled:'❌', reported:'⚠️', called:'📞', processing:'⚙️', pending:'⏳', done:'🏁', new:'🆕' };
     const st = makeStatusPill(o.id, status);
     const act = compact ? '' : `<td><div style="display:flex;gap:4px">
-      <button class="btn-icon" data-order-view="${o.id}" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
-      <button class="btn-icon danger" data-order-delete="${o.id}" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+      <button class="btn-icon" onclick="openOrderModal('${o.id}')" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      <button class="btn-icon danger" onclick="deleteOrder('${o.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
     </div></td>`;
     const isConfirmed = status === 'confirmed';
     return `<tr class="${rowClass}">
-      ${compact?'':`<td><input type="checkbox" ${_selectedOrders.has(o.id)?'checked':''} ${isConfirmed?'':'style="opacity:.3"'} data-order-select="${o.id}"></td>`}
+      ${compact?'':`<td><input type="checkbox" ${_selectedOrders.has(o.id)?'checked':''} ${isConfirmed?'':'style="opacity:.3"'} onchange="toggleOrderSelect('${o.id}',this)"></td>`}
       <td style="color:var(--gray);font-size:11px">${escHtml(o.id)||'#'+String(i+1).padStart(3,'0')}</td>
       <td style="font-size:12px">${ds}</td>
       <td style="max-width:160px;font-size:12px;line-height:1.6">${formatItems(o,'table')}</td><td style="font-weight:700">${o.total ? Math.round(o.total)+' MAD' : (escHtml(o.price)||'—')}</td>
@@ -2614,8 +2606,8 @@ function openOrderModal(id) {
     </div>
     <div class="field-group"><label class="field-label">Notes</label><textarea class="field-input" id="omNotes" placeholder="Internal notes...">${order.notes||''}</textarea></div>
     <div style="display:flex;gap:10px">
-      <button class="btn btn-primary" data-order-modal-save="${order.id}">Save Changes</button>
-      <button class="btn btn-outline" data-order-modal-close>Close</button>
+      <button class="btn btn-primary" onclick="saveOrderModal('${order.id}')">Save Changes</button>
+      <button class="btn btn-outline" onclick="closeOrderModal()">Close</button>
     </div>`;
   document.getElementById('orderModal').classList.add('open');
   document.body.style.overflow='hidden';
@@ -2742,11 +2734,11 @@ function renderProductsTable(products) {
       <td><span class="status-badge ${statusColor}">${statusLabel}</span></td>
       <td>${stockLabel}</td>
       <td>${badgeEl}</td>
-      <td><span data-toggle-featured="${escHtml(p.id)}" data-featured-val="${!p.isFeatured}" style="cursor:pointer;font-size:18px;user-select:none" title="${p.isFeatured ? 'Remove from homepage' : 'Add to homepage'}">${p.isFeatured ? '⭐' : '☆'}</span></td>
+      <td><span onclick="toggleFeatured('${escHtml(p.id)}',${!p.isFeatured})" style="cursor:pointer;font-size:18px;user-select:none" title="${p.isFeatured ? 'Remove from homepage' : 'Add to homepage'}">${p.isFeatured ? '⭐' : '☆'}</span></td>
       <td style="text-align:right">
         <div style="display:flex;gap:6px;justify-content:flex-end">
-          <button class="btn btn-outline btn-sm" data-product-edit="${escHtml(p.id)}">Edit</button>
-          <button class="btn btn-danger btn-sm" data-product-delete="${escHtml(p.id)}">Delete</button>
+          <button class="btn btn-outline btn-sm" onclick="openProductModal('${escHtml(p.id)}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct('${escHtml(p.id)}')">Delete</button>
         </div>
       </td>
     </tr>`;
@@ -2870,8 +2862,8 @@ function pmRenderImages(images, productId) {
     const isMain = img.isMain;
     return `<div class="pm-img-thumb${isMain?' pm-img-main':''}" id="pmImg-${img.id}" style="border-color:${isMain?'var(--navy)':'#e0e3e8'}">
       <img src="${escHtml(img.url)}" alt="">
-      ${isMain ? `<span class="pm-img-main-badge">MAIN</span>` : `<button class="pm-img-set-main" title="Set as main" data-set-main-product="${escHtml(String(productId))}" data-set-main-img="${escHtml(String(img.id))}">★</button>`}
-      <button class="pm-img-del" title="Delete" data-remove-img-product="${escHtml(String(productId))}" data-remove-img-id="${escHtml(String(img.id))}">×</button>
+      ${isMain ? `<span class="pm-img-main-badge">MAIN</span>` : `<button class="pm-img-set-main" title="Set as main" onclick="setMainProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">★</button>`}
+      <button class="pm-img-del" title="Delete" onclick="removeProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">×</button>
     </div>`;
   }).join('');
 }
@@ -2885,8 +2877,8 @@ function pmRenderVariants(variants, productId) {
       <span class="status-badge ${v.inStock?'status-done':'status-cancelled'} pm-variant-badge">${v.inStock?'In Stock':'Out'}</span>
       ${v.stock != null ? `<span class="pm-variant-qty">×${v.stock}</span>` : ''}
       <div class="pm-variant-actions">
-        <button class="pm-variant-btn pm-variant-toggle" data-variant-toggle-product="${escHtml(String(productId))}" data-variant-toggle-id="${escHtml(String(v.id))}" data-variant-toggle-val="${!v.inStock}">${v.inStock?'Out':'In'}</button>
-        <button class="pm-variant-btn pm-variant-del" data-variant-del-product="${escHtml(String(productId))}" data-variant-del-id="${escHtml(String(v.id))}">×</button>
+        <button class="pm-variant-btn pm-variant-toggle" onclick="pmToggleVariantStock('${escHtml(String(productId))}','${escHtml(String(v.id))}',${!v.inStock})">${v.inStock?'Out':'In'}</button>
+        <button class="pm-variant-btn pm-variant-del" onclick="removeVariant('${escHtml(String(productId))}','${escHtml(String(v.id))}')">×</button>
       </div>
     </div>`).join('');
 }
@@ -3224,8 +3216,8 @@ function loadCustomersTable() {
       <td style="font-size:12px">${lastD}</td>
       <td><span class="status-badge ${isBlocked?'status-cancelled':'status-done'}">${isBlocked?'Blocked':'Active'}</span></td>
       <td><div style="display:flex;gap:4px">
-        <button class="btn btn-outline btn-sm" data-customer-view="${c.phone}">View</button>
-        <button class="btn btn-sm ${isBlocked?'btn-success':'btn-danger'}" data-customer-block="${c.phone}">${isBlocked?'Unblock':'Block'}</button>
+        <button class="btn btn-outline btn-sm" onclick="openCustomerModal('${c.phone}')">View</button>
+        <button class="btn btn-sm ${isBlocked?'btn-success':'btn-danger'}" onclick="toggleBlock('${c.phone}')">${isBlocked?'Unblock':'Block'}</button>
       </div></td>
     </tr>`;
   }).join('');
@@ -3270,8 +3262,8 @@ function openCustomerModal(phone) {
       </div>`).join('')}
     </div>
     <div style="margin-top:20px;display:flex;gap:10px">
-      <button class="btn ${blocked?'btn-success':'btn-danger'} btn-sm" data-customer-modal-block="${phone}">${blocked?'Unblock Customer':'Block Customer'}</button>
-      <button class="btn btn-outline btn-sm" data-customer-modal-close>Close</button>
+      <button class="btn ${blocked?'btn-success':'btn-danger'} btn-sm" onclick="toggleBlock('${phone}');closeCustomerModal()">${blocked?'Unblock Customer':'Block Customer'}</button>
+      <button class="btn btn-outline btn-sm" onclick="closeCustomerModal()">Close</button>
     </div>`;
   document.getElementById('customerModal').classList.add('open');
   document.body.style.overflow='hidden';
@@ -3314,8 +3306,8 @@ async function loadDiscountsTable() {
       <td style="font-size:12px">${exp}</td>
       <td><span class="status-badge ${d.isActive&&!expired?'status-done':'status-cancelled'}">${d.isActive&&!expired?'Active':'Inactive'}</span></td>
       <td><div style="display:flex;gap:4px">
-        <button class="btn-icon" data-discount-edit="${d.id}" title="Edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-        <button class="btn-icon danger" data-discount-delete="${d.id}" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+        <button class="btn-icon" onclick="openDiscountModal('${d.id}')" title="Edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+        <button class="btn-icon danger" onclick="deleteDiscount('${d.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
       </div></td>
     </tr>`;
   }).join('');
@@ -5113,7 +5105,7 @@ if (_storedSession) {
 </script>
 
 <!-- Mobile FAB: Send to Olivraison -->
-<button class="mobile-oliv-fab" id="mobileFab" style="display:none">
+<button class="mobile-oliv-fab" id="mobileFab" onclick="mobileOlivSend()" style="display:none">
   🚚 <span id="mobileFabText">Send Confirmed</span>
 </button>
 
@@ -5121,7 +5113,7 @@ if (_storedSession) {
 <div id="statusDropPortal" class="status-drop-menu" style="display:none;position:fixed;z-index:99999;"></div>
 
 <!-- STATUS BOTTOM SHEET (mobile) -->
-<div id="statusSheetBg"></div>
+<div id="statusSheetBg" onclick="closeStatusSheet()"></div>
 <div id="statusSheet">
   <div id="statusSheetHandle"></div>
   <div id="statusSheetTitle">Update Status</div>

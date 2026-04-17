@@ -678,7 +678,7 @@
         <p style="font-size:10px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--charcoal);margin-bottom:10px;" data-i18n="promo_code">Promo Code</p>
         <div class="co-promo-row promo-form">
           <input type="text" id="promoCodeInput" placeholder="Enter code" data-i18n-ph="promo_ph" />
-          <button type="button" id="applyPromoBtn" data-i18n="apply">Apply</button>
+          <button type="button" id="applyPromoBtn" onclick="applyPromoCode()" data-i18n="apply">Apply</button>
         </div>
         <div id="promoMsg" style="font-size:12px;margin-top:6px;display:none;"></div>
       </div>
@@ -709,9 +709,6 @@
 <script>
 // Loading state on place-order button
 document.addEventListener('DOMContentLoaded', function() {
-  var applyPromoBtn = document.getElementById('applyPromoBtn');
-  if (applyPromoBtn) applyPromoBtn.addEventListener('click', applyPromoCode);
-
   var placeBtn = document.getElementById('placeOrderBtn');
   if (placeBtn) {
     placeBtn.addEventListener('click', function() {
