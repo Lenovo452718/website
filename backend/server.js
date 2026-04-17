@@ -1712,7 +1712,7 @@ app.patch('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req,
 });
 
 app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, res) => {
-  const { orderIds, apiKey, secretKey } = req.body;
+  const { orderIds, apiKey, secretKey, descriptions = {} } = req.body;
   if (!Array.isArray(orderIds) || !orderIds.length) return res.status(400).json({ error: 'No order IDs provided' });
   if (!apiKey || !secretKey) return res.status(400).json({ error: 'Olivraison credentials required' });
 
@@ -1746,10 +1746,11 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
     if (!order) { results.push({ orderId: id, success: false, error: 'Order not found' }); continue; }
 
     const firstItem = order.items[0] || {};
+    const description = descriptions[id] || firstItem.name || '';
     const payload = {
       price:       String(order.total || 0),
       comment:     order.notes        || '',
-      description: firstItem.name     || '',
+      description,
       inventory:   'true',
       name:        order.customer     || 'Unknown',
       destination: {

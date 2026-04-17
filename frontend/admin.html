@@ -2206,11 +2206,23 @@ async function sendToOlivraison() {
   body.innerHTML = '<div style="text-align:center;padding:24px;color:var(--gray)">Sending orders to Olivraison…</div>';
   modal.classList.add('open');
 
+  // Build description strings from saved item short names
+  const descriptions = {};
+  const allOrders = getOrders();
+  ids.forEach(id => {
+    const ord = allOrders.find(o => o.id === id || String(o.id) === String(id));
+    if (ord && Array.isArray(ord.items) && ord.items.length) {
+      descriptions[id] = ord.items
+        .map(i => `${(i.shortName || i.name || '')}${i.size ? ' ('+i.size+')' : ''} ×${i.qty||1}`)
+        .join(', ');
+    }
+  });
+
   try {
     const res = await authFetch('/api/admin/olivraison/send', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderIds: ids, apiKey: creds.apiKey, secretKey: creds.secretKey })
+      body: JSON.stringify({ orderIds: ids, apiKey: creds.apiKey, secretKey: creds.secretKey, descriptions })
     });
     const data = await res.json();
 
@@ -2567,8 +2579,23 @@ function openOrderModal(id) {
     <div class="detail-grid">
       <div class="detail-item"><label>Customer</label><span>${order.customer||'—'}</span></div>
       <div class="detail-item"><label>Phone</label><input class="field-input" id="omPhone" value="${escHtml(normPhone(order.phone||''))}" placeholder="06XXXXXXXX" style="margin:0" autocomplete="off"></div>
-      <div class="detail-item"><label>Product</label><span>${order.product||'—'}</span></div>
-      <div class="detail-item"><label>Size / Qty</label><span>${order.size||'—'} / ${order.qty||1}</span></div>
+      ${Array.isArray(order.items) && order.items.length
+        ? `<div class="detail-item" style="grid-column:1/-1">
+             <label>Products <span style="font-size:10px;color:var(--gray);font-weight:400">(edit name for Olivraison)</span></label>
+             <div id="omItems">
+               ${order.items.map((item, idx) => `
+                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+                   <input class="field-input om-item-name" data-idx="${idx}"
+                          value="${escHtml(item.shortName || item.name || '')}"
+                          placeholder="Product name"
+                          style="flex:1;margin:0" autocomplete="off">
+                   <span style="color:var(--gray);font-size:12px;white-space:nowrap">${escHtml(item.size || '')} ×${item.qty || 1}</span>
+                 </div>`).join('')}
+             </div>
+           </div>`
+        : `<div class="detail-item"><label>Product</label><span>${escHtml(order.product||'—')}</span></div>
+           <div class="detail-item"><label>Size / Qty</label><span>${escHtml(order.size||'—')} / ${order.qty||1}</span></div>`
+      }
       <div class="detail-item"><label>Price</label><span style="color:var(--navy);font-size:16px">${order.price||'—'}</span></div>
       <div class="detail-item"><label>City</label><input class="field-input" id="omCity" value="${escHtml(order.city||'')}" placeholder="City" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>Address</label><span>${order.address||'—'}</span></div>
@@ -2634,6 +2661,15 @@ async function saveOrderModal(id) {
       updatedAt: new Date().toISOString()
     };
     orders[idx] = { ...orders[idx], ...updates };
+    // Save edited item display names (for Olivraison description)
+    const nameInputs = document.querySelectorAll('.om-item-name');
+    if (nameInputs.length > 0 && Array.isArray(orders[idx].items)) {
+      nameInputs.forEach((input, i) => {
+        if (orders[idx].items[i]) {
+          orders[idx].items[i].shortName = input.value.trim();
+        }
+      });
+    }
     saveOrdersArr(orders);
     try {
       await authFetch(`/api/admin/orders/${id}`, {
