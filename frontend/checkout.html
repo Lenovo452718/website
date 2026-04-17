@@ -13,8 +13,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Checkout — StreetStore</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="rtl.css" />
-  <style>
+<style>
 
     /* ── Single-section override ── */
     .checkout-step { display: block !important; }
@@ -463,8 +462,8 @@
 
             <!-- Full name -->
             <div class="co-field form-group">
-              <label>Full Name</label>
-              <input type="text" id="info-first" placeholder="e.g. Fatima Zahra" autocomplete="name" />
+              <label data-i18n="full_name">Full Name</label>
+              <input type="text" id="info-first" placeholder="e.g. Fatima Zahra" data-i18n-ph="full_name_ph" autocomplete="name" />
               <input type="text" id="info-last" value="" tabindex="-1" aria-hidden="true" />
             </div>
 
@@ -479,11 +478,11 @@
             <div class="co-grid form-row">
               <div class="co-field form-group">
                 <label data-i18n="city">City</label>
-                <input type="text" id="info-city" placeholder="Casablanca" autocomplete="address-level2" />
+                <input type="text" id="info-city" placeholder="Casablanca" data-i18n-ph="city_ph" autocomplete="address-level2" />
               </div>
               <div class="co-field form-group">
                 <label data-i18n="address_label">Address</label>
-                <input type="text" id="info-address" placeholder="Street, Quarter..." autocomplete="street-address" />
+                <input type="text" id="info-address" placeholder="Street, Quarter..." data-i18n-ph="address_ph" autocomplete="street-address" />
               </div>
             </div>
 
@@ -542,7 +541,7 @@
               <div class="co-pay-name" data-i18n="cod_title">Cash on Delivery</div>
               <div class="co-pay-desc" data-i18n="cod_desc">Pay in cash when your order arrives — no card required.</div>
             </div>
-            <div class="co-pay-badge">Only option</div>
+            <div class="co-pay-badge" data-i18n="only_option">Only option</div>
           </div>
 
           <!-- What happens next -->
@@ -619,8 +618,8 @@
           </div>
 
           <!-- Place Order -->
-          <button class="co-place-btn place-order-btn btn-dark" data-i18n="place_order" id="placeOrderBtn">
-            <span class="btn-label">Confirm Order</span>
+          <button class="co-place-btn place-order-btn btn-dark" id="placeOrderBtn">
+            <span class="btn-label" data-i18n="confirm_order">Confirm Order</span>
             <span class="btn-arrow">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>

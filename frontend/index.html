@@ -11,7 +11,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>StreetStore — Women's Premium Denim</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="rtl.css" />
 </head>
 <body>
 
@@ -73,12 +72,12 @@
     </div>
   </div>
   <div class="hero-stats hero-reveal">
-    <div class="hero-stat"><span class="hero-stat-num count-up" data-target="10" data-suffix="K+">0</span><span class="hero-stat-label">Satisfied Customers</span></div>
-    <div class="hero-stat"><span class="hero-stat-num">SS26</span><span class="hero-stat-label">Collection</span></div>
-    <div class="hero-stat"><span class="hero-stat-num count-up" data-target="100" data-suffix="%">0</span><span class="hero-stat-label">Premium</span></div>
+    <div class="hero-stat"><span class="hero-stat-num count-up" data-target="10" data-suffix="K+">0</span><span class="hero-stat-label" data-i18n="hero_stat_customers">Satisfied Customers</span></div>
+    <div class="hero-stat"><span class="hero-stat-num">SS26</span><span class="hero-stat-label" data-i18n="hero_stat_collection">Collection</span></div>
+    <div class="hero-stat"><span class="hero-stat-num count-up" data-target="100" data-suffix="%">0</span><span class="hero-stat-label" data-i18n="hero_stat_premium">Premium</span></div>
   </div>
   <div class="hero-scroll hero-reveal">
-    <span>Scroll</span>
+    <span data-i18n="scroll">Scroll</span>
     <div class="hero-scroll-line"></div>
   </div>
 </section>
@@ -138,11 +137,11 @@
 <!-- ===== BRAND STATEMENT ===== -->
 <div class="brand-statement reveal">
   <div class="brand-statement-inner">
-    <h2>DENIM.<br>REIMAGINED.</h2>
+    <h2 data-i18n="brand_h2">DENIM.<br>REIMAGINED.</h2>
     <div class="brand-statement-sep"></div>
     <div class="brand-statement-text">
-      <p>Premium women's denim from the heart of Morocco. Every pair crafted for the bold, the fearless, and the utterly modern.</p>
-      <a href="about.html" class="btn-text">Our Story →</a>
+      <p data-i18n="brand_desc">Premium women's denim from the heart of Morocco. Every pair crafted for the bold, the fearless, and the utterly modern.</p>
+      <a href="about.html" class="btn-text" data-i18n="our_story_link">Our Story →</a>
     </div>
   </div>
 </div>
@@ -155,7 +154,7 @@
       <h2 class="trending-header-title" data-i18n="trending_now">Trending Now</h2>
       <p class="trending-header-sub" data-i18n="trending_sub">The looks everyone's talking about this season.</p>
     </div>
-    <a href="shop.html" class="trending-header-cta">Shop All →</a>
+    <a href="shop.html" class="trending-header-cta" data-i18n="shop_all">Shop All →</a>
   </div>
   <div class="trending-grid">
 
@@ -163,8 +162,8 @@
     <div class="trending-panel reveal">
       <div class="trending-panel-img" style="background-image:url('images/lookbook/curly-denim-set.jpg');background-size:cover;background-position:center 20%;"></div>
       <div class="trending-panel-overlay">
-        <div class="trending-panel-label">Street Denim</div>
-        <a href="shop.html" class="trending-panel-btn">Shop Now</a>
+        <div class="trending-panel-label" data-i18n="trending_street">Street Denim</div>
+        <a href="shop.html" class="trending-panel-btn" data-i18n="hero_shop">Shop Now</a>
       </div>
     </div>
 
@@ -172,10 +171,10 @@
     <div class="trending-panel trending-panel-main reveal">
       <div class="trending-panel-img" style="background-image:url('images/lookbook/light-denim-full.jpg');background-size:cover;background-position:center 10%;"></div>
       <div class="trending-panel-overlay">
-        <div class="trending-panel-badge">Most Loved</div>
-        <div class="trending-panel-label">Full Denim</div>
-        <p class="trending-panel-desc">Denim on denim — the ultimate street look of the season.</p>
-        <a href="shop.html" class="trending-panel-btn">Shop Now</a>
+        <div class="trending-panel-badge" data-i18n="trending_most_loved">Most Loved</div>
+        <div class="trending-panel-label" data-i18n="trending_full">Full Denim</div>
+        <p class="trending-panel-desc" data-i18n="trending_full_desc">Denim on denim — the ultimate street look of the season.</p>
+        <a href="shop.html" class="trending-panel-btn" data-i18n="hero_shop">Shop Now</a>
       </div>
     </div>
 
@@ -183,8 +182,8 @@
     <div class="trending-panel reveal">
       <div class="trending-panel-img" style="background-image:url('images/lookbook/cafe-mocha-balloon.jpg');background-size:cover;background-position:center 20%;"></div>
       <div class="trending-panel-overlay">
-        <div class="trending-panel-label">Caramel Tones</div>
-        <a href="shop.html" class="trending-panel-btn">Shop Now</a>
+        <div class="trending-panel-label" data-i18n="trending_caramel">Caramel Tones</div>
+        <a href="shop.html" class="trending-panel-btn" data-i18n="hero_shop">Shop Now</a>
       </div>
     </div>
 
@@ -228,7 +227,7 @@
       <h4 data-i18n="footer_help">Help</h4>
       <ul>
         <li><a href="contact.html" data-i18n="footer_contact">Contact Us</a></li>
-        <li><a href="shipping.html">Shipping &amp; Returns</a></li>
+        <li><a href="shipping.html" data-i18n="footer_shipping">Shipping &amp; Returns</a></li>
         <li><a href="faq.html" data-i18n="footer_faq">FAQ</a></li>
         <li><a href="account.html" data-i18n="footer_account">My Account</a></li>
         <li><a href="signup.html" data-i18n="footer_track">Track Order</a></li>

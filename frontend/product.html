@@ -11,7 +11,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Product — StreetStore</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="rtl.css" />
 </head>
 <body>
 
@@ -70,7 +69,7 @@
         <source id="productVideoSrc" src="videos/placeholder.mp4" type="video/mp4">
         <source >
       </video>
-      <button class="video-skip-btn" id="videoSkipBtn">Skip ›</button>
+      <button class="video-skip-btn" id="videoSkipBtn" data-i18n="skip">Skip ›</button>
     </div>
 
     <!-- IMAGES (hidden, reveals after video ends) -->
@@ -89,14 +88,14 @@
   <!-- INFO PANEL -->
   <div class="product-info">
     <div class="product-badge-wrap">
-      <span class="product-label">Best Seller</span>
+      <span class="product-label" data-i18n="best_seller">Best Seller</span>
     </div>
 
     <h1 class="product-name">LOADING…</h1>
 
     <div class="product-rating">
       <span class="stars">★★★★★</span>
-      <span class="rating-count">48 reviews</span>
+      <span class="rating-count" data-i18n="reviews_label">48 reviews</span>
     </div>
 
     <p class="product-price-display"><span class="original" style="font-size:16px; color:var(--gray); text-decoration:line-through; margin-right:8px;">249 MAD</span>179 MAD</p>
@@ -119,7 +118,7 @@
       <button class="size-btn">XL</button>
     </div>
     <a href="size-guide.html" class="size-guide-link" data-i18n="size_guide">Size Guide</a>
-    <p class="fit-note">True to size. Perfect high-waist fit for all body types.</p>
+    <p class="fit-note" data-i18n="fit_note_text">True to size. Perfect high-waist fit for all body types.</p>
 
     <p class="product-option-label" data-i18n="product_qty">Quantity</p>
     <div class="qty-selector">
@@ -129,14 +128,14 @@
     </div>
 
     <div class="pack-deal">
-      <p class="pack-deal-tag">🎁 Limited Offer</p>
+      <p class="pack-deal-tag" data-i18n="limited_offer">🎁 Limited Offer</p>
       <p class="pack-deal-main">2 items → <span>319 MAD</span> &nbsp;·&nbsp; 3 items → <span>479 MAD</span></p>
-      <p class="pack-deal-sub">Mix &amp; match any styles — discount applied automatically in cart</p>
-      <span class="pack-deal-badge">Save up to 10% off</span>
+      <p class="pack-deal-sub" data-i18n="pack_deal_line2">Mix &amp; match any styles — discount applied automatically in cart</p>
+      <span class="pack-deal-badge" data-i18n="pack_save">Save up to 10% off</span>
     </div>
 
     <div class="bundle-offer-block" id="bundleOfferBlock">
-      <div class="bundle-offer-badge">✦ Exclusive Bundle Deal</div>
+      <div class="bundle-offer-badge" data-i18n="bundle_badge">✦ Exclusive Bundle Deal</div>
       <div class="bundle-offer-slots-row">
         <div class="bundle-offer-slot-dot">1</div>
         <span class="bundle-offer-connector">+</span>

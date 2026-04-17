@@ -11,7 +11,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Shop All Jeans — StreetStore</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="rtl.css" />
 </head>
 <body>
 
@@ -19,7 +18,7 @@
 <header class="site-header" id="siteHeader">
   <div class="nav-inner">
     <nav class="nav-left">
-      <a href="shop.html" style="border-bottom: 1px solid currentColor; padding-bottom: 2px;">Shop</a>
+      <a href="shop.html" data-i18n="nav_shop" style="border-bottom: 1px solid currentColor; padding-bottom: 2px;">Shop</a>
       <a href="about.html" data-i18n="nav_about">About</a>
     </nav>
     <a href="index.html" class="nav-logo">STREETSTORE</a>
@@ -52,7 +51,7 @@
 <!-- ===== PAGE TITLE BAR ===== -->
 <div class="page-title-bar">
   <div class="page-title-bar-inner">
-    <h1>All Jeans</h1>
+    <h1 data-i18n="all_jeans">All Jeans</h1>
     <span>6 products</span>
   </div>
 </div>
@@ -103,11 +102,11 @@
     <div class="filter-section">
       <h4 data-i18n="filter_fit">Fit</h4>
       <div class="filter-checkboxes">
-        <label><input type="radio" name="fit" class="filter-fit" value="all" checked /> All</label>
-        <label><input type="radio" name="fit" class="filter-fit" value="skinny" /> Skinny</label>
-        <label><input type="radio" name="fit" class="filter-fit" value="wide" /> Wide Leg</label>
-        <label><input type="radio" name="fit" class="filter-fit" value="straight" /> Straight</label>
-        <label><input type="radio" name="fit" class="filter-fit" value="mom" /> Mom</label>
+        <label><input type="radio" name="fit" class="filter-fit" value="all" checked /> <span data-i18n="fit_all">All</span></label>
+        <label><input type="radio" name="fit" class="filter-fit" value="skinny" /> <span data-i18n="fit_skinny">Skinny</span></label>
+        <label><input type="radio" name="fit" class="filter-fit" value="wide" /> <span data-i18n="fit_wide">Wide Leg</span></label>
+        <label><input type="radio" name="fit" class="filter-fit" value="straight" /> <span data-i18n="fit_straight">Straight</span></label>
+        <label><input type="radio" name="fit" class="filter-fit" value="mom" /> <span data-i18n="fit_mom">Mom</span></label>
       </div>
     </div>
 
@@ -120,9 +119,9 @@
 
     <!-- SORT -->
     <div class="filter-section">
-      <h4>Sort By</h4>
+      <h4 data-i18n="sort_by">Sort By</h4>
       <select class="sort-select" id="sortSelect">
-        <option value="featured">Featured</option>
+        <option value="featured" data-i18n="sort_featured">Featured</option>
         <option value="price-asc" data-i18n="sort_price_asc">Price: Low to High</option>
         <option value="price-desc" data-i18n="sort_price_desc">Price: High to Low</option>
         <option value="newest" data-i18n="sort_newest">Newest</option>
@@ -147,7 +146,7 @@
     </div>
 
     <!-- Load more -->
-    <button class="load-more-btn" id="loadMoreBtn" style="display:none;">Load More</button>
+    <button class="load-more-btn" id="loadMoreBtn" data-i18n="load_more" style="display:none;">Load More</button>
 
   </main>
 </div>
