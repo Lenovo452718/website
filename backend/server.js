@@ -1772,10 +1772,10 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
         results.push({ orderId: id, customer: order.customer, success: false, error: json.message || `Error ${resp.status}` });
       } else {
         const trackingCode = json.trackingID || null;
-        await prisma.$executeRawUnsafe(
-          'UPDATE `Order` SET `status` = ?, `trackingCode` = ? WHERE `id` = ?',
-          'processing', trackingCode, id
-        );
+        await prisma.order.update({
+          where: { id },
+          data:  { status: 'processing', trackingCode },
+        });
         results.push({ orderId: id, customer: order.customer, success: true, trackingCode });
       }
     } catch (err) {
@@ -1784,6 +1784,26 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
   }
 
   res.json({ results });
+});
+
+app.get('/api/admin/orders/:id/olivraison-status', adminLimiter, requireAuth, async (req, res) => {
+  const { id } = req.params;
+  const order = await prisma.order.findUnique({ where: { id } });
+  if (!order?.trackingCode) return res.status(404).json({ error: 'No tracking code for this order' });
+
+  const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+  if (!cfg?.apiKey) return res.status(503).json({ error: 'Olivraison not configured' });
+
+  try {
+    const token = await getOlivraisonToken(cfg);
+    const { ok, data } = await fetchOlivraisonPackage(order.trackingCode, token);
+    if (!ok) return res.status(502).json({ error: 'Olivraison returned an error' });
+
+    const rawStatus = (data.status || '').trim().toLowerCase().replace(/\s+/g, '_');
+    res.json({ rawStatus, trackingCode: order.trackingCode });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
+  }
 });
 
 /* POST /api/admin/migrate-images — one-time: upload local images to Cloudinary */

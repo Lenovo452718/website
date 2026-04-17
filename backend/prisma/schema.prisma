@@ -79,10 +79,11 @@ model Order {
   discount   Float       @default(0)
   items      OrderItem[]
   clientIp   String      @default("")
-  msgSent    Boolean     @default(false)
-  notes      String?     @db.Text
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
+  msgSent       Boolean     @default(false)
+  notes         String?     @db.Text
+  trackingCode  String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
 }
 
 model OrderItem {

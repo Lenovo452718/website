@@ -1721,6 +1721,26 @@ function normPhone(p) {
   return String(p).trim().replace(/^\+212/, '0').replace(/\s+/g, '');
 }
 
+const OLIV_STATUS = {
+  created:           { label: 'Created',           color: '#f39c12' },
+  confirmed:         { label: 'Confirmed',          color: '#f39c12' },
+  pickup:            { label: 'Awaiting Pickup',    color: '#f39c12' },
+  assigned:          { label: 'Driver Assigned',    color: '#2980b9' },
+  pickedup:          { label: 'Picked Up',          color: '#2980b9' },
+  picked_up:         { label: 'Picked Up',          color: '#2980b9' },
+  inhouse:           { label: 'At Warehouse',       color: '#2980b9' },
+  enroute:           { label: 'En Route',           color: '#2980b9' },
+  transit:           { label: 'In Transit',         color: '#2980b9' },
+  in_transit:        { label: 'In Transit',         color: '#2980b9' },
+  out_for_delivery:  { label: 'Out for Delivery',   color: '#27ae60' },
+  delivered:         { label: 'Delivered',          color: '#27ae60' },
+  returned:          { label: 'Returned',           color: '#e74c3c' },
+  failed:            { label: 'Failed Delivery',    color: '#e74c3c' },
+  exception:         { label: 'Exception',          color: '#e74c3c' },
+  reported:          { label: 'Reported',           color: '#e74c3c' },
+  cancelled:         { label: 'Cancelled',          color: '#7f8c8d' },
+};
+
 function escHtml(str) {
   if (str == null) return '';
   return String(str)
@@ -2599,7 +2619,18 @@ function openOrderModal(id) {
       <div class="detail-item"><label>Price</label><span style="color:var(--navy);font-size:16px">${order.price||'—'}</span></div>
       <div class="detail-item"><label>City</label><input class="field-input" id="omCity" value="${escHtml(order.city||'')}" placeholder="City" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>Address</label><span>${order.address||'—'}</span></div>
-      <div class="detail-item"><label>Status</label><span class="status-badge status-${order.status}">${order.status||'pending'}</span></div>
+      ${order.trackingCode
+        ? `<div class="detail-item"><label>Status <span style="font-size:10px;color:var(--gray);font-weight:400">(managed by Olivraison)</span></label>
+             <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+               <span id="omOlivStatus" style="font-weight:700;color:#2980b9">Loading…</span>
+               <button type="button" onclick="refreshOlivraisonStatus('${escHtml(order.id)}')"
+                       style="font-size:11px;padding:2px 8px;border:1px solid var(--gray);border-radius:4px;background:none;cursor:pointer;color:var(--gray)">
+                 Refresh
+               </button>
+             </div>
+           </div>`
+        : `<div class="detail-item"><label>Status</label><span class="status-badge status-${order.status}">${order.status||'pending'}</span></div>`
+      }
       <div class="detail-item"><label>Date</label><span>${new Date(order.date||order.createdAt||Date.now()).toLocaleString('en-GB')}</span></div>
       <div class="detail-item"><label>WhatsApp Sent</label><span>${order.msgSent?'Yes':'No'}</span></div>
     </div>
@@ -2618,18 +2649,21 @@ function openOrderModal(id) {
           <option value="failed" ${order.deliveryStatus==='failed'?'selected':''}>Failed Delivery</option>
         </select>
       </div>
-      <div class="field-group"><label class="field-label">Order Status</label>
-        <select class="field-input" id="omStatus">
-          <option value="new"        ${order.status==='new'        ?'selected':''}>🆕 New</option>
-          <option value="pending"    ${order.status==='pending'    ?'selected':''}>⏳ Pending</option>
-          <option value="processing" ${order.status==='processing' ?'selected':''}>⚙️ Processing</option>
-          <option value="confirmed"  ${order.status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
-          <option value="called"     ${order.status==='called'     ?'selected':''}>📞 Called</option>
-          <option value="reported"   ${order.status==='reported'   ?'selected':''}>⚠️ Reported</option>
-          <option value="cancelled"  ${order.status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
-          <option value="done"       ${order.status==='done'       ?'selected':''}>🏁 Done</option>
-        </select>
-      </div>
+      ${order.trackingCode
+        ? ''
+        : `<div class="field-group"><label class="field-label">Order Status</label>
+             <select class="field-input" id="omStatus">
+               <option value="new"        ${order.status==='new'        ?'selected':''}>🆕 New</option>
+               <option value="pending"    ${order.status==='pending'    ?'selected':''}>⏳ Pending</option>
+               <option value="processing" ${order.status==='processing' ?'selected':''}>⚙️ Processing</option>
+               <option value="confirmed"  ${order.status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
+               <option value="called"     ${order.status==='called'     ?'selected':''}>📞 Called</option>
+               <option value="reported"   ${order.status==='reported'   ?'selected':''}>⚠️ Reported</option>
+               <option value="cancelled"  ${order.status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
+               <option value="done"       ${order.status==='done'       ?'selected':''}>🏁 Done</option>
+             </select>
+           </div>`
+      }
     </div>
     <div class="field-group"><label class="field-label">Notes</label><textarea class="field-input" id="omNotes" placeholder="Internal notes...">${order.notes||''}</textarea></div>
     <div style="display:flex;gap:10px">
@@ -2643,6 +2677,9 @@ function openOrderModal(id) {
     var cityEl = document.getElementById('omCity');
     if (cityEl && typeof _initCityInput === 'function') _initCityInput(cityEl);
   }, 50);
+  if (order.trackingCode) {
+    refreshOlivraisonStatus(order.id);
+  }
 }
 
 async function saveOrderModal(id) {
@@ -2650,8 +2687,11 @@ async function saveOrderModal(id) {
   const idx = orders.findIndex(o=>o.id===id||String(o.id)===String(id));
   if (idx>-1) {
     const rawPhone = (document.getElementById('omPhone')?.value || '').trim();
+    const savedStatus = order.trackingCode
+      ? order.status
+      : document.getElementById('omStatus').value;
     const updates = {
-      status: document.getElementById('omStatus').value,
+      status: savedStatus,
       city: (document.getElementById('omCity')?.value || '').trim(),
       phone: normPhone(rawPhone),
       trackingNumber: document.getElementById('omTracking').value,
@@ -2675,7 +2715,7 @@ async function saveOrderModal(id) {
       await authFetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: updates.status, city: updates.city, phone: updates.phone })
+        body: JSON.stringify({ ...(order.trackingCode ? {} : { status: updates.status }), city: updates.city, phone: updates.phone })
       });
     } catch(e) {}
     logActivity('Order updated', id);
@@ -2689,6 +2729,24 @@ async function saveOrderModal(id) {
 function closeOrderModal() {
   document.getElementById('orderModal').classList.remove('open');
   document.body.style.overflow='';
+}
+
+async function refreshOlivraisonStatus(id) {
+  const el = document.getElementById('omOlivStatus');
+  if (!el) return;
+  el.textContent = 'Loading…';
+  el.style.color = '#999';
+  try {
+    const res = await authFetch(`/api/admin/orders/${encodeURIComponent(id)}/olivraison-status`);
+    const data = await res.json();
+    if (!res.ok) { el.textContent = data.error || 'Error'; el.style.color = '#e74c3c'; return; }
+    const info = OLIV_STATUS[data.rawStatus] || { label: data.rawStatus || '—', color: '#555' };
+    el.textContent = info.label;
+    el.style.color = info.color;
+  } catch {
+    el.textContent = 'Could not fetch';
+    el.style.color = '#e74c3c';
+  }
 }
 
 function exportOrders() {
