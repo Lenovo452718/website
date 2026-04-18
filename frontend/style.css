@@ -7804,3 +7804,53 @@ body.has-bar .site-header { top: 36px; }
 .review-submitted p:first-child { font-size: 18px; font-weight: 700; color: var(--charcoal); margin-bottom: 6px; }
 .review-submitted p:last-child { font-size: 13px; color: #555; }
 .reviews-loading { text-align: center; color: var(--gray); font-size: 13px; padding: 40px 0; grid-column: 1 / -1; }
+
+/* ============================================================
+   MOBILE POLISH — cross-phone compatibility fixes
+   ============================================================ */
+
+@media (max-width: 768px) {
+  /* Fix 1: container side padding (was hardcoded 40px, too wide on small phones) */
+  .container { padding: 0 16px; }
+
+  /* Fix 4: fluid type for small mobile UI labels */
+  .mobile-nav-item { font-size: clamp(9px, 2.4vw, 11px); }
+  .mobile-nav-badge {
+    font-size: clamp(9px, 2.3vw, 10px);
+    width: clamp(14px, 3.8vw, 16px);
+    height: clamp(14px, 3.8vw, 16px);
+  }
+  .mobile-filter-btn,
+  .sort-select-mobile { font-size: clamp(10px, 2.8vw, 12px); }
+  .sticky-atc-btn { font-size: clamp(10px, 2.8vw, 12px); }
+
+  /* Fix 5b: hero eyebrow text fluid scaling */
+  .hero-eyebrow { font-size: clamp(8px, 2.2vw, 10px); }
+}
+
+@media (max-width: 375px) {
+  /* Fix 3: announcement bar for iPhone SE / 375px class (missing gap between 380px and 768px rules) */
+  .announcement-bar {
+    padding: 8px 36px 8px 12px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 360px) {
+  /* Fix 2: WhatsApp button — reduce size and right offset on smallest phones */
+  .whatsapp-float {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+    right: 16px;
+  }
+
+  /* Fix 5: sticky ATC Buy Now SVG icon — CSS overrides HTML presentation attributes */
+  .sticky-atc-buynow svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+}

@@ -164,3 +164,42 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileFilterPanel();
   initStickyAddToCart();
 });
+
+/* ---- Handle orientation / resize changes ---- */
+(function () {
+  let mobileUIActive = window.innerWidth <= 768;
+
+  window.addEventListener('resize', function () {
+    const isMobile = window.innerWidth <= 768;
+    if (isMobile === mobileUIActive) return; // no boundary crossing
+    mobileUIActive = isMobile;
+
+    if (!isMobile) {
+      // Crossed into desktop — hide mobile-injected elements
+      const bottomNav = document.querySelector('.mobile-bottom-nav');
+      if (bottomNav) bottomNav.style.display = 'none';
+
+      const stickyBar = document.querySelector('.sticky-atc-bar');
+      if (stickyBar) stickyBar.style.display = 'none';
+
+      const sidebar = document.querySelector('.shop-sidebar');
+      if (sidebar) {
+        sidebar.classList.remove('mobile-panel-open');
+        const backdrop = document.querySelector('.mobile-filter-backdrop');
+        if (backdrop) backdrop.classList.remove('active');
+      }
+    } else {
+      // Crossed back into mobile — restore visibility
+      const bottomNav = document.querySelector('.mobile-bottom-nav');
+      if (bottomNav) bottomNav.style.display = '';
+
+      const stickyBar = document.querySelector('.sticky-atc-bar');
+      if (stickyBar) stickyBar.style.display = '';
+
+      // Re-run inits (they guard against double-injection with querySelector checks)
+      initMobileFilterPanel();
+      initStickyAddToCart();
+      if (!document.querySelector('.mobile-bottom-nav')) initMobileBottomNav();
+    }
+  });
+}());
