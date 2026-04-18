@@ -2385,13 +2385,14 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   align-items: center;
   gap: 6px;
 }
-.upsell-flame { font-size: 14px; line-height: 1; }
+.upsell-flame { font-size: 13px; line-height: 1; }
 .upsell-label {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 1;
+  color: rgba(255,255,255,0.9);
 }
 .upsell-bottom-row {
   display: flex;
@@ -2413,7 +2414,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 .upsell-saving-label {
   font-size: 11.5px;
-  opacity: 0.75;
+  opacity: 0.9;
   font-weight: 500;
 }
 .upsell-link {
@@ -5918,13 +5919,14 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   align-items: center;
   gap: 6px;
 }
-.upsell-flame { font-size: 14px; line-height: 1; }
+.upsell-flame { font-size: 13px; line-height: 1; }
 .upsell-label {
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  opacity: 0.7;
+  opacity: 1;
+  color: rgba(255,255,255,0.9);
 }
 .upsell-bottom-row {
   display: flex;
@@ -5946,7 +5948,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 .upsell-saving-label {
   font-size: 11.5px;
-  opacity: 0.75;
+  opacity: 0.9;
   font-weight: 500;
 }
 .upsell-link {
