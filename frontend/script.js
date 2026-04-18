@@ -1604,7 +1604,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         if (resp.ok) {
           const data = await resp.json().catch(() => ({}));
-          if (data.id) localStorage.setItem('ss_guest_order_id', data.id);
+          const guestOrderId = data.orderId || data.id;
+          if (guestOrderId) localStorage.setItem('ss_guest_order_id', guestOrderId);
           const numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
           localStorage.setItem('streetstore_last_order', JSON.stringify([{ name, size: orderSize, color: _bnSelectedColor, qty: orderQty, price: numericPrice }]));
           localStorage.setItem('streetstore_last_order_total', String(numericPrice * orderQty));
