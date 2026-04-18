@@ -113,9 +113,9 @@ const TRANSLATIONS = {
     // Checkout extras
     phone_label:"Phone Number",
     phone_error:"Please enter at least 10 digits.",
-    upsell_title:"Take advantage of the duo deal!",
-    upsell_desc:"Add a 2nd jean and save 39 MAD on your order.",
-    upsell_cta:"Add →",
+    upsell_title:"Limited offer — Duo deal",
+    upsell_desc:"Add a 2nd jean and save {saving} MAD instantly.",
+    upsell_cta:"Add now →",
     deal_applied_pre:"Duo deal applied — you save",
     deal_applied_suf:"!",
     discount_label:"Duo deal discount",
@@ -417,8 +417,8 @@ const TRANSLATIONS = {
     // Checkout extras
     phone_label:"Numéro de téléphone",
     phone_error:"Le numéro doit contenir au moins 10 chiffres.",
-    upsell_title:"Profitez de l'offre duo !",
-    upsell_desc:"Ajoutez un 2ème jean et économisez 39 MAD sur votre commande.",
+    upsell_title:"Offre limitée — Duo deal",
+    upsell_desc:"Ajoutez un 2ème jean et économisez {saving} MAD immédiatement.",
     upsell_cta:"Ajouter →",
     deal_applied_pre:"Offre duo appliquée — vous économisez",
     deal_applied_suf:"!",

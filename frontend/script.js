@@ -1035,7 +1035,7 @@ function updateCheckoutTotals(shippingCost) {
       const tagEl  = document.getElementById('checkoutUpsellTag');
       const descEl = document.getElementById('checkoutUpsellDesc');
       if (tagEl  && potentialSaving > 0) tagEl.textContent  = '−' + potentialSaving + ' MAD';
-      if (descEl && potentialSaving > 0) descEl.textContent = 'Add a 2nd jean and save ' + potentialSaving + ' MAD on your order.';
+      if (descEl && potentialSaving > 0) descEl.textContent = t('upsell_desc').replace('{saving}', potentialSaving);
     }
   }
 
