@@ -113,7 +113,7 @@ const TRANSLATIONS = {
     // Checkout extras
     phone_label:"Phone Number",
     phone_error:"Please enter at least 10 digits.",
-    size_stock_low:"Only {n} left in this size",
+    size_stock_low:"Limited stock",
     upsell_title:"Limited offer — Duo deal",
     upsell_desc:"by adding a 2nd jean",
     upsell_cta:"Add now →",
@@ -418,7 +418,7 @@ const TRANSLATIONS = {
     // Checkout extras
     phone_label:"Numéro de téléphone",
     phone_error:"Le numéro doit contenir au moins 10 chiffres.",
-    size_stock_low:"Plus que {n} en stock dans cette taille",
+    size_stock_low:"Stock limité",
     upsell_title:"Offre limitée — Duo deal",
     upsell_desc:"en ajoutant un 2ème jean",
     upsell_cta:"Ajouter →",
