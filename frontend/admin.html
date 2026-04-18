@@ -3854,7 +3854,7 @@ async function notifSearchCustomers(q) {
   notifSearchTimeout = setTimeout(async () => {
     try {
       if (!notifAllCustomers.length) {
-        const r = await fetch(BACKEND_URL +'/api/admin/registered-customers', { headers: { Authorization: 'Bearer ' + adminToken() } });
+        const r = await fetch(BACKEND_URL +'/api/admin/registered-customers', { headers: { Authorization: 'Bearer ' + API_KEY } });
         if (r.ok) notifAllCustomers = await r.json();
       }
       const lq = q.toLowerCase();
@@ -3906,14 +3906,14 @@ async function sendCustomerNotification() {
       await Promise.all(notifSelectedCustomers.map(c =>
         fetch(BACKEND_URL +'/api/admin/notifications', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + API_KEY },
           body: JSON.stringify({ title, message, customerId: c.id })
         })
       ));
     } else {
       const r = await fetch(BACKEND_URL +'/api/admin/notifications', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + API_KEY },
         body: JSON.stringify({ title, message, customerId: null })
       });
       if (!r.ok) throw new Error();
@@ -3934,7 +3934,7 @@ async function loadNotifSentHistory() {
   if (!el) return;
   el.innerHTML = '<div class="notif-empty" style="padding:20px;color:var(--gray)">Loading…</div>';
   try {
-    const r = await fetch(BACKEND_URL +'/api/admin/notifications', { headers: { Authorization: 'Bearer ' + adminToken() } });
+    const r = await fetch(BACKEND_URL +'/api/admin/notifications', { headers: { Authorization: 'Bearer ' + API_KEY } });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const rows = await r.json();
     if (!rows.length) { el.innerHTML = '<div class="notif-empty" style="padding:20px">No notifications sent yet</div>'; return; }
@@ -4013,7 +4013,7 @@ async function toggleAdminPush() {
   if (_adminPushSub) {
     await fetch(BACKEND_URL +'/api/admin/push/unsubscribe-admin', {
       method: 'DELETE',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + API_KEY },
       body: JSON.stringify({ endpoint: _adminPushSub.endpoint })
     }).catch(() => {});
     await _adminPushSub.unsubscribe().catch(() => {});
@@ -4061,7 +4061,7 @@ async function toggleAdminPush() {
     const j = sub.toJSON();
     const r = await fetch(BACKEND_URL +'/api/admin/push/subscribe-admin', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + API_KEY },
       body: JSON.stringify({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth })
     });
     if (!r.ok) throw new Error('Server rejected subscription (' + r.status + ')');
