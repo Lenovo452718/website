@@ -177,27 +177,81 @@
 
     <!-- ACCORDION -->
     <div class="accordion">
+
       <div class="accordion-item open">
-        <button class="accordion-trigger"data-i18n="product_details">Product Details <span class="accordion-icon">+</span></button>
+        <button class="accordion-trigger">
+          <span class="accordion-trigger-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            <span data-i18n="product_details">Product Details</span>
+          </span>
+          <span class="accordion-icon">+</span>
+        </button>
         <div class="accordion-body" style="display:block;">
           <p id="productDescription" style="white-space:pre-line;"></p>
         </div>
       </div>
+
       <div class="accordion-item">
-        <button class="accordion-trigger">Fabric & Care <span class="accordion-icon">+</span></button>
+        <button class="accordion-trigger">
+          <span class="accordion-trigger-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            <span data-i18n="fabric_care">Fabric &amp; Care</span>
+          </span>
+          <span class="accordion-icon">+</span>
+        </button>
         <div class="accordion-body">
-          <p>98% Cotton, 2% Elastane. Machine washable at 30°C.</p>
+          <ul class="accordion-checklist">
+            <li>98% Cotton · 2% Elastane</li>
+            <li>Machine wash at 30°C, gentle cycle</li>
+            <li>Do not tumble dry — lay flat to dry</li>
+            <li>Iron on low heat, inside out</li>
+          </ul>
         </div>
       </div>
+
       <div class="accordion-item">
-        <button class="accordion-trigger">Size Guide <span class="accordion-icon">+</span></button>
+        <button class="accordion-trigger">
+          <span class="accordion-trigger-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            <span data-i18n="size_guide">Size Guide</span>
+          </span>
+          <span class="accordion-icon">+</span>
+        </button>
         <div class="accordion-body">
-          <a href="size-guide.html" class="size-chart-btn">View Full Size Chart →</a>
+          <table class="size-table">
+            <thead><tr><th>Taille</th><th>Tour de taille</th><th>Tour de hanches</th></tr></thead>
+            <tbody>
+              <tr><td>34</td><td>62 cm</td><td>88 cm</td></tr>
+              <tr><td>36</td><td>66 cm</td><td>92 cm</td></tr>
+              <tr><td>38</td><td>70 cm</td><td>96 cm</td></tr>
+              <tr><td>40</td><td>74 cm</td><td>100 cm</td></tr>
+              <tr><td>42</td><td>78 cm</td><td>104 cm</td></tr>
+              <tr><td>44</td><td>82 cm</td><td>108 cm</td></tr>
+            </tbody>
+          </table>
+          <a href="size-guide.html" class="size-chart-btn" style="margin-top:14px;display:inline-block;" data-i18n="full_size_chart">Guide complet →</a>
         </div>
       </div>
+
       <div class="accordion-item">
-        <a href="shipping.html" class="shipping-returns-btn">Shipping &amp; Returns</a>
+        <button class="accordion-trigger">
+          <span class="accordion-trigger-label">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 5v3h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+            <span data-i18n="shipping_returns">Livraison &amp; Retours</span>
+          </span>
+          <span class="accordion-icon">+</span>
+        </button>
+        <div class="accordion-body">
+          <ul class="accordion-checklist">
+            <li>Livraison gratuite partout au Maroc</li>
+            <li>Délai estimé : 2–5 jours ouvrables</li>
+            <li>Échange de taille sous 7 jours</li>
+            <li>Contactez-nous via WhatsApp pour tout retour</li>
+          </ul>
+          <a href="shipping.html" class="size-chart-btn" style="margin-top:14px;display:inline-block;" data-i18n="shipping_details_link">Voir les détails →</a>
+        </div>
       </div>
+
     </div>
   </div>
 
