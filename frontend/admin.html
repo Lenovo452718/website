@@ -2276,6 +2276,8 @@ async function sendToOlivraison() {
     // Refresh table so updated statuses show
     clearOrderSelection();
     await loadOrders();
+    loadOrdersTable();
+    loadDashboard();
   } catch (e) {
     body.innerHTML = `<div style="color:var(--red);padding:8px">Network error: ${escHtml(e.message)}</div>`;
   }
@@ -2299,6 +2301,10 @@ function loadOrdersTable() {
     orderTableRows(orders,false) || '<tr class="empty-row"><td colspan="9">No orders found.</td></tr>';
   renderOrderCards(orders);
   updateMobileFab();
+  // Background-fetch live Olivraison status for all tracked orders
+  const allOrders = getOrders();
+  const tracked = allOrders.filter(o => o.trackingCode);
+  if (tracked.length) autoFetchOlivraisonStatuses(tracked.map(o => o.id));
 }
 
 function renderOrderCards(orders) {
@@ -2533,7 +2539,10 @@ function orderTableRows(orders, compact) {
     const rowClass = `order-row-${status}`;
     const statusColors = { confirmed:'#27ae60', cancelled:'#e74c3c', reported:'#e67e22', called:'#2980b9', processing:'#2980b9', pending:'#f0ad4e', done:'#27ae60', new:'#aaa' };
     const statusEmoji  = { confirmed:'✅', cancelled:'❌', reported:'⚠️', called:'📞', processing:'⚙️', pending:'⏳', done:'🏁', new:'🆕' };
-    const st = makeStatusPill(o.id, status);
+    const olivInfo = o.trackingCode ? (OLIV_STATUS[o._olivStatus] || null) : null;
+    const st = o.trackingCode
+      ? `<div class="status-pill-wrap"><div class="status-pill" style="background:#e8f4fd;color:${olivInfo ? olivInfo.color : '#999'};cursor:default" title="Managed by Olivraison"><span class="status-pill-dot" style="background:${olivInfo ? olivInfo.color : '#ccc'}"></span><span>${olivInfo ? olivInfo.label : '…'}</span></div></div>`
+      : makeStatusPill(o.id, status);
     const act = compact ? '' : `<td><div style="display:flex;gap:4px">
       <button class="btn-icon" onclick="openOrderModal('${o.id}')" title="View"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       <button class="btn-icon danger" onclick="deleteOrder('${o.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
@@ -2590,8 +2599,20 @@ function updateNewOrdersBadge() {
   if (el) { el.textContent=n; el.style.display=n>0?'inline-block':'none'; }
 }
 
-function openOrderModal(id) {
-  const order = getOrders().find(o=>o.id===id||String(o.id)===String(id));
+async function openOrderModal(id) {
+  // Always fetch fresh from backend so trackingCode / deliveryPhone are current
+  let order;
+  try {
+    const res = await authFetch(`/api/admin/orders/${encodeURIComponent(id)}`);
+    if (res.ok) {
+      order = await res.json();
+      // Keep localStorage in sync
+      const cached = getOrders();
+      const idx = cached.findIndex(o => o.id === id || String(o.id) === String(id));
+      if (idx > -1) { cached[idx] = { ...cached[idx], ...order }; saveOrdersArr(cached); }
+    }
+  } catch(_) {}
+  if (!order) order = getOrders().find(o=>o.id===id||String(o.id)===String(id));
   if (!order) return;
   const s = getSettings();
   document.getElementById('omTitle').textContent = 'Order ' + (order.id||id);
@@ -2628,6 +2649,7 @@ function openOrderModal(id) {
                  Refresh
                </button>
              </div>
+             <div id="omOlivComment" style="margin-top:4px;font-size:12px;color:var(--gray);display:none"></div>
            </div>`
         : `<div class="detail-item"><label>Status</label><span class="status-badge status-${order.status}">${order.status||'pending'}</span></div>`
       }
@@ -2686,10 +2708,11 @@ async function saveOrderModal(id) {
   const orders = getOrders();
   const idx = orders.findIndex(o=>o.id===id||String(o.id)===String(id));
   if (idx>-1) {
+    const currentOrder = orders[idx];
     const rawPhone = (document.getElementById('omPhone')?.value || '').trim();
-    const savedStatus = order.trackingCode
-      ? order.status
-      : document.getElementById('omStatus').value;
+    const savedStatus = currentOrder.trackingCode
+      ? currentOrder.status
+      : document.getElementById('omStatus')?.value || currentOrder.status;
     const updates = {
       status: savedStatus,
       city: (document.getElementById('omCity')?.value || '').trim(),
@@ -2715,7 +2738,7 @@ async function saveOrderModal(id) {
       await authFetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...(order.trackingCode ? {} : { status: updates.status }), city: updates.city, phone: updates.phone })
+        body: JSON.stringify({ ...(currentOrder.trackingCode ? {} : { status: updates.status }), city: updates.city, phone: updates.phone })
       });
     } catch(e) {}
     logActivity('Order updated', id);
@@ -2743,9 +2766,43 @@ async function refreshOlivraisonStatus(id) {
     const info = OLIV_STATUS[data.rawStatus] || { label: data.rawStatus || '—', color: '#555' };
     el.textContent = info.label;
     el.style.color = info.color;
+    const commentEl = document.getElementById('omOlivComment');
+    if (commentEl) {
+      if (data.comment) { commentEl.textContent = data.comment; commentEl.style.display = ''; }
+      else { commentEl.style.display = 'none'; }
+    }
+    // Cache in localStorage so table can show live status without opening modal
+    const orders = getOrders();
+    const idx = orders.findIndex(o => o.id === id || String(o.id) === String(id));
+    if (idx > -1) { orders[idx]._olivStatus = data.rawStatus; saveOrdersArr(orders); loadOrdersTable(); }
   } catch {
     el.textContent = 'Could not fetch';
     el.style.color = '#e74c3c';
+  }
+}
+
+let _olivFetchInProgress = false;
+async function autoFetchOlivraisonStatuses(ids) {
+  if (_olivFetchInProgress) return;
+  _olivFetchInProgress = true;
+  try {
+    const orders = getOrders();
+    let changed = false;
+    for (const id of ids) {
+      try {
+        const res = await authFetch(`/api/admin/orders/${encodeURIComponent(id)}/olivraison-status`);
+        if (!res.ok) continue;
+        const data = await res.json();
+        const idx = orders.findIndex(o => o.id === id || String(o.id) === String(id));
+        if (idx > -1 && orders[idx]._olivStatus !== data.rawStatus) {
+          orders[idx]._olivStatus = data.rawStatus;
+          changed = true;
+        }
+      } catch { /* skip failed */ }
+    }
+    if (changed) { saveOrdersArr(orders); loadOrdersTable(); }
+  } finally {
+    _olivFetchInProgress = false;
   }
 }
 
@@ -4692,6 +4749,11 @@ async function initAdmin() {
   await loadOrders();
   loadDashboard();
   loadProductsGrid();
+  // Auto-refresh Olivraison statuses every 2 hours
+  setInterval(() => {
+    const tracked = getOrders().filter(o => o.trackingCode);
+    if (tracked.length) autoFetchOlivraisonStatuses(tracked.map(o => o.id));
+  }, 2 * 60 * 60 * 1000);
   updateNewOrdersBadge();
   updateNotifBadge();
   checkLowStockNotifications();
