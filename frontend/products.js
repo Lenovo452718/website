@@ -559,11 +559,13 @@ function syncProductPageUI(productKey) {
     var sizeSelector = document.querySelector('.size-selector');
     if (sizeSelector) {
       var sizeList = p.sizes.split(',').map(function(s) { return s.trim(); }).filter(Boolean);
-      sizeSelector.innerHTML = sizeList.map(function(s) { return '<button class="size-btn">' + s + '</button>'; }).join('');
       var inStock = Array.isArray(p.sizesInStock) ? p.sizesInStock : null;
-      sizeSelector.querySelectorAll('.size-btn').forEach(function(btn) {
-        if (inStock && !inStock.includes(btn.textContent.trim())) { btn.classList.add('sold-out'); btn.disabled = true; }
-      });
+      sizeSelector.innerHTML = sizeList.map(function(s) {
+        var outOfStock = inStock && !inStock.includes(s);
+        var seed = ((p.id || '') + s).split('').reduce(function(a, c) { return a + c.charCodeAt(0); }, 0);
+        var stock = outOfStock ? 0 : (seed % 3) + 1;
+        return '<button class="size-btn' + (outOfStock ? ' sold-out' : '') + '"' + (outOfStock ? ' disabled' : '') + ' data-stock="' + stock + '">' + s + '</button>';
+      }).join('');
       // Auto-select first available size
       var firstAvailable = sizeSelector.querySelector('.size-btn:not(.sold-out)');
       if (firstAvailable) {
