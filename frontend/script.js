@@ -1005,7 +1005,8 @@ function updateCheckoutTotals(shippingCost) {
   const totalQty = cart.reduce((sum, i) => sum + i.qty, 0);
   const subtotal = cart.reduce((sum, i) => sum + i.price * i.qty, 0);
   const discount = getPackDiscount(cart);
-  const total = subtotal - discount + shippingCost;
+  const couponDiscount = (typeof _appliedCoupon !== 'undefined' && _appliedCoupon) ? Math.round(_appliedCoupon.discount) : 0;
+  const total = subtotal - discount - couponDiscount + shippingCost;
 
   const subtotalEl    = document.getElementById('checkoutSubtotal');
   const shippingEl    = document.getElementById('checkoutShipping');

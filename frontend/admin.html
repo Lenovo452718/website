@@ -624,9 +624,6 @@ select.pm-input{cursor:pointer}
       <a class="nav-item" onclick="showSection('discounts',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>Discounts
       </a>
-      <a class="nav-item" onclick="showSection('deals',this)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>Deals
-      </a>
       <a class="nav-item" onclick="showSection('notifications',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
         <span class="nav-notif-badge" id="sideNotifBadge" style="display:none">0</span>
@@ -846,13 +843,6 @@ select.pm-input{cursor:pointer}
     </section>
 
     <!-- ── DEALS ── -->
-    <section class="admin-section" id="secDeals">
-      <div class="page-header"><h1>Deals</h1><p>Create special discount deals linked to products.</p></div>
-      <div style="margin-bottom:20px"><button class="btn btn-primary" onclick="openDealModal(null)">+ Create Deal</button></div>
-      <div class="panel">
-        <div class="table-wrap"><table class="admin-table" id="dealsTable"></table></div>
-      </div>
-    </section>
 
     <!-- ── DISCOUNTS ── -->
     <section class="admin-section" id="secDiscounts">
@@ -1367,33 +1357,6 @@ select.pm-input{cursor:pointer}
   </main><!-- end mainContent -->
 </div><!-- end adminPanel -->
 
-<!-- DEAL MODAL -->
-<div class="modal-overlay" id="dealModal">
-  <div class="modal-box" style="max-width:480px">
-    <div class="modal-head">
-      <h2 class="modal-title" id="dealModalTitle">Create Deal</h2>
-      <button class="modal-close" onclick="closeDealModal()">×</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="dmDealId">
-      <div class="field-group"><label class="field-label">Deal Title <span style="color:var(--red)">*</span></label><input class="field-input" id="dmTitle" placeholder="e.g. Weekend Flash Sale"></div>
-      <div class="field-row">
-        <div class="field-group"><label class="field-label">Discount Price (MAD) <span style="color:var(--red)">*</span></label><input class="field-input" id="dmDealPrice" type="number" placeholder="99"></div>
-        <div class="field-group"><label class="field-label">Product (optional)</label><select class="field-input" id="dmProductId"><option value="">— Any product —</option></select></div>
-      </div>
-      <div class="field-group">
-        <div class="toggle-wrap">
-          <label class="toggle"><input type="checkbox" id="dmDealActive" checked><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
-          <span class="toggle-label">Active</span>
-        </div>
-      </div>
-      <div style="display:flex;gap:10px;padding-top:4px">
-        <button class="btn btn-primary" onclick="saveDealModal()">Save Deal</button>
-        <button class="btn btn-outline" onclick="closeDealModal()">Cancel</button>
-      </div>
-    </div>
-  </div>
-</div>
 
 <!-- PRODUCT MODAL -->
 <div class="modal-overlay" id="productModal">
@@ -2011,7 +1974,6 @@ function showSection(id, el) {
   if (id==='products')      loadProductsGrid();
   if (id==='customers')     loadOrders().then(()=>loadCustomersTable());
   if (id==='discounts')     loadDiscountsTable();
-  if (id==='deals')         loadDealsTable();
   if (id==='content')       loadContentForms();
   if (id==='media')         loadMediaGrid();
   if (id==='notifications') loadNotifFullList();
@@ -3523,88 +3485,6 @@ async function deleteDiscount(id) {
   showToast('Code deleted','error');
 }
 
-/* ═══════════════════════════════════════════
-   DEALS
-═══════════════════════════════════════════ */
-let _dealsCache = [];
-
-async function loadDealsTable() {
-  const tbl = document.getElementById('dealsTable');
-  tbl.innerHTML = '<tr class="empty-row"><td colspan="5">Loading...</td></tr>';
-  try {
-    const res = await authFetch('/api/admin/deals');
-    if (!res.ok) throw new Error();
-    _dealsCache = await res.json();
-  } catch(e) {
-    tbl.innerHTML = '<tr class="empty-row"><td colspan="5">Failed to load.</td></tr>';
-    return;
-  }
-  const hdr = '<thead><tr><th>Title</th><th>Product</th><th>Discount Price</th><th>Status</th><th>Actions</th></tr></thead>';
-  const rows = _dealsCache.map(d => `<tr>
-    <td style="font-weight:700">${escHtml(d.title)}</td>
-    <td style="font-size:12px;color:var(--gray)">${d.productId ? escHtml(d.productId) : '—'}</td>
-    <td style="font-weight:700">${d.discountPrice} MAD</td>
-    <td><span class="status-badge ${d.isActive ? 'status-done' : 'status-cancelled'}">${d.isActive ? 'Active' : 'Inactive'}</span></td>
-    <td><div style="display:flex;gap:4px">
-      <button class="btn-icon" onclick="openDealModal('${d.id}')" title="Edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-      <button class="btn-icon danger" onclick="deleteDeal('${d.id}')" title="Delete"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
-    </div></td>
-  </tr>`).join('');
-  tbl.innerHTML = _dealsCache.length ? hdr + '<tbody>' + rows + '</tbody>' : '<tr class="empty-row"><td colspan="5">No deals yet.</td></tr>';
-}
-
-function openDealModal(id) {
-  const d = id ? (_dealsCache.find(x => x.id === id) || {}) : {};
-  document.getElementById('dealModalTitle').textContent = id ? 'Edit Deal' : 'Create Deal';
-  document.getElementById('dmDealId').value = id || '';
-  document.getElementById('dmTitle').value = d.title || '';
-  document.getElementById('dmDealPrice').value = d.discountPrice || '';
-  document.getElementById('dmDealActive').checked = d.isActive !== false;
-  // Populate product dropdown
-  const sel = document.getElementById('dmProductId');
-  sel.innerHTML = '<option value="">— Any product —</option>' +
-    (_productsCache || []).map(p => `<option value="${escHtml(p.id)}" ${d.productId === p.id ? 'selected' : ''}>${escHtml(p.name)}</option>`).join('');
-  document.getElementById('dealModal').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeDealModal() {
-  document.getElementById('dealModal').classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-async function saveDealModal() {
-  const title = document.getElementById('dmTitle').value.trim();
-  const price = parseFloat(document.getElementById('dmDealPrice').value);
-  if (!title || !price) { showToast('Title and price required', 'error'); return; }
-  const editId = document.getElementById('dmDealId').value;
-  const body = {
-    title,
-    discountPrice: price,
-    productId: document.getElementById('dmProductId').value || null,
-    isActive: document.getElementById('dmDealActive').checked,
-  };
-  try {
-    const res = await authFetch(
-      editId ? `/api/admin/deals/${editId}` : '/api/admin/deals',
-      { method: editId ? 'PATCH' : 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
-    );
-    if (!res.ok) throw new Error();
-  } catch(e) { showToast('Failed to save deal', 'error'); return; }
-  closeDealModal();
-  await loadDealsTable();
-  showToast('Deal saved');
-}
-
-async function deleteDeal(id) {
-  if (!confirm('Delete this deal?')) return;
-  try {
-    const res = await authFetch(`/api/admin/deals/${id}`, { method: 'DELETE' });
-    if (!res.ok) throw new Error();
-  } catch(e) { showToast('Failed to delete deal', 'error'); return; }
-  await loadDealsTable();
-  showToast('Deal deleted', 'error');
-}
 
 /* ═══════════════════════════════════════════
    CONTENT
