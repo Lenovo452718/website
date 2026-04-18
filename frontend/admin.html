@@ -972,6 +972,18 @@ select.pm-input{cursor:pointer}
     <section class="admin-section" id="secNotifications">
       <div class="page-header"><h1>Notifications</h1><p>Send messages to your customers.</p></div>
 
+      <!-- Admin Push Alerts -->
+      <div class="panel" style="margin-bottom:20px">
+        <div class="panel-header"><h2>Admin Push Alerts</h2></div>
+        <div style="padding:20px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+          <div>
+            <div style="font-size:13px;font-weight:600;margin-bottom:4px">Browser Push Notifications</div>
+            <div style="font-size:12px;color:var(--gray)" id="adminPushStatus">Get notified instantly when a new order arrives.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" id="adminPushBtn" onclick="toggleAdminPush()">Enable</button>
+        </div>
+      </div>
+
       <!-- Send Notification -->
       <div class="panel" style="margin-bottom:20px">
         <div class="panel-header"><h2>Send Notification</h2></div>
@@ -3939,6 +3951,79 @@ async function loadNotifSentHistory() {
   }
 }
 
+/* ── Admin push notifications ── */
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const raw = atob(base64);
+  return Uint8Array.from([...raw].map(c => c.charCodeAt(0)));
+}
+
+let _adminPushSub = null;
+
+async function initAdminPush() {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+    const btn = document.getElementById('adminPushBtn');
+    if (btn) { btn.textContent = 'Not supported'; btn.disabled = true; }
+    return;
+  }
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    _adminPushSub = await reg.pushManager.getSubscription();
+    updateAdminPushUI();
+  } catch (_) {}
+}
+
+function updateAdminPushUI() {
+  const btn    = document.getElementById('adminPushBtn');
+  const status = document.getElementById('adminPushStatus');
+  if (!btn) return;
+  if (_adminPushSub) {
+    btn.textContent = 'Disable';
+    btn.className   = 'btn btn-outline btn-sm';
+    if (status) status.textContent = 'Push alerts are active — you will be notified on new orders.';
+  } else {
+    btn.textContent = 'Enable';
+    btn.className   = 'btn btn-primary btn-sm';
+    if (status) status.textContent = 'Get notified instantly when a new order arrives.';
+  }
+}
+
+async function toggleAdminPush() {
+  if (_adminPushSub) {
+    await fetch(API + '/api/admin/push/unsubscribe-admin', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+      body: JSON.stringify({ endpoint: _adminPushSub.endpoint })
+    }).catch(() => {});
+    await _adminPushSub.unsubscribe().catch(() => {});
+    _adminPushSub = null;
+    updateAdminPushUI();
+    showToast('Push notifications disabled');
+  } else {
+    try {
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') { showToast('Permission denied', 'error'); return; }
+      const vapidResp = await fetch(API + '/api/push/vapid-public-key');
+      const { publicKey } = await vapidResp.json();
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) });
+      const j = sub.toJSON();
+      const r = await fetch(API + '/api/admin/push/subscribe-admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+        body: JSON.stringify({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth })
+      });
+      if (!r.ok) throw new Error('Server rejected subscription');
+      _adminPushSub = sub;
+      updateAdminPushUI();
+      showToast('Push notifications enabled!');
+    } catch (err) {
+      showToast('Failed: ' + err.message, 'error');
+    }
+  }
+}
+
 function loadNotifPanel() {
   const notifs = getNotifications().slice(0,20);
   document.getElementById('notifList').innerHTML = notifs.length
@@ -4821,6 +4906,7 @@ async function initAdmin() {
   updateNewOrdersBadge();
   updateNotifBadge();
   checkLowStockNotifications();
+  initAdminPush();
   // Show integration badge if already configured
   if (localStorage.getItem('ss_integrations')) updateIntegBadge(true);
   // Fetch suspicious count for badge + dashboard alert

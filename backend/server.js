@@ -361,6 +361,12 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
 
     emit('order:new', { orderId: order.id, customer: order.customer });
 
+    // Push notification to admin browsers
+    sendAdminPush(
+      `🛍️ New Order #${order.id.slice(-6)}`,
+      `${order.customer} · ${order.total} MAD`
+    ).catch(() => {});
+
     // WhatsApp admin notification via CallMeBot (non-blocking)
     (async () => {
       try {
@@ -2356,6 +2362,49 @@ app.get('/api/admin/push/subscriber-count', requireAuth, async (req, res) => {
   }
 });
 
+/* POST /api/admin/push/subscribe-admin — save admin browser push subscription */
+app.post('/api/admin/push/subscribe-admin', requireAuth, async (req, res) => {
+  const { endpoint, p256dh, auth } = req.body;
+  if (!endpoint || !p256dh || !auth) return res.status(400).json({ error: 'Missing fields' });
+  try {
+    await prisma.$executeRawUnsafe(
+      'INSERT INTO `AdminPushSubscription` (endpoint, p256dh, auth) VALUES (?,?,?) ON DUPLICATE KEY UPDATE p256dh=VALUES(p256dh), auth=VALUES(auth)',
+      endpoint, p256dh, auth
+    );
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save subscription' });
+  }
+});
+
+/* DELETE /api/admin/push/unsubscribe-admin — remove admin push subscription */
+app.delete('/api/admin/push/unsubscribe-admin', requireAuth, async (req, res) => {
+  const { endpoint } = req.body;
+  try {
+    if (endpoint) await prisma.$executeRawUnsafe('DELETE FROM `AdminPushSubscription` WHERE endpoint = ?', endpoint);
+    res.json({ ok: true });
+  } catch (_) {
+    res.status(500).json({ error: 'Failed to remove subscription' });
+  }
+});
+
+/* Helper: send push to all admin subscriptions */
+async function sendAdminPush(title, body) {
+  try {
+    const subs = await prisma.$queryRawUnsafe('SELECT endpoint, p256dh, auth FROM `AdminPushSubscription`');
+    const payload = JSON.stringify({ title, body, url: '/admin.html' });
+    await Promise.all(subs.map(async sub => {
+      try {
+        await webpush.sendNotification({ endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } }, payload);
+      } catch (err) {
+        if (err.statusCode === 410 || err.statusCode === 404) {
+          await prisma.$executeRawUnsafe('DELETE FROM `AdminPushSubscription` WHERE endpoint = ?', sub.endpoint).catch(() => {});
+        }
+      }
+    }));
+  } catch (_) {}
+}
+
 /* GET /api/admin/registered-customers — list customers with accounts */
 app.get('/api/admin/registered-customers', requireAuth, async (req, res) => {
   try {
@@ -2495,6 +2544,7 @@ async function runMigrations() {
     "CREATE INDEX IF NOT EXISTS idx_cn_customer ON `CustomerNotification` (customerId)",
     "CREATE TABLE IF NOT EXISTS `PushSubscription` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `customerId` VARCHAR(30) NULL, `endpoint` TEXT NOT NULL, `p256dh` VARCHAR(500) NOT NULL, `auth` VARCHAR(200) NOT NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), UNIQUE KEY `endpoint_unique` (endpoint(255)))",
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `pushEndpoint` TEXT NULL",
+    "CREATE TABLE IF NOT EXISTS `AdminPushSubscription` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `endpoint` TEXT NOT NULL, `p256dh` VARCHAR(500) NOT NULL, `auth` VARCHAR(200) NOT NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), UNIQUE KEY `admin_endpoint_unique` (endpoint(255)))",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
