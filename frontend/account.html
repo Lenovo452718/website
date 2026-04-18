@@ -1698,6 +1698,26 @@ const STATUS_CLASS = {
   reported: 'acc-status-cancelled'
 };
 
+var OLIV_STATUS_CLIENT = {
+  created:          { label: 'Order Created',      color: '#b07d1a', bg: '#fff8ed', step: 2 },
+  confirmed:        { label: 'Confirmed',           color: '#b07d1a', bg: '#fff8ed', step: 2 },
+  pickup:           { label: 'Awaiting Pickup',     color: '#b07d1a', bg: '#fff8ed', step: 2 },
+  assigned:         { label: 'Driver Assigned',     color: '#1a6fa0', bg: '#e8f4fd', step: 2 },
+  pickedup:         { label: 'Picked Up',           color: '#1a6fa0', bg: '#e8f4fd', step: 3 },
+  picked_up:        { label: 'Picked Up',           color: '#1a6fa0', bg: '#e8f4fd', step: 3 },
+  inhouse:          { label: 'At Warehouse',        color: '#1a6fa0', bg: '#e8f4fd', step: 3 },
+  enroute:          { label: 'On the Way',          color: '#1a6fa0', bg: '#e8f4fd', step: 3 },
+  transit:          { label: 'In Transit',          color: '#1a6fa0', bg: '#e8f4fd', step: 3 },
+  in_transit:       { label: 'In Transit',          color: '#1a6fa0', bg: '#e8f4fd', step: 3 },
+  out_for_delivery: { label: 'Out for Delivery',    color: '#155724', bg: '#d4edda', step: 3 },
+  delivered:        { label: 'Delivered ✓',         color: '#155724', bg: '#d4edda', step: 4 },
+  returned:         { label: 'Return in Progress',  color: '#721c24', bg: '#f8d7da', step: -1 },
+  failed:           { label: 'Delivery Failed',     color: '#721c24', bg: '#f8d7da', step: -1 },
+  exception:        { label: 'Issue with Delivery', color: '#721c24', bg: '#f8d7da', step: -1 },
+  reported:         { label: 'Reported',            color: '#721c24', bg: '#f8d7da', step: -1 },
+  cancelled:        { label: 'Cancelled',           color: '#721c24', bg: '#f8d7da', step: -1 },
+};
+
 function statusBadge(s) {
   const cls = STATUS_CLASS[s] || 'acc-status-pending';
   return '<span class="acc-status ' + cls + '">' + (s || 'unknown') + '</span>';
@@ -1823,7 +1843,7 @@ window.ACC = {
         var stepNum = i + 1;
         var cls = step > stepNum ? 'done' : (step === stepNum ? 'current' : '');
         var icon = step > stepNum ? '✓' : stepNum;
-        return '<div class="acc-track-step ' + cls + '">' +
+        return '<div class="acc-track-step ' + cls + '" id="oliv-step-' + escHtml(o.id) + '-' + stepNum + '">' +
           '<div class="acc-track-dot">' + icon + '</div>' +
           '<div class="acc-track-step-label">' + label + '</div>' +
           '</div>';
@@ -1850,24 +1870,88 @@ window.ACC = {
         '<div class="acc-track-total"><span>Total</span><span>' + Number(o.total || 0).toFixed(0) + ' MAD</span></div>' +
         (o.city ? '<div style="font-size:12px;color:#888;margin-top:10px;">📍 ' + escHtml(o.city) + '</div>' : '') +
         (o.trackingCode
-          ? '<div style="margin-top:16px;padding:14px 16px;background:var(--acc-denim-pale);border-radius:10px;">' +
-              '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--acc-denim);margin-bottom:6px;">Tracking Number</div>' +
-              '<div style="font-size:15px;font-weight:800;font-family:monospace;color:#111;letter-spacing:0.05em;">' + escHtml(o.trackingCode) + '</div>' +
-              '<div style="font-size:11px;color:#888;margin-top:4px;">Delivered by Olivraison</div>' +
+          ? '<div id="oliv-status-' + escHtml(o.id) + '" style="margin-top:16px;padding:14px 16px;background:var(--acc-denim-pale);border-radius:10px;">' +
+              '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--acc-denim);margin-bottom:8px;">📦 Delivery Status</div>' +
+              '<div id="oliv-label-' + escHtml(o.id) + '" style="font-size:15px;font-weight:800;color:var(--acc-denim);">Loading…</div>' +
+              '<div id="oliv-comment-' + escHtml(o.id) + '" style="font-size:12px;color:#888;margin-top:4px;display:none"></div>' +
+              '<div style="font-size:11px;color:#888;margin-top:6px;">Tracking: <span style="font-family:monospace;font-weight:700;color:#111">' + escHtml(o.trackingCode) + '</span></div>' +
             '</div>'
           : '') +
-        (o.deliveryPhone && ['processing','done'].includes((o.status||'').toLowerCase())
-          ? '<div style="margin-top:12px;padding:14px 16px;background:#fff8ed;border:1.5px solid #f5c96a;border-radius:10px;display:flex;align-items:center;gap:14px;">' +
-              '<div style="font-size:26px;">🛵</div>' +
-              '<div>' +
-                '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b07d1a;margin-bottom:4px;">Delivery Agent</div>' +
-                '<a href="tel:' + escHtml(o.deliveryPhone) + '" style="font-size:18px;font-weight:800;color:#111;text-decoration:none;letter-spacing:0.03em;">' + escHtml(o.deliveryPhone) + '</a>' +
-                '<div style="font-size:11px;color:#888;margin-top:2px;">Tap to call your delivery agent</div>' +
-              '</div>' +
-            '</div>'
-          : '') +
+        (o.trackingCode
+          ? '<div id="oliv-driver-' + escHtml(o.id) + '" style="display:none;margin-top:12px;padding:14px 16px;background:#fff8ed;border:1.5px solid #f5c96a;border-radius:10px;display:none;align-items:center;gap:14px;"></div>'
+          : (o.deliveryPhone && ['transit','reported'].includes((o.status||'').toLowerCase())
+              ? '<div style="margin-top:12px;padding:14px 16px;background:#fff8ed;border:1.5px solid #f5c96a;border-radius:10px;display:flex;align-items:center;gap:14px;">' +
+                  '<div style="font-size:26px;">🛵</div>' +
+                  '<div>' +
+                    '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b07d1a;margin-bottom:4px;">Delivery Agent</div>' +
+                    '<a href="tel:' + escHtml(o.deliveryPhone) + '" style="font-size:18px;font-weight:800;color:#111;text-decoration:none;letter-spacing:0.03em;">' + escHtml(o.deliveryPhone) + '</a>' +
+                    '<div style="font-size:11px;color:#888;margin-top:2px;">Tap to call your delivery agent</div>' +
+                  '</div>' +
+                '</div>'
+              : '')) +
       '</div>';
     }).join('');
+    // Fetch live Olivraison status for all tracked orders
+    var _olivTracked = orders.filter(function(o) { return o.trackingCode; });
+    _olivTracked.forEach(function(o) { ACC.fetchOlivraisonStatus(o.id); });
+    // Poll every 45s; stops when all orders reach a terminal status
+    window._olivActive = _olivTracked.map(function(o) { return o.id; });
+    if (window._olivActive.length > 0) {
+      if (window._olivPollInterval) clearInterval(window._olivPollInterval);
+      window._olivPollInterval = setInterval(function() {
+        if (document.hidden || window._olivActive.length === 0) return;
+        window._olivActive.slice().forEach(function(id) { ACC.fetchOlivraisonStatus(id); });
+      }, 45000);
+    }
+  },
+
+  /* ─── fetchOlivraisonStatus ─── */
+  fetchOlivraisonStatus: function(orderId) {
+    ACC.authFetch('/api/customer/orders/' + encodeURIComponent(orderId) + '/olivraison-status')
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        var info = OLIV_STATUS_CLIENT[data.rawStatus] || { label: data.rawStatus || '—', color: '#555', bg: '#f5f5f5', step: 1 };
+        // Remove from active poll list if terminal
+        var _termStatuses = ['delivered','returned','failed','cancelled','exception'];
+        if (data.rawStatus && _termStatuses.includes(data.rawStatus) && window._olivActive) {
+          window._olivActive = window._olivActive.filter(function(id) { return id !== orderId; });
+          if (window._olivActive.length === 0 && window._olivPollInterval) {
+            clearInterval(window._olivPollInterval);
+          }
+        }
+        var labelEl = document.getElementById('oliv-label-' + orderId);
+        if (labelEl) { labelEl.textContent = info.label; labelEl.style.color = info.color; }
+        var boxEl = document.getElementById('oliv-status-' + orderId);
+        if (boxEl) boxEl.style.background = info.bg;
+        var commentEl = document.getElementById('oliv-comment-' + orderId);
+        if (commentEl && data.comment) { commentEl.textContent = data.comment; commentEl.style.display = ''; }
+        // Show driver card only when in transit
+        var driverEl = document.getElementById('oliv-driver-' + orderId);
+        if (driverEl && data.driverPhone) {
+          driverEl.style.display = 'flex';
+          driverEl.innerHTML =
+            '<div style="font-size:26px;">🛵</div>' +
+            '<div>' +
+              '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#b07d1a;margin-bottom:4px;">Delivery Agent</div>' +
+              (data.driverName ? '<div style="font-size:13px;font-weight:700;color:#111;margin-bottom:4px;">' + escHtml(data.driverName) + '</div>' : '') +
+              '<a href="tel:' + escHtml(data.driverPhone) + '" style="font-size:18px;font-weight:800;color:#111;text-decoration:none;letter-spacing:0.03em;">' + escHtml(data.driverPhone) + '</a>' +
+              '<div style="font-size:11px;color:#888;margin-top:2px;">Tap to call your delivery agent</div>' +
+            '</div>';
+        }
+        // Update progress steps based on live Olivraison step
+        if (info.step > 0) {
+          [1,2,3,4].forEach(function(n) {
+            var el = document.getElementById('oliv-step-' + orderId + '-' + n);
+            if (!el) return;
+            el.className = 'acc-track-step' + (info.step > n ? ' done' : (info.step === n ? ' current' : ''));
+            el.querySelector('.acc-track-dot').textContent = info.step > n ? '✓' : n;
+          });
+        }
+      })
+      .catch(function() {
+        var labelEl = document.getElementById('oliv-label-' + orderId);
+        if (labelEl) { labelEl.textContent = 'Unavailable'; labelEl.style.color = '#aaa'; }
+      });
   },
 
   /* ─── toggleSidebar ─── */
@@ -2540,8 +2624,28 @@ document.addEventListener('click', function(e) {
       else { badge.style.display = 'none'; }
       window._clientNotifs = notifs;
     } catch (_) {}
-    // Register push subscription
-    await registerPushSubscription(tok);
+    // Register push subscription (with slide-up prompt if not yet decided)
+    if (Notification.permission === 'granted') {
+      await registerPushSubscription(tok);
+    } else if (Notification.permission === 'default' && !localStorage.getItem('ss_notif_prompted')) {
+      showAccNotifPopup(tok);
+    }
+    // If 'denied' — do nothing
+  }
+
+  function showAccNotifPopup(tok) {
+    var popup = document.getElementById('accNotifPopup');
+    if (!popup) return;
+    popup.style.display = 'flex';
+    document.getElementById('accNotifAllow').onclick = async function() {
+      popup.style.display = 'none';
+      localStorage.setItem('ss_notif_prompted', '1');
+      await registerPushSubscription(tok);
+    };
+    document.getElementById('accNotifSkip').onclick = function() {
+      popup.style.display = 'none';
+      localStorage.setItem('ss_notif_prompted', '1');
+    };
   }
 
   async function registerPushSubscription(tok) {
@@ -2619,6 +2723,56 @@ document.addEventListener('click', function(e) {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadClientNotifications);
   else loadClientNotifications();
 })();
+</script>
+
+<!-- Notification permission slide-up (Fix 1) -->
+<div id="accNotifPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;max-width:400px;width:100%;border-radius:16px;overflow:hidden;">
+    <div style="text-align:center;padding:28px 24px;">
+      <div style="font-size:40px;margin-bottom:12px">🔔</div>
+      <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:8px">Stay updated on your order</div>
+      <div style="font-size:13px;color:#666;margin-bottom:24px;line-height:1.6">
+        We'll notify you when your driver is assigned and every time your order status changes.
+      </div>
+      <button id="accNotifAllow" style="width:100%;background:#111;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">
+        Allow Notifications
+      </button>
+      <button id="accNotifSkip" style="background:none;border:none;color:#999;font-size:13px;cursor:pointer;">
+        Not now
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- iOS Add to Home Screen prompt (Fix 3) -->
+<div id="accIosPrompt" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 32px;box-shadow:0 -4px 40px rgba(0,0,0,0.18);">
+  <div style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:10px">📲</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px">Add to Home Screen</div>
+    <div style="font-size:13px;color:#555;margin-bottom:20px;line-height:1.6">
+      To receive order notifications, add StreetStore to your Home Screen:<br>
+      tap <strong>Share</strong> ⬆️ then <strong>"Add to Home Screen"</strong>
+    </div>
+    <button onclick="dismissAccIosPrompt()" style="background:none;border:1px solid #ddd;border-radius:8px;padding:9px 24px;font-size:13px;color:#666;cursor:pointer;">Got it</button>
+  </div>
+</div>
+<script>
+(function() {
+  var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone = window.navigator.standalone === true;
+  var dismissed = localStorage.getItem('ss_ios_prompt_dismissed');
+  if (isIos && !isStandalone && !dismissed) {
+    setTimeout(function() {
+      var el = document.getElementById('accIosPrompt');
+      if (el) el.style.display = 'block';
+    }, 4000);
+  }
+})();
+function dismissAccIosPrompt() {
+  localStorage.setItem('ss_ios_prompt_dismissed', '1');
+  var el = document.getElementById('accIosPrompt');
+  if (el) el.style.display = 'none';
+}
 </script>
 </body>
 </html>
