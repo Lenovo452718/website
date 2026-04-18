@@ -981,12 +981,21 @@ select.pm-input{cursor:pointer}
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
                 <input type="radio" name="notifTarget" value="all" checked onchange="toggleNotifCustomerPicker(this)"> All Customers
+                <span id="notifSubscriberCount" style="font-size:11px;color:var(--gray);margin-left:2px"></span>
               </label>
               <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer">
-                <input type="radio" name="notifTarget" value="one" onchange="toggleNotifCustomerPicker(this)"> Specific Customer
+                <input type="radio" name="notifTarget" value="specific" onchange="toggleNotifCustomerPicker(this)"> Specific Customers
               </label>
-              <select id="notifCustomerSelect" style="display:none;padding:6px 10px;border:1px solid var(--gray-light);border-radius:6px;font-size:13px;min-width:200px"></select>
             </div>
+            <!-- search input (shown when "Specific" is selected) -->
+            <div id="notifCustomerSearchWrap" style="display:none;margin-top:10px;position:relative">
+              <input id="notifCustomerSearch" type="text" placeholder="Search by name or email…"
+                oninput="notifSearchCustomers(this.value)"
+                style="width:100%;padding:8px 12px;border:1px solid var(--gray-light);border-radius:6px;font-size:13px;box-sizing:border-box">
+              <div id="notifCustomerDropdown" style="display:none;position:absolute;width:100%;background:#fff;border:1px solid var(--gray-light);border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:50;top:calc(100% + 4px);max-height:200px;overflow-y:auto"></div>
+            </div>
+            <!-- selected customer tags -->
+            <div id="notifSelectedCustomers" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
           </div>
           <div>
             <label style="font-size:12px;font-weight:600;color:var(--gray);display:block;margin-bottom:6px">TITLE</label>
@@ -3798,51 +3807,104 @@ function loadNotifFullList() {
 }
 
 /* ── Customer notification sending ── */
-async function loadNotifCustomerList() {
-  const sel = document.getElementById('notifCustomerSelect');
-  if (!sel) return;
-  // Use registered customers from DB (those with accounts)
-  try {
-    const r = await fetch(API + '/api/admin/registered-customers', { headers: { Authorization: 'Bearer ' + adminToken() } });
-    if (r.ok) {
-      const customers = await r.json();
-      sel.innerHTML = '<option value="">— Select customer —</option>' +
-        customers.map(c => `<option value="${c.id}">${c.name || c.email} (${c.phone || c.email})</option>`).join('');
-      return;
-    }
-  } catch (_) {}
-  // Fallback: use order-based customer list (phone only — no customerId)
-  const customers = getCustomers();
-  sel.innerHTML = '<option value="">— Select customer —</option>' +
-    customers.map(c => `<option value="">${c.name} (${c.phone})</option>`).join('');
-}
+let notifSelectedCustomers = [];  // [{ id, name, email }]
+let notifAllCustomers      = [];  // cached list from API
+let notifSearchTimeout     = null;
+
+// Load subscriber count badge on init
+apiFetch('/api/admin/push/subscriber-count')
+  .then(d => {
+    const el = document.getElementById('notifSubscriberCount');
+    if (el && d && d.count != null) el.textContent = `(${d.count} push subscriber${d.count !== 1 ? 's' : ''})`;
+  }).catch(() => {});
 
 function toggleNotifCustomerPicker(radio) {
-  const sel = document.getElementById('notifCustomerSelect');
-  if (radio.value === 'one') {
-    sel.style.display = 'block';
-    loadNotifCustomerList();
+  const wrap = document.getElementById('notifCustomerSearchWrap');
+  const tags  = document.getElementById('notifSelectedCustomers');
+  if (radio.value === 'specific') {
+    wrap.style.display = 'block';
+    tags.style.display = 'flex';
   } else {
-    sel.style.display = 'none';
+    wrap.style.display = 'none';
+    tags.style.display = 'none';
   }
+}
+
+async function notifSearchCustomers(q) {
+  clearTimeout(notifSearchTimeout);
+  const dropdown = document.getElementById('notifCustomerDropdown');
+  if (!q.trim()) { dropdown.style.display = 'none'; return; }
+  notifSearchTimeout = setTimeout(async () => {
+    try {
+      if (!notifAllCustomers.length) {
+        const r = await fetch(API + '/api/admin/registered-customers', { headers: { Authorization: 'Bearer ' + adminToken() } });
+        if (r.ok) notifAllCustomers = await r.json();
+      }
+      const lq = q.toLowerCase();
+      const results = notifAllCustomers.filter(c =>
+        (c.name  || '').toLowerCase().includes(lq) ||
+        (c.email || '').toLowerCase().includes(lq)
+      ).filter(c => !notifSelectedCustomers.find(s => s.id === c.id)).slice(0, 8);
+      if (!results.length) { dropdown.style.display = 'none'; return; }
+      dropdown.innerHTML = results.map(c => `
+        <div onclick="notifAddCustomer('${c.id}','${(c.name||'').replace(/'/g,"\\'")}','${(c.email||'').replace(/'/g,"\\'")}');document.getElementById('notifCustomerSearch').value=''"
+          style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--gray-light)"
+          onmouseover="this.style.background='var(--off)'" onmouseout="this.style.background=''">
+          <strong>${c.name || '—'}</strong> <span style="color:var(--gray)">${c.email || ''}</span>
+        </div>`).join('');
+      dropdown.style.display = 'block';
+    } catch (_) {}
+  }, 250);
+}
+
+function notifAddCustomer(id, name, email) {
+  if (notifSelectedCustomers.find(c => c.id === id)) return;
+  notifSelectedCustomers.push({ id, name, email });
+  document.getElementById('notifCustomerDropdown').style.display = 'none';
+  renderNotifTags();
+}
+
+function notifRemoveCustomer(id) {
+  notifSelectedCustomers = notifSelectedCustomers.filter(c => c.id !== id);
+  renderNotifTags();
+}
+
+function renderNotifTags() {
+  const wrap = document.getElementById('notifSelectedCustomers');
+  wrap.innerHTML = notifSelectedCustomers.map(c => `
+    <span style="display:inline-flex;align-items:center;gap:4px;background:var(--denim);color:#fff;padding:3px 10px;border-radius:20px;font-size:12px">
+      ${c.name || c.email}
+      <span onclick="notifRemoveCustomer('${c.id}')" style="cursor:pointer;font-size:14px;line-height:1;opacity:.8">&times;</span>
+    </span>`).join('');
 }
 
 async function sendCustomerNotification() {
   const title   = document.getElementById('notifTitle').value.trim();
   const message = document.getElementById('notifMessage').value.trim();
   const target  = document.querySelector('input[name="notifTarget"]:checked')?.value;
-  const custId  = target === 'one' ? document.getElementById('notifCustomerSelect').value : null;
   if (!title || !message) { showToast('Title and message are required', 'error'); return; }
-  if (target === 'one' && !custId) { showToast('Please select a customer', 'error'); return; }
+  if (target === 'specific' && !notifSelectedCustomers.length) { showToast('Please select at least one customer', 'error'); return; }
   try {
-    const r = await fetch(API + '/api/admin/notifications', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
-      body: JSON.stringify({ title, message, customerId: custId || null })
-    });
-    if (!r.ok) throw new Error();
+    if (target === 'specific') {
+      await Promise.all(notifSelectedCustomers.map(c =>
+        fetch(API + '/api/admin/notifications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+          body: JSON.stringify({ title, message, customerId: c.id })
+        })
+      ));
+    } else {
+      const r = await fetch(API + '/api/admin/notifications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+        body: JSON.stringify({ title, message, customerId: null })
+      });
+      if (!r.ok) throw new Error();
+    }
     document.getElementById('notifTitle').value = '';
     document.getElementById('notifMessage').value = '';
+    notifSelectedCustomers = [];
+    renderNotifTags();
     showToast('Notification sent!');
     loadNotifSentHistory();
   } catch (_) {
@@ -3853,8 +3915,10 @@ async function sendCustomerNotification() {
 async function loadNotifSentHistory() {
   const el = document.getElementById('notifSentHistory');
   if (!el) return;
+  el.innerHTML = '<div class="notif-empty" style="padding:20px;color:var(--gray)">Loading…</div>';
   try {
     const r = await fetch(API + '/api/admin/notifications', { headers: { Authorization: 'Bearer ' + adminToken() } });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const rows = await r.json();
     if (!rows.length) { el.innerHTML = '<div class="notif-empty" style="padding:20px">No notifications sent yet</div>'; return; }
     el.innerHTML = rows.map(n => `
@@ -3864,14 +3928,14 @@ async function loadNotifSentHistory() {
             <div style="font-weight:600;font-size:13px;margin-bottom:2px">${n.title}</div>
             <div style="font-size:13px;color:var(--gray-dark);margin-bottom:4px">${n.message}</div>
             <div style="font-size:11px;color:var(--gray)">
-              ${n.customerId ? `To: <strong>${n.customerName || n.customerEmail || n.customerId}</strong>` : '<strong>All customers</strong>'}
+              ${n.customerId ? `→ <strong>${n.customerName || n.customerEmail || n.customerId}</strong>` : '→ <strong>All</strong>'}
               &nbsp;·&nbsp; ${new Date(n.createdAt).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})}
             </div>
           </div>
         </div>
       </div>`).join('');
-  } catch (_) {
-    el.innerHTML = '<div class="notif-empty" style="padding:20px;color:var(--red)">Failed to load history</div>';
+  } catch (e) {
+    el.innerHTML = `<div class="notif-empty" style="padding:20px;color:var(--red)">Failed to load history (${e.message})</div>`;
   }
 }
 
