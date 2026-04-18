@@ -1803,42 +1803,42 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .wishlist-link:hover { border-color: var(--charcoal); background: var(--off); color: var(--charcoal); }
 
 .trust-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--gray-light);
+  border-radius: 10px;
   margin-bottom: 28px;
+  overflow: hidden;
 }
 .trust-item {
+  flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 20px 10px;
-  text-align: center;
-  gap: 12px;
-  border: 1px solid var(--gray-light);
-  border-radius: 12px;
+  justify-content: center;
+  padding: 14px 10px;
+  gap: 10px;
+  text-align: left;
   background: var(--white);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  border-right: 1px solid var(--gray-light);
+  transition: background 0.18s;
   cursor: default;
 }
-.trust-item:hover {
-  border-color: var(--charcoal);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-}
+.trust-item:last-child { border-right: none; }
+.trust-item:hover { background: #fafafa; }
 .trust-icon-wrap {
-  width: 52px; height: 52px;
+  width: 32px; height: 32px;
   border-radius: 50%;
-  background: var(--charcoal);
+  background: #f4f4f4;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.2s ease;
+  transition: background 0.18s;
 }
-.trust-item:hover .trust-icon-wrap { background: #000; }
-.trust-icon-wrap svg { stroke: #ffffff; }
-.trust-item span { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--charcoal); line-height: 1.5; }
+.trust-item:hover .trust-icon-wrap { background: #ececec; }
+.trust-icon-wrap svg { stroke: var(--charcoal); width: 15px; height: 15px; }
+.trust-item span { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--charcoal); line-height: 1.4; }
 
 /* Trust icon animations */
 @keyframes iconTruck {
@@ -1866,39 +1866,46 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
 }
 
-/* Truck drives continuously */
-.trust-item:nth-child(1) .trust-icon-wrap svg { animation: iconTruck 2.2s ease-in-out infinite; }
-/* Return arrow spins continuously */
-.trust-item:nth-child(2) .trust-icon-wrap svg { animation: iconSpin 3s linear infinite; }
-/* Lock bounces like it's securing */
-.trust-item:nth-child(3) .trust-icon-wrap svg { animation: iconLock 2.5s ease-in-out infinite; }
-/* Pulse ring on hover */
-.trust-item:hover .trust-icon-wrap { animation: iconWrapPulse 0.8s ease-out; }
 
-.accordion { border-top: 1px solid var(--gray-light); }
-.accordion-item { border-bottom: 1px solid var(--gray-light); }
+.accordion { margin-top: 8px; }
+.accordion-item {
+  border-bottom: 1px solid var(--gray-light);
+  transition: background 0.15s;
+}
+.accordion-item.open {
+  background: #fafafa;
+  border-left: 2px solid var(--charcoal);
+  padding-left: 14px;
+  margin-left: -14px;
+}
 .accordion-trigger {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 18px 0;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--charcoal);
   text-align: left;
   transition: color var(--transition);
 }
-.accordion-trigger:hover { color: var(--gray); }
-.accordion-icon { font-size: 18px; transition: transform var(--transition); color: var(--gray); font-weight: 300; }
+.accordion-trigger:hover { color: #555; }
+.accordion-icon {
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--gray);
+  transition: transform 0.25s ease;
+  line-height: 1;
+}
 .accordion-item.open .accordion-icon { transform: rotate(45deg); }
-.accordion-body { display: none; padding-bottom: 20px; }
-.accordion-body p, .accordion-body li { font-size: 13px; color: var(--gray); line-height: 1.7; }
+.accordion-body { display: none; padding-bottom: 22px; }
+.accordion-body p, .accordion-body li { font-size: 13.5px; color: #666; line-height: 1.75; }
 .shipping-list {
   list-style: none;
   padding: 0;
@@ -5366,42 +5373,42 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 .wishlist-link:hover { border-color: var(--charcoal); background: var(--off); color: var(--charcoal); }
 
 .trust-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--gray-light);
+  border-radius: 10px;
   margin-bottom: 28px;
+  overflow: hidden;
 }
 .trust-item {
+  flex: 1;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  padding: 20px 10px;
-  text-align: center;
-  gap: 12px;
-  border: 1px solid var(--gray-light);
-  border-radius: 12px;
+  justify-content: center;
+  padding: 14px 10px;
+  gap: 10px;
+  text-align: left;
   background: var(--white);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  border-right: 1px solid var(--gray-light);
+  transition: background 0.18s;
   cursor: default;
 }
-.trust-item:hover {
-  border-color: var(--charcoal);
-  box-shadow: 0 4px 18px rgba(0,0,0,0.08);
-  transform: translateY(-2px);
-}
+.trust-item:last-child { border-right: none; }
+.trust-item:hover { background: #fafafa; }
 .trust-icon-wrap {
-  width: 52px; height: 52px;
+  width: 32px; height: 32px;
   border-radius: 50%;
-  background: var(--charcoal);
+  background: #f4f4f4;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: background 0.2s ease;
+  transition: background 0.18s;
 }
-.trust-item:hover .trust-icon-wrap { background: #000; }
-.trust-icon-wrap svg { stroke: #ffffff; }
-.trust-item span { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--charcoal); line-height: 1.5; }
+.trust-item:hover .trust-icon-wrap { background: #ececec; }
+.trust-icon-wrap svg { stroke: var(--charcoal); width: 15px; height: 15px; }
+.trust-item span { font-size: 10px; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; color: var(--charcoal); line-height: 1.4; }
 
 /* Trust icon animations */
 @keyframes iconTruck {
@@ -5429,39 +5436,46 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
 }
 
-/* Truck drives continuously */
-.trust-item:nth-child(1) .trust-icon-wrap svg { animation: iconTruck 2.2s ease-in-out infinite; }
-/* Return arrow spins continuously */
-.trust-item:nth-child(2) .trust-icon-wrap svg { animation: iconSpin 3s linear infinite; }
-/* Lock bounces like it's securing */
-.trust-item:nth-child(3) .trust-icon-wrap svg { animation: iconLock 2.5s ease-in-out infinite; }
-/* Pulse ring on hover */
-.trust-item:hover .trust-icon-wrap { animation: iconWrapPulse 0.8s ease-out; }
 
-.accordion { border-top: 1px solid var(--gray-light); }
-.accordion-item { border-bottom: 1px solid var(--gray-light); }
+.accordion { margin-top: 8px; }
+.accordion-item {
+  border-bottom: 1px solid var(--gray-light);
+  transition: background 0.15s;
+}
+.accordion-item.open {
+  background: #fafafa;
+  border-left: 2px solid var(--charcoal);
+  padding-left: 14px;
+  margin-left: -14px;
+}
 .accordion-trigger {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 0;
+  padding: 18px 0;
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--charcoal);
   text-align: left;
   transition: color var(--transition);
 }
-.accordion-trigger:hover { color: var(--gray); }
-.accordion-icon { font-size: 18px; transition: transform var(--transition); color: var(--gray); font-weight: 300; }
+.accordion-trigger:hover { color: #555; }
+.accordion-icon {
+  font-size: 20px;
+  font-weight: 300;
+  color: var(--gray);
+  transition: transform 0.25s ease;
+  line-height: 1;
+}
 .accordion-item.open .accordion-icon { transform: rotate(45deg); }
-.accordion-body { display: none; padding-bottom: 20px; }
-.accordion-body p, .accordion-body li { font-size: 13px; color: var(--gray); line-height: 1.7; }
+.accordion-body { display: none; padding-bottom: 22px; }
+.accordion-body p, .accordion-body li { font-size: 13.5px; color: #666; line-height: 1.75; }
 .shipping-list {
   list-style: none;
   padding: 0;
