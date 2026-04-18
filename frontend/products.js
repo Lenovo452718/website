@@ -363,7 +363,9 @@ function initProductInfo() {
     sizeWrap.innerHTML = product.sizes.split(',').map(function(s, i) {
       s = s.trim();
       var outOfStock = sizesInStock && !sizesInStock.includes(s);
-      return '<button class="size-btn' + (i === 0 && !outOfStock ? ' active' : '') + (outOfStock ? ' sold-out' : '') + '"' + (outOfStock ? ' disabled' : '') + '>' + s + '</button>';
+      var seed = ((product.id || '') + s).split('').reduce(function(a, c) { return a + c.charCodeAt(0); }, 0);
+      var stock = outOfStock ? 0 : (seed % 3) + 1;
+      return '<button class="size-btn' + (i === 0 && !outOfStock ? ' active' : '') + (outOfStock ? ' sold-out' : '') + '"' + (outOfStock ? ' disabled' : '') + ' data-stock="' + stock + '">' + s + '</button>';
     }).join('');
   }
 

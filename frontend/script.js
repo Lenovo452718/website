@@ -741,6 +741,18 @@ function initGallery() {
 /* ============================================================
    10. PRODUCT PAGE — SIZE SELECTOR
    ============================================================ */
+function _updateSizeStockHint(btn) {
+  const hint = document.getElementById('sizeStockHint');
+  if (!hint) return;
+  const stock = parseInt(btn && btn.dataset.stock, 10);
+  if (stock >= 1 && stock <= 3) {
+    hint.textContent = t('size_stock_low').replace('{n}', stock);
+    hint.style.display = '';
+  } else {
+    hint.style.display = 'none';
+  }
+}
+
 function initSizeSelector() {
   const container = document.querySelector('.size-selector');
   const selectedSizeEl = document.getElementById('selectedSize');
@@ -751,6 +763,7 @@ function initSizeSelector() {
     btns[0].classList.add('active');
     if (selectedSizeEl) selectedSizeEl.textContent = btns[0].textContent.trim();
   }
+  _updateSizeStockHint(container.querySelector('.size-btn.active'));
   // Use event delegation — one listener on the container, survives innerHTML replacements
   if (container._sizeListenerAttached) return;
   container._sizeListenerAttached = true;
@@ -761,6 +774,7 @@ function initSizeSelector() {
     btn.classList.add('active');
     const sel = document.getElementById('selectedSize');
     if (sel) sel.textContent = btn.textContent.trim();
+    _updateSizeStockHint(btn);
   });
 }
 

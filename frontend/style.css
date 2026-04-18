@@ -1618,6 +1618,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .size-guide-link { font-size: 12px; color: var(--gray); text-decoration: underline; cursor: pointer; margin-bottom: 20px; display: inline-block; }
 .fit-note { font-size: 13px; color: var(--gray); font-style: italic; margin-bottom: 24px; line-height: 1.5; }
+.size-stock-hint { font-size: 12px; font-weight: 600; color: #c0392b; margin: 6px 0 10px; letter-spacing: 0.02em; }
 
 .qty-selector {
   display: flex;
@@ -5152,6 +5153,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .size-guide-link { font-size: 12px; color: var(--gray); text-decoration: underline; cursor: pointer; margin-bottom: 20px; display: inline-block; }
 .fit-note { font-size: 13px; color: var(--gray); font-style: italic; margin-bottom: 24px; line-height: 1.5; }
+.size-stock-hint { font-size: 12px; font-weight: 600; color: #c0392b; margin: 6px 0 10px; letter-spacing: 0.02em; }
 
 .qty-selector {
   display: flex;
