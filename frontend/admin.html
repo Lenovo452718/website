@@ -3829,7 +3829,7 @@ let notifAllCustomers      = [];  // cached list from API
 let notifSearchTimeout     = null;
 
 // Load subscriber count badge on init
-apiFetch('/api/admin/push/subscriber-count')
+authFetch('/api/admin/push/subscriber-count')
   .then(d => {
     const el = document.getElementById('notifSubscriberCount');
     if (el && d && d.count != null) el.textContent = `(${d.count} push subscriber${d.count !== 1 ? 's' : ''})`;
