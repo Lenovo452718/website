@@ -3972,25 +3972,21 @@ async function initAdminPush() {
   const btn    = document.getElementById('adminPushBtn');
   const status = document.getElementById('adminPushStatus');
 
-  // Chrome/non-Safari on iOS cannot do Web Push (Apple restriction)
-  const isSafari = /^((?!chrome|crios|fxios|opios).)*safari/i.test(navigator.userAgent);
-  if (isIOS && !isSafari) {
-    if (btn)    { btn.textContent = 'Use Safari'; btn.disabled = true; }
-    if (status) status.innerHTML  = 'Push notifications on iPhone only work in <strong>Safari</strong>. Open this page in Safari, add it to your home screen, then enable push.';
-    return;
-  }
-
-  // iOS Safari only supports push when installed as a PWA (Add to Home Screen)
-  if (isIOS && !isStandalone) {
-    if (btn)    { btn.textContent = 'Requires install'; btn.disabled = true; }
-    if (status) status.innerHTML  = 'On iPhone: open this page in <strong>Safari</strong>, tap Share ⎙ → Add to Home Screen, then open from your home screen and enable push.';
-    return;
-  }
-
+  // Push is not supported at all in this browser
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    if (btn) { btn.textContent = 'Not supported'; btn.disabled = true; }
+    if (btn) { btn.disabled = true; }
+    if (isIOS && !isStandalone) {
+      if (btn) btn.textContent = 'Requires install';
+      if (status) status.innerHTML = 'On iPhone: open this page in <strong>Safari</strong>, tap Share ⎙ → Add to Home Screen, then open from your home screen and enable push.';
+    } else if (isIOS) {
+      if (btn) btn.textContent = 'Use Safari';
+      if (status) status.innerHTML = 'Push on iPhone requires <strong>Safari</strong> (not Chrome). Open in Safari, add to home screen, then enable.';
+    } else {
+      if (btn) btn.textContent = 'Not supported';
+    }
     return;
   }
+
   try {
     const reg = await navigator.serviceWorker.ready;
     _adminPushSub = await reg.pushManager.getSubscription();
