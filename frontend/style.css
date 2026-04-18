@@ -1618,7 +1618,35 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .size-guide-link { font-size: 12px; color: var(--gray); text-decoration: underline; cursor: pointer; margin-bottom: 20px; display: inline-block; }
 .fit-note { font-size: 13px; color: var(--gray); font-style: italic; margin-bottom: 24px; line-height: 1.5; }
-.size-stock-hint { font-size: 12px; font-weight: 600; color: #c0392b; margin: 6px 0 10px; letter-spacing: 0.02em; }
+@keyframes stock-lamp {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+.size-stock-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff5f5;
+  border: 1px solid #f5c0c0;
+  border-radius: 20px;
+  padding: 5px 12px 5px 8px;
+  margin: 7px 0 12px;
+}
+.stock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e02020;
+  flex-shrink: 0;
+  animation: stock-lamp 1.4s ease-in-out infinite;
+}
+.stock-hint-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c0392b;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 
 .qty-selector {
   display: flex;
@@ -5153,7 +5181,35 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
 .size-guide-link { font-size: 12px; color: var(--gray); text-decoration: underline; cursor: pointer; margin-bottom: 20px; display: inline-block; }
 .fit-note { font-size: 13px; color: var(--gray); font-style: italic; margin-bottom: 24px; line-height: 1.5; }
-.size-stock-hint { font-size: 12px; font-weight: 600; color: #c0392b; margin: 6px 0 10px; letter-spacing: 0.02em; }
+@keyframes stock-lamp {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.2; }
+}
+.size-stock-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: #fff5f5;
+  border: 1px solid #f5c0c0;
+  border-radius: 20px;
+  padding: 5px 12px 5px 8px;
+  margin: 7px 0 12px;
+}
+.stock-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #e02020;
+  flex-shrink: 0;
+  animation: stock-lamp 1.4s ease-in-out infinite;
+}
+.stock-hint-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #c0392b;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
 
 .qty-selector {
   display: flex;

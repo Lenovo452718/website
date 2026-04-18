@@ -746,7 +746,8 @@ function _updateSizeStockHint(btn) {
   if (!hint) return;
   const stock = parseInt(btn && btn.dataset.stock, 10);
   if (stock >= 1 && stock <= 3) {
-    hint.textContent = t('size_stock_low').replace('{n}', stock);
+    const textEl = hint.querySelector('.stock-hint-text');
+    if (textEl) textEl.textContent = t('size_stock_low').replace('{n}', stock);
     hint.style.display = '';
   } else {
     hint.style.display = 'none';
