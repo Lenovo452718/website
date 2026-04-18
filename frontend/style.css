@@ -853,6 +853,8 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   /* Touch devices — always show quick-add */
   .product-card-quick { opacity: 1; transform: translateY(0); font-size: 11px; padding: 10px; }
   .wishlist-btn { width: 44px; height: 44px; }
+  .trending-panel-btn { opacity: 1; transform: translateY(0); }
+  .editorial-card-cta { opacity: 1; transform: translateY(0); }
 }
 
 .product-card-info { padding: 16px 4px 24px; flex: 1; display: flex; flex-direction: column; }
@@ -2830,7 +2832,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   }
   .hero-stat:last-child { border-right: none; }
   .hero-stat-num { font-size: 16px; }
-  .hero-stat-label { font-size: 6px; letter-spacing: 0.1em; text-align: center; white-space: nowrap; }
+  .hero-stat-label { font-size: 10px; letter-spacing: 0.1em; text-align: center; white-space: nowrap; }
 
   .benefits-bar { display: none; }
 
@@ -3031,6 +3033,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .wishlist-grid { grid-template-columns: 1fr; }
   .team-grid { grid-template-columns: 1fr; }
   .newsletter-form { flex-direction: column; }
+  .newsletter-form input { border-right: 1px solid var(--gray-mid); border-bottom: none; }
 
   /* Thank you check icon — smaller on small phones */
   .thankyou-check { width: 64px; height: 64px; font-size: 28px; }
@@ -3077,6 +3080,14 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .thankyou-inner .subheading { font-size: 14px; }
   .thankyou-summary { padding: 16px; }
   .thankyou-wrap { padding: 32px 14px; }
+}
+
+@media (max-width: 320px) {
+  .product-grid-3 { grid-template-columns: 1fr; }
+  .product-grid-3-related { grid-template-columns: 1fr; }
+  .product-grid-4 { grid-template-columns: 1fr; }
+  .nav-logo { font-size: 20px; }
+  .co-trust { grid-template-columns: 1fr; }
 }
 
 /* ============================================================
@@ -4474,6 +4485,8 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   /* Touch devices — always show quick-add */
   .product-card-quick { opacity: 1; transform: translateY(0); font-size: 11px; padding: 10px; }
   .wishlist-btn { width: 44px; height: 44px; }
+  .trending-panel-btn { opacity: 1; transform: translateY(0); }
+  .editorial-card-cta { opacity: 1; transform: translateY(0); }
 }
 
 .product-card-info { padding: 16px 4px 24px; flex: 1; display: flex; flex-direction: column; }
@@ -6451,7 +6464,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   }
   .hero-stat:last-child { border-right: none; }
   .hero-stat-num { font-size: 16px; }
-  .hero-stat-label { font-size: 6px; letter-spacing: 0.1em; text-align: center; white-space: nowrap; }
+  .hero-stat-label { font-size: 10px; letter-spacing: 0.1em; text-align: center; white-space: nowrap; }
 
   .benefits-bar { display: none; }
 
@@ -6652,6 +6665,7 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .wishlist-grid { grid-template-columns: 1fr; }
   .team-grid { grid-template-columns: 1fr; }
   .newsletter-form { flex-direction: column; }
+  .newsletter-form input { border-right: 1px solid var(--gray-mid); border-bottom: none; }
 
   /* Thank you check icon — smaller on small phones */
   .thankyou-check { width: 64px; height: 64px; font-size: 28px; }
@@ -6698,6 +6712,14 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .thankyou-inner .subheading { font-size: 14px; }
   .thankyou-summary { padding: 16px; }
   .thankyou-wrap { padding: 32px 14px; }
+}
+
+@media (max-width: 320px) {
+  .product-grid-3 { grid-template-columns: 1fr; }
+  .product-grid-3-related { grid-template-columns: 1fr; }
+  .product-grid-4 { grid-template-columns: 1fr; }
+  .nav-logo { font-size: 20px; }
+  .co-trust { grid-template-columns: 1fr; }
 }
 
 /* ============================================================
