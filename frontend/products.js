@@ -370,6 +370,9 @@ function initProductInfo() {
   var fitNote = document.querySelector('.fit-note');
   if (fitNote && product.fit) fitNote.textContent = product.fit;
 
+  var descEl = document.getElementById('productDescription');
+  if (descEl) descEl.textContent = product.description || '';
+
   // ── Dynamic color swatches ──
   var colors = parseProductColors(product.color);
   var swatchWrap = document.querySelector('.product-swatches');
