@@ -1,0 +1,13 @@
+{
+  "name": "StreetStore Admin",
+  "short_name": "SS Admin",
+  "description": "StreetStore admin panel",
+  "start_url": "/admin.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#111111",
+  "icons": [
+    { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

@@ -3,8 +3,13 @@
 <head>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <link rel="apple-touch-icon" href="favicon.svg">
+  <link rel="manifest" href="manifest-admin.json">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SS Admin">
 <title>Admin — StreetStore</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -3962,8 +3967,19 @@ function urlBase64ToUint8Array(base64String) {
 let _adminPushSub = null;
 
 async function initAdminPush() {
+  const isIOS        = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  const btn    = document.getElementById('adminPushBtn');
+  const status = document.getElementById('adminPushStatus');
+
+  // iOS Safari only supports push when installed as a PWA
+  if (isIOS && !isStandalone) {
+    if (btn)    { btn.textContent = 'Requires install'; btn.disabled = true; }
+    if (status) status.innerHTML  = 'On iPhone: tap <strong>Share ⎙ → Add to Home Screen</strong>, then open from your home screen and come back here to enable push.';
+    return;
+  }
+
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
-    const btn = document.getElementById('adminPushBtn');
     if (btn) { btn.textContent = 'Not supported'; btn.disabled = true; }
     return;
   }
@@ -5393,6 +5409,11 @@ async function olivraisonRawTest() {
       showToast(data.error || 'Failed', 'error');
     }
   } catch(e) { el.textContent = '❌ ' + e.message; showToast('Request failed','error'); }
+}
+
+/* Register service worker (needed for push on all browsers incl. iOS) */
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 
 /* Auto-login if session exists */
