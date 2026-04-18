@@ -644,9 +644,6 @@ select.pm-input{cursor:pointer}
       <a class="nav-item" onclick="showSection('content',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Site Content
       </a>
-      <a class="nav-item" onclick="showSection('media',this)">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>Media Library
-      </a>
 
       <div class="nav-section-label">System</div>
       <a class="nav-item" onclick="showSection('pixels',this)">
@@ -936,42 +933,6 @@ select.pm-input{cursor:pointer}
     </section>
 
     <!-- ── MEDIA ── -->
-    <section class="admin-section" id="secMedia">
-      <div class="page-header"><h1>Media Library</h1><p>Manage product images and videos.</p></div>
-      <div class="panel">
-        <div class="panel-header"><h2>Upload Media</h2></div>
-        <div class="panel-body">
-          <!-- Drag & Drop Zone -->
-          <div id="mediaDropZone" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleMediaDrop(event)"
-            style="border:2px dashed var(--gray-light);border-radius:8px;padding:36px 20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:20px">
-            <div style="font-size:40px;margin-bottom:10px">📁</div>
-            <p style="font-size:14px;font-weight:600;margin-bottom:4px">Drag & drop images or videos here</p>
-            <p style="font-size:12px;color:var(--gray);margin-bottom:16px">JPG, PNG, GIF, WEBP, MP4, MOV — up to 100 MB</p>
-            <label class="btn btn-primary" style="cursor:pointer;display:inline-flex">
-              Choose Files from Device
-              <input type="file" accept="image/*,video/*" multiple style="display:none" onchange="handleMediaFiles(this)">
-            </label>
-          </div>
-          <!-- Upload Progress -->
-          <div id="mediaUploadProgress" style="display:none;margin-bottom:16px">
-            <div style="height:4px;background:var(--gray-light);border-radius:2px;overflow:hidden"><div id="mediaProgressBar" style="height:100%;background:var(--navy);width:0%;transition:width .3s"></div></div>
-            <p id="mediaProgressText" style="font-size:12px;color:var(--gray);margin-top:6px">Uploading...</p>
-          </div>
-          <!-- Manual URL add -->
-          <details style="margin-top:8px">
-            <summary style="font-size:12px;color:var(--gray);cursor:pointer;user-select:none">Or add by URL</summary>
-            <div style="margin-top:12px">
-              <div class="field-row">
-                <div class="field-group"><label class="field-label">URL</label><input class="field-input" id="mediaUrl" placeholder="https://... or images/..."></div>
-                <div class="field-group"><label class="field-label">Name</label><input class="field-input" id="mediaName" placeholder="Product photo 1"></div>
-              </div>
-              <button class="btn btn-outline btn-sm" onclick="addMedia()">Add URL</button>
-            </div>
-          </details>
-        </div>
-      </div>
-      <div class="media-grid" id="mediaGrid"></div>
-    </section>
 
     <!-- ── NOTIFICATIONS ── -->
     <section class="admin-section" id="secNotifications">
