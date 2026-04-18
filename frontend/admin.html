@@ -4024,27 +4024,59 @@ async function toggleAdminPush() {
     _adminPushSub = null;
     updateAdminPushUI();
     showToast('Push notifications disabled');
-  } else {
-    try {
-      const perm = await Notification.requestPermission();
-      if (perm !== 'granted') { showToast('Permission denied', 'error'); return; }
-      const vapidResp = await fetch(API + '/api/push/vapid-public-key');
-      const { publicKey } = await vapidResp.json();
-      const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) });
-      const j = sub.toJSON();
-      const r = await fetch(API + '/api/admin/push/subscribe-admin', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
-        body: JSON.stringify({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth })
-      });
-      if (!r.ok) throw new Error('Server rejected subscription');
-      _adminPushSub = sub;
-      updateAdminPushUI();
-      showToast('Push notifications enabled!');
-    } catch (err) {
-      showToast('Failed: ' + err.message, 'error');
-    }
+    return;
+  }
+
+  const btn = document.getElementById('adminPushBtn');
+  if (btn) btn.disabled = true;
+  try {
+    // Step 1: check Notification API exists
+    if (typeof Notification === 'undefined') throw new Error('Notifications API not available on this browser');
+
+    // Step 2: request permission (handle both callback and Promise styles)
+    showToast('Requesting permission…');
+    const perm = await new Promise(resolve => {
+      const result = Notification.requestPermission(resolve);
+      if (result && typeof result.then === 'function') result.then(resolve);
+    });
+    if (perm !== 'granted') { showToast('Permission ' + perm + ' — check iOS Settings > Safari > Notifications', 'error'); return; }
+
+    // Step 3: wait for service worker
+    showToast('Activating service worker…');
+    const swReady = Promise.race([
+      navigator.serviceWorker.ready,
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Service worker timed out')), 8000))
+    ]);
+    const reg = await swReady;
+
+    // Step 4: fetch VAPID key
+    showToast('Fetching VAPID key…');
+    const vapidResp = await fetch(API + '/api/push/vapid-public-key');
+    if (!vapidResp.ok) throw new Error('Could not fetch VAPID key');
+    const { publicKey } = await vapidResp.json();
+    if (!publicKey) throw new Error('VAPID public key is empty — check server env');
+
+    // Step 5: subscribe
+    showToast('Subscribing…');
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(publicKey) });
+
+    // Step 6: save to server
+    showToast('Saving subscription…');
+    const j = sub.toJSON();
+    const r = await fetch(API + '/api/admin/push/subscribe-admin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + adminToken() },
+      body: JSON.stringify({ endpoint: j.endpoint, p256dh: j.keys.p256dh, auth: j.keys.auth })
+    });
+    if (!r.ok) throw new Error('Server rejected subscription (' + r.status + ')');
+
+    _adminPushSub = sub;
+    updateAdminPushUI();
+    showToast('Push notifications enabled!');
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+  } finally {
+    if (btn) btn.disabled = false;
   }
 }
 
