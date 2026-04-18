@@ -1,4 +1,4 @@
-const CACHE = 'streetstore-v13';
+const CACHE = 'streetstore-v14';
 const ASSETS = [
   '/', '/index.html', '/shop.html', '/style.css', '/script.js',
   '/lang.js', '/i18n.js', '/products.js',
@@ -28,7 +28,7 @@ self.addEventListener('push', function(event) {
       icon: '/favicon.svg',
       badge: '/favicon.svg',
       vibrate: [200, 100, 200],
-      data: { url: '/account.html' }
+      data: { url: data.url || '/account.html' }
     })
   );
 });
