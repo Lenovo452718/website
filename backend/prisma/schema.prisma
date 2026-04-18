@@ -16,6 +16,7 @@ model Product {
   status       String      @default("ACTIVE")
   price        Float
   comparePrice Float?
+  costPrice    Float?
   badge        String?
   fit          String?
   fitFilter    String?

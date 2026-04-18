@@ -1612,7 +1612,9 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 .size-btn:hover { border-color: var(--charcoal); background: var(--off); }
 .size-btn.active { background: var(--charcoal); color: var(--white); border-color: var(--charcoal); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
-.size-btn.sold-out { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+.size-btn.sold-out { background: #f0f0f0; border-color: #ddd; color: #bbb; cursor: not-allowed; position: relative; overflow: hidden; }
+.size-btn.sold-out::after { content: ''; position: absolute; top: 50%; left: 50%; width: 141%; height: 1.5px; background: #ccc; transform: translate(-50%, -50%) rotate(-45deg); pointer-events: none; }
+.size-btn.sold-out:hover { background: #f0f0f0; border-color: #ddd; }
 
 .size-guide-link { font-size: 12px; color: var(--gray); text-decoration: underline; cursor: pointer; margin-bottom: 20px; display: inline-block; }
 .fit-note { font-size: 13px; color: var(--gray); font-style: italic; margin-bottom: 24px; line-height: 1.5; }
@@ -5097,7 +5099,9 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 }
 .size-btn:hover { border-color: var(--charcoal); background: var(--off); }
 .size-btn.active { background: var(--charcoal); color: var(--white); border-color: var(--charcoal); box-shadow: 0 2px 10px rgba(0,0,0,0.18); }
-.size-btn.sold-out { opacity: 0.3; cursor: not-allowed; text-decoration: line-through; }
+.size-btn.sold-out { background: #f0f0f0; border-color: #ddd; color: #bbb; cursor: not-allowed; position: relative; overflow: hidden; }
+.size-btn.sold-out::after { content: ''; position: absolute; top: 50%; left: 50%; width: 141%; height: 1.5px; background: #ccc; transform: translate(-50%, -50%) rotate(-45deg); pointer-events: none; }
+.size-btn.sold-out:hover { background: #f0f0f0; border-color: #ddd; }
 
 .size-guide-link { font-size: 12px; color: var(--gray); text-decoration: underline; cursor: pointer; margin-bottom: 20px; display: inline-block; }
 .fit-note { font-size: 13px; color: var(--gray); font-style: italic; margin-bottom: 24px; line-height: 1.5; }

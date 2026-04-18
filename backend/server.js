@@ -1085,6 +1085,30 @@ app.post('/api/admin/products/:id/variants', adminLimiter, requireAuth, async (r
   }
 });
 
+/* PATCH /api/admin/products/:id/variants/:variantId — toggle in-stock status */
+app.patch('/api/admin/products/:id/variants/:variantId', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const { inStock, stock } = req.body;
+    const data = {};
+    if (inStock !== undefined) data.inStock = Boolean(inStock);
+    if (stock   !== undefined) data.stock   = parseInt(stock) || 0;
+    const variant = await prisma.variant.update({
+      where: { id: req.params.variantId },
+      data,
+    });
+    const product = await prisma.product.findUnique({
+      where:   { id: req.params.id },
+      include: { images: true, variants: { orderBy: { sortOrder: 'asc' } } },
+    });
+    emit('product:updated', { productId: req.params.id, product });
+    res.json(variant);
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Variant not found' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update variant' });
+  }
+});
+
 /* ── Product images ── */
 
 /* POST /api/admin/upload — upload image/video to Cloudinary, return URL */
@@ -1800,7 +1824,8 @@ app.get('/api/admin/orders/:id/olivraison-status', adminLimiter, requireAuth, as
     if (!ok) return res.status(502).json({ error: 'Olivraison returned an error' });
 
     const rawStatus = (data.status || '').trim().toLowerCase().replace(/\s+/g, '_');
-    res.json({ rawStatus, trackingCode: order.trackingCode });
+    const comment = data.comment || data.note || data.remarks || data.description || data.livreurComment || data.deliveryNote || data.message || null;
+    res.json({ rawStatus, trackingCode: order.trackingCode, comment });
   } catch (err) {
     res.status(502).json({ error: err.message });
   }
@@ -2046,6 +2071,36 @@ app.get('/api/customer/orders', requireCustomerAuth, async (req, res) => {
     res.json(orders.map(o => ({ ...o, items: itemsByOrder[o.id] || [] })));
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch orders' });
+  }
+});
+
+/* GET /api/customer/orders/:id/olivraison-status */
+app.get('/api/customer/orders/:id/olivraison-status', requireCustomerAuth, async (req, res) => {
+  const { id } = req.params;
+  // Verify order belongs to this customer (by customerId or phone)
+  const [customer] = await prisma.$queryRaw`SELECT phone FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
+  const normPhone = normalizePhone(customer?.phone || '');
+  const [order] = await prisma.$queryRawUnsafe(
+    `SELECT id, trackingCode FROM \`Order\` WHERE id = ? AND (customerId = ?${normPhone ? ' OR REPLACE(REPLACE(REPLACE(phone,\' \',\'\'),\'-\',\'\'),\'.\',\'\') = ?' : ''}) LIMIT 1`,
+    id, req.customerId, ...(normPhone ? [normPhone] : [])
+  );
+  if (!order?.trackingCode) return res.status(404).json({ error: 'No tracking info for this order' });
+
+  const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+  if (!cfg?.apiKey) return res.status(503).json({ error: 'Delivery tracking unavailable' });
+
+  try {
+    const token = await getOlivraisonToken(cfg);
+    const { ok, data } = await fetchOlivraisonPackage(order.trackingCode, token);
+    if (!ok) return res.status(502).json({ error: 'Could not fetch delivery status' });
+    const rawStatus = (data.status || '').trim().toLowerCase().replace(/\s+/g, '_');
+    const comment = data.comment || data.note || data.remarks || data.description || data.livreurComment || data.deliveryNote || data.message || null;
+    const transitStatuses = ['pickedup','picked_up','inhouse','enroute','transit','in_transit','out_for_delivery'];
+    const driverPhone = transitStatuses.includes(rawStatus) ? extractDriverPhone(data) : null;
+    const driverName  = transitStatuses.includes(rawStatus) ? extractDriverName(data)  : null;
+    res.json({ rawStatus, trackingCode: order.trackingCode, comment, driverPhone, driverName });
+  } catch (err) {
+    res.status(502).json({ error: err.message });
   }
 });
 
