@@ -1034,8 +1034,7 @@ function updateCheckoutTotals(shippingCost) {
       const potentialSaving = Math.max(0, Math.round(cart[0].price * 2 - _packSettings.packDeal2));
       const tagEl  = document.getElementById('checkoutUpsellTag');
       const descEl = document.getElementById('checkoutUpsellDesc');
-      if (tagEl  && potentialSaving > 0) tagEl.textContent  = '−' + potentialSaving + ' MAD';
-      if (descEl && potentialSaving > 0) descEl.textContent = t('upsell_desc').replace('{saving}', potentialSaving);
+      if (tagEl && potentialSaving > 0) tagEl.textContent = '−' + potentialSaving + ' MAD';
     }
   }
 
