@@ -724,6 +724,25 @@
   </div>
 </div>
 
+<!-- ===== NOTIFICATION PERMISSION POPUP ===== -->
+<div class="ty-popup-backdrop" id="notifPermPopup" style="display:none;opacity:1;pointer-events:all;">
+  <div class="ty-popup ty-notif-popup">
+    <div style="text-align:center;padding:28px 24px;">
+      <div style="font-size:40px;margin-bottom:12px">🔔</div>
+      <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:8px">Stay updated on your order</div>
+      <div style="font-size:13px;color:#666;margin-bottom:24px;line-height:1.6">
+        We'll send you a notification when your driver is assigned with their number, and every time your order status changes.
+      </div>
+      <button id="notifPermAllow" style="width:100%;background:#111;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">
+        Allow Notifications
+      </button>
+      <button id="notifPermSkip" style="background:none;border:none;color:#999;font-size:13px;cursor:pointer;">
+        Not now
+      </button>
+    </div>
+  </div>
+</div>
+
 <script src="config.js" defer></script>
 <script src="products.js" defer></script>
 <script src="lang.js" defer></script>
@@ -747,7 +766,7 @@
   })();
 
   /* ── Order summary ── */
-  (function() {
+  document.addEventListener('DOMContentLoaded', function() {
     var order = JSON.parse(localStorage.getItem('streetstore_last_order') || '[]');
     var card  = document.getElementById('tySummaryCard');
     var container = document.getElementById('tySummary');
@@ -757,12 +776,23 @@
 
     var subtotal = order.reduce(function(s, i) { return s + i.price * i.qty; }, 0);
     var totalQty = order.reduce(function(s, i) { return s + i.qty; }, 0);
-    var discount = totalQty >= 2 ? Math.round(subtotal * 39 / 358) : 0;
-    var total    = subtotal - discount;
+    var savedTotal = parseFloat(localStorage.getItem('streetstore_last_order_total') || '');
+    localStorage.removeItem('streetstore_last_order_total');
+    var isBundleDeal = !!(savedTotal && savedTotal < subtotal);
+    var discount = isBundleDeal
+      ? (subtotal - savedTotal)
+      : (!savedTotal && totalQty >= 2 ? Math.round(subtotal * 39 / 358) : 0);
+    var total = savedTotal || (subtotal - discount);
+
+    var tr = (typeof t === 'function') ? t : function(k) {
+      return { subtotal:'Subtotal', shipping_label:'Shipping', free:'Free', total_label:'Total',
+               deal_applied_pre:'Deal applied:', deal_applied_suf:' saved', discount_label:'Discount' }[k] || k;
+    };
 
     var itemsHtml = order.map(function(item) {
+      var sizeColor = 'Size ' + item.size + (item.color ? ', ' + item.color : '');
       return '<div class="ty-item">' +
-        '<span class="ty-item-name">' + item.name + ' &times; ' + item.qty + ' <span style="color:#aaa;font-weight:400">(Size ' + item.size + ')</span></span>' +
+        '<span class="ty-item-name">' + item.name + ' &times; ' + item.qty + ' <span style="color:#aaa;font-weight:400">(' + sizeColor + ')</span></span>' +
         '<span class="ty-item-price">' + (item.price * item.qty) + ' MAD</span>' +
       '</div>';
     }).join('');
@@ -770,23 +800,25 @@
     var discountHtml = discount > 0 ? (
       '<div class="ty-deal-badge">' +
         '<div class="ty-deal-check">✓</div>' +
-        '<span>' + t('deal_applied_pre') + ' <strong>' + discount + ' MAD</strong>' + t('deal_applied_suf') + '</span>' +
+        (isBundleDeal
+          ? '<span>Bundle deal: was <s>' + subtotal + ' MAD</s> → <strong>' + total + ' MAD</strong> (' + discount + ' MAD saved)</span>'
+          : '<span>' + tr('deal_applied_pre') + ' <strong>' + discount + ' MAD</strong>' + tr('deal_applied_suf') + '</span>') +
       '</div>' +
-      '<div class="ty-row discount"><span>' + t('discount_label') + '</span><span>−' + discount + ' MAD</span></div>'
+      '<div class="ty-row discount"><span>' + tr('discount_label') + '</span><span>−' + discount + ' MAD</span></div>'
     ) : '';
 
     container.innerHTML =
       itemsHtml +
       '<div style="margin-top:12px">' +
-        '<div class="ty-row"><span>' + t('subtotal') + '</span><span>' + subtotal + ' MAD</span></div>' +
+        '<div class="ty-row"><span>' + tr('subtotal') + '</span><span>' + subtotal + ' MAD</span></div>' +
         discountHtml +
-        '<div class="ty-row"><span>' + t('shipping_label') + '</span><span style="color:#27ae60;font-weight:700">' + t('free') + '</span></div>' +
+        '<div class="ty-row"><span>' + tr('shipping_label') + '</span><span style="color:#27ae60;font-weight:700">' + tr('free') + '</span></div>' +
       '</div>' +
       '<div class="ty-total-row">' +
-        '<span class="ty-total-label">' + t('total_label') + '</span>' +
+        '<span class="ty-total-label">' + tr('total_label') + '</span>' +
         '<span class="ty-total-price">' + total + ' MAD</span>' +
       '</div>';
-  })();
+  });
 </script>
 
 <script>
@@ -813,8 +845,8 @@
   function show() { backdrop.classList.add('show'); }
   function hide() { backdrop.classList.remove('show'); }
 
-  // Show after 2 seconds
-  setTimeout(show, 2000);
+  // Show after 3 seconds
+  setTimeout(show, 3000);
 
   // Close / skip
   document.getElementById('claimClose').addEventListener('click', hide);
@@ -862,12 +894,41 @@
       });
 
       localStorage.removeItem('ss_guest_order_id');
-      window.location.href = 'account.html';
+      hide();
+      if (regData.isNew) {
+        var notifPopup = document.getElementById('notifPermPopup');
+        if (notifPopup) notifPopup.style.display = 'flex';
+      } else {
+        window.location.href = 'account.html';
+      }
     } catch(err) {
       errEl.textContent = 'Something went wrong. Please try again.';
       errEl.style.display = 'block';
       btn.disabled = false; btn.textContent = 'Create Account & Track Order';
     }
+  });
+})();
+</script>
+
+<script>
+/* ── Notification permission popup handlers ── */
+(function() {
+  var allowBtn = document.getElementById('notifPermAllow');
+  var skipBtn  = document.getElementById('notifPermSkip');
+  var popup    = document.getElementById('notifPermPopup');
+  if (!allowBtn || !popup) return;
+
+  allowBtn.addEventListener('click', async function() {
+    popup.style.display = 'none';
+    if (typeof enableOrderNotifications === 'function') {
+      await enableOrderNotifications();
+    }
+    window.location.href = 'account.html';
+  });
+
+  skipBtn.addEventListener('click', function() {
+    popup.style.display = 'none';
+    window.location.href = 'account.html';
   });
 })();
 </script>
@@ -943,6 +1004,39 @@
     return arr;
   }
 })();
+</script>
+<!-- ===== iOS ADD TO HOME SCREEN PROMPT ===== -->
+<div id="iosPrompt" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 32px;
+  box-shadow:0 -4px 40px rgba(0,0,0,0.18);">
+  <div style="text-align:center;">
+    <div style="font-size:32px;margin-bottom:10px">📲</div>
+    <div style="font-size:16px;font-weight:700;margin-bottom:8px">Add to Home Screen</div>
+    <div style="font-size:13px;color:#555;margin-bottom:20px;line-height:1.6">
+      To receive order notifications on your iPhone, add StreetStore to your Home Screen:<br>
+      tap <strong>Share</strong> ⬆️ then <strong>"Add to Home Screen"</strong>
+    </div>
+    <button onclick="dismissIosPrompt()" style="background:none;border:1px solid #ddd;border-radius:8px;padding:9px 24px;font-size:13px;color:#666;cursor:pointer;">Got it</button>
+  </div>
+</div>
+
+<script>
+/* ── iOS Add to Home Screen prompt ── */
+function dismissIosPrompt() {
+  localStorage.setItem('ss_ios_prompt_dismissed', '1');
+  document.getElementById('iosPrompt').style.display = 'none';
+}
+function shouldShowIosPrompt() {
+  var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isInStandalone = window.navigator.standalone === true;
+  var dismissed = localStorage.getItem('ss_ios_prompt_dismissed');
+  return isIos && !isInStandalone && !dismissed;
+}
+if (shouldShowIosPrompt()) {
+  setTimeout(function() {
+    document.getElementById('iosPrompt').style.display = 'block';
+  }, 5000);
+}
 </script>
 </body>
 </html>

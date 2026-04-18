@@ -1890,8 +1890,10 @@ app.post('/api/auth/google', authLimiter, async (req, res) => {
     const { email, name, picture, sub: googleId } = info;
     if (!email) return res.status(400).json({ error: 'No email in token' });
 
+    let isNew = false;
     let [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, createdAt FROM Customer WHERE email = ${email} LIMIT 1`;
     if (!customer) {
+      isNew = true;
       const id = 'cust-' + Date.now();
       await prisma.$executeRaw`INSERT INTO Customer (id, email, name, avatar, googleId) VALUES (${id}, ${email}, ${name || ''}, ${picture || null}, ${googleId || null})`;
       [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, createdAt FROM Customer WHERE id = ${id} LIMIT 1`;
@@ -1902,7 +1904,7 @@ app.post('/api/auth/google', authLimiter, async (req, res) => {
     }
 
     const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
-    res.json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt } });
+    res.json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt }, isNew });
   } catch (err) {
     console.error('Google auth error:', err.message);
     res.status(500).json({ error: 'Authentication failed' });
@@ -1923,7 +1925,7 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     await prisma.$executeRaw`INSERT INTO Customer (id, email, name, passwordHash) VALUES (${id}, ${email.toLowerCase()}, ${sanitize(name, 100)}, ${hash})`;
     const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, createdAt FROM Customer WHERE id = ${id} LIMIT 1`;
     const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
-    res.status(201).json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt } });
+    res.status(201).json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt }, isNew: true });
   } catch (err) {
     console.error('Register error:', err.message);
     res.status(500).json({ error: 'Registration failed' });
@@ -2301,10 +2303,13 @@ app.post('/api/orders/:id/push-link', async (req, res) => {
 
 /* Helper: send push for order status change */
 async function sendOrderStatusPush(order, newStatus) {
+  const transitBody = order.deliveryPhone
+    ? `Your driver ${order.deliveryPhone} is on the way 🛵 They will contact you soon!`
+    : 'Your order is on its way! It will arrive soon.';
   const messages = {
     confirmed:   { title: 'Order Confirmed ✅',  body: 'Your order is confirmed! We\'re preparing it now.' },
     processing:  { title: 'Order Processing ⚙️', body: 'Your order is being processed and will ship soon.' },
-    transit:     { title: 'Order Shipped 🚚',    body: 'Your order is on its way! It will arrive soon.' },
+    transit:     { title: 'Order Shipped 🚚',    body: transitBody },
     done:        { title: 'Order Delivered 🎉',  body: 'Your order has been delivered. Enjoy your purchase!' },
     delivered:   { title: 'Order Delivered 🎉',  body: 'Your order has been delivered. Enjoy your purchase!' },
     cancelled:   { title: 'Order Cancelled ❌',   body: 'Your order has been cancelled. Contact us if you need help.' },
@@ -2340,6 +2345,16 @@ async function sendOrderStatusPush(order, newStatus) {
     }
   }
 }
+
+/* GET /api/admin/push/subscriber-count — count active push subscriptions */
+app.get('/api/admin/push/subscriber-count', requireAuth, async (req, res) => {
+  try {
+    const [row] = await prisma.$queryRawUnsafe('SELECT COUNT(*) AS count FROM `PushSubscription`');
+    res.json({ count: Number(row.count) });
+  } catch (_) {
+    res.json({ count: 0 });
+  }
+});
 
 /* GET /api/admin/registered-customers — list customers with accounts */
 app.get('/api/admin/registered-customers', requireAuth, async (req, res) => {

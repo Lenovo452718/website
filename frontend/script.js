@@ -742,19 +742,25 @@ function initGallery() {
    10. PRODUCT PAGE — SIZE SELECTOR
    ============================================================ */
 function initSizeSelector() {
-  const btns = document.querySelectorAll('.size-btn:not(.sold-out)');
+  const container = document.querySelector('.size-selector');
   const selectedSizeEl = document.getElementById('selectedSize');
+  if (!container) return;
   // Auto-select first size if none is active yet
-  if (btns.length && !document.querySelector('.size-btn.active')) {
+  const btns = container.querySelectorAll('.size-btn:not(.sold-out)');
+  if (btns.length && !container.querySelector('.size-btn.active')) {
     btns[0].classList.add('active');
     if (selectedSizeEl) selectedSizeEl.textContent = btns[0].textContent.trim();
   }
-  btns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      btns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      if (selectedSizeEl) selectedSizeEl.textContent = btn.textContent.trim();
-    });
+  // Use event delegation — one listener on the container, survives innerHTML replacements
+  if (container._sizeListenerAttached) return;
+  container._sizeListenerAttached = true;
+  container.addEventListener('click', (e) => {
+    const btn = e.target.closest('.size-btn');
+    if (!btn || btn.classList.contains('sold-out')) return;
+    container.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const sel = document.getElementById('selectedSize');
+    if (sel) sel.textContent = btn.textContent.trim();
   });
 }
 
@@ -1477,6 +1483,8 @@ document.addEventListener('DOMContentLoaded', () => {
   document.body.appendChild(overlay);
 
   /* ── Helpers ── */
+  let _bnSelectedColor = '';
+
   function getProductData() {
     const name = document.querySelector('.product-name')?.textContent?.trim() || '';
     const activeSize = document.querySelector('.size-btn.active');
@@ -1489,11 +1497,14 @@ document.addEventListener('DOMContentLoaded', () => {
       clone.querySelector('.original')?.remove();
       price = clone.textContent.trim();
     }
-    return { name, size, qty, price };
+    const activeSwatch = document.querySelector('.product-swatch.active');
+    const color = activeSwatch?.dataset?.color || activeSwatch?.title || '';
+    return { name, size, qty, price, color };
   }
 
   function openModal() {
-    const { name, size, qty, price } = getProductData();
+    const { name, size, qty, price, color } = getProductData();
+    _bnSelectedColor = color;
     document.getElementById('bnSummaryName').textContent = name;
     document.getElementById('bnSummaryMeta').textContent = `Size: ${size}  ·  Qty: ${qty}`;
     document.getElementById('bnSummaryPrice').textContent = price;
@@ -1594,6 +1605,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (resp.ok) {
           const data = await resp.json().catch(() => ({}));
           if (data.id) localStorage.setItem('ss_guest_order_id', data.id);
+          const numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
+          localStorage.setItem('streetstore_last_order', JSON.stringify([{ name, size: orderSize, color: _bnSelectedColor, qty: orderQty, price: numericPrice }]));
+          localStorage.setItem('streetstore_last_order_total', String(numericPrice * orderQty));
           window.location.href = 'thankyou.html';
           return;
         }
@@ -1607,6 +1621,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     localStorage.setItem('ss_orders', JSON.stringify(orders));
 
+    const numericPriceFb = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
+    localStorage.setItem('streetstore_last_order', JSON.stringify([{ name, size: orderSize, color: _bnSelectedColor, qty: orderQty, price: numericPriceFb }]));
+    localStorage.setItem('streetstore_last_order_total', String(numericPriceFb * orderQty));
     const fallbackId = Date.now();
     localStorage.setItem('ss_guest_order_id', fallbackId);
     window.location.href = 'thankyou.html';
@@ -1904,6 +1921,8 @@ async function placeBundleOrder() {
     if (resp.ok) {
       var data = await resp.json().catch(function() { return {}; });
       if (data.id) localStorage.setItem('ss_guest_order_id', data.id);
+      localStorage.setItem('streetstore_last_order', JSON.stringify(items));
+      localStorage.setItem('streetstore_last_order_total', String(_bundleSettings.bundle3Price));
       window.location.href = 'thankyou.html';
     } else if (resp.status === 403) {
       var d = await resp.json().catch(function() { return {}; });

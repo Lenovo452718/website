@@ -4,12 +4,13 @@ import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 
 const NAV = [
-  { href: '/dashboard',              icon: '⬛', label: 'Dashboard' },
-  { href: '/dashboard/products',     icon: '👕', label: 'Products' },
-  { href: '/dashboard/orders',       icon: '📦', label: 'Orders' },
-  { href: '/dashboard/banners',      icon: '🖼️', label: 'Banners' },
-  { href: '/dashboard/integrations', icon: '🚚', label: 'Integrations' },
-  { href: '/dashboard/settings',     icon: '⚙️', label: 'Settings' },
+  { href: '/dashboard',                   icon: '⬛', label: 'Dashboard' },
+  { href: '/dashboard/products',          icon: '👕', label: 'Products' },
+  { href: '/dashboard/orders',            icon: '📦', label: 'Orders' },
+  { href: '/dashboard/banners',           icon: '🖼️', label: 'Banners' },
+  { href: '/dashboard/notifications',     icon: '🔔', label: 'Notifications' },
+  { href: '/dashboard/integrations',      icon: '🚚', label: 'Integrations' },
+  { href: '/dashboard/settings',          icon: '⚙️', label: 'Settings' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
