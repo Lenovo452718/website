@@ -2448,6 +2448,7 @@ app.post('/api/admin/notifications', requireAuth, async (req, res) => {
     } catch (_) {}
     res.json({ ok: true });
   } catch (err) {
+    console.error('Notification error:', err);
     res.status(500).json({ error: 'Failed to send notification' });
   }
 });
