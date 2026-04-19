@@ -1453,7 +1453,10 @@ async function autoSendToOlivraison(order) {
     body:    JSON.stringify(payload),
   });
   const json = await resp.json();
-  if (!resp.ok) throw new Error(json.message || `Olivraison error ${resp.status}`);
+  if (!resp.ok) {
+    console.error('[Olivraison auto-send 400 body]', JSON.stringify(json));
+    throw new Error(json.message || json.error || JSON.stringify(json) || `Olivraison error ${resp.status}`);
+  }
 
   const trackingCode = json.trackingID || null;
 
@@ -1799,7 +1802,8 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
       });
       const json = await resp.json();
       if (!resp.ok) {
-        results.push({ orderId: id, customer: order.customer, success: false, error: json.message || `Error ${resp.status}` });
+        console.error(`[Olivraison manual send ${id}]`, resp.status, JSON.stringify(json));
+        results.push({ orderId: id, customer: order.customer, success: false, error: json.message || json.error || JSON.stringify(json) || `Error ${resp.status}` });
       } else {
         const trackingCode = json.trackingID || null;
         await prisma.order.update({
