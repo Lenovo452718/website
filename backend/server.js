@@ -1813,6 +1813,11 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
     }
     if (!order) { results.push({ orderId: id, success: false, error: 'Order not found' }); continue; }
 
+    if (order.trackingCode) {
+      results.push({ orderId: id, customer: order.customer, success: false, error: `Already sent — tracking: ${order.trackingCode}`, trackingCode: order.trackingCode });
+      continue;
+    }
+
     const many = order.items.length >= 3;
     const autoDesc = order.items.map(i => {
       const name = (i.product?.shortName || i.name || '') + (i.product?.color ? ' ' + i.product.color : '');

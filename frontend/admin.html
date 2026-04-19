@@ -2234,11 +2234,13 @@ async function sendToOlivraison() {
     const results = data.results || [];
     let html = '<table class="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Tracking</th></tr></thead><tbody>';
     results.forEach(r => {
-      const statusColor = r.success ? '#27ae60' : '#c0392b';
+      const alreadySent = !r.success && r.trackingCode;
+      const statusColor = r.success ? '#27ae60' : alreadySent ? '#e67e22' : '#c0392b';
+      const statusLabel = r.success ? '✓ Sent' : alreadySent ? '⚠ Already sent' : '✗ Failed';
       html += `<tr>
         <td><span class="badge badge-outline">#${escHtml(r.orderId)}</span></td>
         <td>${escHtml(r.customer || '')}</td>
-        <td><span style="color:${statusColor};font-weight:700">${r.success ? '✓ Sent' : '✗ Failed'}</span>${r.error ? `<br><span style="font-size:11px;color:var(--gray)">${escHtml(r.error)}</span>` : ''}</td>
+        <td><span style="color:${statusColor};font-weight:700">${statusLabel}</span>${r.error && !alreadySent ? `<br><span style="font-size:11px;color:var(--gray)">${escHtml(r.error)}</span>` : ''}</td>
         <td>${r.trackingCode ? `<code style="font-size:12px">${escHtml(r.trackingCode)}</code>` : '—'}</td>
       </tr>`;
     });
