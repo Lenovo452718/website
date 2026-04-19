@@ -2243,7 +2243,7 @@ app.patch('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
   try {
     const { facebook='', tiktok='', google='', fbActive=false, ttActive=false, gaActive=false } = req.body;
     const pixelsJson = JSON.stringify({
-      facebook: sanitize(facebook,50), tiktok: sanitize(tiktok,50), google: sanitize(google,50),
+      facebook: String(facebook).slice(0,5000), tiktok: String(tiktok).slice(0,5000), google: String(google).slice(0,5000),
       fbActive: Boolean(fbActive), ttActive: Boolean(ttActive), gaActive: Boolean(gaActive),
     });
     await prisma.$executeRawUnsafe('UPDATE `SiteSettings` SET `pixelsJson`=? WHERE `id`=?', pixelsJson,'singleton');
