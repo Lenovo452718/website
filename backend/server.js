@@ -2229,6 +2229,28 @@ app.get('/api/settings/pixels', async (req, res) => {
   } catch(e){ res.json({}); }
 });
 
+/* Synchronous pixel loader — served as a JS file for TikTok/FB/GA verification */
+app.get('/pixel-config.js', async (req, res) => {
+  try {
+    const s = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+    let px = {};
+    try { px = JSON.parse(s?.pixelsJson || '{}'); } catch(e) {}
+
+    const strip = code => code.replace(/<\/?script[^>]*>/gi, '').trim();
+    let js = '/* StreetStore pixel config */\n';
+    if (px.ttActive && px.tiktok)   js += strip(px.tiktok)   + '\n';
+    if (px.fbActive && px.facebook) js += strip(px.facebook) + '\n';
+    if (px.gaActive && px.google)   js += strip(px.google)   + '\n';
+
+    res.setHeader('Content-Type', 'application/javascript');
+    res.setHeader('Cache-Control', 'public, max-age=300');
+    res.send(js);
+  } catch(e) {
+    res.setHeader('Content-Type', 'application/javascript');
+    res.send('/* pixel config unavailable */');
+  }
+});
+
 /* Admin — save pixel IDs */
 app.get('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
   try {
