@@ -423,16 +423,15 @@ export default function ProductEditor({ productId }: Props) {
               <input
                 value={sizeInput}
                 onChange={e => setSizeInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addBulkSizes()}
-                placeholder="e.g. 36,38,40"
+                onKeyDown={e => {
+                  if (e.key === 'Enter' || e.key === ',') {
+                    e.preventDefault();
+                    addBulkSizes();
+                  }
+                }}
+                placeholder="Type a size, press Enter to add"
                 className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#c8a96e] focus:ring-2 focus:ring-[#c8a96e]/20 transition"
               />
-              <button
-                onClick={addBulkSizes}
-                className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90"
-                style={{ background: 'linear-gradient(135deg, #c8a96e, #a8864e)' }}>
-                Add
-              </button>
             </div>
 
             {variants.length > 0 && (
