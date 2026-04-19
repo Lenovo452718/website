@@ -323,6 +323,22 @@ const TRANSLATIONS = {
     auth_terms_text:"By signing in you agree to our",
     terms_of_service:"Terms of Service",
     and_text:"and",
+    // Product page accordion
+    fabric_item1:"98% Cotton · 2% Elastane",
+    fabric_item2:"Machine wash at 30°C, gentle cycle",
+    fabric_item3:"Do not tumble dry — lay flat to dry",
+    fabric_item4:"Iron on low heat, inside out",
+    ship_item1:"Free delivery across Morocco",
+    ship_item2:"Estimated delivery: 2–5 business days",
+    ship_item3:"Size exchange within 7 days",
+    ship_item4:"Contact us via WhatsApp for any exchange",
+    shipping_details_link:"View details →",
+    product_page:"Product",
+    // Size guide extras
+    sg_th_height_cm:"Height (cm)", sg_th_height_in:"Height (in)",
+    sg_unit_cm:"Centimetres", sg_unit_in:"Inches",
+    sg_upper_thigh:"Upper thigh",
+    sg_fit_true_size:"True to size", sg_fit_size_down:"Size down",
   },
 
   fr: {
@@ -628,6 +644,21 @@ const TRANSLATIONS = {
     auth_terms_text:"En vous connectant, vous acceptez nos",
     terms_of_service:"Conditions d'utilisation",
     and_text:"et",
+    // Product page accordion
+    fabric_item1:"98% Coton · 2% Élasthanne",
+    fabric_item2:"Lavage machine à 30°C, cycle délicat",
+    fabric_item3:"Ne pas sécher en machine — sécher à plat",
+    fabric_item4:"Repasser à basse température, à l'envers",
+    ship_item1:"Livraison gratuite partout au Maroc",
+    ship_item2:"Délai estimé : 2–5 jours ouvrables",
+    ship_item3:"Échange de taille sous 7 jours",
+    ship_item4:"Contactez-nous via WhatsApp pour tout échange",
+    shipping_details_link:"Voir les détails →",
+    product_page:"Produit",
+    sg_th_height_cm:"Taille (cm)", sg_th_height_in:"Taille (po)",
+    sg_unit_cm:"Centimètres", sg_unit_in:"Pouces",
+    sg_upper_thigh:"Haut de la cuisse",
+    sg_fit_true_size:"Taille réelle", sg_fit_size_down:"Prendre en dessous",
   },
 
 };

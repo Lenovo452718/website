@@ -449,7 +449,7 @@
 
 <!-- ===== BREADCRUMB ===== -->
 <nav class="breadcrumb">
-  <a href="index.html">Home</a>
+  <a href="index.html" data-i18n="home">Home</a>
   <span>/</span>
   <span>Size Guide</span>
 </nav>
@@ -460,11 +460,11 @@
   <!-- HERO -->
   <div class="sg-hero">
     <div class="sg-hero-left">
-      <p class="sg-hero-eyebrow">StreetStore — SS 2026</p>
-      <h1>Size<br>Guide</h1>
+      <p class="sg-hero-eyebrow" data-i18n="sg_season">StreetStore — SS 2026</p>
+      <h1><span data-i18n="sg_h1_line1">Size</span><br><span data-i18n="sg_h1_line2">Guide</span></h1>
     </div>
     <div class="sg-hero-right">
-      <p>All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
+      <p data-i18n="sg_intro">All our jeans are cut in Moroccan sizing. Use the measurements below to find your perfect fit. When between two sizes, we recommend sizing up for a relaxed feel.</p>
       <div class="sg-unit-toggle">
         <button class="sg-unit-btn active" id="btnCm" onclick="setUnit('cm')">CM</button>
         <button class="sg-unit-btn" id="btnIn" onclick="setUnit('in')">INCHES</button>
@@ -474,7 +474,7 @@
 
   <!-- HOW TO MEASURE -->
   <div class="sg-measure-section">
-    <p class="sg-label">How to measure</p>
+    <p class="sg-label" data-i18n="sg_how_measure">How to measure</p>
     <div class="sg-measure-layout">
 
       <!-- Women figure -->
@@ -486,26 +486,29 @@
 
       <div class="sg-measure-card">
         <span class="sg-measure-num">01</span>
-        <h3>Waist</h3>
+        <h3 data-i18n="sg_waist">Waist</h3>
         <span class="sg-measure-range unit-cm">61 – 89 cm</span>
         <span class="sg-measure-range unit-in">24" – 35"</span>
-        <p>The narrowest part of your torso, just above the belly button. Wrap the tape snugly — breathe normally and don't hold your breath.</p>
+        <p data-i18n="sg_waist_desc">The narrowest part of your torso, just above the belly button.</p>
+        <p data-i18n="sg_waist_how">Wrap the tape snugly around your natural waist. Breathe normally — don't hold your breath.</p>
       </div>
 
       <div class="sg-measure-card">
         <span class="sg-measure-num">02</span>
-        <h3>Hip</h3>
+        <h3 data-i18n="sg_hip">Hip</h3>
         <span class="sg-measure-range unit-cm">86 – 114 cm</span>
         <span class="sg-measure-range unit-in">34" – 45"</span>
-        <p>The fullest part of your hips and seat, approximately 20 cm below the waist. Stand feet together and keep the tape level all the way around.</p>
+        <p data-i18n="sg_hip_desc">The fullest part of your hips and seat — approx. 20 cm below the waist.</p>
+        <p data-i18n="sg_hip_how">Stand feet together. Keep the tape level all the way around.</p>
       </div>
 
       <div class="sg-measure-card">
         <span class="sg-measure-num">03</span>
-        <h3>Thigh</h3>
-        <span class="sg-measure-range unit-cm">Upper thigh</span>
-        <span class="sg-measure-range unit-in">Upper thigh</span>
-        <p>Measure around the fullest part of the thigh, just below the hip joint. Useful for wide-leg and baggy fits.</p>
+        <h3 data-i18n="sg_thigh">Thigh</h3>
+        <span class="sg-measure-range unit-cm" data-i18n="sg_upper_thigh">Upper thigh</span>
+        <span class="sg-measure-range unit-in" data-i18n="sg_upper_thigh">Upper thigh</span>
+        <p data-i18n="sg_thigh_desc">Upper thigh circumference, just below the hip joint.</p>
+        <p data-i18n="sg_thigh_how">Measure around the fullest part of the thigh, close to the hip.</p>
       </div>
 
       </div><!-- end sg-measure-grid -->
@@ -515,21 +518,21 @@
   <!-- SIZE TABLE -->
   <div class="sg-table-section">
     <div class="sg-table-head">
-      <h2>Jeans Size Chart</h2>
-      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase" class="unit-cm">Centimetres</span>
-      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase" class="unit-in">Inches</span>
+      <h2 data-i18n="sg_chart_title">Jeans Size Chart</h2>
+      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase" class="unit-cm" data-i18n="sg_unit_cm">Centimetres</span>
+      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase" class="unit-in" data-i18n="sg_unit_in">Inches</span>
     </div>
     <div class="sg-table-scroll">
       <table class="sg-table">
         <thead>
           <tr>
-            <th>Size</th>
-            <th class="unit-cm">Height (cm)</th>
-            <th class="unit-in">Height (in)</th>
-            <th class="unit-cm">Waist (cm)</th>
-            <th class="unit-in">Waist (in)</th>
-            <th class="unit-cm">Hip (cm)</th>
-            <th class="unit-in">Hip (in)</th>
+            <th data-i18n="sg_th_size">Size</th>
+            <th class="unit-cm" data-i18n="sg_th_height_cm">Height (cm)</th>
+            <th class="unit-in" data-i18n="sg_th_height_in">Height (in)</th>
+            <th class="unit-cm" data-i18n="sg_th_waist_cm">Waist (cm)</th>
+            <th class="unit-in" data-i18n="sg_th_waist_in">Waist (in)</th>
+            <th class="unit-cm" data-i18n="sg_th_hip_cm">Hip (cm)</th>
+            <th class="unit-in" data-i18n="sg_th_hip_in">Hip (in)</th>
           </tr>
         </thead>
         <tbody>
@@ -595,30 +598,30 @@
   <!-- FIT GUIDE -->
   <div class="sg-fit-section">
     <div class="sg-fit-head">
-      <h2>Fit Guide</h2>
-      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase">How each style fits</span>
+      <h2 data-i18n="sg_fit_guide">Fit Guide</h2>
+      <span style="font-size:11px;color:#999;letter-spacing:.1em;text-transform:uppercase" data-i18n="sg_fit_sub">How each style fits</span>
     </div>
     <div class="sg-fit-grid">
 
       <div class="sg-fit-card" data-fit="WIDE">
-        <span class="sg-fit-tag">Wide Leg</span>
-        <h4>Wide &amp; Relaxed</h4>
-        <p>Generous through the hip and thigh with a wide straight leg. True to size — size up for extra flow.</p>
-        <span class="sg-fit-pill">True to size</span>
+        <span class="sg-fit-tag" data-i18n="sg_fit1_tag">Wide Leg</span>
+        <h4 data-i18n="sg_fit1_title">Wide &amp; Relaxed</h4>
+        <p data-i18n="sg_fit1_desc">Generous through the hip and thigh, with a wide straight leg. True to size — size up for extra flow.</p>
+        <span class="sg-fit-pill" data-i18n="sg_fit_true_size">True to size</span>
       </div>
 
       <div class="sg-fit-card" data-fit="BAGGY">
-        <span class="sg-fit-tag">Balloon</span>
-        <h4>Relaxed Balloon</h4>
-        <p>High-waisted with a roomy balloon silhouette that tapers slightly at the ankle. Size down if in between.</p>
-        <span class="sg-fit-pill">Size down</span>
+        <span class="sg-fit-tag" data-i18n="sg_fit2_tag">Balloon</span>
+        <h4 data-i18n="sg_fit2_title">Relaxed Balloon</h4>
+        <p data-i18n="sg_fit2_desc">High-waisted with a roomy balloon silhouette that tapers slightly at the ankle. Size down if in between.</p>
+        <span class="sg-fit-pill" data-i18n="sg_fit_size_down">Size down</span>
       </div>
 
       <div class="sg-fit-card" data-fit="HIGH">
-        <span class="sg-fit-tag">High Waist</span>
-        <h4>Slim High Rise</h4>
-        <p>Fitted through the hip with a high waist. Stretchy fabric allows for comfort. True to size.</p>
-        <span class="sg-fit-pill">True to size</span>
+        <span class="sg-fit-tag" data-i18n="sg_fit3_tag">High Waist</span>
+        <h4 data-i18n="sg_fit3_title">Slim High Rise</h4>
+        <p data-i18n="sg_fit3_desc">Fitted through the hip with a high waist. Stretchy fabric allows for comfort. True to size.</p>
+        <span class="sg-fit-pill" data-i18n="sg_fit_true_size">True to size</span>
       </div>
 
     </div>
@@ -627,23 +630,23 @@
   <!-- TIPS -->
   <div class="sg-tips">
     <div>
-      <div class="sg-tips-title">Sizing<br><span>Tips</span></div>
+      <div class="sg-tips-title"><span data-i18n="sg_tips_word1">Sizing</span><br><span data-i18n="sg_tips_word2">Tips</span></div>
     </div>
     <ul class="sg-tips-list">
-      <li>Always measure yourself — don't rely on clothing from other brands as sizes vary.</li>
-      <li>Our denim has minimal stretch, so measure carefully and don't round down.</li>
-      <li>If your waist and hip measurements fall in different sizes, size up to accommodate the hips.</li>
-      <li>Still unsure? Contact us on WhatsApp — we'll help you pick the right size.</li>
+      <li data-i18n="sg_tip1">Always measure yourself — don't rely on clothing from other brands as sizes vary.</li>
+      <li data-i18n="sg_tip2">Our denim has minimal stretch, so measure carefully and don't round down.</li>
+      <li data-i18n="sg_tip3">If your waist and hip measurements fall in different sizes, size up to accommodate the hips.</li>
+      <li data-i18n="sg_tip4">Still unsure? Contact us on WhatsApp — we'll help you pick the right size.</li>
     </ul>
   </div>
 
   <!-- CTA -->
   <div class="sg-cta">
     <div class="sg-cta-text">
-      <h3>Still Not Sure About Your Size?</h3>
-      <p>Our team is happy to help you find the perfect fit via WhatsApp.</p>
+      <h3 data-i18n="sg_cta_title">Still Not Sure About Your Size?</h3>
+      <p data-i18n="sg_cta_sub">Our team is happy to help you find the perfect fit.</p>
     </div>
-    <a href="contact.html" class="btn-dark">Contact Us</a>
+    <a href="contact.html" class="btn-dark" data-i18n="contact_us_arrow">Contact Us →</a>
   </div>
 
 </div>
