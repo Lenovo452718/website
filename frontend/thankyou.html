@@ -667,12 +667,18 @@
     </div>
 
     <!-- Notification opt-in -->
-    <div id="notifOptIn" class="ty-reveal" style="display:none;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:20px 22px;margin-bottom:18px;text-align:center">
-      <div style="font-size:28px;margin-bottom:8px">🔔</div>
-      <div style="color:#fff;font-weight:600;font-size:15px;margin-bottom:6px">Track your order live</div>
-      <div style="color:rgba(255,255,255,0.55);font-size:13px;margin-bottom:16px">Get notified the moment your order status changes</div>
-      <button id="notifOptInBtn" onclick="enableOrderNotifications()" style="background:#fff;color:#111;border:none;border-radius:8px;padding:11px 28px;font-size:14px;font-weight:600;cursor:pointer;width:100%">Enable Notifications</button>
-      <div id="notifOptInDone" style="display:none;color:#6fcf97;font-size:13px;margin-top:10px">✓ You'll be notified of every update</div>
+    <div id="notifOptIn" class="ty-reveal" style="display:none;">
+      <div class="ty-next-card" style="overflow:hidden;">
+        <div class="ty-next-head" style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:18px;line-height:1;">🔔</span>
+          <div class="ty-next-head-title">Track Your Order Live</div>
+        </div>
+        <div style="padding:20px 24px;">
+          <p style="font-size:13px;color:#666;margin:0 0 16px;line-height:1.6;">Get notified the moment your order status changes — driver assigned, out for delivery, and more.</p>
+          <button id="notifOptInBtn" onclick="enableOrderNotifications()" style="width:100%;padding:14px;background:#111;color:#fff;border:none;font-size:11px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:opacity 0.2s;">Enable Notifications</button>
+          <div id="notifOptInDone" style="display:none;color:#27ae60;font-size:12px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;margin-top:12px;text-align:center;">✓ You'll be notified of every update</div>
+        </div>
+      </div>
     </div>
 
     <!-- CTA -->
@@ -726,19 +732,16 @@
 
 <!-- ===== NOTIFICATION PERMISSION POPUP ===== -->
 <div class="ty-popup-backdrop" id="notifPermPopup" style="display:none;opacity:1;pointer-events:all;">
-  <div class="ty-popup ty-notif-popup">
-    <div style="text-align:center;padding:28px 24px;">
-      <div style="font-size:40px;margin-bottom:12px">🔔</div>
-      <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:8px">Stay updated on your order</div>
-      <div style="font-size:13px;color:#666;margin-bottom:24px;line-height:1.6">
-        We'll send you a notification when your driver is assigned with their number, and every time your order status changes.
-      </div>
-      <button id="notifPermAllow" style="width:100%;background:#111;color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px;">
-        Allow Notifications
-      </button>
-      <button id="notifPermSkip" style="background:none;border:none;color:#999;font-size:13px;cursor:pointer;">
-        Not now
-      </button>
+  <div class="ty-popup">
+    <div class="ty-popup-head">
+      <span class="ty-popup-title">Stay Updated</span>
+      <button class="ty-popup-close" id="notifPermSkip">✕</button>
+    </div>
+    <div class="ty-popup-body" style="text-align:center;">
+      <div class="ty-popup-icon">🔔</div>
+      <p class="ty-popup-sub">We'll notify you when your <strong>driver is assigned</strong> and every time your order status changes.</p>
+      <button id="notifPermAllow" class="ty-popup-submit" style="margin-bottom:0;">Allow Notifications</button>
+      <span class="ty-popup-skip" id="notifPermSkipLink">Not now</span>
     </div>
   </div>
 </div>
@@ -913,10 +916,14 @@
 <script>
 /* ── Notification permission popup handlers ── */
 (function() {
-  var allowBtn = document.getElementById('notifPermAllow');
-  var skipBtn  = document.getElementById('notifPermSkip');
-  var popup    = document.getElementById('notifPermPopup');
+  var allowBtn    = document.getElementById('notifPermAllow');
+  var popup       = document.getElementById('notifPermPopup');
   if (!allowBtn || !popup) return;
+
+  function closeAndRedirect() {
+    popup.style.display = 'none';
+    window.location.href = 'account.html';
+  }
 
   allowBtn.addEventListener('click', async function() {
     popup.style.display = 'none';
@@ -926,9 +933,9 @@
     window.location.href = 'account.html';
   });
 
-  skipBtn.addEventListener('click', function() {
-    popup.style.display = 'none';
-    window.location.href = 'account.html';
+  ['notifPermSkip', 'notifPermSkipLink'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('click', closeAndRedirect);
   });
 })();
 </script>
