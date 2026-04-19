@@ -192,6 +192,10 @@ function addToCart(name, price, color, size, imageUrl) {
   updateCartBadge();
   renderCartItems();
   openCart();
+  // Pixel: AddToCart
+  try { if (typeof ttq !== 'undefined') ttq.track('AddToCart', { value: parseFloat(price), currency: 'MAD', contents: [{ content_id: name, content_name: name, quantity: 1 }] }); } catch(e) {}
+  try { if (typeof fbq !== 'undefined') fbq('track', 'AddToCart', { value: parseFloat(price), currency: 'MAD', content_name: name, content_type: 'product' }); } catch(e) {}
+  try { if (typeof gtag !== 'undefined') gtag('event', 'add_to_cart', { currency: 'MAD', value: parseFloat(price), items: [{ item_name: name }] }); } catch(e) {}
 }
 
 function removeFromCart(id) {
@@ -867,6 +871,12 @@ function initCheckout() {
   const steps = document.querySelectorAll('.checkout-step');
   const progressSteps = document.querySelectorAll('.progress-step');
   if (!steps.length) return;
+  // Pixel: InitiateCheckout
+  const _cartForPixel = getCart();
+  const _totalForPixel = _cartForPixel.reduce((s, i) => s + i.price * i.qty, 0);
+  try { if (typeof ttq !== 'undefined') ttq.track('InitiateCheckout', { value: _totalForPixel, currency: 'MAD' }); } catch(e) {}
+  try { if (typeof fbq !== 'undefined') fbq('track', 'InitiateCheckout', { value: _totalForPixel, currency: 'MAD', num_items: _cartForPixel.length }); } catch(e) {}
+  try { if (typeof gtag !== 'undefined') gtag('event', 'begin_checkout', { currency: 'MAD', value: _totalForPixel }); } catch(e) {}
 
   let current = 0;
 
@@ -1383,6 +1393,7 @@ function initPlaceOrder() {
         localStorage.setItem('streetstore_last_order_total', total);
         if (couponCode) localStorage.setItem('streetstore_last_coupon', couponCode);
         if (orderData.orderId) localStorage.setItem('ss_guest_order_id', orderData.orderId);
+        localStorage.setItem('ss_pixel_purchase', JSON.stringify({ value: total, currency: 'MAD', num_items: cart.length }));
         saveCart([]);
         updateCartBadge();
         window.location.href = 'thankyou.html';
