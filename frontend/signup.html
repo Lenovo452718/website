@@ -408,9 +408,10 @@ function showTab(tab) {
 function saveAndRedirect(data) {
   localStorage.setItem('ss_customer_token', data.token);
   localStorage.setItem('ss_customer', JSON.stringify(data.customer));
-  var claimId = sessionStorage.getItem('ss_claim_order');
+  var claimId = sessionStorage.getItem('ss_claim_order') || localStorage.getItem('ss_guest_order_id');
   if (claimId) {
     sessionStorage.removeItem('ss_claim_order');
+    localStorage.removeItem('ss_guest_order_id');
     fetch((typeof STREETSTORE_BACKEND !== 'undefined' ? STREETSTORE_BACKEND : '') + '/api/auth/claim-order', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.token },
