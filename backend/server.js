@@ -2232,11 +2232,11 @@ app.get('/api/settings/pixels', async (req, res) => {
 /* Synchronous pixel loader — served as a JS file for TikTok/FB/GA verification */
 app.get('/pixel-config.js', async (req, res) => {
   try {
-    const s = await prisma.siteSettings.findUnique({ where: { id: 'singleton' } });
+    const [row] = await prisma.$queryRawUnsafe("SELECT pixelsJson FROM `SiteSettings` WHERE id='singleton' LIMIT 1");
     let px = {};
-    try { px = JSON.parse(s?.pixelsJson || '{}'); } catch(e) {}
+    try { px = JSON.parse(row?.pixelsJson || '{}'); } catch(e) {}
 
-    const strip = code => code.replace(/<\/?script[^>]*>/gi, '').trim();
+    const strip = code => code.replace(/<\/?script[^>]*>/gi, '').replace(/<!--.*?-->/gs, '').trim();
     let js = '/* StreetStore pixel config */\n';
     if (px.ttActive && px.tiktok)   js += strip(px.tiktok)   + '\n';
     if (px.fbActive && px.facebook) js += strip(px.facebook) + '\n';
