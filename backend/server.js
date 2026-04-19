@@ -2591,8 +2591,8 @@ async function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `PushSubscription` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `customerId` VARCHAR(30) NULL, `endpoint` TEXT NOT NULL, `p256dh` VARCHAR(500) NOT NULL, `auth` VARCHAR(200) NOT NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), UNIQUE KEY `endpoint_unique` (endpoint(255)))",
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `pushEndpoint` TEXT NULL",
     "CREATE TABLE IF NOT EXISTS `AdminPushSubscription` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `endpoint` TEXT NOT NULL, `p256dh` VARCHAR(500) NOT NULL, `auth` VARCHAR(200) NOT NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), UNIQUE KEY `admin_endpoint_unique` (endpoint(255)))",
-    "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `siteApiKey` VARCHAR(64) NOT NULL DEFAULT ''",
-    "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `siteApiSecret` VARCHAR(64) NOT NULL DEFAULT ''",
+    "ALTER TABLE `SiteSettings` ADD COLUMN `siteApiKey` VARCHAR(64) NOT NULL DEFAULT ''",
+    "ALTER TABLE `SiteSettings` ADD COLUMN `siteApiSecret` VARCHAR(64) NOT NULL DEFAULT ''",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}
