@@ -6,6 +6,16 @@ import type { Product, Image, Variant } from '@/lib/api';
 
 const SIZES = ['34','36','38','40','42','44','46','XS','S','M','L','XL','2XL'];
 const BADGE_OPTS = ['', 'sale', 'new', 'trending', 'limited'];
+
+function sortVariants(arr: Array<{size: string; inStock: boolean; stock: number}>) {
+  return [...arr].sort((a, b) => {
+    const ai = SIZES.indexOf(a.size);
+    const bi = SIZES.indexOf(b.size);
+    const aIdx = ai === -1 ? SIZES.length : ai;
+    const bIdx = bi === -1 ? SIZES.length : bi;
+    return aIdx - bIdx;
+  });
+}
 const FIT_FILTER_OPTS = ['wide', 'skinny', 'straight', 'baggy', 'balloon'];
 const TABS = ['Details', 'Images', 'Variants', 'Pricing'] as const;
 type Tab = typeof TABS[number];
@@ -39,6 +49,7 @@ export default function ProductEditor({ productId }: Props) {
   const [images,       setImages]       = useState<Image[]>([]);
   const [variants,     setVariants]     = useState<Array<{size: string; inStock: boolean; stock: number}>>([]);
   const [savedId,      setSavedId]      = useState<string | null>(null);
+  const [sizeInput,    setSizeInput]    = useState('');
 
   // Load existing product
   useEffect(() => {
@@ -56,7 +67,7 @@ export default function ProductEditor({ productId }: Props) {
       setHref(p.href || '');
       setColor(p.color || '');
       setImages(p.images);
-      setVariants(p.variants.map(v => ({ size: v.size || '', inStock: v.inStock, stock: v.stock })));
+      setVariants(sortVariants(p.variants.map(v => ({ size: v.size || '', inStock: v.inStock, stock: v.stock }))));
       setSavedId(p.id);
       setLoading(false);
     }).catch(() => { setError('Product not found'); setLoading(false); });
@@ -146,8 +157,25 @@ export default function ProductEditor({ productId }: Props) {
     setVariants(prev => {
       const exists = prev.find(v => v.size === size);
       if (exists) return prev.filter(v => v.size !== size);
-      return [...prev, { size, inStock: true, stock: 10 }];
+      const next = [...prev, { size, inStock: true, stock: 10 }];
+      return sortVariants(next);
     });
+  }
+
+  function addBulkSizes() {
+    const incoming = sizeInput
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s.length > 0);
+    if (!incoming.length) return;
+    setVariants(prev => {
+      const existing = new Set(prev.map(v => v.size));
+      const toAdd = incoming
+        .filter(s => !existing.has(s))
+        .map(s => ({ size: s, inStock: true, stock: 10 }));
+      return sortVariants([...prev, ...toAdd]);
+    });
+    setSizeInput('');
   }
 
   async function saveVariants() {
@@ -380,7 +408,7 @@ export default function ProductEditor({ productId }: Props) {
         <div className="space-y-5">
           <div className="bg-white border border-gray-200 rounded-xl p-5">
             <h3 className="font-semibold text-gray-800 text-sm mb-4">Available Sizes</h3>
-            <div className="flex flex-wrap gap-2 mb-5">
+            <div className="flex flex-wrap gap-2">
               {SIZES.map(size => {
                 const active = variants.some(v => v.size === size);
                 return (
@@ -390,6 +418,21 @@ export default function ProductEditor({ productId }: Props) {
                     }`}>{size}</button>
                 );
               })}
+            </div>
+            <div className="flex gap-2 mt-3 mb-5">
+              <input
+                value={sizeInput}
+                onChange={e => setSizeInput(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && addBulkSizes()}
+                placeholder="e.g. 36,38,40"
+                className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#c8a96e] focus:ring-2 focus:ring-[#c8a96e]/20 transition"
+              />
+              <button
+                onClick={addBulkSizes}
+                className="px-4 py-1.5 rounded-lg text-sm font-semibold text-white transition hover:opacity-90"
+                style={{ background: 'linear-gradient(135deg, #c8a96e, #a8864e)' }}>
+                Add
+              </button>
             </div>
 
             {variants.length > 0 && (
