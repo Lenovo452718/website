@@ -397,7 +397,7 @@ export default function ProductEditor({ productId }: Props) {
                   onDragEnd={() => { dragIdxRef.current = null; setDragIdx(null); }}
                   className={`relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50 aspect-square cursor-grab ${dragIdx === i ? 'opacity-40' : ''}`}
                 >
-                  <img src={img.url} alt={img.alt || ''} draggable={false} className="w-full h-full object-cover" />
+                  <img src={img.url} alt={img.alt || ''} draggable={false} style={{ pointerEvents: 'none', userSelect: 'none' }} className="w-full h-full object-cover" />
                   {img.isMain && (
                     <span className="absolute top-2 left-2 text-[10px] font-bold uppercase bg-[#c8a96e] text-white px-2 py-0.5 rounded-full">
                       Main
