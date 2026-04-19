@@ -531,7 +531,11 @@ async function handleRegister(e) {
   try {
     const res  = await fetch(BACKEND + '/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: document.getElementById('regName').value.trim(), email: document.getElementById('regEmail').value.trim(), password: document.getElementById('regPassword').value }) });
     const data = await res.json();
-    if (data.token) { saveAndRedirect(data); }
+    if (data.token) {
+      try { if (typeof ttq !== 'undefined') ttq.track('CompleteRegistration', { value: 0, currency: 'MAD', contents: [{ content_id: 'account', content_type: 'product', content_name: 'Account Registration' }] }); } catch(e) {}
+      try { if (typeof fbq !== 'undefined') fbq('track', 'CompleteRegistration'); } catch(e) {}
+      saveAndRedirect(data);
+    }
     else { errEl.textContent = data.error || 'Registration failed.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; }
   } catch(e) { errEl.textContent = 'Connection error. Try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; }
 }

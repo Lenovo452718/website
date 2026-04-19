@@ -244,7 +244,7 @@ async function getPixelInlineScript() {
     return _pixelCache;
   } catch(e) { return ''; }
 }
-const SSR_HTML_PAGES = new Set(['index.html','shop.html','product.html','checkout.html','thankyou.html']);
+const SSR_HTML_PAGES = new Set(['index.html','shop.html','product.html','checkout.html','thankyou.html','signup.html']);
 app.use(async (req, res, next) => {
   if (req.method !== 'GET') return next();
   const file = req.path === '/' ? 'index.html' : req.path.slice(1);

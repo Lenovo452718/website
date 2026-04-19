@@ -828,6 +828,14 @@ function initQtySelector() {
 function initProductAddToCart() {
   const btn = document.querySelector('.add-to-cart-btn');
   if (!btn) return;
+  // Pixel: ViewContent
+  const _pName  = document.querySelector('.product-name')?.textContent?.trim() || 'Product';
+  const _pPrices = document.querySelector('.product-price-display')?.textContent?.match(/\d+/g);
+  const _pPrice  = _pPrices ? parseFloat(_pPrices[_pPrices.length - 1]) : 0;
+  const _pId     = (document.body.dataset.product || _pName).toLowerCase().replace(/\s+/g,'-');
+  try { if (typeof ttq !== 'undefined') ttq.track('ViewContent', { value: _pPrice, currency: 'MAD', contents: [{ content_id: _pId, content_type: 'product', content_name: _pName, price: _pPrice }] }); } catch(e) {}
+  try { if (typeof fbq !== 'undefined') fbq('track', 'ViewContent', { value: _pPrice, currency: 'MAD', content_name: _pName, content_ids: [_pId], content_type: 'product' }); } catch(e) {}
+  try { if (typeof gtag !== 'undefined') gtag('event', 'view_item', { currency: 'MAD', value: _pPrice, items: [{ item_name: _pName }] }); } catch(e) {}
   btn.addEventListener('click', () => {
     const name = document.querySelector('.product-name')?.textContent?.trim() || 'Product';
     const priceEl = document.querySelector('.product-price-display');
@@ -900,6 +908,18 @@ function initCheckout() {
       const phone   = document.getElementById('info-phone')?.value || '';
       const summary = document.getElementById('infoSummary');
       if (summary) summary.textContent = `${first} ${last} — ${address}, ${city}, ${country} · ${phone}`;
+      // Pixel: identify + AddPaymentInfo
+      const _piCart  = getCart();
+      const _piTotal = _piCart.reduce((s,i) => s + i.price * i.qty, 0);
+      const _piContents = _piCart.map(i => ({ content_id: i.name.toLowerCase().replace(/\s+/g,'-'), content_type: 'product', content_name: i.name }));
+      if (phone && typeof ttq !== 'undefined' && crypto?.subtle) {
+        crypto.subtle.digest('SHA-256', new TextEncoder().encode(phone.replace(/\D/g,''))).then(buf => {
+          const hashed = Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+          try { ttq.identify({ phone_number: hashed }); } catch(e) {}
+        });
+      }
+      try { if (typeof ttq !== 'undefined') ttq.track('AddPaymentInfo', { value: _piTotal, currency: 'MAD', contents: _piContents }); } catch(e) {}
+      try { if (typeof fbq !== 'undefined') fbq('track', 'AddPaymentInfo', { value: _piTotal, currency: 'MAD' }); } catch(e) {}
     }
   }
 
