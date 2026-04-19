@@ -295,7 +295,7 @@ app.post('/api/orders', orderLimiter, async (req, res) => {
     return res.status(400).json({ error: 'Missing required fields' });
   }
   const digits = phone.replace(/\D/g, '');
-  if (digits.length < 9 || digits.length > 15) return res.status(400).json({ error: 'Invalid phone number' });
+  if (digits.length < 10 || digits.length > 15) return res.status(400).json({ error: 'Invalid phone number' });
   if (!/^[\p{L}\s'\-\.]{2,80}$/u.test(customer)) return res.status(400).json({ error: 'Invalid customer name' });
 
   // Identify logged-in customer from auth token (optional)
