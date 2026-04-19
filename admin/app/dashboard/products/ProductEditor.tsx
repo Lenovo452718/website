@@ -50,6 +50,7 @@ export default function ProductEditor({ productId }: Props) {
   const [variants,     setVariants]     = useState<Array<{size: string; inStock: boolean; stock: number}>>([]);
   const [savedId,      setSavedId]      = useState<string | null>(null);
   const [sizeInput,    setSizeInput]    = useState('');
+  const [pendingSizes, setPendingSizes] = useState<string[]>([]);
 
   // Load existing product
   useEffect(() => {
@@ -162,21 +163,19 @@ export default function ProductEditor({ productId }: Props) {
     });
   }
 
-  function addBulkSizes() {
-    const incoming = sizeInput
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s.length > 0);
-    if (!incoming.length) return;
+  function commitPending() {
+    const all = [...pendingSizes, ...(sizeInput.trim() ? [sizeInput.trim()] : [])];
+    if (!all.length) return;
     setVariants(prev => {
       const existing = new Set(prev.map(v => v.size));
-      const toAdd = incoming
-        .filter(s => !existing.has(s))
-        .map(s => ({ size: s, inStock: true, stock: 10 }));
+      const toAdd = all.filter(s => !existing.has(s)).map(s => ({ size: s, inStock: true, stock: 10 }));
       return sortVariants([...prev, ...toAdd]);
     });
+    setPendingSizes([]);
     setSizeInput('');
   }
+
+  function addBulkSizes() { commitPending(); }
 
   async function saveVariants() {
     const id = savedId || productId!;
@@ -419,33 +418,42 @@ export default function ProductEditor({ productId }: Props) {
                 );
               })}
             </div>
-            <div className="flex gap-2 mt-3 mb-5">
+            <div className="flex flex-wrap items-center gap-1.5 mt-3 mb-5 px-2 py-1.5 min-h-[38px] border border-gray-200 rounded-lg focus-within:border-[#c8a96e] focus-within:ring-2 focus-within:ring-[#c8a96e]/20 transition cursor-text">
+              {pendingSizes.map((s, i) => (
+                <span key={i} className="flex items-center gap-1 px-2 py-0.5 bg-[#0f1a2e] text-white text-xs font-semibold rounded-md">
+                  {s}
+                  <button type="button" onClick={() => setPendingSizes(p => p.filter((_, j) => j !== i))}
+                    className="ml-0.5 opacity-60 hover:opacity-100 leading-none">×</button>
+                </span>
+              ))}
               <input
                 value={sizeInput}
                 onChange={e => {
                   const val = e.target.value;
-                  if (val.includes(',')) {
-                    const parts = val.split(',');
-                    const remaining = parts.pop()?.trim() ?? '';
-                    const toAdd = parts.map(s => s.trim()).filter(s => s.length > 0);
-                    if (toAdd.length > 0) {
-                      setVariants(prev => {
-                        const existing = new Set(prev.map(v => v.size));
-                        const newVars = toAdd.filter(s => !existing.has(s)).map(s => ({ size: s, inStock: true, stock: 10 }));
-                        return sortVariants([...prev, ...newVars]);
-                      });
-                    }
-                    setSizeInput(remaining);
+                  if (val.endsWith(',')) {
+                    const tag = val.slice(0, -1).trim();
+                    if (tag) setPendingSizes(p => [...p, tag]);
+                    setSizeInput('');
                   } else {
                     setSizeInput(val);
                   }
                 }}
                 onKeyDown={e => {
-                  if (e.key === 'Enter') { e.preventDefault(); addBulkSizes(); }
+                  if (e.key === 'Enter') { e.preventDefault(); commitPending(); }
+                  if (e.key === 'Backspace' && sizeInput === '' && pendingSizes.length > 0) {
+                    setPendingSizes(p => p.slice(0, -1));
+                  }
                 }}
-                placeholder="Type a size and press Enter, or 36,38,40"
-                className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#c8a96e] focus:ring-2 focus:ring-[#c8a96e]/20 transition"
+                placeholder={pendingSizes.length === 0 ? '36, 38, 40 … then Enter' : ''}
+                className="flex-1 min-w-[100px] text-sm outline-none bg-transparent py-0.5"
               />
+              {(pendingSizes.length > 0 || sizeInput.trim()) && (
+                <button type="button" onClick={commitPending}
+                  className="px-3 py-0.5 rounded-md text-xs font-semibold text-white transition hover:opacity-90 shrink-0"
+                  style={{ background: 'linear-gradient(135deg, #c8a96e, #a8864e)' }}>
+                  Add
+                </button>
+              )}
             </div>
 
             {variants.length > 0 && (
