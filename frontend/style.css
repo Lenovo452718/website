@@ -572,7 +572,60 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   inset: 0;
   background: linear-gradient(to right, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.3) 60%, rgba(0,0,0,0.05) 100%);
   z-index: 1;
+}
+/* Hero video fade-out after first play */
+.hero-video-ended {
+  opacity: 0 !important;
+  transition: opacity 1.6s ease !important;
 }
+
+/* Hero end screen — black screen with animation after video ends */
+.hero-end-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+.hero-end-screen.active {
+  opacity: 1;
+}
+.hero-end-screen::before {
+  content: '';
+  position: absolute;
+  width: min(700px, 120vw);
+  height: min(700px, 120vw);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(190,145,75,0.18) 0%, rgba(190,145,75,0.06) 40%, transparent 70%);
+  border-radius: 50%;
+  animation: heroGlowPulse 3.5s ease-in-out infinite;
+}
+.hero-end-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(255,255,255,0.018) 3px,
+    rgba(255,255,255,0.018) 4px
+  );
+  animation: heroScanlines 10s linear infinite;
+  opacity: 0.6;
+}
+@keyframes heroGlowPulse {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(0.95); }
+  50%       { opacity: 1;   transform: translate(-50%, -50%) scale(1.12); }
+}
+@keyframes heroScanlines {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 120px; }
+}
+
 /* Hero content hidden until video ends first loop */
 .hero-reveal {
   opacity: 0;

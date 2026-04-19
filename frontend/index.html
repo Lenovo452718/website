@@ -52,6 +52,7 @@
 <section class="hero">
   <div class="hero-bg"></div>
   <video class="hero-video" muted playsinline preload="auto" style="display:none"></video>
+  <div class="hero-end-screen"></div>
   <div class="hero-overlay"></div>
   <div class="hero-bg-word">DENIM</div>
   <div class="hero-accent-strip"></div>
@@ -282,8 +283,9 @@
         document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
       });
       video.addEventListener('ended', function() {
-        video.loop = true;
-        video.play();
+        video.classList.add('hero-video-ended');
+        var endScreen = document.querySelector('.hero-end-screen');
+        if (endScreen) endScreen.classList.add('active');
         document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
       }, { once: true });
     })
