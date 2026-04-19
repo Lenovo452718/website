@@ -2339,6 +2339,7 @@ app.patch('/api/admin/business-costs', requireAuth, async (req, res) => {
     );
     res.json({ ok: true });
   } catch (err) {
+    console.error('[business-costs PATCH]', err);
     res.status(500).json({ error: 'Failed to save business costs' });
   }
 });
