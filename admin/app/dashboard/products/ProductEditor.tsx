@@ -422,14 +422,28 @@ export default function ProductEditor({ productId }: Props) {
             <div className="flex gap-2 mt-3 mb-5">
               <input
                 value={sizeInput}
-                onChange={e => setSizeInput(e.target.value)}
-                onKeyDown={e => {
-                  if (e.key === 'Enter' || e.key === ',') {
-                    e.preventDefault();
-                    addBulkSizes();
+                onChange={e => {
+                  const val = e.target.value;
+                  if (val.includes(',')) {
+                    const parts = val.split(',');
+                    const remaining = parts.pop()?.trim() ?? '';
+                    const toAdd = parts.map(s => s.trim()).filter(s => s.length > 0);
+                    if (toAdd.length > 0) {
+                      setVariants(prev => {
+                        const existing = new Set(prev.map(v => v.size));
+                        const newVars = toAdd.filter(s => !existing.has(s)).map(s => ({ size: s, inStock: true, stock: 10 }));
+                        return sortVariants([...prev, ...newVars]);
+                      });
+                    }
+                    setSizeInput(remaining);
+                  } else {
+                    setSizeInput(val);
                   }
                 }}
-                placeholder="Type a size, press Enter to add"
+                onKeyDown={e => {
+                  if (e.key === 'Enter') { e.preventDefault(); addBulkSizes(); }
+                }}
+                placeholder="Type a size and press Enter, or 36,38,40"
                 className="flex-1 px-3 py-1.5 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-[#c8a96e] focus:ring-2 focus:ring-[#c8a96e]/20 transition"
               />
             </div>
