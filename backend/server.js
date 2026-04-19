@@ -204,6 +204,7 @@ app.use(compression());
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
   contentSecurityPolicy: false,
+  frameguard: false, // allow TikTok/FB Event Builder iframes
 }));
 /* Prevent CDN from caching API responses */
 app.use('/api', (req, res, next) => {
@@ -224,6 +225,40 @@ app.use(cors({
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT'],
 }));
+/* ── Inline pixel injection: serves HTML pages with pixel code in <head> ── */
+let _pixelCache = null, _pixelCacheTime = 0;
+async function getPixelInlineScript() {
+  const now = Date.now();
+  if (_pixelCache !== null && now - _pixelCacheTime < 300000) return _pixelCache;
+  try {
+    const [row] = await prisma.$queryRawUnsafe("SELECT pixelsJson FROM `SiteSettings` WHERE id='singleton' LIMIT 1");
+    let px = {};
+    try { px = JSON.parse(row?.pixelsJson || '{}'); } catch(e) {}
+    const strip = code => code.replace(/<\/?script[^>]*>/gi, '').replace(/<!--.*?-->/gs, '').trim();
+    let js = '';
+    if (px.ttActive && px.tiktok)   js += strip(px.tiktok)   + '\n';
+    if (px.fbActive && px.facebook) js += strip(px.facebook) + '\n';
+    if (px.gaActive && px.google)   js += strip(px.google)   + '\n';
+    _pixelCache = js ? `\n<script>\n${js}</script>` : '';
+    _pixelCacheTime = now;
+    return _pixelCache;
+  } catch(e) { return ''; }
+}
+const SSR_HTML_PAGES = new Set(['index.html','shop.html','product.html','checkout.html','thankyou.html']);
+app.use(async (req, res, next) => {
+  if (req.method !== 'GET') return next();
+  const file = req.path === '/' ? 'index.html' : req.path.slice(1);
+  if (!SSR_HTML_PAGES.has(file)) return next();
+  const filePath = path.join(__dirname, '../frontend', file);
+  try {
+    let html = fs.readFileSync(filePath, 'utf8');
+    const inlinePixel = await getPixelInlineScript();
+    if (inlinePixel) html = html.replace('</head>', inlinePixel + '\n</head>');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch(e) { next(); }
+});
+
 app.use(express.static(path.join(__dirname, '../frontend'), {
   maxAge: 0,
   etag: true,
