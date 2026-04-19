@@ -2891,7 +2891,9 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .fit-note { font-size: 13px; margin-bottom: 18px; }
   .pack-deal { padding: 14px 16px; margin-bottom: 14px; }
   .pack-deal-main { font-size: 15px; }
-  .trust-item span:last-child { font-size: 12px; }
+  .trust-item { padding: 10px 6px; gap: 7px; }
+  .trust-icon-wrap { width: 26px; height: 26px; }
+  .trust-item span { font-size: 9px; letter-spacing: 0.04em; }
   .accordion-body p, .accordion-body li { font-size: 14px; line-height: 1.65; }
 
   /* General mobile typography */
@@ -3048,6 +3050,18 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .checkout-summary-col h3 { font-size: 14px; }
   /* Product card image proportions */
   .product-card-img { height: 220px; }
+
+  /* Complete the Look — horizontal scroll to avoid orphaned card gap */
+  .complete-look .product-grid-3-related {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+  }
+  .complete-look .product-grid-3-related::-webkit-scrollbar { display: none; }
+  .complete-look .product-grid-3-related .product-card { flex: 0 0 180px; width: 180px; }
+  .complete-look .product-card-img { height: 200px; }
 }
 
 @media (max-width: 380px) {
@@ -6523,7 +6537,9 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .fit-note { font-size: 13px; margin-bottom: 18px; }
   .pack-deal { padding: 14px 16px; margin-bottom: 14px; }
   .pack-deal-main { font-size: 15px; }
-  .trust-item span:last-child { font-size: 12px; }
+  .trust-item { padding: 10px 6px; gap: 7px; }
+  .trust-icon-wrap { width: 26px; height: 26px; }
+  .trust-item span { font-size: 9px; letter-spacing: 0.04em; }
   .accordion-body p, .accordion-body li { font-size: 14px; line-height: 1.65; }
 
   /* General mobile typography */
@@ -6680,6 +6696,18 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
   .checkout-summary-col h3 { font-size: 14px; }
   /* Product card image proportions */
   .product-card-img { height: 220px; }
+
+  /* Complete the Look — horizontal scroll to avoid orphaned card gap */
+  .complete-look .product-grid-3-related {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 12px;
+  }
+  .complete-look .product-grid-3-related::-webkit-scrollbar { display: none; }
+  .complete-look .product-grid-3-related .product-card { flex: 0 0 180px; width: 180px; }
+  .complete-look .product-card-img { height: 200px; }
 }
 
 @media (max-width: 380px) {
