@@ -1437,7 +1437,7 @@ async function autoSendToOlivraison(order) {
     price:       String(order.total || 0),
     comment:     order.notes        || '',
     description: firstItem.name     || '',
-    inventory:   'true',
+    inventory:   true,
     name:        order.customer     || 'Unknown',
     destination: {
       name:          order.customer || 'Unknown',
@@ -1785,7 +1785,7 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
       price:       String(order.total || 0),
       comment:     order.notes        || '',
       description,
-      inventory:   'true',
+      inventory:   true,
       name:        order.customer     || 'Unknown',
       destination: {
         name:          order.customer || 'Unknown',
