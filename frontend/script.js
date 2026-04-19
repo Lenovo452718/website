@@ -1340,7 +1340,7 @@ function initPlaceOrder() {
     const address   = (document.getElementById('info-address')?.value || '').trim();
 
     if (!customer) { alert('Please enter your name.'); return; }
-    if (!phone || phone.replace(/\D/g,'').length < 9) { alert('Please enter a valid phone number.'); return; }
+    if (!phone || phone.replace(/\D/g,'').length < 10) { alert('Please enter a valid phone number (at least 10 digits).'); return; }
     if (!city) { alert('Please enter your city.'); return; }
 
     const cart = getCart();
@@ -1915,7 +1915,7 @@ async function placeBundleOrder() {
   var city      = (document.getElementById('bcoCity')    ? document.getElementById('bcoCity').value    : '').trim();
   var address   = (document.getElementById('bcoAddress') ? document.getElementById('bcoAddress').value : '').trim();
   if (!customer) { alert('Please enter your full name.'); return; }
-  if (!phone || phone.replace(/\D/g,'').length < 9) { alert('Please enter a valid phone number.'); return; }
+  if (!phone || phone.replace(/\D/g,'').length < 10) { alert('Please enter a valid phone number (at least 10 digits).'); return; }
   if (!city) { alert('Please enter your city.'); return; }
   if (!address) { alert('Please enter your address.'); return; }
   var btn = document.getElementById('bcoSubmitBtn');
