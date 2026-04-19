@@ -1308,33 +1308,33 @@
     <nav class="acc-nav">
       <div class="acc-nav-item active" data-section="dashboard" onclick="ACC.nav('dashboard')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-        <span>Dashboard</span>
+        <span data-i18n="nav_dashboard">Dashboard</span>
       </div>
       <div class="acc-nav-item" data-section="orders" onclick="ACC.nav('orders')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-        <span>My Orders</span>
+        <span data-i18n="nav_my_orders">My Orders</span>
       </div>
       <div class="acc-nav-item" data-section="wishlist" onclick="ACC.nav('wishlist')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        <span>Wishlist</span>
+        <span data-i18n="nav_wishlist">Wishlist</span>
       </div>
       <div class="acc-nav-item" data-section="addresses" onclick="ACC.nav('addresses')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <span>Addresses</span>
+        <span data-i18n="nav_addresses">Addresses</span>
       </div>
       <div class="acc-nav-item" data-section="settings" onclick="ACC.nav('settings')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>Settings</span>
+        <span data-i18n="nav_settings">Settings</span>
       </div>
       <div class="acc-nav-item" data-section="track" onclick="ACC.nav('track')">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <span>Track Order</span>
+        <span data-i18n="nav_track">Track Order</span>
       </div>
     </nav>
     <div class="acc-nav-logout">
       <button class="acc-nav-logout-btn" onclick="ACC.logout()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        <span>Logout</span>
+        <span data-i18n="nav_logout">Logout</span>
       </button>
     </div>
   </aside>
@@ -1346,10 +1346,10 @@
     <section class="acc-section active" id="sec-dashboard">
       <div class="acc-welcome-row">
         <div>
-          <div class="acc-welcome-greeting" id="dashGreeting">Welcome back 👋</div>
-          <div class="acc-welcome-sub">Here's a quick look at your account.</div>
+          <div class="acc-welcome-greeting" id="dashGreeting" data-i18n="acc_welcome">Welcome back 👋</div>
+          <div class="acc-welcome-sub" data-i18n="acc_subtitle">Here's a quick look at your account.</div>
         </div>
-        <button class="acc-edit-profile-btn" onclick="ACC.nav('settings')">Edit Profile</button>
+        <button class="acc-edit-profile-btn" onclick="ACC.nav('settings')" data-i18n="acc_edit_profile">Edit Profile</button>
       </div>
 
       <!-- Stat cards -->
@@ -1359,28 +1359,28 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
           </div>
           <div class="acc-stat-num" id="statTotalOrders">—</div>
-          <div class="acc-stat-label">Total Orders</div>
+          <div class="acc-stat-label" data-i18n="acc_total_orders">Total Orders</div>
         </div>
         <div class="acc-stat-card">
           <div class="acc-stat-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div class="acc-stat-num" id="statPendingOrders">—</div>
-          <div class="acc-stat-label">Pending Orders</div>
+          <div class="acc-stat-label" data-i18n="acc_pending_orders">Pending Orders</div>
         </div>
         <div class="acc-stat-card">
           <div class="acc-stat-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
           </div>
           <div class="acc-stat-num" id="statWishlist">—</div>
-          <div class="acc-stat-label">Wishlist Items</div>
+          <div class="acc-stat-label" data-i18n="acc_wishlist_items">Wishlist Items</div>
         </div>
         <div class="acc-stat-card">
           <div class="acc-stat-icon">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
           </div>
           <div class="acc-stat-num" id="statAddresses">—</div>
-          <div class="acc-stat-label">Saved Addresses</div>
+          <div class="acc-stat-label" data-i18n="acc_saved_addresses">Saved Addresses</div>
         </div>
       </div>
 
@@ -1388,7 +1388,7 @@
       <div class="acc-block">
         <div class="acc-block-title">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
-          Recent Orders
+          <span data-i18n="acc_recent_orders">Recent Orders</span>
         </div>
         <div id="dashRecentOrders">
           <div class="acc-skeleton acc-skeleton-card"></div>

@@ -1702,6 +1702,13 @@ function normPhone(p) {
   if (!p) return '';
   return String(p).trim().replace(/^\+212/, '0').replace(/\s+/g, '');
 }
+function formatPhone(p) {
+  const n = normPhone(p);
+  if (n.length === 10 && n.startsWith('0')) {
+    return n.replace(/(\d{2})(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4 $5');
+  }
+  return n;
+}
 
 const OLIV_STATUS = {
   created:           { label: 'Created',           color: '#f39c12' },
@@ -2320,7 +2327,7 @@ function renderOrderCards(orders) {
         </div>
       </div>
       <div class="order-card-items">${itemsList}</div>
-      ${o.phone ? `<a class="order-card-phone" href="tel:${escHtml(normPhone(o.phone))}">📞 ${escHtml(normPhone(o.phone))}</a>` : ''}
+      ${o.phone ? `<a class="order-card-phone" href="tel:${escHtml(normPhone(o.phone))}">📞 ${escHtml(formatPhone(o.phone))}</a>` : ''}
       ${o.trackingCode ? `<div style="font-size:12px;color:var(--gray)">📦 Tracking: <strong>${escHtml(o.trackingCode)}</strong></div>` : ''}
       <div class="order-card-footer">
         ${st}

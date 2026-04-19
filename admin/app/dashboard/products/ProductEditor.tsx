@@ -51,6 +51,7 @@ export default function ProductEditor({ productId }: Props) {
   const [savedId,      setSavedId]      = useState<string | null>(null);
   const [sizeInput,    setSizeInput]    = useState('');
   const [pendingSizes, setPendingSizes] = useState<string[]>([]);
+  const [dragIdx,      setDragIdx]      = useState<number | null>(null);
 
   // Load existing product
   useEffect(() => {
@@ -373,14 +374,32 @@ export default function ProductEditor({ productId }: Props) {
           {/* Image grid */}
           {images.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {images.map(img => (
-                <div key={img.id} className="relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50 aspect-square">
+              {images.map((img, i) => (
+                <div
+                  key={img.id}
+                  draggable
+                  onDragStart={() => setDragIdx(i)}
+                  onDragOver={e => { e.preventDefault(); }}
+                  onDrop={() => {
+                    if (dragIdx === null || dragIdx === i) return;
+                    const reordered = [...images];
+                    const [moved] = reordered.splice(dragIdx, 1);
+                    reordered.splice(i, 0, moved);
+                    setImages(reordered);
+                    const id = savedId || productId!;
+                    if (id) products.reorderImages(id, reordered.map(img => img.id));
+                    setDragIdx(null);
+                  }}
+                  onDragEnd={() => setDragIdx(null)}
+                  className={`relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50 aspect-square cursor-grab ${dragIdx === i ? 'opacity-40' : ''}`}
+                >
                   <img src={img.url} alt={img.alt || ''} className="w-full h-full object-cover" />
                   {img.isMain && (
                     <span className="absolute top-2 left-2 text-[10px] font-bold uppercase bg-[#c8a96e] text-white px-2 py-0.5 rounded-full">
                       Main
                     </span>
                   )}
+                  <span className="absolute top-2 right-2 text-gray-400 opacity-0 group-hover:opacity-100 transition text-base leading-none select-none" title="Drag to reorder">⠿</span>
                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2">
                     {!img.isMain && (
                       <button onClick={() => setMainImage(img.id)}
