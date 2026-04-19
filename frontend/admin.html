@@ -368,8 +368,11 @@ select.pm-input{cursor:pointer}
 .pm-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 /* Images card */
 .pm-images-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:10px;margin-bottom:14px}
-.pm-img-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1.5px solid #e0e3e8;background:var(--off)}
-.pm-img-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.pm-img-thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;border:1.5px solid #e0e3e8;background:var(--off);cursor:grab}
+.pm-img-thumb img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none}
+.pm-img-drag-handle{position:absolute;top:4px;left:4px;color:#fff;font-size:15px;opacity:0;transition:opacity .15s;line-height:1;pointer-events:none;text-shadow:0 1px 3px rgba(0,0,0,.7)}
+.pm-img-thumb:hover .pm-img-drag-handle{opacity:1}
+.pm-img-thumb.pm-dragging{opacity:0.4;border-style:dashed}
 .pm-img-thumb .pm-img-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(220,50,50,.85);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;opacity:0;transition:opacity .15s;line-height:1}
 .pm-img-thumb:hover .pm-img-del{opacity:1}
 .pm-img-set-main{position:absolute;bottom:4px;left:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.55);color:#f5c518;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;opacity:0;transition:opacity .15s;line-height:1;padding:0}
@@ -2999,17 +3002,46 @@ function closeProductModal() {
   document.body.style.overflow = '';
 }
 
+let _pmDragFromIdx = null;
+
 function pmRenderImages(images, productId) {
   const grid = document.getElementById('pmImagesGrid');
   if (!images.length) { grid.innerHTML = ''; return; }
-  grid.innerHTML = images.map(img => {
+  grid.innerHTML = images.map((img, i) => {
     const isMain = img.isMain;
-    return `<div class="pm-img-thumb${isMain?' pm-img-main':''}" id="pmImg-${img.id}" style="border-color:${isMain?'var(--navy)':'#e0e3e8'}">
+    return `<div class="pm-img-thumb${isMain?' pm-img-main':''}" id="pmImg-${img.id}" draggable="true" data-idx="${i}" style="border-color:${isMain?'var(--navy)':'#e0e3e8'}">
       <img src="${escHtml(img.url)}" alt="">
+      <span class="pm-img-drag-handle">⠿</span>
       ${isMain ? `<span class="pm-img-main-badge">MAIN</span>` : `<button class="pm-img-set-main" title="Set as main" onclick="setMainProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">★</button>`}
       <button class="pm-img-del" title="Delete" onclick="removeProductImage('${escHtml(String(productId))}','${escHtml(String(img.id))}')">×</button>
     </div>`;
   }).join('');
+
+  grid.querySelectorAll('.pm-img-thumb').forEach((thumb, i) => {
+    thumb.addEventListener('dragstart', e => {
+      _pmDragFromIdx = i;
+      setTimeout(() => thumb.classList.add('pm-dragging'), 0);
+    });
+    thumb.addEventListener('dragend', () => {
+      _pmDragFromIdx = null;
+      thumb.classList.remove('pm-dragging');
+    });
+    thumb.addEventListener('dragover', e => { e.preventDefault(); });
+    thumb.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = _pmDragFromIdx;
+      if (from === null || from === i) return;
+      const arr = images.slice();
+      const [moved] = arr.splice(from, 1);
+      arr.splice(i, 0, moved);
+      pmRenderImages(arr, productId);
+      authFetch(`/api/admin/products/${productId}/images/reorder`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ imageIds: arr.map(x => x.id) })
+      }).catch(() => showToast('Reorder failed', 'error'));
+    });
+  });
 }
 
 function pmRenderVariants(variants, productId) {
