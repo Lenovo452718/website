@@ -679,13 +679,6 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
     });
     emit('order:statusChanged', { orderId: order.id, newStatus: order.status });
 
-    // ── Auto-send to Olivraison when confirmed ──────────────────────────
-    if (status === 'confirmed') {
-      autoSendToOlivraison(order).catch(err =>
-        console.error('[Olivraison auto-send error]', order.id, err.message)
-      );
-    }
-    // ───────────────────────────────────────────────────────────────────
 
     // ── Push notification on status change ─────────────────────────────
     if (status && status !== order.status) {
