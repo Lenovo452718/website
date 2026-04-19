@@ -1072,7 +1072,7 @@ select.pm-input{cursor:pointer}
         <!-- Fixed costs per order -->
         <div class="panel" style="padding:20px">
           <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Fixed Costs Per Order (MAD)</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px">
             <div>
               <label class="field-label" style="font-size:11px">Packaging / Emballage</label>
               <input class="field-input" id="costPackaging" type="number" placeholder="5" style="margin-top:4px">
@@ -1084,6 +1084,10 @@ select.pm-input{cursor:pointer}
             <div>
               <label class="field-label" style="font-size:11px">Delivery — Other Cities</label>
               <input class="field-input" id="costDeliveryOther" type="number" placeholder="35" style="margin-top:4px">
+            </div>
+            <div>
+              <label class="field-label" style="font-size:11px">Daily Ad Budget (MAD/day)</label>
+              <input class="field-input" id="costDailyAd" type="number" placeholder="0" style="margin-top:4px">
             </div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="saveBusinessCosts()">Save Costs</button>
@@ -5085,10 +5089,11 @@ async function saveBusinessCosts() {
   const packaging     = parseFloat(document.getElementById('costPackaging').value)     || 0;
   const deliveryCasa  = parseFloat(document.getElementById('costDeliveryCasa').value)  || 25;
   const deliveryOther = parseFloat(document.getElementById('costDeliveryOther').value) || 35;
+  const dailyAdBudget = parseFloat(document.getElementById('costDailyAd').value)       || 0;
   const res = await authFetch('/api/admin/business-costs', {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ packagingPerOrder: packaging, deliveryCasa, deliveryOther }),
+    body: JSON.stringify({ packagingPerOrder: packaging, deliveryCasa, deliveryOther, dailyAdBudget }),
   });
   if (res.ok) { showToast('Costs saved'); loadRevenue(); }
   else showToast('Failed to save costs', 'error');
@@ -5124,22 +5129,26 @@ function switchRevenuePeriod(days, el) {
 async function loadRevenue() {
   document.getElementById('revenueKpis').innerHTML = '<div style="grid-column:1/-1;color:var(--gray);font-size:13px;padding:8px 0">Loading…</div>';
   try {
-    // Fetch costs config + products (for costPrice lookup)
-    const [costsRes, prodsRes] = await Promise.all([
+    // Fetch costs config + products (for costPrice lookup) + live orders from API
+    const [costsRes, prodsRes, ordersRes] = await Promise.all([
       authFetch('/api/admin/business-costs'),
       authFetch('/api/admin/products?limit=500'),
+      authFetch('/api/admin/orders?limit=2000'),
     ]);
     const costs = costsRes.ok ? await costsRes.json() : { packagingPerOrder: 0, deliveryCasa: 25, deliveryOther: 35, adSpend: [] };
     const prodsData = prodsRes.ok ? await prodsRes.json() : { products: [] };
     const products  = prodsData.products || prodsData || [];
+    const all = ordersRes.ok ? (await ordersRes.json()) : getOrders();
 
     // Populate cost settings inputs (only if empty to avoid overwriting in-progress edits)
-    const pkgEl  = document.getElementById('costPackaging');
-    const casaEl = document.getElementById('costDeliveryCasa');
-    const othEl  = document.getElementById('costDeliveryOther');
-    if (pkgEl  && !pkgEl.dataset.dirty)  pkgEl.value  = costs.packagingPerOrder || '';
-    if (casaEl && !casaEl.dataset.dirty) casaEl.value = costs.deliveryCasa      || 25;
-    if (othEl  && !othEl.dataset.dirty)  othEl.value  = costs.deliveryOther     || 35;
+    const pkgEl     = document.getElementById('costPackaging');
+    const casaEl    = document.getElementById('costDeliveryCasa');
+    const othEl     = document.getElementById('costDeliveryOther');
+    const dailyAdEl = document.getElementById('costDailyAd');
+    if (pkgEl     && !pkgEl.dataset.dirty)     pkgEl.value     = costs.packagingPerOrder || '';
+    if (casaEl    && !casaEl.dataset.dirty)    casaEl.value    = costs.deliveryCasa      || 25;
+    if (othEl     && !othEl.dataset.dirty)     othEl.value     = costs.deliveryOther     || 35;
+    if (dailyAdEl && !dailyAdEl.dataset.dirty) dailyAdEl.value = costs.dailyAdBudget     || '';
 
     // Render ad spend list
     const adSpendList = document.getElementById('adSpendList');
@@ -5155,9 +5164,6 @@ async function loadRevenue() {
     // Build costPrice map: product name → costPrice
     const costPriceMap = {};
     products.forEach(p => { if (p.costPrice) costPriceMap[p.name] = parseFloat(p.costPrice); });
-
-    // Filter orders by period
-    const all   = getOrders();
     const now   = Date.now();
     const msDay = 86400000;
     const filtered = _revPeriod === 0 ? all
@@ -5186,8 +5192,12 @@ async function loadRevenue() {
     }, 0);
 
     // Ad spend for the period
+    // If a recurring daily budget is set, use budget × days; otherwise use manually entered entries
     let adSpendTotal = 0;
-    if (_revPeriod === 0) {
+    if (costs.dailyAdBudget > 0) {
+      const periodDays = _revPeriod === 0 ? Math.max(1, Math.ceil((now - new Date(Math.min(...all.map(o => new Date(o.date||o.createdAt).getTime()).filter(t=>!isNaN(t)), now))) / msDay)) : _revPeriod;
+      adSpendTotal = costs.dailyAdBudget * periodDays;
+    } else if (_revPeriod === 0) {
       adSpendTotal = costs.adSpend.reduce((s,r) => s + r.amount, 0);
     } else {
       const cutoff = new Date(now - _revPeriod * msDay).toISOString().slice(0,10);
@@ -5212,7 +5222,7 @@ async function loadRevenue() {
       { label:'Product Cost (COGS)', value: Math.round(cogs).toLocaleString()+' MAD',          sub: cogs > 0 ? '' : 'Set cost prices on products' },
       { label:'Packaging',           value: Math.round(packagingCost).toLocaleString()+' MAD', sub: costs.packagingPerOrder ? costs.packagingPerOrder+' MAD × '+done.length+' orders' : 'Not set' },
       { label:'Delivery Fees',       value: Math.round(deliveryCost).toLocaleString()+' MAD',  sub: 'Casa: '+(costs.deliveryCasa||25)+' / Other: '+(costs.deliveryOther||35)+' MAD' },
-      { label:'Ad Spend',            value: Math.round(adSpendTotal).toLocaleString()+' MAD',  sub: adSpendTotal > 0 ? 'Return rate: '+returnRate+'%' : 'Not entered' },
+      { label:'Ad Spend',            value: Math.round(adSpendTotal).toLocaleString()+' MAD',  sub: costs.dailyAdBudget > 0 ? costs.dailyAdBudget+' MAD/day × '+(_revPeriod||'all')+' days' : (adSpendTotal > 0 ? 'Return rate: '+returnRate+'%' : 'Not entered') },
     ].map(k=>`<div class="stat-card"><div class="stat-card-label" style="font-size:10px">${k.label}</div><div class="stat-card-value" style="font-size:18px">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
 
     // Revenue over time chart — gross vs net

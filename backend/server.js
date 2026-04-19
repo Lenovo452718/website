@@ -2255,12 +2255,13 @@ app.patch('/api/admin/pixels', adminLimiter, requireAuth, async (req, res) => {
 /* GET /api/admin/business-costs */
 app.get('/api/admin/business-costs', requireAuth, async (req, res) => {
   try {
-    const [row] = await prisma.$queryRawUnsafe('SELECT packagingPerOrder, deliveryCasa, deliveryOther FROM `BusinessCosts` WHERE id = 1 LIMIT 1');
+    const [row] = await prisma.$queryRawUnsafe('SELECT packagingPerOrder, deliveryCasa, deliveryOther, dailyAdBudget FROM `BusinessCosts` WHERE id = 1 LIMIT 1');
     const adSpend = await prisma.$queryRawUnsafe('SELECT date, amount FROM `AdSpend` ORDER BY date DESC LIMIT 90');
     res.json({
       packagingPerOrder: row ? parseFloat(row.packagingPerOrder) : 0,
       deliveryCasa:      row ? parseFloat(row.deliveryCasa)      : 25,
       deliveryOther:     row ? parseFloat(row.deliveryOther)     : 35,
+      dailyAdBudget:     row ? parseFloat(row.dailyAdBudget)     : 0,
       adSpend: adSpend.map(r => ({ date: r.date instanceof Date ? r.date.toISOString().slice(0,10) : String(r.date).slice(0,10), amount: parseFloat(r.amount) })),
     });
   } catch (err) {
@@ -2271,12 +2272,13 @@ app.get('/api/admin/business-costs', requireAuth, async (req, res) => {
 /* PATCH /api/admin/business-costs */
 app.patch('/api/admin/business-costs', requireAuth, async (req, res) => {
   try {
-    const packaging     = parseFloat(req.body.packagingPerOrder) || 0;
-    const deliveryCasa  = parseFloat(req.body.deliveryCasa)      || 25;
-    const deliveryOther = parseFloat(req.body.deliveryOther)     || 35;
+    const packaging      = parseFloat(req.body.packagingPerOrder) || 0;
+    const deliveryCasa   = parseFloat(req.body.deliveryCasa)      || 25;
+    const deliveryOther  = parseFloat(req.body.deliveryOther)     || 35;
+    const dailyAdBudget  = parseFloat(req.body.dailyAdBudget)     || 0;
     await prisma.$queryRawUnsafe(
-      'INSERT INTO `BusinessCosts` (id, packagingPerOrder, deliveryCasa, deliveryOther) VALUES (1, ?, ?, ?) ON DUPLICATE KEY UPDATE packagingPerOrder = ?, deliveryCasa = ?, deliveryOther = ?',
-      packaging, deliveryCasa, deliveryOther, packaging, deliveryCasa, deliveryOther
+      'INSERT INTO `BusinessCosts` (id, packagingPerOrder, deliveryCasa, deliveryOther, dailyAdBudget) VALUES (1, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE packagingPerOrder = ?, deliveryCasa = ?, deliveryOther = ?, dailyAdBudget = ?',
+      packaging, deliveryCasa, deliveryOther, dailyAdBudget, packaging, deliveryCasa, deliveryOther, dailyAdBudget
     );
     res.json({ ok: true });
   } catch (err) {
@@ -2581,6 +2583,7 @@ async function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `BusinessCosts` (`id` INT NOT NULL DEFAULT 1 PRIMARY KEY, `packagingPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `deliveryPerOrder` DECIMAL(10,2) NOT NULL DEFAULT 0, `deliveryCasa` DECIMAL(10,2) NOT NULL DEFAULT 25, `deliveryOther` DECIMAL(10,2) NOT NULL DEFAULT 35, `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3))",
     "ALTER TABLE `BusinessCosts` ADD COLUMN IF NOT EXISTS `deliveryCasa` DECIMAL(10,2) NOT NULL DEFAULT 25",
     "ALTER TABLE `BusinessCosts` ADD COLUMN IF NOT EXISTS `deliveryOther` DECIMAL(10,2) NOT NULL DEFAULT 35",
+    "ALTER TABLE `BusinessCosts` ADD COLUMN IF NOT EXISTS `dailyAdBudget` DECIMAL(10,2) NOT NULL DEFAULT 0",
     "CREATE TABLE IF NOT EXISTS `AdSpend` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `date` DATE NOT NULL, `amount` DECIMAL(10,2) NOT NULL DEFAULT 0, UNIQUE KEY `date_unique` (`date`))",
     "ALTER TABLE `AdSpend` ADD COLUMN IF NOT EXISTS `date` DATE NULL",
     "ALTER TABLE `AdSpend` DROP INDEX IF EXISTS `month_year`",
