@@ -2181,8 +2181,14 @@ async function sendToOlivraison() {
   ids.forEach(id => {
     const ord = allOrders.find(o => o.id === id || String(o.id) === String(id));
     if (ord && Array.isArray(ord.items) && ord.items.length) {
+      const many = ord.items.length >= 3;
       descriptions[id] = ord.items
-        .map(i => `${(i.shortName || i.name || '')}${i.size ? ' ('+i.size+')' : ''} ×${i.qty||1}`)
+        .map(i => {
+          let name = i.shortName || i.name || '';
+          if (many) name = name.length > 15 ? name.slice(0, 15).trimEnd() + '…' : name;
+          const size = !many && i.size ? ' (' + i.size + ')' : '';
+          return `${name}${size} ×${i.qty || 1}`;
+        })
         .join(', ');
     }
   });
