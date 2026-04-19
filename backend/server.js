@@ -644,7 +644,7 @@ app.get('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => 
   try {
     const order = await prisma.order.findUnique({
       where:   { id: req.params.id },
-      include: { items: true },
+      include: { items: { include: { product: { select: { shortName: true, color: true } } } } },
     });
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json(order);
@@ -674,7 +674,7 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
     const order = await prisma.order.update({
       where:   { id: req.params.id },
       data,
-      include: { items: true },
+      include: { items: { include: { product: { select: { shortName: true, color: true } } } } },
     });
     emit('order:statusChanged', { orderId: order.id, newStatus: order.status });
 
@@ -1420,8 +1420,6 @@ async function autoSendToOlivraison(order) {
   if (!cfg || !cfg.isActive || !cfg.apiKey || !cfg.apiSecret) return; // not configured — skip silently
 
   const BASE_URL  = 'https://partners.olivraison.com';
-  const firstItem = (order.items || [])[0] || {};
-
   // Step 1: login to get bearer token
   const loginResp = await fetch(`${BASE_URL}/auth/login`, {
     method:  'POST',
@@ -1433,10 +1431,16 @@ async function autoSendToOlivraison(order) {
   if (!token) throw new Error(loginJson.message || 'Olivraison login failed');
 
   // Step 2: create shipment
+  const many = (order.items || []).length >= 3;
+  const olivDesc = (order.items || []).map(i => {
+    const name = (i.product?.shortName || i.name || '') + (i.product?.color ? ' ' + i.product.color : '');
+    const size = i.size ? (many ? ' ' + i.size : ' (' + i.size + ')') : '';
+    return `${name}${size} x${i.qty || 1}`;
+  }).join(', ');
   const payload = {
     price:       String(order.total || 0),
     comment:     order.notes        || '',
-    description: firstItem.name     || '',
+    description: olivDesc,
     inventory:   true,
     name:        order.customer     || 'Unknown',
     destination: {
@@ -1772,15 +1776,20 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
   for (const id of orderIds.slice(0, 100)) {
     let order;
     try {
-      order = await prisma.order.findUnique({ where: { id }, include: { items: true } });
+      order = await prisma.order.findUnique({ where: { id }, include: { items: { include: { product: { select: { shortName: true, color: true } } } } } });
     } catch (e) {
       results.push({ orderId: id, success: false, error: 'DB error' });
       continue;
     }
     if (!order) { results.push({ orderId: id, success: false, error: 'Order not found' }); continue; }
 
-    const firstItem = order.items[0] || {};
-    const description = descriptions[id] || firstItem.name || '';
+    const many = order.items.length >= 3;
+    const autoDesc = order.items.map(i => {
+      const name = (i.product?.shortName || i.name || '') + (i.product?.color ? ' ' + i.product.color : '');
+      const size = i.size ? (many ? ' ' + i.size : ' (' + i.size + ')') : '';
+      return `${name}${size} x${i.qty || 1}`;
+    }).join(', ');
+    const description = descriptions[id] || autoDesc;
     const payload = {
       price:       String(order.total || 0),
       comment:     order.notes        || '',

@@ -2182,14 +2182,11 @@ async function sendToOlivraison() {
     const ord = allOrders.find(o => o.id === id || String(o.id) === String(id));
     if (ord && Array.isArray(ord.items) && ord.items.length) {
       const many = ord.items.length >= 3;
-      descriptions[id] = ord.items
-        .map(i => {
-          let name = i.shortName || i.name || '';
-          if (many) name = name.length > 15 ? name.slice(0, 15).trimEnd() + '...' : name;
-          const size = !many && i.size ? ' (' + i.size + ')' : '';
-          return `${name}${size} x${i.qty || 1}`;
-        })
-        .join(', ');
+      descriptions[id] = ord.items.map(i => {
+        const name = i.shortName || (i.product?.shortName ? i.product.shortName + (i.product.color ? ' ' + i.product.color : '') : i.name) || '';
+        const size = i.size ? (many ? ' ' + i.size : ' (' + i.size + ')') : '';
+        return `${name}${size} x${i.qty || 1}`;
+      }).join(', ');
     }
   });
 
@@ -2582,7 +2579,7 @@ async function openOrderModal(id) {
                ${order.items.map((item, idx) => `
                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
                    <input class="field-input om-item-name" data-idx="${idx}"
-                          value="${escHtml(item.shortName || item.name || '')}"
+                          value="${escHtml(item.shortName || (item.product?.shortName ? item.product.shortName + (item.product.color ? ' ' + item.product.color : '') : item.name) || '')}"
                           placeholder="Product name"
                           style="flex:1;margin:0" autocomplete="off">
                    <span style="color:var(--gray);font-size:12px;white-space:nowrap">${escHtml(item.size || '')} ×${item.qty || 1}</span>
