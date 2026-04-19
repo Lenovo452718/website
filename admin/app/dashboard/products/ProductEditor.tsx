@@ -52,6 +52,7 @@ export default function ProductEditor({ productId }: Props) {
   const [sizeInput,    setSizeInput]    = useState('');
   const [pendingSizes, setPendingSizes] = useState<string[]>([]);
   const [dragIdx,      setDragIdx]      = useState<number | null>(null);
+  const dragIdxRef = useRef<number | null>(null);
 
   // Load existing product
   useEffect(() => {
@@ -378,19 +379,22 @@ export default function ProductEditor({ productId }: Props) {
                 <div
                   key={img.id}
                   draggable
-                  onDragStart={() => setDragIdx(i)}
+                  onDragStart={() => { dragIdxRef.current = i; setDragIdx(i); }}
                   onDragOver={e => { e.preventDefault(); }}
-                  onDrop={() => {
-                    if (dragIdx === null || dragIdx === i) return;
+                  onDrop={e => {
+                    e.preventDefault();
+                    const from = dragIdxRef.current;
+                    if (from === null || from === i) return;
                     const reordered = [...images];
-                    const [moved] = reordered.splice(dragIdx, 1);
+                    const [moved] = reordered.splice(from, 1);
                     reordered.splice(i, 0, moved);
                     setImages(reordered);
                     const id = savedId || productId!;
-                    if (id) products.reorderImages(id, reordered.map(img => img.id));
+                    if (id) products.reorderImages(id, reordered.map(x => x.id));
+                    dragIdxRef.current = null;
                     setDragIdx(null);
                   }}
-                  onDragEnd={() => setDragIdx(null)}
+                  onDragEnd={() => { dragIdxRef.current = null; setDragIdx(null); }}
                   className={`relative group rounded-xl overflow-hidden border border-gray-200 bg-gray-50 aspect-square cursor-grab ${dragIdx === i ? 'opacity-40' : ''}`}
                 >
                   <img src={img.url} alt={img.alt || ''} draggable={false} className="w-full h-full object-cover" />
