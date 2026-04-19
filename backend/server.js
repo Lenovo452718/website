@@ -1447,6 +1447,7 @@ async function autoSendToOlivraison(order) {
     },
   };
 
+  console.log('[Olivraison auto-send payload]', JSON.stringify(payload));
   const resp = await fetch(`${BASE_URL}/package`, {
     method:  'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -1795,6 +1796,7 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
     };
 
     try {
+      console.log(`[Olivraison manual send payload ${id}]`, JSON.stringify(payload));
       const resp = await fetch(`${BASE_URL}/package`, {
         method:  'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
