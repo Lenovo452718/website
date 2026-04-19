@@ -45,6 +45,7 @@
 
 require('dotenv').config();
 
+const crypto       = require('crypto');
 const express      = require('express');
 const cors         = require('cors');
 const helmet       = require('helmet');
@@ -1388,6 +1389,32 @@ app.patch('/api/admin/settings', adminLimiter, requireAuth, async (req, res) => 
 });
 
 /* ════════════════════════════════════════
+   SITE API CREDENTIALS
+════════════════════════════════════════ */
+
+app.get('/api/admin/api-credentials', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const row = await prisma.$queryRawUnsafe(
+      'SELECT siteApiKey, siteApiSecret FROM `SiteSettings` WHERE id = "singleton" LIMIT 1'
+    );
+    const r = row[0] || {};
+    res.json({ apiKey: r.siteApiKey || '', apiSecret: r.siteApiSecret || '' });
+  } catch { res.status(500).json({ error: 'Failed to fetch credentials' }); }
+});
+
+app.post('/api/admin/api-credentials/regenerate', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    const apiKey    = crypto.randomBytes(24).toString('hex');
+    const apiSecret = crypto.randomBytes(32).toString('hex');
+    await prisma.$executeRawUnsafe(
+      'UPDATE `SiteSettings` SET siteApiKey = ?, siteApiSecret = ? WHERE id = "singleton"',
+      apiKey, apiSecret
+    );
+    res.json({ apiKey, apiSecret });
+  } catch { res.status(500).json({ error: 'Failed to regenerate credentials' }); }
+});
+
+/* ════════════════════════════════════════
    OLIVRAISON — AUTO-TRACKING
 ════════════════════════════════════════ */
 
@@ -1750,9 +1777,12 @@ app.patch('/api/admin/olivraison/config', adminLimiter, requireAuth, async (req,
 });
 
 app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, res) => {
-  const { orderIds, apiKey, secretKey, descriptions = {} } = req.body;
+  const { orderIds, descriptions = {} } = req.body;
   if (!Array.isArray(orderIds) || !orderIds.length) return res.status(400).json({ error: 'No order IDs provided' });
-  if (!apiKey || !secretKey) return res.status(400).json({ error: 'Olivraison credentials required' });
+
+  // Read credentials from DB
+  const cfg = await prisma.olivraisonConfig.findUnique({ where: { id: 'singleton' } });
+  if (!cfg?.apiKey || !cfg?.apiSecret) return res.status(400).json({ error: 'Olivraison credentials not configured. Go to Integrations and save your API keys.' });
 
   const BASE_URL = 'https://partners.olivraison.com';
 
@@ -1762,7 +1792,7 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
     const loginResp = await fetch(`${BASE_URL}/auth/login`, {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ apiKey, secretKey }),
+      body:    JSON.stringify({ apiKey: cfg.apiKey, secretKey: cfg.apiSecret }),
     });
     const loginJson = await loginResp.json();
     token = loginJson.token;
@@ -2561,6 +2591,8 @@ async function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `PushSubscription` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `customerId` VARCHAR(30) NULL, `endpoint` TEXT NOT NULL, `p256dh` VARCHAR(500) NOT NULL, `auth` VARCHAR(200) NOT NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), UNIQUE KEY `endpoint_unique` (endpoint(255)))",
     "ALTER TABLE `Order` ADD COLUMN IF NOT EXISTS `pushEndpoint` TEXT NULL",
     "CREATE TABLE IF NOT EXISTS `AdminPushSubscription` (`id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, `endpoint` TEXT NOT NULL, `p256dh` VARCHAR(500) NOT NULL, `auth` VARCHAR(200) NOT NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3), UNIQUE KEY `admin_endpoint_unique` (endpoint(255)))",
+    "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `siteApiKey` VARCHAR(64) NOT NULL DEFAULT ''",
+    "ALTER TABLE `SiteSettings` ADD COLUMN IF NOT EXISTS `siteApiSecret` VARCHAR(64) NOT NULL DEFAULT ''",
   ];
   for (const sql of migrations) {
     try { await prisma.$executeRawUnsafe(sql); } catch (_) {}

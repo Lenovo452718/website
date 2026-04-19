@@ -1259,6 +1259,34 @@ select.pm-input{cursor:pointer}
       </div>
 
       <div class="panel">
+        <div class="panel-header"><h2>API Access</h2></div>
+        <div class="panel-body">
+          <p style="font-size:13px;color:var(--gray);margin-bottom:16px">Use these credentials to connect external websites or tools to your store. Send them in every request as headers: <code>X-API-Key</code> and <code>X-API-Secret</code>.</p>
+          <div class="field-row" style="align-items:flex-end">
+            <div class="field-group">
+              <label class="field-label">API Key</label>
+              <div style="display:flex;gap:8px">
+                <input class="field-input" id="siteApiKey" type="text" readonly style="flex:1;font-family:monospace;font-size:12px;background:var(--bg)" placeholder="Click Regenerate to generate">
+                <button class="btn btn-outline btn-sm" onclick="copyApiCred('siteApiKey')" title="Copy">Copy</button>
+              </div>
+            </div>
+            <div class="field-group">
+              <label class="field-label">API Secret</label>
+              <div style="display:flex;gap:8px">
+                <input class="field-input" id="siteApiSecret" type="password" readonly style="flex:1;font-family:monospace;font-size:12px;background:var(--bg)" placeholder="Click Regenerate to generate">
+                <button class="btn btn-outline btn-sm" onclick="toggleApiSecretVisibility()" id="siteApiSecretToggle">Show</button>
+                <button class="btn btn-outline btn-sm" onclick="copyApiCred('siteApiSecret')" title="Copy">Copy</button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+            <button class="btn btn-primary" onclick="regenerateApiCredentials()">Regenerate Keys</button>
+            <span style="font-size:12px;color:var(--gray)">⚠ Regenerating will invalidate the old keys immediately.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
         <div class="panel-header">
           <h2>Hero Video Intro</h2>
           <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--gray)">
@@ -3947,7 +3975,49 @@ function closeNotifPanel() {
 /* ═══════════════════════════════════════════
    SETTINGS
 ═══════════════════════════════════════════ */
+async function loadApiCredentials() {
+  try {
+    const res = await authFetch('/api/admin/api-credentials');
+    if (!res.ok) return;
+    const data = await res.json();
+    const keyEl = document.getElementById('siteApiKey');
+    const secEl = document.getElementById('siteApiSecret');
+    if (keyEl) keyEl.value = data.apiKey || '';
+    if (secEl) secEl.value = data.apiSecret || '';
+  } catch(e) {}
+}
+
+async function regenerateApiCredentials() {
+  if (!confirm('This will invalidate your current API keys. Continue?')) return;
+  try {
+    const res = await authFetch('/api/admin/api-credentials/regenerate', { method: 'POST' });
+    if (!res.ok) { showToast('Failed to regenerate', 'error'); return; }
+    const data = await res.json();
+    const keyEl = document.getElementById('siteApiKey');
+    const secEl = document.getElementById('siteApiSecret');
+    if (keyEl) keyEl.value = data.apiKey;
+    if (secEl) secEl.value = data.apiSecret;
+    showToast('New API keys generated');
+    logActivity('API credentials regenerated');
+  } catch(e) { showToast('Error', 'error'); }
+}
+
+function copyApiCred(id) {
+  const el = document.getElementById(id);
+  if (!el || !el.value) { showToast('Nothing to copy', 'error'); return; }
+  navigator.clipboard.writeText(el.value).then(() => showToast('Copied!'));
+}
+
+function toggleApiSecretVisibility() {
+  const el  = document.getElementById('siteApiSecret');
+  const btn = document.getElementById('siteApiSecretToggle');
+  if (!el) return;
+  el.type = el.type === 'password' ? 'text' : 'password';
+  if (btn) btn.textContent = el.type === 'password' ? 'Show' : 'Hide';
+}
+
 async function loadSettingsForm() {
+  loadApiCredentials();
   try {
     const res = await authFetch('/api/admin/settings');
     if (res.ok) {
