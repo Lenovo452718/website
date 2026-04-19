@@ -1144,6 +1144,18 @@ app.patch('/api/admin/products/:id/variants/:variantId', adminLimiter, requireAu
   }
 });
 
+/* DELETE /api/admin/products/:id/variants/:variantId — remove a single variant */
+app.delete('/api/admin/products/:id/variants/:variantId', adminLimiter, requireAuth, async (req, res) => {
+  try {
+    await prisma.variant.delete({ where: { id: req.params.variantId } });
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.code === 'P2025') return res.status(404).json({ error: 'Variant not found' });
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete variant' });
+  }
+});
+
 /* ── Product images ── */
 
 /* POST /api/admin/upload — upload image/video to Cloudinary, return URL */
