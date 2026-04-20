@@ -367,6 +367,10 @@
           <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email" required>
         </div>
         <div class="auth-field">
+          <label for="regPhone">Phone Number</label>
+          <input type="tel" id="regPhone" placeholder="06 12 34 56 78" autocomplete="tel" maxlength="15" required>
+        </div>
+        <div class="auth-field">
           <label for="regPassword">Password</label>
           <input type="password" id="regPassword" placeholder="At least 8 characters with a number" minlength="8" required>
         </div>
@@ -405,6 +409,55 @@ function showTab(tab) {
 }
 
 /* ── Save auth result and redirect ── */
+function promptPhoneThenRedirect(data) {
+  var token = data.token;
+  var overlay = document.createElement('div');
+  overlay.id = 'googlePhoneOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px;';
+  overlay.innerHTML = '' +
+    '<div style="background:#fff;width:100%;max-width:390px;border-radius:12px;padding:24px;box-shadow:0 18px 50px rgba(0,0,0,0.22);">' +
+      '<h2 style="font-size:18px;font-weight:800;color:#111;margin:0 0 8px;">Connect your orders</h2>' +
+      '<p style="font-size:13px;line-height:1.6;color:#666;margin:0 0 18px;">Enter the same phone number you used at checkout so we can find your previous orders.</p>' +
+      '<input id="googlePhoneInput" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:8px;padding:13px 14px;font-size:15px;margin-bottom:10px;">' +
+      '<p id="googlePhoneError" style="display:none;color:#c0392b;font-size:12px;margin:0 0 10px;"></p>' +
+      '<button id="googlePhoneSave" style="width:100%;background:#111;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px;">Save & View My Account</button>' +
+      '<button id="googlePhoneSkip" style="width:100%;background:none;color:#888;border:none;padding:8px;font-size:13px;cursor:pointer;">Skip for now</button>' +
+    '</div>';
+  document.body.appendChild(overlay);
+
+  document.getElementById('googlePhoneInput').focus();
+  document.getElementById('googlePhoneSkip').onclick = function() {
+    window.location.href = 'account.html';
+  };
+  document.getElementById('googlePhoneSave').onclick = async function() {
+    var btn = this;
+    var err = document.getElementById('googlePhoneError');
+    var phone = document.getElementById('googlePhoneInput').value.trim();
+    if (!phone || phone.replace(/\D/g, '').length < 10) {
+      err.textContent = 'Please enter a valid phone number.';
+      err.style.display = 'block';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Connecting orders...';
+    try {
+      var res = await fetch(BACKEND + '/api/customer/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+        body: JSON.stringify({ phone: phone })
+      });
+      var customer = await res.json();
+      if (res.ok && customer.id) localStorage.setItem('ss_customer', JSON.stringify(customer));
+      window.location.href = 'account.html';
+    } catch(e) {
+      err.textContent = 'Could not save phone. Please try again.';
+      err.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Save & View My Account';
+    }
+  };
+}
+
 function saveAndRedirect(data) {
   localStorage.setItem('ss_customer_token', data.token);
   localStorage.setItem('ss_customer', JSON.stringify(data.customer));
@@ -417,6 +470,8 @@ function saveAndRedirect(data) {
       headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + data.token },
       body: JSON.stringify({ orderId: claimId })
     }).finally(function() { window.location.href = 'account.html'; });
+  } else if (!data.customer || !data.customer.phone) {
+    promptPhoneThenRedirect(data);
   } else {
     window.location.href = 'account.html';
   }
@@ -456,7 +511,9 @@ fetch(BACKEND + '/api/config/public')
 function loginWithGoogle() {
   if (!_googleClientId) return;
   var nonce    = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
-  var redirect = window.location.origin + '/signup.html';
+  var redirect = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+    ? window.location.origin + '/signup.html'
+    : 'https://streetstore.ma/signup.html';
   sessionStorage.setItem('g_nonce', nonce);
   var params = new URLSearchParams({
     client_id:     _googleClientId,
@@ -526,10 +583,18 @@ async function handleRegister(e) {
   e.preventDefault();
   const errEl = document.getElementById('registerError');
   const btn   = document.getElementById('registerBtn');
+  const phone = document.getElementById('regPhone').value.trim();
   errEl.style.display = 'none';
   btn.disabled = true; btn.textContent = 'Creating account...';
+  if (!phone || phone.replace(/\D/g, '').length < 10) {
+    errEl.textContent = 'Please enter the same phone number used for your order.';
+    errEl.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Create Account';
+    return;
+  }
   try {
-    const res  = await fetch(BACKEND + '/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: document.getElementById('regName').value.trim(), email: document.getElementById('regEmail').value.trim(), password: document.getElementById('regPassword').value }) });
+    const res  = await fetch(BACKEND + '/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: document.getElementById('regName').value.trim(), email: document.getElementById('regEmail').value.trim(), phone: phone, password: document.getElementById('regPassword').value }) });
     const data = await res.json();
     if (data.token) {
       try { if (typeof ttq !== 'undefined') ttq.track('CompleteRegistration', { value: 0, currency: 'MAD', contents: [{ content_id: 'account', content_type: 'product', content_name: 'Account Registration' }] }); } catch(e) {}

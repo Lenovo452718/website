@@ -8225,3 +8225,46 @@ body.has-bar .site-header { top: 36px; }
     flex-shrink: 0;
   }
 }
+
+/* Final mobile header override: prevents the menu icon from being clipped. */
+@media (max-width: 768px) {
+  .nav-inner {
+    padding-left: 12px !important;
+    padding-right: 10px !important;
+    grid-template-columns: auto minmax(0, 1fr) !important;
+  }
+  .nav-logo {
+    font-size: 24px;
+    letter-spacing: 0.09em;
+    white-space: nowrap;
+  }
+  .nav-right {
+    gap: 6px !important;
+    min-width: 0;
+    overflow: visible;
+  }
+  .nav-icon-btn {
+    width: 32px;
+    height: 36px;
+    min-width: 32px;
+  }
+  .lang-switcher {
+    flex-shrink: 0;
+  }
+  .hamburger {
+    display: flex;
+    width: 34px;
+    height: 44px;
+    min-width: 34px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    margin-right: 0;
+    overflow: visible;
+  }
+  .hamburger span {
+    width: 20px;
+    flex-shrink: 0;
+  }
+}

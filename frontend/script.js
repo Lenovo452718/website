@@ -1354,7 +1354,16 @@ function initSearch() {
 
 /* ============================================================
    PLACE ORDER — clear cart and save order to localStorage
-   ============================================================ */
+    ============================================================ */
+function getPixelCustomerData(phone) {
+  var customer = { phone: phone || '' };
+  try {
+    var savedCustomer = JSON.parse(localStorage.getItem('ss_customer') || '{}');
+    if (savedCustomer && savedCustomer.email) customer.email = savedCustomer.email;
+  } catch(e) {}
+  return customer;
+}
+
 function initPlaceOrder() {
   const placeOrderBtn = document.querySelector('.place-order-btn');
   if (!placeOrderBtn) return;
@@ -1413,7 +1422,13 @@ function initPlaceOrder() {
         localStorage.setItem('streetstore_last_order_total', total);
         if (couponCode) localStorage.setItem('streetstore_last_coupon', couponCode);
         if (orderData.orderId) localStorage.setItem('ss_guest_order_id', orderData.orderId);
-        localStorage.setItem('ss_pixel_purchase', JSON.stringify({ value: total, currency: 'MAD', num_items: cart.length, contents: cart.map(i => ({ content_id: i.name.toLowerCase().replace(/\s+/g,'-'), content_type: 'product', content_name: i.name, price: i.price, quantity: i.qty })) }));
+        localStorage.setItem('ss_pixel_purchase', JSON.stringify({
+          value: total,
+          currency: 'MAD',
+          num_items: cart.length,
+          contents: cart.map(i => ({ content_id: i.name.toLowerCase().replace(/\s+/g,'-'), content_type: 'product', content_name: i.name, price: i.price, quantity: i.qty })),
+          customer: getPixelCustomerData(phone)
+        }));
         saveCart([]);
         updateCartBadge();
         window.location.href = 'thankyou.html';
@@ -1656,6 +1671,13 @@ document.addEventListener('DOMContentLoaded', () => {
           const numericPrice = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
           localStorage.setItem('streetstore_last_order', JSON.stringify([{ name, size: orderSize, color: _bnSelectedColor, qty: orderQty, price: numericPrice }]));
           localStorage.setItem('streetstore_last_order_total', String(numericPrice * orderQty));
+          localStorage.setItem('ss_pixel_purchase', JSON.stringify({
+            value: numericPrice * orderQty,
+            currency: 'MAD',
+            num_items: orderQty,
+            contents: [{ content_id: name.toLowerCase().replace(/\s+/g,'-'), content_type: 'product', content_name: name, price: numericPrice, quantity: orderQty }],
+            customer: getPixelCustomerData(cPhone)
+          }));
           window.location.href = 'thankyou.html';
           return;
         }
@@ -1672,6 +1694,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const numericPriceFb = parseFloat(String(price).replace(/[^\d.]/g, '')) || 0;
     localStorage.setItem('streetstore_last_order', JSON.stringify([{ name, size: orderSize, color: _bnSelectedColor, qty: orderQty, price: numericPriceFb }]));
     localStorage.setItem('streetstore_last_order_total', String(numericPriceFb * orderQty));
+    localStorage.setItem('ss_pixel_purchase', JSON.stringify({
+      value: numericPriceFb * orderQty,
+      currency: 'MAD',
+      num_items: orderQty,
+      contents: [{ content_id: name.toLowerCase().replace(/\s+/g,'-'), content_type: 'product', content_name: name, price: numericPriceFb, quantity: orderQty }],
+      customer: getPixelCustomerData(cPhone)
+    }));
     const fallbackId = Date.now();
     localStorage.setItem('ss_guest_order_id', fallbackId);
     window.location.href = 'thankyou.html';
@@ -1971,6 +2000,13 @@ async function placeBundleOrder() {
       if (data.id) localStorage.setItem('ss_guest_order_id', data.id);
       localStorage.setItem('streetstore_last_order', JSON.stringify(items));
       localStorage.setItem('streetstore_last_order_total', String(_bundleSettings.bundle3Price));
+      localStorage.setItem('ss_pixel_purchase', JSON.stringify({
+        value: _bundleSettings.bundle3Price,
+        currency: 'MAD',
+        num_items: items.length,
+        contents: items.map(function(i) { return { content_id: i.name.toLowerCase().replace(/\s+/g,'-'), content_type: 'product', content_name: i.name, price: i.price, quantity: i.qty }; }),
+        customer: getPixelCustomerData(phone)
+      }));
       window.location.href = 'thankyou.html';
     } else if (resp.status === 403) {
       var d = await resp.json().catch(function() { return {}; });

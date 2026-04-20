@@ -278,6 +278,7 @@
       border-top: 1px solid var(--acc-denim-pale);
       z-index: 300;
       padding-bottom: env(safe-area-inset-bottom, 0px);
+      min-height: calc(58px + env(safe-area-inset-bottom, 0px));
     }
     .acc-mobile-bar-inner {
       display: flex;
@@ -1157,13 +1158,27 @@
 
     @media (max-width: 768px) {
       .acc-sidebar { display: none; }
+      .acc-page {
+        min-height: auto;
+        padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+      }
       .acc-main {
         margin-left: 0;
-        padding: 16px 16px 100px;
+        padding: 16px 16px calc(170px + env(safe-area-inset-bottom, 0px));
         padding-top: calc(72px + 52px + 16px); /* header(72) + mobile tabs(52) + gap(16) */
       }
       .acc-mobile-tabs { display: flex; }
       .acc-mobile-bar { display: block; }
+      .acc-section {
+        padding-bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+      }
+      .acc-save-btn,
+      .acc-btn-filled,
+      .acc-btn-outline,
+      .acc-add-addr-btn,
+      .acc-track-input-row button {
+        scroll-margin-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+      }
       .acc-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .acc-wishlist-grid { grid-template-columns: repeat(2, 1fr); }
       .acc-addr-grid { grid-template-columns: 1fr; }

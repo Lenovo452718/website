@@ -2010,7 +2010,11 @@ app.post('/api/auth/google', authLimiter, async (req, res) => {
 /* POST /api/auth/register */
 app.post('/api/auth/register', authLimiter, async (req, res) => {
   const { name, email, password } = req.body;
+  const phoneNorm = normalizePhone(sanitize(req.body.phone || '', 30));
   if (!name || !email || !password) return res.status(400).json({ error: 'Name, email and password are required' });
+  if (req.body.phone !== undefined && phoneNorm && (phoneNorm.replace(/\D/g, '').length < 10 || phoneNorm.replace(/\D/g, '').length > 15)) {
+    return res.status(400).json({ error: 'Invalid phone number' });
+  }
   if (!isStrongPassword(password)) return res.status(400).json({ error: 'Password must be at least 8 characters with a letter and a number' });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address' });
   try {
@@ -2018,7 +2022,13 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     if (existing) return res.status(409).json({ error: 'An account with this email already exists' });
     const id   = 'cust-' + Date.now();
     const hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-    await prisma.$executeRaw`INSERT INTO Customer (id, email, name, passwordHash) VALUES (${id}, ${email.toLowerCase()}, ${sanitize(name, 100)}, ${hash})`;
+    await prisma.$executeRaw`INSERT INTO Customer (id, email, name, phone, passwordHash) VALUES (${id}, ${email.toLowerCase()}, ${sanitize(name, 100)}, ${phoneNorm || null}, ${hash})`;
+    if (phoneNorm) {
+      await prisma.$executeRawUnsafe(
+        "UPDATE `Order` SET customerId = ? WHERE (customerId IS NULL OR customerId = '') AND REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'.','') = ?",
+        id, phoneNorm
+      );
+    }
     const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, createdAt FROM Customer WHERE id = ${id} LIMIT 1`;
     const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
     res.status(201).json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt }, isNew: true });
@@ -2079,7 +2089,16 @@ app.get('/api/customer/me', requireCustomerAuth, async (req, res) => {
 app.patch('/api/customer/profile', requireCustomerAuth, async (req, res) => {
   try {
     const { phone, name } = req.body;
-    if (phone !== undefined) await prisma.$executeRaw`UPDATE Customer SET phone = ${sanitize(phone, 20) || null} WHERE id = ${req.customerId}`;
+    if (phone !== undefined) {
+      const phoneNorm = normalizePhone(sanitize(phone, 30));
+      await prisma.$executeRaw`UPDATE Customer SET phone = ${phoneNorm || null} WHERE id = ${req.customerId}`;
+      if (phoneNorm) {
+        await prisma.$executeRawUnsafe(
+          "UPDATE `Order` SET customerId = ? WHERE (customerId IS NULL OR customerId = '') AND REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'.','') = ?",
+          req.customerId, phoneNorm
+        );
+      }
+    }
     if (name  !== undefined) await prisma.$executeRaw`UPDATE Customer SET name  = ${sanitize(name, 100)}      WHERE id = ${req.customerId}`;
     const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, createdAt FROM Customer WHERE id = ${req.customerId} LIMIT 1`;
     res.json(customer);

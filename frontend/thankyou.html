@@ -1051,10 +1051,28 @@ if (shouldShowIosPrompt()) {
 (function() {
   var raw = localStorage.getItem('ss_pixel_purchase');
   if (!raw) return;
+  function normalizePhone(phone) {
+    var digits = String(phone || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.indexOf('212') === 0) return '+' + digits;
+    if (digits.charAt(0) === '0') return '+212' + digits.slice(1);
+    return '+' + digits;
+  }
   try {
     var data = JSON.parse(raw);
     localStorage.removeItem('ss_pixel_purchase');
-    try { if (typeof ttq !== 'undefined') { ttq.track('PlaceAnOrder', { value: data.value, currency: data.currency, contents: data.contents || [] }); ttq.track('Purchase', { value: data.value, currency: data.currency, contents: data.contents || [] }); } } catch(e) {}
+    try {
+      if (typeof ttq !== 'undefined') {
+        var customer = data.customer || {};
+        var match = {};
+        var phone = normalizePhone(customer.phone || customer.phone_number);
+        if (phone) match.phone_number = phone;
+        if (customer.email) match.email = String(customer.email).trim().toLowerCase();
+        if (Object.keys(match).length) ttq.identify(match);
+        ttq.track('PlaceAnOrder', { value: data.value, currency: data.currency, contents: data.contents || [] });
+        ttq.track('Purchase', { value: data.value, currency: data.currency, contents: data.contents || [] });
+      }
+    } catch(e) {}
     try { if (typeof fbq !== 'undefined') fbq('track', 'Purchase', { value: data.value, currency: data.currency, num_items: data.num_items }); } catch(e) {}
     try { if (typeof gtag !== 'undefined') gtag('event', 'purchase', { currency: data.currency, value: data.value }); } catch(e) {}
   } catch(e) {}
