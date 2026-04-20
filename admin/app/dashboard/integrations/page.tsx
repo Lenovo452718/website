@@ -62,7 +62,17 @@ export default function IntegrationsPage() {
     setError('');
     setResults(null);
     try {
-      const res = await olivraison.send([...selectedIds], apiKey, apiSecret);
+      const latestConfirmed = await orders.list({ status: 'confirmed' });
+      setConfirmed(latestConfirmed);
+      const latestIds = new Set(latestConfirmed.map(o => o.id));
+      const freshSelectedIds = [...selectedIds].filter(id => latestIds.has(id));
+      if (!freshSelectedIds.length) {
+        setSelectedIds(new Set());
+        setError('The selected order is no longer confirmed. Refresh orders and try again.');
+        return;
+      }
+
+      const res = await olivraison.send(freshSelectedIds, apiKey, apiSecret);
       setResults(res.results);
       const ok = res.results.filter(r => r.success).length;
       flash(`${ok} of ${res.results.length} orders sent successfully`);
