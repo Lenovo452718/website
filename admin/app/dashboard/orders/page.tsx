@@ -21,6 +21,8 @@ export default function OrdersPage() {
   const [filter,   setFilter]   = useState('');
   const [search,   setSearch]   = useState('');
   const [selected, setSelected] = useState<Order | null>(null);
+  const [cityDraft, setCityDraft] = useState('');
+  const [savingCity, setSavingCity] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -32,6 +34,7 @@ export default function OrdersPage() {
   }, [filter]);
 
   useEffect(() => { load(); }, [load]);
+  useEffect(() => { setCityDraft(selected?.city || ''); }, [selected?.id, selected?.city]);
 
   const filtered = list.filter(o =>
     !search ||
@@ -42,10 +45,24 @@ export default function OrdersPage() {
 
   async function updateStatus(id: string, status: string) {
     try {
-      const updated = await orders.update(id, { status });
+      await orders.update(id, { status });
       setList(prev => prev.map(o => o.id === id ? { ...o, status } : o));
       if (selected?.id === id) setSelected({ ...selected, status });
     } catch (e: unknown) { alert(e instanceof Error ? e.message : 'Update failed'); }
+  }
+
+  async function updateCity(id: string) {
+    const city = cityDraft.trim();
+    setSavingCity(true);
+    try {
+      const updated = await orders.update(id, { city });
+      setList(prev => prev.map(o => o.id === id ? { ...o, city: updated.city } : o));
+      if (selected?.id === id) setSelected({ ...selected, city: updated.city });
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'City update failed');
+    } finally {
+      setSavingCity(false);
+    }
   }
 
   async function deleteOrder(id: string) {
@@ -166,7 +183,6 @@ export default function OrdersPage() {
                 {[
                   { label: 'Customer', value: selected.customer },
                   { label: 'Phone',    value: selected.phone },
-                  { label: 'City',     value: selected.city },
                   { label: 'Product',  value: selected.product },
                   { label: 'Size',     value: selected.size || '—' },
                   { label: 'Qty',      value: String(selected.qty) },
@@ -177,6 +193,25 @@ export default function OrdersPage() {
                     <p className="text-sm text-gray-800 mt-0.5 break-words">{row.value}</p>
                   </div>
                 ))}
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">City</p>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={cityDraft}
+                    onChange={e => setCityDraft(e.target.value)}
+                    className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-[#c8a96e]"
+                    placeholder="Client city"
+                  />
+                  <button
+                    onClick={() => updateCity(selected.id)}
+                    disabled={savingCity || cityDraft.trim() === (selected.city || '')}
+                    className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                  >
+                    {savingCity ? 'Saving' : 'Save'}
+                  </button>
+                </div>
               </div>
               {selected.address && (
                 <div>
