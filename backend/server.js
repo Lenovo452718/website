@@ -694,7 +694,7 @@ app.get('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => 
 
 app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
-  const { status, city, address, notes, msgSent, phone, total } = req.body;
+  const { status, customer, city, address, notes, msgSent, phone, total, items } = req.body;
   const allowed = ['new','pending','confirmed','cancelled','edited','processing','called','reported','done'];
   if (status && !allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
   if (total !== undefined) {
@@ -703,8 +703,26 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
       return res.status(400).json({ error: 'Invalid total' });
     }
   }
+  let cleanItems = null;
+  if (items !== undefined) {
+    if (!Array.isArray(items) || !items.length) {
+      return res.status(400).json({ error: 'Invalid items' });
+    }
+    cleanItems = items.map((item) => {
+      const id = String(item?.id || '').trim();
+      const name = sanitize(String(item?.name || ''), 200);
+      const size = sanitize(String(item?.size || ''), 40) || null;
+      const qty = Math.min(Math.max(parseInt(item?.qty, 10) || 1, 1), 99);
+      const price = parseFloat(item?.price);
+      if (!isValidId(id)) throw new Error('Invalid item ID');
+      if (!name) throw new Error('Item name is required');
+      if (!Number.isFinite(price) || price < 0) throw new Error('Invalid item price');
+      return { id, name, size, qty, price };
+    });
+  }
   const data = {};
   if (status   !== undefined) data.status  = status;
+  if (customer !== undefined) data.customer = sanitize(customer, 120);
   if (city     !== undefined) data.city    = sanitize(city, 60);
   if (address  !== undefined) data.address = sanitize(address, 200);
   if (notes    !== undefined) data.notes   = sanitize(notes, 1000);
@@ -717,10 +735,36 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
       'SELECT pushEndpoint, customerId FROM `Order` WHERE id = ? LIMIT 1', req.params.id
     ).then(r => r[0] || {});
 
-    const order = await prisma.order.update({
-      where:   { id: req.params.id },
-      data,
-      include: { items: { include: { product: { select: { shortName: true, color: true } } } } },
+    const order = await prisma.$transaction(async (tx) => {
+      if (cleanItems) {
+        const existingItems = await tx.orderItem.findMany({
+          where: { orderId: req.params.id },
+          select: { id: true },
+        });
+        const existingIds = new Set(existingItems.map(item => item.id));
+        for (const item of cleanItems) {
+          if (!existingIds.has(item.id)) {
+            throw new Error('Order item not found');
+          }
+        }
+        for (const item of cleanItems) {
+          await tx.orderItem.update({
+            where: { id: item.id },
+            data: {
+              name: item.name,
+              size: item.size,
+              qty: item.qty,
+              price: item.price,
+            },
+          });
+        }
+      }
+
+      return tx.order.update({
+        where:   { id: req.params.id },
+        data,
+        include: { items: { include: { product: { select: { shortName: true, color: true } } } } },
+      });
     });
     emit('order:statusChanged', { orderId: order.id, newStatus: order.status });
 
@@ -734,6 +778,9 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
     res.json(order);
   } catch (err) {
     if (err.code === 'P2025') return res.status(404).json({ error: 'Order not found' });
+    if (err.message === 'Invalid item ID' || err.message === 'Item name is required' || err.message === 'Invalid item price' || err.message === 'Order item not found') {
+      return res.status(400).json({ error: err.message });
+    }
     console.error(err);
     res.status(500).json({ error: 'Failed to update order' });
   }
@@ -1510,7 +1557,8 @@ async function autoSendToOlivraison(order) {
   // Step 2: create shipment
   const many = (order.items || []).length >= 3;
   const olivDesc = (order.items || []).map(i => {
-    const name = (i.product?.shortName || i.name || '') + (i.product?.color ? ' ' + i.product.color : '');
+    const fallbackName = (i.product?.shortName || '') + (i.product?.color ? ' ' + i.product.color : '');
+    const name = i.name || fallbackName;
     const size = i.size ? (many ? ' ' + i.size : ' (' + i.size + ')') : '';
     return `${name}${size} x${i.qty || 1}`;
   }).join(', ');
@@ -1909,7 +1957,8 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
 
     const many = order.items.length >= 3;
     const autoDesc = order.items.map(i => {
-      const name = (i.product?.shortName || i.name || '') + (i.product?.color ? ' ' + i.product.color : '');
+      const fallbackName = (i.product?.shortName || '') + (i.product?.color ? ' ' + i.product.color : '');
+      const name = i.name || fallbackName;
       const size = i.size ? (many ? ' ' + i.size : ' (' + i.size + ')') : '';
       return `${name}${size} x${i.qty || 1}`;
     }).join(', ');

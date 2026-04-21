@@ -556,7 +556,7 @@ select.pm-input{cursor:pointer}
   #olivraisonBar img{align-self:flex-start}
   #olivraisonBar > div{width:100%;margin-left:0!important}
   #omItems > div{align-items:stretch!important;flex-wrap:wrap}
-  #omItems > div span{width:100%;white-space:normal!important}
+  .om-item-row{grid-template-columns:1fr 1fr!important}
   .modal-actions{display:grid;grid-template-columns:1fr;gap:8px}
 }
 /* Touch devices — always show image action buttons (no hover) */
@@ -2672,36 +2672,48 @@ async function openOrderModal(id) {
   } catch(_) {}
   if (!order) order = getOrders().find(o=>o.id===id||String(o.id)===String(id));
   if (!order) return;
-  const s = getSettings();
   document.getElementById('omTitle').textContent = 'Order ' + (order.id||id);
   document.getElementById('omBody').innerHTML = `
     <div class="detail-grid">
-      <div class="detail-item"><label>Customer</label><span>${order.customer||'—'}</span></div>
+      <div class="detail-item"><label>Customer</label><input class="field-input" id="omCustomer" value="${escHtml(order.customer||'')}" placeholder="Customer name" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>Phone</label><input class="field-input" id="omPhone" value="${escHtml(normPhone(order.phone||''))}" placeholder="06XXXXXXXX" style="margin:0" autocomplete="off"></div>
       ${Array.isArray(order.items) && order.items.length
         ? `<div class="detail-item" style="grid-column:1/-1">
-             <label>Products <span style="font-size:10px;color:var(--gray);font-weight:400">(edit name for Olivraison)</span></label>
+             <label>Products <span style="font-size:10px;color:var(--gray);font-weight:400">(all edits are sent to Olivraison)</span></label>
              <div id="omItems">
-               ${order.items.map((item, idx) => `
-                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
-                   <input class="field-input om-item-name" data-idx="${idx}"
-                          value="${escHtml(item.shortName || (item.product?.shortName ? item.product.shortName + (item.product.color ? ' ' + item.product.color : '') : item.name) || '')}"
-                          placeholder="Product name"
-                          style="flex:1;margin:0" autocomplete="off">
-                   <span style="color:var(--gray);font-size:12px;white-space:nowrap">${escHtml(item.size || '')} ×${item.qty || 1}</span>
+               ${order.items.map((item) => `
+                 <div class="om-item-row" style="display:grid;grid-template-columns:minmax(0,2fr) 96px 72px 96px;gap:8px;margin-bottom:8px">
+                   <input class="field-input om-item-name" data-id="${escHtml(item.id)}"
+                          value="${escHtml(item.name || '')}"
+                          placeholder="Product / color"
+                          style="margin:0" autocomplete="off">
+                   <input class="field-input om-item-size" data-id="${escHtml(item.id)}"
+                          value="${escHtml(item.size || '')}"
+                          placeholder="Size"
+                          style="margin:0" autocomplete="off">
+                   <input class="field-input om-item-qty" data-id="${escHtml(item.id)}"
+                          type="number" min="1" max="99"
+                          value="${item.qty || 1}"
+                          placeholder="Qty"
+                          style="margin:0" autocomplete="off">
+                   <input class="field-input om-item-price" data-id="${escHtml(item.id)}"
+                          type="number" min="0" step="0.01"
+                          value="${escHtml(String(item.price ?? 0))}"
+                          placeholder="Price"
+                          style="margin:0" autocomplete="off">
                  </div>`).join('')}
              </div>
            </div>`
-        : `<div class="detail-item"><label>Product</label><span>${escHtml(order.product||'—')}</span></div>
-           <div class="detail-item"><label>Size / Qty</label><span>${escHtml(order.size||'—')} / ${order.qty||1}</span></div>`
+        : `<div class="detail-item"><label>Product</label><span>${escHtml(order.product||'-')}</span></div>
+           <div class="detail-item"><label>Size / Qty</label><span>${escHtml(order.size||'-')} / ${order.qty||1}</span></div>`
       }
       <div class="detail-item"><label>Price (MAD)</label><input class="field-input" id="omPrice" type="number" min="0" step="0.01" value="${escHtml(String(order.total ?? order.price ?? ''))}" placeholder="179" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>City</label><input class="field-input" id="omCity" value="${escHtml(order.city||'')}" placeholder="City" style="margin:0" autocomplete="off"></div>
-      <div class="detail-item"><label>Address</label><span>${order.address||'—'}</span></div>
+      <div class="detail-item" style="grid-column:1/-1"><label>Address</label><textarea class="field-input" id="omAddress" placeholder="Full address" style="margin:0;min-height:84px">${escHtml(order.address||'')}</textarea></div>
       ${order.trackingCode
         ? `<div class="detail-item"><label>Status <span style="font-size:10px;color:var(--gray);font-weight:400">(managed by Olivraison)</span></label>
              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-               <span id="omOlivStatus" style="font-weight:700;color:#2980b9">Loading…</span>
+               <span id="omOlivStatus" style="font-weight:700;color:#2980b9">Loading...</span>
                <button type="button" onclick="refreshOlivraisonStatus('${escHtml(order.id)}')"
                        style="font-size:11px;padding:2px 8px;border:1px solid var(--gray);border-radius:4px;background:none;cursor:pointer;color:var(--gray)">
                  Refresh
@@ -2733,14 +2745,14 @@ async function openOrderModal(id) {
         ? ''
         : `<div class="field-group"><label class="field-label">Order Status</label>
              <select class="field-input" id="omStatus">
-               <option value="new"        ${order.status==='new'        ?'selected':''}>🆕 New</option>
-               <option value="pending"    ${order.status==='pending'    ?'selected':''}>⏳ Pending</option>
-               <option value="processing" ${order.status==='processing' ?'selected':''}>⚙️ Processing</option>
-               <option value="confirmed"  ${order.status==='confirmed'  ?'selected':''}>✅ Confirmed</option>
-               <option value="called"     ${order.status==='called'     ?'selected':''}>📞 Called</option>
-               <option value="reported"   ${order.status==='reported'   ?'selected':''}>⚠️ Reported</option>
-               <option value="cancelled"  ${order.status==='cancelled'  ?'selected':''}>❌ Cancelled</option>
-               <option value="done"       ${order.status==='done'       ?'selected':''}>🏁 Done</option>
+               <option value="new"        ${order.status==='new'        ?'selected':''}>New</option>
+               <option value="pending"    ${order.status==='pending'    ?'selected':''}>Pending</option>
+               <option value="processing" ${order.status==='processing' ?'selected':''}>Processing</option>
+               <option value="confirmed"  ${order.status==='confirmed'  ?'selected':''}>Confirmed</option>
+               <option value="called"     ${order.status==='called'     ?'selected':''}>Called</option>
+               <option value="reported"   ${order.status==='reported'   ?'selected':''}>Reported</option>
+               <option value="cancelled"  ${order.status==='cancelled'  ?'selected':''}>Cancelled</option>
+               <option value="done"       ${order.status==='done'       ?'selected':''}>Done</option>
              </select>
            </div>`
       }
@@ -2752,7 +2764,6 @@ async function openOrderModal(id) {
     </div>`;
   document.getElementById('orderModal').classList.add('open');
   document.body.style.overflow='hidden';
-  // Init city dropdown on the editable city field
   setTimeout(function() {
     var cityEl = document.getElementById('omCity');
     if (cityEl && typeof _initCityInput === 'function') _initCityInput(cityEl);
@@ -2762,20 +2773,42 @@ async function openOrderModal(id) {
   }
 }
 
+
 async function saveOrderModal(id) {
   const orders = getOrders();
   const idx = orders.findIndex(o=>o.id===id||String(o.id)===String(id));
   if (idx>-1) {
     const currentOrder = orders[idx];
+    const rawCustomer = (document.getElementById('omCustomer')?.value || '').trim();
     const rawPhone = (document.getElementById('omPhone')?.value || '').trim();
+    const rawAddress = (document.getElementById('omAddress')?.value || '').trim();
     const rawTotal = (document.getElementById('omPrice')?.value || '').trim();
     const parsedTotal = parseFloat(rawTotal);
     const savedStatus = currentOrder.trackingCode
       ? currentOrder.status
       : document.getElementById('omStatus')?.value || currentOrder.status;
+    const editedItems = Array.isArray(currentOrder.items)
+      ? currentOrder.items.map((item) => {
+          const itemId = String(item.id || '');
+          const itemName = (document.querySelector('.om-item-name[data-id="' + itemId + '"]')?.value || item.name || '').trim();
+          const itemSize = (document.querySelector('.om-item-size[data-id="' + itemId + '"]')?.value || item.size || '').trim();
+          const itemQty = Math.min(Math.max(parseInt((document.querySelector('.om-item-qty[data-id="' + itemId + '"]')?.value || item.qty || 1), 10) || 1, 1), 99);
+          const rawItemPrice = (document.querySelector('.om-item-price[data-id="' + itemId + '"]')?.value || item.price || 0).toString().trim();
+          const parsedItemPrice = parseFloat(rawItemPrice);
+          return {
+            ...item,
+            name: itemName || item.name || 'Product',
+            size: itemSize,
+            qty: itemQty,
+            price: Number.isFinite(parsedItemPrice) ? parsedItemPrice : (parseFloat(item.price) || 0)
+          };
+        })
+      : [];
     const updates = {
+      customer: rawCustomer || currentOrder.customer,
       status: savedStatus,
       city: (document.getElementById('omCity')?.value || '').trim(),
+      address: rawAddress,
       total: Number.isFinite(parsedTotal) ? parsedTotal : (parseFloat(currentOrder.total || currentOrder.price || 0) || 0),
       price: Number.isFinite(parsedTotal) ? String(parsedTotal) : (currentOrder.price || ''),
       phone: normPhone(rawPhone),
@@ -2783,26 +2816,40 @@ async function saveOrderModal(id) {
       deliveryCompany: document.getElementById('omCompany').value,
       deliveryStatus: document.getElementById('omDeliveryStatus').value,
       notes: document.getElementById('omNotes').value,
+      items: editedItems,
       updatedAt: new Date().toISOString()
     };
     orders[idx] = { ...orders[idx], ...updates };
-    // Save edited item display names (for Olivraison description)
-    const nameInputs = document.querySelectorAll('.om-item-name');
-    if (nameInputs.length > 0 && Array.isArray(orders[idx].items)) {
-      nameInputs.forEach((input, i) => {
-        if (orders[idx].items[i]) {
-          orders[idx].items[i].shortName = input.value.trim();
-        }
-      });
-    }
     saveOrdersArr(orders);
     try {
-      await authFetch(`/api/admin/orders/${id}`, {
+      const res = await authFetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...(currentOrder.trackingCode ? {} : { status: updates.status }), city: updates.city, phone: updates.phone, total: updates.total })
+        body: JSON.stringify({
+          ...(currentOrder.trackingCode ? {} : { status: updates.status }),
+          customer: updates.customer,
+          city: updates.city,
+          address: updates.address,
+          phone: updates.phone,
+          total: updates.total,
+          notes: updates.notes,
+          items: editedItems.map(item => ({
+            id: item.id,
+            name: item.name,
+            size: item.size,
+            qty: item.qty,
+            price: item.price
+          }))
+        })
       });
-    } catch(e) {}
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || 'Failed to save order');
+      orders[idx] = { ...orders[idx], ...data };
+      saveOrdersArr(orders);
+    } catch(e) {
+      showToast(e.message || 'Failed to save order', 'error');
+      return;
+    }
     logActivity('Order updated', id);
     showToast('Order saved');
   }
@@ -2810,6 +2857,7 @@ async function saveOrderModal(id) {
   loadOrdersTable();
   loadDashboard();
 }
+
 
 function closeOrderModal() {
   document.getElementById('orderModal').classList.remove('open');
