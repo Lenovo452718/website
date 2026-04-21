@@ -127,15 +127,15 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
 .order-card-footer{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .order-card-actions{display:flex;gap:6px}
 .order-card-selected{outline:2px solid #27ae60}
-/* FAB — Send to Olivraison on mobile */
-.mobile-oliv-fab{display:none;position:fixed;bottom:20px;right:16px;z-index:200;background:#27ae60;color:#fff;border:none;border-radius:50px;padding:13px 20px;font-size:13px;font-weight:700;gap:8px;box-shadow:0 4px 20px rgba(0,0,0,.25);cursor:pointer;align-items:center;white-space:nowrap}
+/* Mobile Olivraison button */
+.mobile-oliv-btn{display:none;margin:10px 0 12px;width:100%;justify-content:center;align-items:center;gap:8px;background:#27ae60;border-color:#27ae60}
 @media(max-width:700px){
   .order-cards{display:flex}
   #ordersTableWrap{display:none}
   #olivraisonBar{flex-direction:column;align-items:stretch}
   #olivraisonBar>div{margin-left:0!important;justify-content:stretch}
   #olivraisonBar .btn{width:100%;justify-content:center}
-  .mobile-oliv-fab{display:flex}
+  .mobile-oliv-btn{display:flex}
 }
 
 /* TABLES */
@@ -743,6 +743,9 @@ select.pm-input{cursor:pointer}
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input class="search-input" id="orderSearch" placeholder="Search by customer, product, phone..." oninput="loadOrdersTable()">
       </div>
+      <button class="btn btn-primary mobile-oliv-btn" id="mobileOlivBtn" onclick="mobileOlivSend()" style="display:none">
+        🚚 <span id="mobileOlivBtnText">Send Confirmed</span>
+      </button>
       <div class="panel">
         <div id="ordersTableWrap" class="table-wrap"><table class="admin-table" id="ordersTable"></table></div>
         <div id="orderCards" class="order-cards"></div>
@@ -2198,7 +2201,7 @@ function updateOlivraisonBar() {
   } else {
     bar.style.display = 'none';
   }
-  updateMobileFab();
+  updateMobileOlivButton();
 }
 
 async function sendToOlivraison() {
@@ -2343,16 +2346,16 @@ function renderOrderCards(orders) {
   }).join('');
 }
 
-function updateMobileFab() {
-  const fab = document.getElementById('mobileFab');
-  const txt = document.getElementById('mobileFabText');
-  if (!fab) return;
+function updateMobileOlivButton() {
+  const btn = document.getElementById('mobileOlivBtn');
+  const txt = document.getElementById('mobileOlivBtnText');
+  if (!btn) return;
   const confirmedCount = getOrders().filter(o => o.status === 'confirmed').length;
   if (confirmedCount > 0) {
-    fab.style.display = 'flex';
+    btn.style.display = 'flex';
     txt.textContent = 'Send ' + confirmedCount + ' Confirmed to Olivraison';
   } else {
-    fab.style.display = 'none';
+    btn.style.display = 'none';
   }
 }
 
@@ -5431,11 +5434,6 @@ if (_storedSession) {
   }
 }
 </script>
-
-<!-- Mobile FAB: Send to Olivraison -->
-<button class="mobile-oliv-fab" id="mobileFab" onclick="mobileOlivSend()" style="display:none">
-  🚚 <span id="mobileFabText">Send Confirmed</span>
-</button>
 
 <!-- STATUS DROPDOWN PORTAL (desktop) — lives on body, never clipped -->
 <div id="statusDropPortal" class="status-drop-menu" style="display:none;position:fixed;z-index:99999;"></div>
