@@ -2372,9 +2372,14 @@ app.get('/api/admin/analytics', adminLimiter, requireAuth, (req, res) => {
     const week7Uniques = last7.reduce((s,d)=>s+d.uniques,0);
     /* peak hours (all-time aggregate) */
     const hoursAll = {};
+    const hours30 = {};
     for (let h=0;h<24;h++) hoursAll[h]=0;
+    for (let h=0;h<24;h++) hours30[h]=0;
     for (const d of Object.values(raw)) {
       for (const [h,v] of Object.entries(d.hours||{})) hoursAll[h]=(hoursAll[h]||0)+v;
+    }
+    for (const d of sorted.slice(-30)) {
+      for (const [h,v] of Object.entries(raw[d]?.hours||{})) hours30[h]=(hours30[h]||0)+v;
     }
     /* top pages */
     const pagesAll = {};
@@ -2382,7 +2387,7 @@ app.get('/api/admin/analytics', adminLimiter, requireAuth, (req, res) => {
       for (const [p,v] of Object.entries(d.pages||{})) pagesAll[p]=(pagesAll[p]||0)+v;
     }
     const topPages = Object.entries(pagesAll).sort((a,b)=>b[1]-a[1]).slice(0,6);
-    res.json({ days:last30, todayViews, todayUniques, week7Views, week7Uniques, hoursAll, topPages });
+    res.json({ days:last30, todayViews, todayUniques, week7Views, week7Uniques, hoursAll, hours30, topPages });
   } catch(e){ res.status(500).json({error:e.message}); }
 });
 

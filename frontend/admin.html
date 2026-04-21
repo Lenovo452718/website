@@ -1115,11 +1115,11 @@ select.pm-input{cursor:pointer}
       <!-- Charts row -->
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
         <div class="panel" style="padding:20px">
-          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Visitors — Last 30 Days</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Visitors and Orders - Last 30 Days</div>
           <canvas id="analyticsVisitorsChart" height="90"></canvas>
         </div>
         <div class="panel" style="padding:20px">
-          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Peak Hours</div>
+          <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Best Hours to Run Ads</div>
           <canvas id="analyticsPeakChart" height="170"></canvas>
         </div>
       </div>
@@ -5271,56 +5271,132 @@ async function unblockIpTab(ip, btn) {
 let _analyticsVisitorsChart = null, _analyticsPeakChart = null;
 
 async function loadAnalytics() {
-  document.getElementById('analyticsKpis').innerHTML = '<div style="grid-column:1/-1;color:var(--gray);font-size:13px;padding:8px 0">Loading…</div>';
+  document.getElementById('analyticsKpis').innerHTML = '<div style="grid-column:1/-1;color:var(--gray);font-size:13px;padding:8px 0">Loading...</div>';
   try {
-    const res  = await authFetch('/api/admin/analytics');
-    const data = await res.json();
-    const { days=[], todayViews=0, todayUniques=0, week7Views=0, week7Uniques=0, hoursAll={}, topPages=[] } = data;
+    const [analyticsRes, ordersRes] = await Promise.all([
+      authFetch('/api/admin/analytics'),
+      authFetch('/api/admin/orders?limit=2000'),
+    ]);
+    const data = await analyticsRes.json();
+    const orders = ordersRes.ok ? await ordersRes.json() : [];
+    const { days = [], todayUniques = 0, hours30 = {}, topPages = [] } = data;
 
-    // KPI cards
-    const totalViews   = days.reduce((s,d)=>s+d.views,0);
-    const totalUniques = days.reduce((s,d)=>s+d.uniques,0);
+    const totalUniques = days.reduce((sum, day) => sum + (day.uniques || 0), 0);
+    const todayKey = new Date().toISOString().slice(0, 10);
+    const dayOrderMap = {};
+    const hourOrderMap = {};
+    for (let hour = 0; hour < 24; hour++) hourOrderMap[hour] = 0;
+    const now = Date.now();
+    const msDay = 86400000;
+    const last30Orders = (orders || []).filter((order) => {
+      const ts = new Date(order.date || order.createdAt || 0).getTime();
+      return Number.isFinite(ts) && !Number.isNaN(ts) && (now - ts) <= 30 * msDay;
+    });
+    last30Orders.forEach((order) => {
+      const dt = new Date(order.date || order.createdAt || 0);
+      if (Number.isNaN(dt.getTime())) return;
+      const dayKey = dt.toISOString().slice(0, 10);
+      dayOrderMap[dayKey] = (dayOrderMap[dayKey] || 0) + 1;
+      hourOrderMap[dt.getHours()] = (hourOrderMap[dt.getHours()] || 0) + 1;
+    });
+    const todayOrders = dayOrderMap[todayKey] || 0;
+    const orders30 = last30Orders.length;
+    const visitorToOrder = totalUniques > 0 ? ((orders30 / totalUniques) * 100).toFixed(1) : '0.0';
+
     document.getElementById('analyticsKpis').innerHTML = [
-      { label:'Today Views',      value: todayViews,    sub:'Page views today' },
-      { label:'Today Visitors',   value: todayUniques,  sub:'Unique visitors today' },
-      { label:'7-Day Views',      value: week7Views,    sub:'Last 7 days' },
-      { label:'30-Day Visitors',  value: totalUniques,  sub:'Unique visitors (30d)' },
-    ].map(k=>`<div class="stat-card"><div class="stat-card-label">${k.label}</div><div class="stat-card-value">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
+      { label:'Today Visitors', value: todayUniques, sub:'Unique visitors today' },
+      { label:'30-Day Visitors', value: totalUniques, sub:'Unique visitors (30d)' },
+      { label:'Today Orders', value: todayOrders, sub:'Orders received today' },
+      { label:'30-Day Orders', value: orders30, sub:'Visitor to order: ' + visitorToOrder + '%' },
+    ].map(k => `<div class="stat-card"><div class="stat-card-label">${k.label}</div><div class="stat-card-value">${k.value}</div><div class="stat-card-sub">${k.sub}</div></div>`).join('');
 
-    // Visitors trend chart
-    const labels30 = days.map(d => d.date.slice(5)); // MM-DD
-    const views30  = days.map(d => d.views);
+    const labels30 = days.map(d => d.date.slice(5));
+    const visitors30 = days.map(d => d.uniques || 0);
+    const orders30Series = days.map(d => dayOrderMap[d.date] || 0);
     if (_analyticsVisitorsChart) _analyticsVisitorsChart.destroy();
     _analyticsVisitorsChart = new Chart(document.getElementById('analyticsVisitorsChart'), {
-      type: 'line',
-      data: { labels: labels30, datasets: [{
-        label: 'Views', data: views30,
-        borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,.1)',
-        borderWidth: 2, pointRadius: 2, tension: 0.3, fill: true
-      }]},
-      options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:8,maxRotation:0}} } }
+      data: {
+        labels: labels30,
+        datasets: [
+          {
+            type: 'line',
+            label: 'Visitors',
+            data: visitors30,
+            borderColor: '#2980b9',
+            backgroundColor: 'rgba(41,128,185,.10)',
+            borderWidth: 2,
+            pointRadius: 2,
+            tension: 0.3,
+            fill: true,
+            yAxisID: 'y'
+          },
+          {
+            type: 'bar',
+            label: 'Orders',
+            data: orders30Series,
+            backgroundColor: 'rgba(17,17,17,.72)',
+            borderRadius: 4,
+            yAxisID: 'y1'
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: true, position: 'top' } },
+        scales: {
+          y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#eef2f5' } },
+          y1: { beginAtZero: true, ticks: { precision: 0 }, position: 'right', grid: { drawOnChartArea: false } },
+          x: { ticks: { maxTicksLimit: 8, maxRotation: 0 } }
+        }
+      }
     });
 
-    // Peak hours bar chart
-    const hourLabels = Array.from({length:24},(_,i)=>i+'h');
-    const hourData   = Array.from({length:24},(_,i)=>hoursAll[i]||0);
+    const hourLabels = Array.from({ length: 24 }, (_, i) => i + 'h');
+    const visitHours = Array.from({ length: 24 }, (_, i) => hours30[i] || 0);
+    const orderHours = Array.from({ length: 24 }, (_, i) => hourOrderMap[i] || 0);
+    const maxVisits = Math.max(1, ...visitHours);
+    const maxOrders = Math.max(1, ...orderHours);
+    const adHourScore = hourLabels.map((_, i) => Math.round((((visitHours[i] / maxVisits) * 0.45) + ((orderHours[i] / maxOrders) * 0.55)) * 100));
     if (_analyticsPeakChart) _analyticsPeakChart.destroy();
     _analyticsPeakChart = new Chart(document.getElementById('analyticsPeakChart'), {
       type: 'bar',
-      data: { labels: hourLabels, datasets: [{
-        label: 'Visits', data: hourData,
-        backgroundColor: 'rgba(41,128,185,.7)', borderRadius: 3
-      }]},
-      options: { responsive:true, plugins:{ legend:{display:false} }, scales:{ y:{beginAtZero:true,ticks:{precision:0}}, x:{ticks:{maxTicksLimit:12}} } }
+      data: {
+        labels: hourLabels,
+        datasets: [{
+          label: 'Ad timing score',
+          data: adHourScore,
+          backgroundColor: hourLabels.map((_, i) => orderHours[i] > 0 ? 'rgba(39,174,96,.78)' : 'rgba(41,128,185,.62)'),
+          borderRadius: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              afterLabel(ctx) {
+                const i = ctx.dataIndex;
+                return ['Visitors: ' + visitHours[i], 'Orders: ' + orderHours[i]];
+              }
+            }
+          }
+        },
+        scales: {
+          y: { beginAtZero: true, max: 100, ticks: { precision: 0 } },
+          x: { ticks: { maxTicksLimit: 12 } }
+        }
+      }
     });
 
-    // Top pages table
     const tp = document.getElementById('analyticsTopPages');
     if (!topPages.length) {
       tp.innerHTML = '<tbody><tr class="empty-row"><td colspan="2">No data yet.</td></tr></tbody>';
     } else {
-      tp.innerHTML = `<thead><tr><th>Page</th><th>Views</th></tr></thead><tbody>`
-        + topPages.map(([page,cnt])=>`<tr><td style="font-family:monospace;font-size:12px">${escHtml(page)}</td><td><strong>${cnt}</strong></td></tr>`).join('')
+      tp.innerHTML = '<thead><tr><th>Page</th><th>Views</th></tr></thead><tbody>'
+        + topPages.map(([page, cnt]) => `<tr><td style="font-family:monospace;font-size:12px">${escHtml(page)}</td><td><strong>${cnt}</strong></td></tr>`).join('')
         + '</tbody>';
     }
   } catch(e) {
@@ -5328,9 +5404,6 @@ async function loadAnalytics() {
   }
 }
 
-/* ═══════════════════════════════════════════
-   REVENUE
-═══════════════════════════════════════════ */
 let _revPeriod = 7, _revRevenueChart = null;
 
 
