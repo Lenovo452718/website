@@ -691,9 +691,15 @@ app.get('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => 
 
 app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) => {
   if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid ID' });
-  const { status, city, address, notes, msgSent, phone } = req.body;
+  const { status, city, address, notes, msgSent, phone, total } = req.body;
   const allowed = ['new','pending','confirmed','cancelled','edited','processing','called','reported','done'];
   if (status && !allowed.includes(status)) return res.status(400).json({ error: 'Invalid status' });
+  if (total !== undefined) {
+    const parsedTotal = parseFloat(total);
+    if (!Number.isFinite(parsedTotal) || parsedTotal < 0) {
+      return res.status(400).json({ error: 'Invalid total' });
+    }
+  }
   const data = {};
   if (status   !== undefined) data.status  = status;
   if (city     !== undefined) data.city    = sanitize(city, 60);
@@ -701,6 +707,7 @@ app.patch('/api/admin/orders/:id', adminLimiter, requireAuth, async (req, res) =
   if (notes    !== undefined) data.notes   = sanitize(notes, 1000);
   if (msgSent  !== undefined) data.msgSent = Boolean(msgSent);
   if (phone    !== undefined) data.phone   = sanitize(String(phone).replace(/^\+212/, '0').replace(/\s+/g,''), 30);
+  if (total    !== undefined) data.total   = parseFloat(total);
   try {
     // Fetch existing order (need pushEndpoint + customerId for push notifications)
     const existing = await prisma.$queryRawUnsafe(

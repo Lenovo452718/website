@@ -181,6 +181,7 @@ export interface Order {
   size?: string;
   qty: number;
   price: string;
+  total?: number;
   createdAt: string;
   updatedAt: string;
   trackingCode?: string;

@@ -23,6 +23,8 @@ export default function OrdersPage() {
   const [selected, setSelected] = useState<Order | null>(null);
   const [cityDraft, setCityDraft] = useState('');
   const [savingCity, setSavingCity] = useState(false);
+  const [priceDraft, setPriceDraft] = useState('');
+  const [savingPrice, setSavingPrice] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -35,6 +37,22 @@ export default function OrdersPage() {
 
   useEffect(() => { load(); }, [load]);
   useEffect(() => { setCityDraft(selected?.city || ''); }, [selected?.id, selected?.city]);
+  useEffect(() => {
+    if (!selected) {
+      setPriceDraft('');
+      return;
+    }
+    const amount = typeof selected.total === 'number'
+      ? selected.total
+      : Number.parseFloat(String(selected.price || '0'));
+    setPriceDraft(Number.isFinite(amount) ? String(amount) : '');
+  }, [selected?.id, selected?.total, selected?.price]);
+
+  function getOrderAmount(order: Order) {
+    if (typeof order.total === 'number') return order.total;
+    const parsed = Number.parseFloat(String(order.price || '0'));
+    return Number.isFinite(parsed) ? parsed : 0;
+  }
 
   const filtered = list.filter(o =>
     !search ||
@@ -62,6 +80,26 @@ export default function OrdersPage() {
       alert(e instanceof Error ? e.message : 'City update failed');
     } finally {
       setSavingCity(false);
+    }
+  }
+
+  async function updatePrice(id: string) {
+    const total = Number.parseFloat(priceDraft);
+    if (!Number.isFinite(total) || total < 0) {
+      alert('Enter a valid price');
+      return;
+    }
+    setSavingPrice(true);
+    try {
+      const updated = await orders.update(id, { total });
+      setList(prev => prev.map(o => o.id === id ? { ...o, total: updated.total, price: String(updated.total) } : o));
+      if (selected?.id === id) {
+        setSelected({ ...selected, total: updated.total, price: String(updated.total) });
+      }
+    } catch (e: unknown) {
+      alert(e instanceof Error ? e.message : 'Price update failed');
+    } finally {
+      setSavingPrice(false);
     }
   }
 
@@ -144,7 +182,7 @@ export default function OrdersPage() {
                       <span className="text-sm text-gray-600">{o.city}</span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-sm font-bold text-gray-800">{o.price} MAD</span>
+                      <span className="text-sm font-bold text-gray-800">{getOrderAmount(o)} MAD</span>
                     </td>
                     <td className="px-4 py-3">
                       <span className={`text-[10px] font-bold uppercase tracking-wide px-2 py-1 rounded-full border ${STATUS_COLORS[o.status] || 'bg-gray-100 text-gray-500 border-gray-200'}`}>
@@ -186,7 +224,7 @@ export default function OrdersPage() {
                   { label: 'Product',  value: selected.product },
                   { label: 'Size',     value: selected.size || '—' },
                   { label: 'Qty',      value: String(selected.qty) },
-                  { label: 'Price',    value: `${selected.price} MAD` },
+                  { label: 'Price',    value: `${getOrderAmount(selected)} MAD` },
                 ].map(row => (
                   <div key={row.label}>
                     <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">{row.label}</p>
@@ -210,6 +248,27 @@ export default function OrdersPage() {
                     className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300"
                   >
                     {savingCity ? 'Saving' : 'Save'}
+                  </button>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Price (MAD)</p>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={priceDraft}
+                    onChange={e => setPriceDraft(e.target.value)}
+                    className="min-w-0 flex-1 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-800 focus:outline-none focus:border-[#c8a96e]"
+                    placeholder="Order price"
+                  />
+                  <button
+                    onClick={() => updatePrice(selected.id)}
+                    disabled={savingPrice || Number.parseFloat(priceDraft) === getOrderAmount(selected)}
+                    className="rounded-lg bg-gray-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-gray-700 disabled:cursor-not-allowed disabled:bg-gray-300"
+                  >
+                    {savingPrice ? 'Saving' : 'Save'}
                   </button>
                 </div>
               </div>
