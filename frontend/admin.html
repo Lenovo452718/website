@@ -104,6 +104,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
 .chart-card{background:var(--white);border:1px solid var(--gray-light);border-radius:8px;overflow:hidden}
 .chart-body{padding:16px 20px 20px;height:220px;position:relative}
 .chart-body canvas{width:100%!important;height:100%!important}
+.analytics-chart-wrap{position:relative;height:320px;min-height:320px;max-height:320px}
+.analytics-chart-wrap.analytics-chart-sm{height:320px;min-height:320px;max-height:320px}
+.analytics-chart-wrap canvas{width:100%!important;height:100%!important}
 .rev-chart-wrap{position:relative;height:320px;min-height:320px;max-height:320px}
 .rev-chart-wrap canvas{width:100%!important;height:100%!important}
 
@@ -138,6 +141,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
   #olivraisonBar>div{margin-left:0!important;justify-content:stretch}
   #olivraisonBar .btn{width:100%;justify-content:center}
   .mobile-oliv-btn{display:flex}
+  .analytics-chart-wrap{height:250px;min-height:250px;max-height:250px}
+  .analytics-chart-wrap.analytics-chart-sm{height:250px;min-height:250px;max-height:250px}
   .rev-chart-wrap{height:260px;min-height:260px;max-height:260px}
 }
 
@@ -1116,11 +1121,11 @@ select.pm-input{cursor:pointer}
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px">
         <div class="panel" style="padding:20px">
           <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Visitors and Orders - Last 30 Days</div>
-          <canvas id="analyticsVisitorsChart" height="90"></canvas>
+          <div class="analytics-chart-wrap"><canvas id="analyticsVisitorsChart"></canvas></div>
         </div>
         <div class="panel" style="padding:20px">
           <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Best Hours to Run Ads</div>
-          <canvas id="analyticsPeakChart" height="170"></canvas>
+          <div class="analytics-chart-wrap analytics-chart-sm"><canvas id="analyticsPeakChart"></canvas></div>
         </div>
       </div>
       <!-- Top pages -->
@@ -5343,6 +5348,7 @@ async function loadAnalytics() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        resizeDelay: 150,
         plugins: { legend: { display: true, position: 'top' } },
         scales: {
           y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#eef2f5' } },
@@ -5373,6 +5379,7 @@ async function loadAnalytics() {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        resizeDelay: 150,
         plugins: {
           legend: { display: false },
           tooltip: {
@@ -5640,6 +5647,7 @@ async function loadRevenue() {
       options: {
         responsive:true,
         maintainAspectRatio:false,
+        resizeDelay: 150,
         plugins:{ legend:{ display:true, position:'top' } },
         scales:{ y:{ beginAtZero:false, ticks:{ precision:0 } }, x:{ ticks:{ maxTicksLimit:12 } } }
       }
