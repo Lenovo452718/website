@@ -594,12 +594,42 @@ async function handleRegister(e) {
     return;
   }
   try {
-    const res  = await fetch(BACKEND + '/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name: document.getElementById('regName').value.trim(), email: document.getElementById('regEmail').value.trim(), phone: phone, password: document.getElementById('regPassword').value }) });
-    const data = await res.json();
+    const payload = { name: document.getElementById('regName').value.trim(), email: document.getElementById('regEmail').value.trim(), phone: phone, password: document.getElementById('regPassword').value };
+    let res, data;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      try {
+        res = await fetch(BACKEND + '/api/auth/register', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        data = await res.json();
+        if (![502, 503, 504].includes(res.status) || attempt === 1) break;
+      } catch (err) {
+        if (attempt === 1) throw err;
+      }
+      await new Promise(resolve => setTimeout(resolve, 600));
+    }
     if (data.token) {
       try { if (typeof ttq !== 'undefined') ttq.track('CompleteRegistration', { value: 0, currency: 'MAD', contents: [{ content_id: 'account', content_type: 'product', content_name: 'Account Registration' }] }); } catch(e) {}
       try { if (typeof fbq !== 'undefined') fbq('track', 'CompleteRegistration'); } catch(e) {}
       saveAndRedirect(data);
+    }
+    else if (res && res.status === 409) {
+      const loginRes = await fetch(BACKEND + '/api/auth/login', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email: payload.email, password: payload.password })
+      });
+      const loginData = await loginRes.json().catch(() => ({}));
+      if (loginData.token) {
+        saveAndRedirect(loginData);
+        return;
+      }
+      errEl.textContent = data.error || 'An account with this email already exists.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
     }
     else { errEl.textContent = data.error || 'Registration failed.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; }
   } catch(e) { errEl.textContent = 'Connection error. Try again.'; errEl.style.display = 'block'; btn.disabled = false; btn.textContent = 'Create Account'; }

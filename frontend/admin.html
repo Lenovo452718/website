@@ -879,7 +879,14 @@ select.pm-input{cursor:pointer}
       <div id="custTabAll">
         <div class="search-wrap">
           <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-input" id="customerSearch" placeholder="Search by name or phone..." oninput="loadCustomersTable()">
+          <input class="search-input" id="customerSearch" placeholder="Search by name, phone or email..." oninput="loadCustomersTable();renderRegisteredCustomers()">
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Registered Accounts</h2>
+            <button class="btn btn-outline btn-sm" onclick="loadRegisteredCustomers()">↻ Refresh</button>
+          </div>
+          <div class="table-wrap"><table class="admin-table" id="registeredCustomersTable"></table></div>
         </div>
         <div class="panel"><div class="table-wrap"><table class="admin-table" id="customersTable"></table></div></div>
       </div>
@@ -2069,6 +2076,7 @@ function showSection(id, el) {
   if (id==='orders')        loadOrders().then(()=>loadOrdersTable());
   if (id==='products')      loadProductsGrid();
   if (id==='customers')     loadOrders().then(()=>loadCustomersTable());
+  if (id==='customers')     loadRegisteredCustomers();
   if (id==='discounts')     loadDiscountsTable();
   if (id==='content')       loadContentForms();
   if (id==='media')         loadMediaGrid();
@@ -3425,6 +3433,103 @@ function getCustomers() {
     if (!map[phone].name || map[phone].name==='Unknown') map[phone].name = o.customer||'Unknown';
   });
   return Object.values(map).sort((a,b)=>b.orders.length-a.orders.length);
+}
+
+let _registeredCustomers = [];
+
+function renderRegisteredCustomers() {
+  const table = document.getElementById('registeredCustomersTable');
+  if (!table) return;
+  const q = (document.getElementById('customerSearch')?.value || '').toLowerCase().trim();
+  let rows = _registeredCustomers.slice();
+  if (q) {
+    rows = rows.filter(c =>
+      (c.name || '').toLowerCase().includes(q) ||
+      (c.email || '').toLowerCase().includes(q) ||
+      (c.phone || '').includes(q)
+    );
+  }
+  const hdr = `<thead><tr><th>Account</th><th>Phone</th><th>Type</th><th>Orders</th><th>Status</th><th>Created</th><th>Actions</th></tr></thead>`;
+  const body = rows.map(c => {
+    const initials = (c.name || c.email || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    const type = c.googleId && c.hasPassword ? 'Google + Password' : c.googleId ? 'Google' : c.hasPassword ? 'Email' : 'Account';
+    const statusCls = c.isBlocked ? 'status-cancelled' : 'status-done';
+    const statusLbl = c.isBlocked ? 'Blocked' : 'Active';
+    const createdAt = c.createdAt ? new Date(c.createdAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'2-digit' }) : '—';
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="customer-avatar">${escHtml(initials)}</div>
+          <div style="min-width:0">
+            <div style="font-weight:700">${escHtml(c.name || 'Unnamed')}</div>
+            <div style="font-size:12px;color:var(--gray);word-break:break-word">${escHtml(c.email || '—')}</div>
+          </div>
+        </div>
+      </td>
+      <td style="font-size:12px">${escHtml(c.phone || '—')}</td>
+      <td style="font-size:12px;font-weight:600">${escHtml(type)}</td>
+      <td style="font-weight:700">${c.orderCount || 0}</td>
+      <td><span class="status-badge ${statusCls}">${statusLbl}</span></td>
+      <td style="font-size:12px">${createdAt}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn btn-outline btn-sm" onclick="resetRegisteredCustomerPassword('${c.id}')">Reset Password</button>
+          <button class="btn btn-sm ${c.isBlocked ? 'btn-success' : 'btn-danger'}" onclick="toggleRegisteredCustomerBlock('${c.id}', ${c.isBlocked ? 'false' : 'true'})">${c.isBlocked ? 'Unblock' : 'Block'}</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+  table.innerHTML = rows.length ? hdr + '<tbody>' + body + '</tbody>' : '<tr class="empty-row"><td colspan="7">No registered accounts found.</td></tr>';
+}
+
+async function loadRegisteredCustomers() {
+  const table = document.getElementById('registeredCustomersTable');
+  if (!table) return;
+  table.innerHTML = '<tr class="empty-row"><td colspan="7">Loading accounts...</td></tr>';
+  try {
+    const res = await authFetch('/api/admin/registered-customers');
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to load registered accounts');
+    _registeredCustomers = Array.isArray(data) ? data : [];
+    renderRegisteredCustomers();
+  } catch (e) {
+    table.innerHTML = '<tr class="empty-row"><td colspan="7">Failed to load registered accounts.</td></tr>';
+  }
+}
+
+async function resetRegisteredCustomerPassword(id) {
+  if (!confirm('Reset this customer password to 123456789?')) return;
+  try {
+    const res = await authFetch(`/api/admin/registered-customers/${encodeURIComponent(id)}/reset-password`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to reset password');
+    showToast(`Password reset to ${data.defaultPassword}`);
+    logActivity('Customer password reset', id);
+    loadRegisteredCustomers();
+  } catch (e) {
+    showToast(e?.message || 'Failed to reset password', 'error');
+  }
+}
+
+async function toggleRegisteredCustomerBlock(id, blocked) {
+  try {
+    const res = await authFetch(`/api/admin/registered-customers/${encodeURIComponent(id)}/block`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ blocked })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to update account status');
+    showToast(blocked ? 'Account blocked' : 'Account unblocked');
+    logActivity(blocked ? 'Customer account blocked' : 'Customer account unblocked', id);
+    loadRegisteredCustomers();
+  } catch (e) {
+    showToast(e?.message || 'Failed to update account status', 'error');
+  }
 }
 
 function loadCustomersTable() {

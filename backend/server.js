@@ -277,13 +277,16 @@ const adminLimiter = rateLimit({ windowMs: 60_000,       max: 120, keyGenerator:
 const authLimiter  = rateLimit({ windowMs: 15 * 60_000, max: 20,  keyGenerator: req => getClientIp(req), message: { error: 'Too many auth attempts.' } });
 
 /* ── Customer JWT middleware ── */
-function requireCustomerAuth(req, res, next) {
+async function requireCustomerAuth(req, res, next) {
   const header = req.headers['authorization'] || '';
   const token  = header.startsWith('Bearer ') ? header.slice(7) : null;
   if (!token) return res.status(401).json({ error: 'Not authenticated' });
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (!decoded.customerId) return res.status(401).json({ error: 'Invalid token' });
+    const [customer] = await prisma.$queryRaw`SELECT id, isBlocked FROM Customer WHERE id = ${decoded.customerId} LIMIT 1`;
+    if (!customer) return res.status(401).json({ error: 'Account not found' });
+    if (customer.isBlocked) return res.status(403).json({ error: 'blocked', message: 'Your account has been blocked. Contact us on WhatsApp.' });
     req.customerId = decoded.customerId;
     next();
   } catch {
@@ -1994,17 +1997,18 @@ app.post('/api/auth/google', authLimiter, async (req, res) => {
     if (!email) return res.status(400).json({ error: 'No email in token' });
 
     let isNew = false;
-    let [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, createdAt FROM Customer WHERE email = ${email} LIMIT 1`;
+    let [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, isBlocked, createdAt FROM Customer WHERE email = ${email} LIMIT 1`;
     if (!customer) {
       isNew = true;
       const id = 'cust-' + Date.now();
       await prisma.$executeRaw`INSERT INTO Customer (id, email, name, avatar, googleId) VALUES (${id}, ${email}, ${name || ''}, ${picture || null}, ${googleId || null})`;
-      [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, createdAt FROM Customer WHERE id = ${id} LIMIT 1`;
+      [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, googleId, phone, isBlocked, createdAt FROM Customer WHERE id = ${id} LIMIT 1`;
     } else if (!customer.googleId) {
       await prisma.$executeRaw`UPDATE Customer SET googleId = ${googleId}, avatar = ${picture || null} WHERE id = ${customer.id}`;
       customer.googleId = googleId;
       customer.avatar   = picture;
     }
+    if (customer.isBlocked) return res.status(403).json({ error: 'blocked', message: 'This account has been blocked.' });
 
     const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
     res.json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt }, isNew });
@@ -2025,7 +2029,8 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
   if (!isStrongPassword(password)) return res.status(400).json({ error: 'Password must be at least 8 characters with a letter and a number' });
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ error: 'Invalid email address' });
   try {
-    const [existing] = await prisma.$queryRaw`SELECT id FROM Customer WHERE email = ${email.toLowerCase()} LIMIT 1`;
+    const [existing] = await prisma.$queryRaw`SELECT id, isBlocked FROM Customer WHERE email = ${email.toLowerCase()} LIMIT 1`;
+    if (existing?.isBlocked) return res.status(403).json({ error: 'blocked', message: 'This account has been blocked.' });
     if (existing) return res.status(409).json({ error: 'An account with this email already exists' });
     const id   = 'cust-' + Date.now();
     const hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
@@ -2040,7 +2045,10 @@ app.post('/api/auth/register', authLimiter, async (req, res) => {
     const token = jwt.sign({ customerId: customer.id }, JWT_SECRET, { expiresIn: '30d' });
     res.status(201).json({ token, customer: { id: customer.id, name: customer.name, email: customer.email, avatar: customer.avatar, phone: customer.phone || null, createdAt: customer.createdAt }, isNew: true });
   } catch (err) {
-    console.error('Register error:', err.message);
+    if (err && (err.code === 'ER_DUP_ENTRY' || err.code === 'P2002')) {
+      return res.status(409).json({ error: 'An account with this email already exists' });
+    }
+    console.error('Register error:', err.code || '', err.message, err.sqlMessage || '');
     res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -2050,8 +2058,9 @@ app.post('/api/auth/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) return res.status(400).json({ error: 'Email and password are required' });
   try {
-    const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, passwordHash, createdAt FROM Customer WHERE email = ${email.toLowerCase()} LIMIT 1`;
+    const [customer] = await prisma.$queryRaw`SELECT id, name, email, avatar, phone, passwordHash, isBlocked, createdAt FROM Customer WHERE email = ${email.toLowerCase()} LIMIT 1`;
     if (!customer) return res.status(401).json({ error: 'No account found with this email' });
+    if (customer.isBlocked) return res.status(403).json({ error: 'blocked', message: 'This account has been blocked.' });
     if (!customer.passwordHash) return res.status(401).json({ error: 'This account uses Google Sign-In. Please sign in with Google.' });
     const valid = await bcrypt.compare(password, customer.passwordHash);
     if (!valid) return res.status(401).json({ error: 'Incorrect password' });
@@ -2549,10 +2558,61 @@ async function sendAdminPush(title, body) {
 /* GET /api/admin/registered-customers — list customers with accounts */
 app.get('/api/admin/registered-customers', requireAuth, async (req, res) => {
   try {
-    const rows = await prisma.$queryRawUnsafe('SELECT id, name, email, phone FROM `Customer` ORDER BY createdAt DESC LIMIT 500');
+    const rows = await prisma.$queryRawUnsafe(`
+      SELECT
+        c.id,
+        c.name,
+        c.email,
+        c.phone,
+        c.googleId,
+        c.isBlocked,
+        c.createdAt,
+        CASE WHEN c.passwordHash IS NULL OR c.passwordHash = '' THEN 0 ELSE 1 END AS hasPassword,
+        (
+          SELECT COUNT(*)
+          FROM \`Order\` o
+          WHERE o.customerId = c.id
+             OR (
+               c.phone IS NOT NULL AND c.phone <> ''
+               AND REPLACE(REPLACE(REPLACE(o.phone,' ',''),'-',''),'.','') = REPLACE(REPLACE(REPLACE(c.phone,' ',''),'-',''),'.','')
+             )
+        ) AS orderCount
+      FROM \`Customer\` c
+      ORDER BY c.createdAt DESC
+      LIMIT 500
+    `);
     res.json(rows);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch customers' });
+  }
+});
+
+app.post('/api/admin/registered-customers/:id/reset-password', requireAuth, async (req, res) => {
+  if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid customer ID' });
+  try {
+    const [customer] = await prisma.$queryRaw`SELECT id, email FROM Customer WHERE id = ${req.params.id} LIMIT 1`;
+    if (!customer) return res.status(404).json({ error: 'Customer not found' });
+    const defaultPassword = '123456789';
+    const hash = await bcrypt.hash(defaultPassword, BCRYPT_ROUNDS);
+    await prisma.$executeRaw`UPDATE Customer SET passwordHash = ${hash} WHERE id = ${req.params.id}`;
+    res.json({ success: true, defaultPassword, customer: { id: customer.id, email: customer.email } });
+  } catch (err) {
+    console.error('Admin reset customer password error:', err.message);
+    res.status(500).json({ error: 'Failed to reset password' });
+  }
+});
+
+app.patch('/api/admin/registered-customers/:id/block', requireAuth, async (req, res) => {
+  if (!isValidId(req.params.id)) return res.status(400).json({ error: 'Invalid customer ID' });
+  const blocked = Boolean(req.body.blocked);
+  try {
+    const [customer] = await prisma.$queryRaw`SELECT id FROM Customer WHERE id = ${req.params.id} LIMIT 1`;
+    if (!customer) return res.status(404).json({ error: 'Customer not found' });
+    await prisma.$executeRaw`UPDATE Customer SET isBlocked = ${blocked ? 1 : 0} WHERE id = ${req.params.id}`;
+    res.json({ success: true, blocked });
+  } catch (err) {
+    console.error('Admin block customer error:', err.message);
+    res.status(500).json({ error: 'Failed to update customer status' });
   }
 });
 
@@ -2667,6 +2727,7 @@ async function runMigrations() {
     "CREATE TABLE IF NOT EXISTS `Customer` (`id` VARCHAR(30) NOT NULL PRIMARY KEY, `email` VARCHAR(255) NOT NULL, `name` VARCHAR(255) NOT NULL DEFAULT '', `avatar` VARCHAR(500) NULL, `googleId` VARCHAR(255) NULL, `phone` VARCHAR(30) NULL, `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3))",
     "CREATE UNIQUE INDEX IF NOT EXISTS idx_customer_email ON `Customer` (email)",
     "ALTER TABLE `Customer` ADD COLUMN `passwordHash` VARCHAR(255) NULL",
+    "ALTER TABLE `Customer` ADD COLUMN `isBlocked` TINYINT(1) NOT NULL DEFAULT 0",
     "ALTER TABLE `Order` ADD COLUMN `trackingCode` VARCHAR(255) NULL",
     "ALTER TABLE `Order` ADD COLUMN `deliveryPhone` VARCHAR(30) NULL",
     "ALTER TABLE `Order` ADD COLUMN `customerId` VARCHAR(30) NULL",
