@@ -2695,7 +2695,7 @@ async function openOrderModal(id) {
         : `<div class="detail-item"><label>Product</label><span>${escHtml(order.product||'—')}</span></div>
            <div class="detail-item"><label>Size / Qty</label><span>${escHtml(order.size||'—')} / ${order.qty||1}</span></div>`
       }
-      <div class="detail-item"><label>Price</label><span style="color:var(--navy);font-size:16px">${order.price||'—'}</span></div>
+      <div class="detail-item"><label>Price (MAD)</label><input class="field-input" id="omPrice" type="number" min="0" step="0.01" value="${escHtml(String(order.total ?? order.price ?? ''))}" placeholder="179" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>City</label><input class="field-input" id="omCity" value="${escHtml(order.city||'')}" placeholder="City" style="margin:0" autocomplete="off"></div>
       <div class="detail-item"><label>Address</label><span>${order.address||'—'}</span></div>
       ${order.trackingCode
@@ -2768,12 +2768,16 @@ async function saveOrderModal(id) {
   if (idx>-1) {
     const currentOrder = orders[idx];
     const rawPhone = (document.getElementById('omPhone')?.value || '').trim();
+    const rawTotal = (document.getElementById('omPrice')?.value || '').trim();
+    const parsedTotal = parseFloat(rawTotal);
     const savedStatus = currentOrder.trackingCode
       ? currentOrder.status
       : document.getElementById('omStatus')?.value || currentOrder.status;
     const updates = {
       status: savedStatus,
       city: (document.getElementById('omCity')?.value || '').trim(),
+      total: Number.isFinite(parsedTotal) ? parsedTotal : (parseFloat(currentOrder.total || currentOrder.price || 0) || 0),
+      price: Number.isFinite(parsedTotal) ? String(parsedTotal) : (currentOrder.price || ''),
       phone: normPhone(rawPhone),
       trackingNumber: document.getElementById('omTracking').value,
       deliveryCompany: document.getElementById('omCompany').value,
@@ -2796,7 +2800,7 @@ async function saveOrderModal(id) {
       await authFetch(`/api/admin/orders/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...(currentOrder.trackingCode ? {} : { status: updates.status }), city: updates.city, phone: updates.phone })
+        body: JSON.stringify({ ...(currentOrder.trackingCode ? {} : { status: updates.status }), city: updates.city, phone: updates.phone, total: updates.total })
       });
     } catch(e) {}
     logActivity('Order updated', id);
