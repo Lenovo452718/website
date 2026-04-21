@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin.html
+Disallow: /account.html
+Disallow: /checkout.html
+Disallow: /signup.html
+Disallow: /thankyou.html
+
+Sitemap: https://streetstore.ma/sitemap.xml

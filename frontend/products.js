@@ -38,6 +38,24 @@ function apiProductToLocal(p) {
   };
 }
 
+function seoAbsoluteUrl(url) {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  if (url.charAt(0) !== '/') url = '/' + url;
+  return 'https://streetstore.ma' + url;
+}
+
+function seoSetMeta(selector, value, attrName) {
+  var el = document.querySelector(selector);
+  if (!el || !value) return;
+  el.setAttribute(attrName || 'content', value);
+}
+
+function seoShortText(text, fallback) {
+  var cleaned = (text || '').replace(/\s+/g, ' ').trim();
+  return cleaned || fallback || '';
+}
+
 /* ── Skeleton cards — shown while API loads ── */
 function _showSkeletons(gridId, count) {
   var grid = document.getElementById(gridId);
@@ -263,6 +281,34 @@ function renderShopGrid() {
   }).join('');
 
   grid.innerHTML = html || '<p style="padding:40px;text-align:center;color:#888">No products available.</p>';
+  try {
+    var items = Object.keys(PRODUCTS).map(function(key, index) {
+      var p = PRODUCTS[key];
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        url: seoAbsoluteUrl(p.href || ('product.html?slug=' + (p.slug || key))),
+        name: p.name || 'StreetStore Product'
+      };
+    });
+    var script = document.getElementById('shopCollectionStructuredData');
+    if (!script) {
+      script = document.createElement('script');
+      script.type = 'application/ld+json';
+      script.id = 'shopCollectionStructuredData';
+      document.head.appendChild(script);
+    }
+    script.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'StreetStore Jeans Collection',
+      url: 'https://streetstore.ma/shop.html',
+      mainEntity: {
+        '@type': 'ItemList',
+        itemListElement: items
+      }
+    });
+  } catch (e) {}
 
   if (typeof window._buildSizeCheckboxes === 'function') window._buildSizeCheckboxes();
   if (typeof window._buildColorSwatches === 'function') window._buildColorSwatches();
@@ -346,7 +392,7 @@ function initProductInfo() {
   var product = PRODUCTS[page];
   if (!product) return;
 
-  document.title = product.name + ' — StreetStore';
+  document.title = product.name + ' | StreetStore Morocco';
 
   var crumb = document.querySelector('.breadcrumb .current');
   if (crumb) crumb.textContent = product.name;
@@ -374,6 +420,43 @@ function initProductInfo() {
 
   var descEl = document.getElementById('productDescription');
   if (descEl) descEl.textContent = product.description || '';
+
+  var description = seoShortText(product.description, 'Shop premium women\'s denim from StreetStore with cash on delivery and fast shipping across Morocco.');
+  var canonicalUrl = 'https://streetstore.ma/product.html?slug=' + encodeURIComponent(product.slug || page);
+  var imageUrl = seoAbsoluteUrl(product.image || 'favicon.svg');
+  seoSetMeta('#metaDescription', description);
+  seoSetMeta('#canonicalLink', canonicalUrl, 'href');
+  seoSetMeta('#ogTitle', product.name + ' | StreetStore Morocco');
+  seoSetMeta('#ogDescription', description);
+  seoSetMeta('#ogUrl', canonicalUrl);
+  seoSetMeta('#ogImage', imageUrl);
+  seoSetMeta('#twitterTitle', product.name + ' | StreetStore Morocco');
+  seoSetMeta('#twitterDescription', description);
+  seoSetMeta('#twitterImage', imageUrl);
+
+  var productSchema = document.getElementById('productStructuredData');
+  if (productSchema) {
+    productSchema.textContent = JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.name,
+      description: description,
+      image: (product.gallery && product.gallery.length ? product.gallery : [product.image]).filter(Boolean).map(seoAbsoluteUrl),
+      sku: String(product.id || product.slug || page),
+      brand: {
+        '@type': 'Brand',
+        name: 'StreetStore'
+      },
+      offers: {
+        '@type': 'Offer',
+        url: canonicalUrl,
+        priceCurrency: 'MAD',
+        price: String(product.price || ''),
+        availability: product.inStock === false ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+        itemCondition: 'https://schema.org/NewCondition'
+      }
+    });
+  }
 
   // ── Dynamic color swatches ──
   var colors = parseProductColors(product.color);
