@@ -2483,14 +2483,16 @@ app.patch('/api/admin/business-costs', requireAuth, async (req, res) => {
 app.post('/api/admin/ad-spend', requireAuth, async (req, res) => {
   try {
     const date   = (req.body.date || '').trim();
-    const amount = parseFloat(req.body.amount) || 0;
+    const amount = parseFloat(req.body.amount);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date' });
+    if (!Number.isFinite(amount) || amount < 0) return res.status(400).json({ error: 'Invalid amount' });
     await prisma.$queryRawUnsafe(
       'INSERT INTO `AdSpend` (date, amount) VALUES (?, ?) ON DUPLICATE KEY UPDATE amount = ?',
       date, amount, amount
     );
     res.json({ ok: true });
   } catch (err) {
+    console.error('[ad-spend POST]', err);
     res.status(500).json({ error: 'Failed to save ad spend' });
   }
 });

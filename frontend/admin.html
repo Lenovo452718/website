@@ -5349,14 +5349,24 @@ async function saveAdSpend() {
   const days      = Math.max(1, parseInt(document.getElementById('adDays').value) || 1);
   const amount    = parseFloat(document.getElementById('adAmount').value) || 0;
   if (!startDate) { showToast('Select a date', 'error'); return; }
+  if (!(amount >= 0)) { showToast('Enter a valid amount', 'error'); return; }
   const d = new Date(startDate);
-  for (let i = 0; i < days; i++) {
-    const date = new Date(d.getTime() + i * 86400000).toISOString().slice(0,10);
-    await authFetch('/api/admin/ad-spend', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ date, amount }),
-    });
+  try {
+    for (let i = 0; i < days; i++) {
+      const date = new Date(d.getTime() + i * 86400000).toISOString().slice(0,10);
+      const res = await authFetch('/api/admin/ad-spend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date, amount }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.error || ('Failed to save ad spend for ' + date));
+      }
+    }
+  } catch (e) {
+    showToast(e.message || 'Failed to save ad spend', 'error');
+    return;
   }
   showToast(days > 1 ? days + ' days saved' : 'Ad spend saved');
   document.getElementById('adAmount').value = '';
