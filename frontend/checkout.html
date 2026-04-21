@@ -385,6 +385,138 @@
     }
     .co-back-link:hover { color: var(--charcoal); }
 
+    .co-exit-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(17, 17, 17, 0.56);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 1400;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .co-exit-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .co-exit-modal {
+      width: min(100%, 520px);
+      background: var(--white);
+      border: 1px solid var(--gray-light);
+      box-shadow: 0 24px 70px rgba(0,0,0,0.16);
+      transform: translateY(18px);
+      transition: transform 0.22s ease;
+    }
+    .co-exit-overlay.show .co-exit-modal { transform: translateY(0); }
+    .co-exit-body {
+      position: relative;
+      padding: 28px;
+    }
+    .co-exit-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--gray-light);
+      background: var(--white);
+      color: var(--charcoal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .co-exit-close:hover {
+      background: #f6f6f6;
+      border-color: #cfcfcf;
+    }
+    .co-exit-kicker {
+      display: inline-block;
+      margin-bottom: 14px;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #777;
+    }
+    .co-exit-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px;
+      line-height: 1;
+      letter-spacing: 0.06em;
+      color: var(--charcoal);
+      margin: 0 44px 12px 0;
+    }
+    .co-exit-copy {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #555;
+      margin: 0 0 20px;
+    }
+    .co-exit-points {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+    .co-exit-point {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--charcoal);
+    }
+    .co-exit-point svg {
+      flex-shrink: 0;
+      color: var(--charcoal);
+    }
+    .co-exit-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .co-exit-btn {
+      min-height: 48px;
+      border: 1px solid var(--charcoal);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+    }
+    .co-exit-btn-primary {
+      background: var(--charcoal);
+      color: var(--white);
+    }
+    .co-exit-btn-primary:hover {
+      background: #000;
+      border-color: #000;
+    }
+    .co-exit-btn-secondary {
+      background: var(--white);
+      color: var(--charcoal);
+    }
+    .co-exit-btn-secondary:hover {
+      background: #f6f6f6;
+    }
+    .co-exit-note {
+      font-size: 11px;
+      color: #888;
+      margin: 0;
+      line-height: 1.6;
+    }
+
     /* ── Summary column enhancements ── */
     .co-summary-sticky { position: sticky; top: 24px; }
 
@@ -426,10 +558,16 @@
       .co-section-body { padding: 20px; }
       .co-section-head { padding: 16px 20px; }
       .checkout-form-col, .checkout-summary-col { padding: 20px 16px; }
+      .co-exit-actions { grid-template-columns: 1fr; }
+      .co-exit-body { padding: 24px 20px 20px; }
+      .co-exit-title { font-size: 30px; margin-right: 36px; }
     }
     @media (max-width: 480px) {
       .checkout-header { padding: 0 16px; }
       .co-trust { grid-template-columns: 1fr; }
+      .co-exit-overlay { padding: 14px; }
+      .co-exit-title { font-size: 28px; }
+      .co-exit-copy { font-size: 13px; }
     }
 
     /* hidden last-name for JS compat */
@@ -694,6 +832,46 @@
 
 </div><!-- /body -->
 
+<div class="co-exit-overlay" id="checkoutExitPopup" aria-hidden="true">
+  <div class="co-exit-modal" role="dialog" aria-modal="true" aria-labelledby="checkoutExitTitle">
+    <div class="co-exit-body">
+      <button type="button" class="co-exit-close" id="checkoutExitClose" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+          <path d="M6 6l12 12M18 6L6 18"/>
+        </svg>
+      </button>
+      <span class="co-exit-kicker">Almost done</span>
+      <h2 class="co-exit-title" id="checkoutExitTitle">Complete your order in less than a minute.</h2>
+      <p class="co-exit-copy">You can pay on delivery, we confirm by phone, and our team can help right away if you want to change size, color, or address before shipping.</p>
+      <div class="co-exit-points">
+        <div class="co-exit-point">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          <span>Cash on delivery, no card needed.</span>
+        </div>
+        <div class="co-exit-point">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          <span>You can still update the order after we call you.</span>
+        </div>
+        <div class="co-exit-point">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+          <span>Need help now? Chat with us on WhatsApp.</span>
+        </div>
+      </div>
+      <div class="co-exit-actions">
+        <button type="button" class="co-exit-btn co-exit-btn-primary" id="checkoutExitStayBtn">Finish My Order</button>
+        <a href="https://wa.me/212771152186" target="_blank" rel="noopener" class="co-exit-btn co-exit-btn-secondary" id="checkoutExitWhatsApp">WhatsApp Help</a>
+      </div>
+      <p class="co-exit-note">We only show this once, just in case you were about to leave before sending your order.</p>
+    </div>
+  </div>
+</div>
+
 <!-- Hidden elements script.js may reference -->
 <div style="display:none;">
   <div id="step1-indicator" class="progress-step active"></div>
@@ -796,6 +974,125 @@ function renderCheckoutTotals() {
     }
   }
 }
+document.addEventListener('DOMContentLoaded', function() {
+  var exitPopup = document.getElementById('checkoutExitPopup');
+  var closeBtn = document.getElementById('checkoutExitClose');
+  var stayBtn = document.getElementById('checkoutExitStayBtn');
+  var waBtn = document.getElementById('checkoutExitWhatsApp');
+  var placeBtn = document.getElementById('placeOrderBtn');
+  var hasShownExitPopup = false;
+  var exitPopupLocked = false;
+  var mobileTrapArmed = false;
+  var mobileTrapKey = '__checkout_exit_guard__';
+  var mobileMedia = window.matchMedia ? window.matchMedia('(max-width: 768px)') : { matches: false };
+
+  function getWhatsAppNumber() {
+    var configured = '';
+    if (window.adminSettings && window.adminSettings.waNumber) configured = String(window.adminSettings.waNumber);
+    configured = configured.replace(/[^\d]/g, '');
+    return configured || '212771152186';
+  }
+
+  function updateWhatsAppLink() {
+    if (!waBtn) return;
+    var nameField = document.getElementById('info-first');
+    var cityField = document.getElementById('info-city');
+    var name = (nameField && nameField.value || '').trim();
+    var city = (cityField && cityField.value || '').trim();
+    var text = 'Hi StreetStore, I am on checkout and I need help finishing my order';
+    if (name) text += '. Name: ' + name;
+    if (city) text += '. City: ' + city;
+    waBtn.href = 'https://wa.me/' + getWhatsAppNumber() + '?text=' + encodeURIComponent(text);
+  }
+
+  function hasMeaningfulCheckoutProgress() {
+    var cartCount = 0;
+    try {
+      cartCount = Array.isArray(getCart()) ? getCart().length : 0;
+    } catch (_) {}
+    if (cartCount < 1) return false;
+    var nameField = document.getElementById('info-first');
+    var phoneField = document.getElementById('info-phone');
+    var cityField = document.getElementById('info-city');
+    var addressField = document.getElementById('info-address');
+    var name = (nameField && nameField.value || '').trim();
+    var phone = (phoneField && phoneField.value || '').replace(/\D/g, '');
+    var city = (cityField && cityField.value || '').trim();
+    var address = (addressField && addressField.value || '').trim();
+    return Boolean(name || phone.length >= 6 || city || address);
+  }
+
+  function showExitPopup() {
+    if (!exitPopup || hasShownExitPopup || exitPopupLocked) return;
+    if (placeBtn && placeBtn.disabled) return;
+    if (!hasMeaningfulCheckoutProgress()) return;
+    hasShownExitPopup = true;
+    updateWhatsAppLink();
+    exitPopup.classList.add('show');
+    exitPopup.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideExitPopup() {
+    if (!exitPopup) return;
+    exitPopup.classList.remove('show');
+    exitPopup.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  function armMobileBackTrap() {
+    if (mobileTrapArmed || !mobileMedia.matches) return;
+    history.pushState({ [mobileTrapKey]: true }, '', window.location.href);
+    mobileTrapArmed = true;
+  }
+
+  document.addEventListener('mouseleave', function(event) {
+    if (mobileMedia.matches) return;
+    if (event.clientY > 8) return;
+    showExitPopup();
+  });
+
+  window.addEventListener('popstate', function(event) {
+    if (!mobileMedia.matches || hasShownExitPopup || exitPopupLocked) return;
+    if (!hasMeaningfulCheckoutProgress()) return;
+    showExitPopup();
+    if (!event.state || !event.state[mobileTrapKey]) {
+      history.pushState({ [mobileTrapKey]: true }, '', window.location.href);
+    }
+  });
+
+  ['input', 'focus'].forEach(function(evtName) {
+    document.addEventListener(evtName, function(event) {
+      if (!event.target || !event.target.closest('.checkout-body')) return;
+      armMobileBackTrap();
+    }, true);
+  });
+
+  if (placeBtn) {
+    placeBtn.addEventListener('click', function() {
+      exitPopupLocked = true;
+      hideExitPopup();
+    });
+  }
+  if (closeBtn) closeBtn.addEventListener('click', hideExitPopup);
+  if (stayBtn) {
+    stayBtn.addEventListener('click', function() {
+      hideExitPopup();
+      var firstEmpty = document.querySelector('#step1 input:not([type="hidden"]):placeholder-shown');
+      if (firstEmpty) firstEmpty.focus();
+      else if (placeBtn) placeBtn.focus();
+    });
+  }
+  if (waBtn) waBtn.addEventListener('click', updateWhatsAppLink);
+  if (exitPopup) {
+    exitPopup.addEventListener('click', function(event) {
+      if (event.target === exitPopup) hideExitPopup();
+    });
+  }
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape' && exitPopup && exitPopup.classList.contains('show')) hideExitPopup();
+  });
+});
 </script>
 </body>
 </html>
