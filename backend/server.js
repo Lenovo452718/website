@@ -2558,31 +2558,46 @@ async function sendAdminPush(title, body) {
 /* GET /api/admin/registered-customers — list customers with accounts */
 app.get('/api/admin/registered-customers', requireAuth, async (req, res) => {
   try {
-    const rows = await prisma.$queryRawUnsafe(`
-      SELECT
-        c.id,
-        c.name,
-        c.email,
-        c.phone,
-        c.googleId,
-        c.isBlocked,
-        c.createdAt,
-        CASE WHEN c.passwordHash IS NULL OR c.passwordHash = '' THEN 0 ELSE 1 END AS hasPassword,
-        (
-          SELECT COUNT(*)
-          FROM \`Order\` o
-          WHERE o.customerId = c.id
-             OR (
-               c.phone IS NOT NULL AND c.phone <> ''
-               AND REPLACE(REPLACE(REPLACE(o.phone,' ',''),'-',''),'.','') = REPLACE(REPLACE(REPLACE(c.phone,' ',''),'-',''),'.','')
-             )
-        ) AS orderCount
-      FROM \`Customer\` c
-      ORDER BY c.createdAt DESC
+    const rows = await prisma.$queryRaw`
+      SELECT id, name, email, phone, googleId, isBlocked, createdAt, passwordHash
+      FROM Customer
+      ORDER BY createdAt DESC
       LIMIT 500
-    `);
-    res.json(rows);
+    `;
+    const customers = await Promise.all(rows.map(async row => {
+      const phoneNorm = normalizePhone(row.phone || '');
+      let orderCount = 0;
+      try {
+        if (phoneNorm) {
+          const countRows = await prisma.$queryRawUnsafe(
+            "SELECT COUNT(*) AS count FROM `Order` WHERE customerId = ? OR REPLACE(REPLACE(REPLACE(phone,' ',''),'-',''),'.','') = ?",
+            row.id,
+            phoneNorm
+          );
+          orderCount = Number(countRows?.[0]?.count || 0);
+        } else {
+          const countRows = await prisma.$queryRawUnsafe(
+            "SELECT COUNT(*) AS count FROM `Order` WHERE customerId = ?",
+            row.id
+          );
+          orderCount = Number(countRows?.[0]?.count || 0);
+        }
+      } catch (_) {}
+      return {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        phone: row.phone,
+        googleId: row.googleId,
+        isBlocked: Boolean(row.isBlocked),
+        createdAt: row.createdAt,
+        hasPassword: Boolean(row.passwordHash),
+        orderCount,
+      };
+    }));
+    res.json(customers);
   } catch (err) {
+    console.error('Registered customers error:', err.message);
     res.status(500).json({ error: 'Failed to fetch customers' });
   }
 });
