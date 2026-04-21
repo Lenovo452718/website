@@ -476,7 +476,7 @@
     }
     .co-exit-actions {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
       margin-bottom: 14px;
     }
@@ -866,6 +866,7 @@
       </div>
       <div class="co-exit-actions">
         <button type="button" class="co-exit-btn co-exit-btn-primary" id="checkoutExitStayBtn">Finish My Order</button>
+        <button type="button" class="co-exit-btn co-exit-btn-secondary" id="checkoutExitLeaveBtn">Leave Checkout</button>
         <a href="https://wa.me/212771152186" target="_blank" rel="noopener" class="co-exit-btn co-exit-btn-secondary" id="checkoutExitWhatsApp">WhatsApp Help</a>
       </div>
       <p class="co-exit-note">We only show this once, just in case you were about to leave before sending your order.</p>
@@ -979,8 +980,11 @@ document.addEventListener('DOMContentLoaded', function() {
   var exitPopup = document.getElementById('checkoutExitPopup');
   var closeBtn = document.getElementById('checkoutExitClose');
   var stayBtn = document.getElementById('checkoutExitStayBtn');
+  var leaveBtn = document.getElementById('checkoutExitLeaveBtn');
   var waBtn = document.getElementById('checkoutExitWhatsApp');
   var placeBtn = document.getElementById('placeOrderBtn');
+  var backLink = document.querySelector('.co-back-link');
+  var pendingNavigationUrl = '';
   var hasShownExitPopup = false;
   var exitPopupLocked = false;
   var mobileTrapArmed = false;
@@ -1041,6 +1045,11 @@ document.addEventListener('DOMContentLoaded', function() {
     document.body.style.overflow = '';
   }
 
+  function showExitPopupForNavigation(url) {
+    pendingNavigationUrl = url || '';
+    showExitPopup();
+  }
+
   function armMobileBackTrap() {
     if (mobileTrapArmed || !mobileMedia.matches) return;
     history.pushState({ [mobileTrapKey]: true }, '', window.location.href);
@@ -1051,6 +1060,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (mobileMedia.matches) return;
     if (event.clientY > 8) return;
     showExitPopup();
+  });
+
+  document.addEventListener('click', function(event) {
+    var link = event.target && event.target.closest && event.target.closest('a[href]');
+    if (!link) return;
+    if (link.id === 'checkoutExitWhatsApp') return;
+    if (exitPopup && exitPopup.contains(link)) return;
+    if (link.target === '_blank') return;
+    var href = link.getAttribute('href') || '';
+    if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
+    if (!hasMeaningfulCheckoutProgress() || exitPopupLocked) return;
+    event.preventDefault();
+    showExitPopupForNavigation(link.href);
+  }, true);
+
+  window.addEventListener('beforeunload', function(event) {
+    if (exitPopupLocked) return;
+    if (!hasMeaningfulCheckoutProgress()) return;
+    event.preventDefault();
+    event.returnValue = '';
   });
 
   window.addEventListener('popstate', function(event) {
@@ -1078,20 +1107,52 @@ document.addEventListener('DOMContentLoaded', function() {
   if (closeBtn) closeBtn.addEventListener('click', hideExitPopup);
   if (stayBtn) {
     stayBtn.addEventListener('click', function() {
+      pendingNavigationUrl = '';
       hideExitPopup();
       var firstEmpty = document.querySelector('#step1 input:not([type="hidden"]):placeholder-shown');
       if (firstEmpty) firstEmpty.focus();
       else if (placeBtn) placeBtn.focus();
     });
   }
+  if (leaveBtn) {
+    leaveBtn.addEventListener('click', function() {
+      var targetUrl = pendingNavigationUrl || 'index.html?opencart=1';
+      exitPopupLocked = true;
+      window.location.href = targetUrl;
+    });
+  }
   if (waBtn) waBtn.addEventListener('click', updateWhatsAppLink);
+  if (backLink) {
+    backLink.addEventListener('click', function(event) {
+      if (!hasMeaningfulCheckoutProgress() || exitPopupLocked) return;
+      event.preventDefault();
+      showExitPopupForNavigation(backLink.href);
+    });
+  }
   if (exitPopup) {
     exitPopup.addEventListener('click', function(event) {
       if (event.target === exitPopup) hideExitPopup();
     });
   }
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function() {
+      pendingNavigationUrl = '';
+    });
+  }
+  if (waBtn) {
+    waBtn.addEventListener('click', function() {
+      pendingNavigationUrl = '';
+    });
+  }
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape' && exitPopup && exitPopup.classList.contains('show')) hideExitPopup();
+  });
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter' && pendingNavigationUrl && exitPopup && exitPopup.classList.contains('show')) {
+      event.preventDefault();
+      exitPopupLocked = true;
+      window.location.href = pendingNavigationUrl;
+    }
   });
 });
 </script>
