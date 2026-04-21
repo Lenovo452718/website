@@ -307,6 +307,16 @@
 // Hero video intro
 (function() {
   var apiBase = window.SS_API_URL || window.STREETSTORE_BACKEND || 'https://streetstore.ma';
+  var localHeroVideo = 'videos/hero-intro.mp4';
+
+  function playHeroVideo(video, src) {
+    video.src = src;
+    video.style.display = '';
+    video.play().catch(function() {
+      document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
+    });
+  }
+
   fetch(apiBase + '/api/settings')
     .then(function(r) { return r.json(); })
     .then(function(s) {
@@ -316,12 +326,13 @@
         return;
       }
       var video = document.querySelector('.hero-video');
-      video.src = s.heroVideoUrl;
-      video.style.display = '';
-      video.play().catch(function() {
-        // Autoplay blocked — show content immediately
-        document.querySelectorAll('.hero-reveal').forEach(function(el) { el.classList.add('visible'); });
-      });
+      fetch(localHeroVideo, { method: 'HEAD' })
+        .then(function(resp) {
+          playHeroVideo(video, resp.ok ? localHeroVideo : s.heroVideoUrl);
+        })
+        .catch(function() {
+          playHeroVideo(video, s.heroVideoUrl);
+        });
       video.addEventListener('ended', function() {
         video.classList.add('hero-video-ended');
         var endScreen = document.querySelector('.hero-end-screen');
