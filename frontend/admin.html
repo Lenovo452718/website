@@ -104,6 +104,8 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
 .chart-card{background:var(--white);border:1px solid var(--gray-light);border-radius:8px;overflow:hidden}
 .chart-body{padding:16px 20px 20px;height:220px;position:relative}
 .chart-body canvas{width:100%!important;height:100%!important}
+.rev-chart-wrap{position:relative;height:320px;min-height:320px;max-height:320px}
+.rev-chart-wrap canvas{width:100%!important;height:100%!important}
 
 /* DASHBOARD BOTTOM */
 .dash-bottom{display:grid;grid-template-columns:1fr 2fr;gap:20px;margin-bottom:24px}
@@ -136,6 +138,7 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--off);color:var(--
   #olivraisonBar>div{margin-left:0!important;justify-content:stretch}
   #olivraisonBar .btn{width:100%;justify-content:center}
   .mobile-oliv-btn{display:flex}
+  .rev-chart-wrap{height:260px;min-height:260px;max-height:260px}
 }
 
 /* TABLES */
@@ -1190,7 +1193,7 @@ select.pm-input{cursor:pointer}
       <!-- Revenue chart -->
       <div class="panel" style="padding:20px;margin-bottom:16px">
         <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gray);margin-bottom:14px">Gross Revenue vs Net Profit Over Time</div>
-        <canvas id="revRevenueChart" height="80"></canvas>
+        <div class="rev-chart-wrap"><canvas id="revRevenueChart"></canvas></div>
       </div>
       <!-- Bottom row -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
