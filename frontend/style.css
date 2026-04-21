@@ -2830,13 +2830,13 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
   /* ── Mobile Hero ── */
   .hero {
-    height: 100svh;
-    min-height: 100svh;
+    height: auto;
+    min-height: 0;
     flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-end;
+    align-items: flex-start;
+    justify-content: flex-start;
     padding-top: 110px;
-    padding-bottom: 20px;
+    padding-bottom: 0;
     margin-bottom: -2px;
   }
   .hero-bg-word { display: none; }
@@ -6478,13 +6478,13 @@ h1, h2, h3, h4, h5, h6 { line-height: 1.1; font-weight: 600; }
 
   /* ── Mobile Hero ── */
   .hero {
-    height: 100svh;
-    min-height: 100svh;
+    height: auto;
+    min-height: 0;
     flex-direction: column;
-    align-items: stretch;
-    justify-content: flex-end;
+    align-items: flex-start;
+    justify-content: flex-start;
     padding-top: 110px;
-    padding-bottom: 20px;
+    padding-bottom: 0;
     margin-bottom: -2px;
   }
   .hero-bg-word { display: none; }
