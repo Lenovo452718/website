@@ -1743,7 +1743,12 @@ async function loadOrders() {
     const res = await authFetch('/api/admin/orders?limit=500');
     if (res.ok) {
       const orders = await res.json();
-      saveOrdersArr(orders);
+      const cachedOrders = getOrders();
+      const mergedOrders = orders.map(order => {
+        const cached = cachedOrders.find(o => o.id === order.id || String(o.id) === String(order.id));
+        return cached?._olivStatus ? { ...order, _olivStatus: cached._olivStatus } : order;
+      });
+      saveOrdersArr(mergedOrders);
     }
   } catch(e) {}
   return true;
@@ -2334,12 +2339,30 @@ async function sendToOlivraison() {
       ${failCount ? `&nbsp;·&nbsp;<span style="color:var(--red);font-weight:700">${failCount} failed</span>` : ''}
     </div>` + html;
 
+    const cachedOrders = getOrders();
+    let localOrdersChanged = false;
+    results.forEach(r => {
+      if (!r.trackingCode) return;
+      const idx = cachedOrders.findIndex(o => o.id === r.orderId || String(o.id) === String(r.orderId));
+      if (idx < 0) return;
+      cachedOrders[idx] = {
+        ...cachedOrders[idx],
+        trackingCode: r.trackingCode,
+        status: 'processing',
+        updatedAt: new Date().toISOString()
+      };
+      localOrdersChanged = true;
+    });
+    if (localOrdersChanged) saveOrdersArr(cachedOrders);
+
     body.innerHTML = html;
 
     // Refresh table so updated statuses show
     clearOrderSelection();
     await loadOrders();
     loadOrdersTable();
+    const trackedIds = results.filter(r => r.trackingCode).map(r => r.orderId);
+    if (trackedIds.length) autoFetchOlivraisonStatuses(trackedIds);
     loadDashboard();
   } catch (e) {
     body.innerHTML = `<div style="color:var(--red);padding:8px">Network error: ${escHtml(e.message)}</div>`;
@@ -2602,7 +2625,7 @@ function orderTableRows(orders, compact) {
     const rowClass = `order-row-${status}`;
     const statusColors = { confirmed:'#27ae60', cancelled:'#e74c3c', reported:'#e67e22', called:'#2980b9', processing:'#2980b9', pending:'#f0ad4e', done:'#27ae60', new:'#aaa' };
     const statusEmoji  = { confirmed:'✅', cancelled:'❌', reported:'⚠️', called:'📞', processing:'⚙️', pending:'⏳', done:'🏁', new:'🆕' };
-    const olivInfo = o.trackingCode ? (OLIV_STATUS[o._olivStatus] || null) : null;
+    const olivInfo = o.trackingCode ? (OLIV_STATUS[o._olivStatus] || { label: 'Sent to Olivraison', color: '#2980b9' }) : null;
     const st = o.trackingCode
       ? `<div class="status-pill-wrap"><div class="status-pill" style="background:#e8f4fd;color:${olivInfo ? olivInfo.color : '#999'};cursor:default" title="Managed by Olivraison"><span class="status-pill-dot" style="background:${olivInfo ? olivInfo.color : '#ccc'}"></span><span>${olivInfo ? olivInfo.label : '…'}</span></div></div>`
       : makeStatusPill(o.id, status);
