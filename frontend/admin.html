@@ -2358,7 +2358,7 @@ function loadOrdersTable() {
   document.getElementById('ordersTable').innerHTML =
     orderTableRows(orders,false) || '<tr class="empty-row"><td colspan="9">No orders found.</td></tr>';
   renderOrderCards(orders);
-  updateMobileFab();
+  updateMobileOlivButton();
   // Background-fetch live Olivraison status for all tracked orders
   const allOrders = getOrders();
   const tracked = allOrders.filter(o => o.trackingCode);
@@ -2388,7 +2388,7 @@ function renderOrderCards(orders) {
         </div>
         <div class="order-card-right">
           <div class="order-card-total">${total}</div>
-          ${isConfirmed ? `<input type="checkbox" ${selected?'checked':''} onchange="toggleOrderSelect('${o.id}',this);updateMobileFab()" title="Select for Olivraison">` : ''}
+          ${isConfirmed ? `<input type="checkbox" ${selected?'checked':''} onchange="toggleOrderSelect('${o.id}',this);updateMobileOlivButton()" title="Select for Olivraison">` : ''}
         </div>
       </div>
       <div class="order-card-items">${itemsList}</div>
