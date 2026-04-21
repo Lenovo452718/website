@@ -1514,18 +1514,17 @@ async function autoSendToOlivraison(order) {
     const size = i.size ? (many ? ' ' + i.size : ' (' + i.size + ')') : '';
     return `${name}${size} x${i.qty || 1}`;
   }).join(', ');
+  const destinationInfo = getOlivraisonDestination(order);
+  if (!destinationInfo.ok) {
+    throw new Error(`Order destination is incomplete for Olivraison. ${destinationInfo.error}`);
+  }
   const payload = {
     price:       String(order.total || 0),
     comment:     order.notes        || '',
     description: olivDesc,
     inventory:   true,
     name:        order.customer     || 'Unknown',
-    destination: {
-      name:          order.customer || 'Unknown',
-      phone:         order.phone    || '',
-      city:          order.city     || '',
-      streetAddress: order.address  || '',
-    },
+    destination: destinationInfo.destination,
   };
 
   console.log('[Olivraison auto-send payload]', JSON.stringify(payload));
@@ -1779,6 +1778,46 @@ function loadCities() {
   return null;
 }
 
+function normalizeCityKey(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function getOlivraisonDestination(order) {
+  const knownCities = loadCities();
+  const customer = sanitize(order?.customer || 'Unknown', 120) || 'Unknown';
+  const phone = normalizePhone(sanitize(String(order?.phone || ''), 30)).replace(/^\+212/, '0');
+  const rawCity = sanitize(String(order?.city || ''), 80).trim();
+  const rawAddress = sanitize(String(order?.address || ''), 220).trim();
+  const cityKey = normalizeCityKey(rawCity);
+
+  let city = rawCity;
+  if (Array.isArray(knownCities) && knownCities.length && cityKey) {
+    const matched = knownCities.find(c => normalizeCityKey(c) === cityKey);
+    if (matched) city = String(matched).trim();
+  }
+
+  const errors = [];
+  if (!phone || phone.replace(/\D/g, '').length < 10) errors.push('Phone number is missing or too short.');
+  if (!city || cityKey.length < 2) errors.push('City is missing.');
+  if (!rawAddress || rawAddress.length < 5) errors.push('Address is too short. Add a full street address before sending.');
+
+  return {
+    ok: errors.length === 0,
+    error: errors.join(' '),
+    destination: {
+      name: customer,
+      phone,
+      city,
+      streetAddress: rawAddress,
+    },
+  };
+}
+
 /* Public — used by cities.js on every page */
 app.get('/api/cities', (req, res) => {
   const saved = loadCities();
@@ -1875,18 +1914,18 @@ app.post('/api/admin/olivraison/send', adminLimiter, requireAuth, async (req, re
       return `${name}${size} x${i.qty || 1}`;
     }).join(', ');
     const description = descriptions[id] || autoDesc;
+    const destinationInfo = getOlivraisonDestination(order);
+    if (!destinationInfo.ok) {
+      results.push({ orderId: id, customer: order.customer, success: false, error: destinationInfo.error });
+      continue;
+    }
     const payload = {
       price:       String(order.total || 0),
       comment:     order.notes        || '',
       description,
       inventory:   true,
       name:        order.customer     || 'Unknown',
-      destination: {
-        name:          order.customer || 'Unknown',
-        phone:         order.phone    || '',
-        city:          order.city     || '',
-        streetAddress: order.address  || '',
-      },
+      destination: destinationInfo.destination,
     };
 
     try {
