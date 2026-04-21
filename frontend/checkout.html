@@ -410,6 +410,8 @@
       box-shadow: 0 24px 70px rgba(0,0,0,0.16);
       transform: translateY(18px);
       transition: transform 0.22s ease;
+      max-height: min(88vh, 720px);
+      overflow: auto;
     }
     .co-exit-overlay.show .co-exit-modal { transform: translateY(0); }
     .co-exit-body {
@@ -560,15 +562,22 @@
       .co-section-head { padding: 16px 20px; }
       .checkout-form-col, .checkout-summary-col { padding: 20px 16px; }
       .co-exit-actions { grid-template-columns: 1fr; }
-      .co-exit-body { padding: 24px 20px 20px; }
-      .co-exit-title { font-size: 30px; margin-right: 36px; }
+      .co-exit-body { padding: 22px 18px 18px; }
+      .co-exit-title { font-size: 28px; margin-right: 28px; }
+      .co-exit-copy { font-size: 13px; line-height: 1.6; }
+      .co-exit-point { align-items: flex-start; font-size: 12px; }
+      .co-exit-btn { min-height: 46px; font-size: 10px; padding: 0 14px; }
     }
     @media (max-width: 480px) {
       .checkout-header { padding: 0 16px; }
       .co-trust { grid-template-columns: 1fr; }
       .co-exit-overlay { padding: 14px; }
-      .co-exit-title { font-size: 28px; }
-      .co-exit-copy { font-size: 13px; }
+      .co-exit-modal { width: 100%; border-radius: 0; }
+      .co-exit-title { font-size: 24px; margin-right: 24px; }
+      .co-exit-copy { font-size: 12px; }
+      .co-exit-kicker { margin-bottom: 10px; }
+      .co-exit-points { gap: 8px; margin-bottom: 16px; }
+      .co-exit-note { font-size: 10px; }
     }
 
     /* hidden last-name for JS compat */
@@ -983,12 +992,14 @@ document.addEventListener('DOMContentLoaded', function() {
   var leaveBtn = document.getElementById('checkoutExitLeaveBtn');
   var waBtn = document.getElementById('checkoutExitWhatsApp');
   var placeBtn = document.getElementById('placeOrderBtn');
+  var logoLink = document.querySelector('.checkout-logo');
   var backLink = document.querySelector('.co-back-link');
   var pendingNavigationUrl = '';
   var hasShownExitPopup = false;
   var exitPopupLocked = false;
   var mobileTrapArmed = false;
   var mobileTrapKey = '__checkout_exit_guard__';
+  var exitIntentArmedAt = Date.now();
   var mobileMedia = window.matchMedia ? window.matchMedia('(max-width: 768px)') : { matches: false };
 
   function getWhatsAppNumber() {
@@ -1058,22 +1069,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   document.addEventListener('mouseleave', function(event) {
     if (mobileMedia.matches) return;
-    if (event.clientY > 8) return;
+    if ((Date.now() - exitIntentArmedAt) < 1200) return;
+    if (event.clientY > 0) return;
+    if (event.relatedTarget) return;
     showExitPopup();
   });
-
-  document.addEventListener('click', function(event) {
-    var link = event.target && event.target.closest && event.target.closest('a[href]');
-    if (!link) return;
-    if (link.id === 'checkoutExitWhatsApp') return;
-    if (exitPopup && exitPopup.contains(link)) return;
-    if (link.target === '_blank') return;
-    var href = link.getAttribute('href') || '';
-    if (!href || href === '#' || href.indexOf('javascript:') === 0) return;
-    if (!hasMeaningfulCheckoutProgress() || exitPopupLocked) return;
-    event.preventDefault();
-    showExitPopupForNavigation(link.href);
-  }, true);
 
   window.addEventListener('beforeunload', function(event) {
     if (exitPopupLocked) return;
@@ -1122,6 +1122,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   if (waBtn) waBtn.addEventListener('click', updateWhatsAppLink);
+  if (logoLink) {
+    logoLink.addEventListener('click', function(event) {
+      if (!hasMeaningfulCheckoutProgress() || exitPopupLocked) return;
+      event.preventDefault();
+      showExitPopupForNavigation(logoLink.href);
+    });
+  }
   if (backLink) {
     backLink.addEventListener('click', function(event) {
       if (!hasMeaningfulCheckoutProgress() || exitPopupLocked) return;
